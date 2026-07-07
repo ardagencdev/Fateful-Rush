@@ -6,16 +6,16 @@ Survive against increasingly dangerous enemies, dodge deadly hazards, collect co
 
 ## Features
 
-- 🎮 Smooth virtual joystick controls optimized for mobile devices.
-- 👾 Multiple enemy types with unique AI and attack patterns.
-- 💥 Projectile-based enemies, hunters, laser walls, bombs, and environmental hazards.
-- ⚡ Collect temporary power-ups to gain strategic advantages during gameplay.
-- 🪙 Coin collection system with combo mechanics that reward skilled movement.
-- 📈 Progressive difficulty that keeps every run challenging.
-- 🧠 Carefully designed level progression with unlockable stages.
-- 🎵 Dynamic sound effects and immersive background music.
-- 📱 Optimized for Android devices with responsive gameplay.
-- 🛠️ Built using Unity and C# with a modular, expandable codebase.
+-  Smooth virtual joystick controls optimized for mobile devices.
+-  Multiple enemy types with unique AI and attack patterns.
+-  Projectile-based enemies, hunters, laser walls, bombs, and environmental hazards.
+-  Collect temporary power-ups to gain strategic advantages during gameplay.
+-  Coin collection system with combo mechanics that reward skilled movement.
+-  Progressive difficulty that keeps every run challenging.
+-  Carefully designed level progression with unlockable stages.
+-  Dynamic sound effects and immersive background music.
+-  Optimized for Android devices with responsive gameplay.
+-  Built using Unity and C# with a modular, expandable codebase.
 
 ## Technology
 
@@ -30,6 +30,6 @@ Survive against increasingly dangerous enemies, dodge deadly hazards, collect co
 
 ## Status
 
-🚧 Currently in development.
+ Currently in development.
 
 More features, content, balancing, and visual improvements are planned before the final release.
