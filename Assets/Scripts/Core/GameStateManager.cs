@@ -87,7 +87,7 @@ public class GameStateManager : MonoBehaviour
         SetHUD(false);
 
         LevelConfig currentLevel = null;
-        LevelManager levelManager = FindFirstObjectByType<LevelManager>();
+        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
 
         if (levelManager != null)
         {
@@ -103,6 +103,8 @@ public class GameStateManager : MonoBehaviour
         if (shouldShowTutorial)
         {
             StopGameplayMusicImmediately();
+
+            yield return new WaitForSecondsRealtime(0.25f);
 
             bool tutorialClosed = false;
 

@@ -12505,6 +12505,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 31f464177824c4e48b88a363cb2aa7df, type: 3}
   - {fileID: 8300000, guid: 20b53a55ccbb07741855024c0e547950, type: 3}
   menuMusicBaseVolume: 0.2
+  fadeInDuration: 0.6
+  fadeOutDuration: 0.4
 --- !u!1 &408638744
 GameObject:
   m_ObjectHideFlags: 0
@@ -16031,6 +16033,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -19621,6 +19624,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0

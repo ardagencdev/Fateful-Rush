@@ -108,6 +108,17 @@ public class TutorialPanelUI : MonoBehaviour
             titleText.text = title;
 
         tutorialPanel.SetActive(true);
+
+        if (panelGroup != null)
+        {
+            panelGroup.alpha = 0f;
+            panelGroup.interactable = false;
+            panelGroup.blocksRaycasts = false;
+        }
+
+        if (panelRect != null)
+            panelRect.localScale = Vector3.one * panelStartScale;
+
         RefreshPageInstant();
 
         if (panelRoutine != null)
@@ -392,5 +403,8 @@ public class TutorialPanelUI : MonoBehaviour
         panelRect.localScale = Vector3.one;
 
         panelRoutine = null;
+
+        panelGroup.interactable = true;
+        panelGroup.blocksRaycasts = true;
     }
 }

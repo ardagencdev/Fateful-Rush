@@ -32,9 +32,9 @@ public class MenuMusicApply : MonoBehaviour
     {
         bool soundOn = PlayerPrefs.GetInt("SoundOn", 1) == 1;
         bool menuMusicOn = PlayerPrefs.GetInt("MenuMusicOn", 1) == 1;
-        float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
 
         audioSource.mute = !soundOn || !menuMusicOn;
+        RefreshVolume();
     }
 
     private void PlayRandomMenuMusic()

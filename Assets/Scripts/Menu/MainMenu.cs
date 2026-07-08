@@ -26,17 +26,24 @@ public class MainMenu : MonoBehaviour
 
     public void QuitGame()
     {
-        StartCoroutine(QuitRoutine());
+        if (SceneTransition.Instance != null)
+            SceneTransition.Instance.QuitGameWithFade();
+        else
+            StartCoroutine(QuitRoutine());
     }
 
     private IEnumerator QuitRoutine()
     {
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.QuitGameWithFade();
+            yield break;
+        }
+
         if (fadeSwitcher != null && mainMenuPanel != null)
         {
             fadeSwitcher.HidePanel(mainMenuPanel);
-
-            // Fade süresini bekle
-            yield return new WaitForSecondsRealtime(0.25f);
+            yield return new WaitForSecondsRealtime(0.35f);
         }
 
 #if UNITY_EDITOR
