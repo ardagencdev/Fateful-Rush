@@ -35,7 +35,7 @@ public class SpaceBombSpawner : MonoBehaviour
     private void Awake()
     {
         if (playerMovement == null)
-            playerMovement = FindFirstObjectByType<PlayerMovement>();
+            playerMovement = FindAnyObjectByType<PlayerMovement>();
 
         wallLayerIndex = LayerMask.NameToLayer("Wall");
         obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");

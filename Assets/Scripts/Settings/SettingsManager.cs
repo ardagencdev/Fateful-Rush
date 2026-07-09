@@ -195,7 +195,7 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplyMenuMusic()
     {
-        MenuMusicApply menuMusic = FindFirstObjectByType<MenuMusicApply>();
+        MenuMusicApply menuMusic = FindAnyObjectByType<MenuMusicApply>();
 
         if (menuMusic != null)
             menuMusic.ApplyMusicVolume();
@@ -203,7 +203,7 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplySFX()
     {
-        SoundManager soundManager = FindFirstObjectByType<SoundManager>();
+        SoundManager soundManager = FindAnyObjectByType<SoundManager>();
 
         if (soundManager != null)
             soundManager.ApplySFXVolume();
@@ -211,7 +211,7 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplyAudioAppliers()
     {
-        AudioSettingsApply[] audioAppliers = FindObjectsByType<AudioSettingsApply>(FindObjectsSortMode.None);
+       AudioSettingsApply[] audioAppliers = FindObjectsByType<AudioSettingsApply>(FindObjectsInactive.Exclude);
 
         foreach (AudioSettingsApply applier in audioAppliers)
             applier.Apply();

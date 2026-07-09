@@ -10,7 +10,7 @@ public class ArmorPowerUp : MonoBehaviour
     private void Awake()
     {
         col = GetComponent<Collider2D>();
-        soundManager = FindFirstObjectByType<SoundManager>();
+        soundManager = FindAnyObjectByType<SoundManager>();
         spawnEffect = GetComponentInChildren<SpawnScaleEffect>();
     }
 

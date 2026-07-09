@@ -42,7 +42,7 @@ public class OptionsUI : MonoBehaviour
         if (fadeSwitcher == null)
             fadeSwitcher = GetComponent<UIPanelFadeSwitcher>();
 
-        settings = FindFirstObjectByType<SettingsManager>();
+        settings = FindAnyObjectByType<SettingsManager>();
     }
 
     private void Start()
@@ -84,7 +84,7 @@ public class OptionsUI : MonoBehaviour
 
         AudioListener.volume = 1f;
 
-        SoundManager soundManager = FindFirstObjectByType<SoundManager>();
+        SoundManager soundManager = FindAnyObjectByType<SoundManager>();
         if (soundManager != null)
             soundManager.ApplySFXVolume();
 
@@ -98,7 +98,7 @@ public class OptionsUI : MonoBehaviour
 
         AudioListener.volume = 0f;
 
-        SoundManager soundManager = FindFirstObjectByType<SoundManager>();
+        SoundManager soundManager = FindAnyObjectByType<SoundManager>();
         if (soundManager != null)
             soundManager.ApplySFXVolume();
 
@@ -149,7 +149,7 @@ public class OptionsUI : MonoBehaviour
         PlayerPrefs.SetInt("VibrationEnabled", 1);
         PlayerPrefs.Save();
 
-        VibrationManager vibration = FindFirstObjectByType<VibrationManager>();
+        VibrationManager vibration = FindAnyObjectByType<VibrationManager>();
         if (vibration != null)
             vibration.SetVibration(true);
 
@@ -161,7 +161,7 @@ public class OptionsUI : MonoBehaviour
         PlayerPrefs.SetInt("VibrationEnabled", 0);
         PlayerPrefs.Save();
 
-        VibrationManager vibration = FindFirstObjectByType<VibrationManager>();
+        VibrationManager vibration = FindAnyObjectByType<VibrationManager>();
         if (vibration != null)
             vibration.SetVibration(false);
 
@@ -190,7 +190,7 @@ public class OptionsUI : MonoBehaviour
 
     public void SetJoystickLeft()
     {
-        ControlLayoutManager layout = FindFirstObjectByType<ControlLayoutManager>();
+        ControlLayoutManager layout = FindAnyObjectByType<ControlLayoutManager>();
 
         if (layout != null)
             layout.SetJoystickLeft();
@@ -200,7 +200,7 @@ public class OptionsUI : MonoBehaviour
 
     public void SetJoystickRight()
     {
-        ControlLayoutManager layout = FindFirstObjectByType<ControlLayoutManager>();
+        ControlLayoutManager layout = FindAnyObjectByType<ControlLayoutManager>();
 
         if (layout != null)
             layout.SetJoystickRight();
@@ -219,7 +219,7 @@ public class OptionsUI : MonoBehaviour
     private void LoadSettingsToUI()
     {
         if (settings == null)
-            settings = FindFirstObjectByType<SettingsManager>();
+            settings = FindAnyObjectByType<SettingsManager>();
 
         if (settings != null)
         {
@@ -268,7 +268,7 @@ public class OptionsUI : MonoBehaviour
         SetButtonState(fps30Button, fps == 30);
         SetButtonState(fps60Button, fps == 60);
 
-        ControlLayoutManager layout = FindFirstObjectByType<ControlLayoutManager>();
+        ControlLayoutManager layout = FindAnyObjectByType<ControlLayoutManager>();
 
         if (layout != null)
         {

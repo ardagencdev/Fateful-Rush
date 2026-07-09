@@ -81,7 +81,7 @@ public class EnemySpawner : MonoBehaviour
     private void Awake()
     {
         if (playerMovement == null)
-            playerMovement = FindFirstObjectByType<PlayerMovement>();
+            playerMovement = FindAnyObjectByType<PlayerMovement>();
 
         if (player == null && playerMovement != null)
             player = playerMovement.transform;

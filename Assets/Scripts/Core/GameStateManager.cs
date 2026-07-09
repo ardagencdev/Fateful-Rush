@@ -42,22 +42,22 @@ public class GameStateManager : MonoBehaviour
     private void Awake()
     {
         if (playerMovement == null)
-            playerMovement = FindFirstObjectByType<PlayerMovement>();
+            playerMovement = FindAnyObjectByType<PlayerMovement>();
 
         if (playerDash == null)
-            playerDash = FindFirstObjectByType<PlayerDash>();
+            playerDash = FindAnyObjectByType<PlayerDash>();
 
         if (laserWallSpawner == null)
-            laserWallSpawner = FindFirstObjectByType<LaserWallSpawner>();
+            laserWallSpawner = FindAnyObjectByType<LaserWallSpawner>();
 
         if (horizontalLaserWallSpawner == null)
-            horizontalLaserWallSpawner = FindFirstObjectByType<HorizontalLaserWallSpawner>();
+            horizontalLaserWallSpawner = FindAnyObjectByType<HorizontalLaserWallSpawner>();
 
         if (obstacleSpawner == null)
-            obstacleSpawner = FindFirstObjectByType<ObstacleSpawner>();
+            obstacleSpawner = FindAnyObjectByType<ObstacleSpawner>();
 
         if (tutorialPanelUI == null)
-            tutorialPanelUI = FindFirstObjectByType<TutorialPanelUI>();
+            tutorialPanelUI = FindAnyObjectByType<TutorialPanelUI>();
 
         CacheGameplayMusic();
     }
@@ -201,7 +201,7 @@ public class GameStateManager : MonoBehaviour
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
 
-        LevelManager levelManager = FindFirstObjectByType<LevelManager>();
+        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
         string bestTimeKey = GetBestTimeKey(levelManager);
 
         float bestTime = PlayerPrefs.GetFloat(bestTimeKey, Mathf.Infinity);
@@ -228,8 +228,8 @@ public class GameStateManager : MonoBehaviour
         if (gameResultUI != null)
             gameResultUI.ShowWin(score, gameTimer);
 
-        FindFirstObjectByType<GameTimer>()?.StopTimer();
-        FindFirstObjectByType<BossScreenEffect>()?.StopEffect();
+        FindAnyObjectByType<GameTimer>()?.StopTimer();
+        FindAnyObjectByType<BossScreenEffect>()?.StopEffect();
 
         StopMusic();
 
@@ -267,8 +267,8 @@ public class GameStateManager : MonoBehaviour
         if (gameResultUI != null)
             gameResultUI.ShowLose(score, gameTimer);
 
-        FindFirstObjectByType<GameTimer>()?.StopTimer();
-        FindFirstObjectByType<BossScreenEffect>()?.StopEffect();
+        FindAnyObjectByType<GameTimer>()?.StopTimer();
+        FindAnyObjectByType<BossScreenEffect>()?.StopEffect();
 
         StopMusic();
 
@@ -295,7 +295,7 @@ public class GameStateManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        Rigidbody2D[] bodies = FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None);
+        Rigidbody2D[] bodies = FindObjectsByType<Rigidbody2D>(FindObjectsInactive.Exclude);
 
         foreach (Rigidbody2D rb in bodies)
         {
@@ -329,7 +329,7 @@ public class GameStateManager : MonoBehaviour
         if (gameplayMusicSource != null)
             return;
 
-        GameplayMusicFade gameplayMusic = FindFirstObjectByType<GameplayMusicFade>();
+        GameplayMusicFade gameplayMusic = FindAnyObjectByType<GameplayMusicFade>();
 
         if (gameplayMusic != null)
             gameplayMusicSource = gameplayMusic.GetComponent<AudioSource>();

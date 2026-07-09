@@ -21,8 +21,8 @@ public class SlowPowerUp : MonoBehaviour
         col = GetComponent<Collider2D>();
         spawnEffect = GetComponentInChildren<SpawnScaleEffect>();
 
-        soundManager = FindFirstObjectByType<SoundManager>();
-        screenEffect = FindFirstObjectByType<SlowScreenEffect>();
+        soundManager = FindAnyObjectByType<SoundManager>();
+        screenEffect = FindAnyObjectByType<SlowScreenEffect>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)

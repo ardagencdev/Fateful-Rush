@@ -45,7 +45,7 @@ public class GameResultUI : MonoBehaviour
         if (winUI != null) winUI.SetActive(true);
         if (loseUI != null) loseUI.SetActive(false);
 
-        LevelManager levelManager = FindFirstObjectByType<LevelManager>();
+        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
         string bestTimeKey = GetBestTimeKey(levelManager);
         float bestTime = PlayerPrefs.GetFloat(bestTimeKey, time);
 
@@ -94,7 +94,7 @@ public class GameResultUI : MonoBehaviour
         if (nextLevelButton == null)
             return;
 
-        LevelConfig currentLevel = FindFirstObjectByType<LevelManager>()?.currentLevel;
+        LevelConfig currentLevel = FindAnyObjectByType<LevelManager>()?.currentLevel;
 
         if (!SelectedLevelData.isLevelMode || currentLevel == null)
         {
@@ -127,7 +127,7 @@ public class GameResultUI : MonoBehaviour
         Time.timeScale = 1f;
         RestorePhysics();
 
-        LevelConfig currentLevel = FindFirstObjectByType<LevelManager>()?.currentLevel;
+        LevelConfig currentLevel = FindAnyObjectByType<LevelManager>()?.currentLevel;
         LevelConfig nextLevel = GetNextLevel(currentLevel);
 
         if (nextLevel == null)
@@ -202,7 +202,7 @@ public class GameResultUI : MonoBehaviour
 
     private void RestorePhysics()
     {
-        Rigidbody2D[] bodies = FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None);
+        Rigidbody2D[] bodies = FindObjectsByType<Rigidbody2D>(FindObjectsInactive.Exclude);
 
         foreach (Rigidbody2D rb in bodies)
             rb.simulated = true;

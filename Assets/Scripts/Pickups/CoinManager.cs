@@ -43,7 +43,7 @@ public class CoinManager : MonoBehaviour
     private void Awake()
     {
         if (playerMovement == null)
-            playerMovement = FindFirstObjectByType<PlayerMovement>();
+            playerMovement = FindAnyObjectByType<PlayerMovement>();
 
         obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
         wallLayerIndex = LayerMask.NameToLayer("Wall");

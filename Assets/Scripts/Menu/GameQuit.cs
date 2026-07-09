@@ -28,7 +28,7 @@ public class GameQuit : MonoBehaviour
             gameplayMusicVolume = gameplayMusicSource.volume;
 
         if (optionsUI == null)
-            optionsUI = FindFirstObjectByType<OptionsUI>();
+            optionsUI = FindAnyObjectByType<OptionsUI>();
 
         if (pausePanel != null)
             pausePanel.SetActive(false);

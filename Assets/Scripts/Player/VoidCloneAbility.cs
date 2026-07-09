@@ -234,7 +234,7 @@ public class VoidCloneAbility : MonoBehaviour
         foreach (GameObject enemyObj in enemies)
             AddEnemyTarget(enemyObj, allTargets, addedObjects);
 
-        HunterEnemyFollow[] hunters = FindObjectsByType<HunterEnemyFollow>(FindObjectsSortMode.None);
+        HunterEnemyFollow[] hunters = FindObjectsByType<HunterEnemyFollow>(FindObjectsInactive.Exclude);
 
         foreach (HunterEnemyFollow hunter in hunters)
         {

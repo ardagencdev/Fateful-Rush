@@ -46,7 +46,7 @@ public class SpaceBomb : MonoBehaviour
             return;
         }
 
-        GameStateManager gameStateManager = FindFirstObjectByType<GameStateManager>();
+        GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
 
         if (gameStateManager != null)
             gameStateManager.GameOver(0);

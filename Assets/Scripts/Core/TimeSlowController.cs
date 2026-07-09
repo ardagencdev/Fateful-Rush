@@ -24,8 +24,8 @@ public class TimeSlowController : MonoBehaviour
         originalFixedDeltaTime = Time.fixedDeltaTime;
         Time.timeScale = 1f;
 
-        player = FindFirstObjectByType<PlayerMovement>();
-        pauseMenu = FindFirstObjectByType<GameQuit>();
+        player = FindAnyObjectByType<PlayerMovement>();
+        pauseMenu = FindAnyObjectByType<GameQuit>();
     }
 
     public void StartSlow(float multiplier, float duration)
@@ -54,7 +54,7 @@ public class TimeSlowController : MonoBehaviour
             }
 
             if (pauseMenu == null)
-                pauseMenu = FindFirstObjectByType<GameQuit>();
+                pauseMenu = FindAnyObjectByType<GameQuit>();
 
             if (pauseMenu == null || !pauseMenu.IsPaused)
                 timer += Time.unscaledDeltaTime;
@@ -76,7 +76,7 @@ public class TimeSlowController : MonoBehaviour
             return;
 
         if (pauseMenu == null)
-            pauseMenu = FindFirstObjectByType<GameQuit>();
+            pauseMenu = FindAnyObjectByType<GameQuit>();
 
         if (pauseMenu != null && pauseMenu.IsPaused)
             Time.timeScale = 0f;
@@ -115,7 +115,7 @@ public class TimeSlowController : MonoBehaviour
     private bool IsGameOver()
     {
         if (player == null)
-            player = FindFirstObjectByType<PlayerMovement>();
+            player = FindAnyObjectByType<PlayerMovement>();
 
         return player != null && player.IsGameOver;
     }

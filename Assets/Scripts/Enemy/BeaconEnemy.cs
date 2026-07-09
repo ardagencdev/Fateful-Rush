@@ -117,7 +117,7 @@ public class BeaconEnemy : MonoBehaviour
     {
         if (player == null)
         {
-            PlayerMovement pm = FindFirstObjectByType<PlayerMovement>();
+            PlayerMovement pm = FindAnyObjectByType<PlayerMovement>();
 
             if (pm != null)
             {
@@ -127,7 +127,7 @@ public class BeaconEnemy : MonoBehaviour
         }
 
         if (soundManager == null)
-            soundManager = FindFirstObjectByType<SoundManager>();
+            soundManager = FindAnyObjectByType<SoundManager>();
 
         lastPosition = rb.position;
 
@@ -225,7 +225,7 @@ public class BeaconEnemy : MonoBehaviour
 
     private void RefreshTargetCache()
     {
-        cachedTargets = FindObjectsByType<EnemyBuffTarget>(FindObjectsSortMode.None);
+        cachedTargets = FindObjectsByType<EnemyBuffTarget>(FindObjectsInactive.Exclude);
     }
 
     private void HandleRetarget()

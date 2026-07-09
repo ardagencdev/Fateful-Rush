@@ -39,7 +39,7 @@ public class SceneTransition : MonoBehaviour
 
     private IEnumerator FadeOutMusic()
     {
-        MenuMusicApply menuMusic = FindFirstObjectByType<MenuMusicApply>();
+        MenuMusicApply menuMusic = FindAnyObjectByType<MenuMusicApply>();
 
         if (menuMusic != null)
         {
@@ -48,7 +48,7 @@ public class SceneTransition : MonoBehaviour
             yield break;
         }
 
-        GameplayMusicFade gameplayMusic = FindFirstObjectByType<GameplayMusicFade>();
+        GameplayMusicFade gameplayMusic = FindAnyObjectByType<GameplayMusicFade>();
 
         if (gameplayMusic != null)
         {

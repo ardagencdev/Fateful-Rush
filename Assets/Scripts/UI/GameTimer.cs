@@ -58,7 +58,7 @@ public class GameTimer : MonoBehaviour
 
     private void ApplyLevelConfig()
     {
-        LevelManager levelManager = FindFirstObjectByType<LevelManager>();
+        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
         LevelConfig levelConfig = levelManager != null ? levelManager.currentLevel : null;
 
         showHUDTimer = levelConfig != null && levelConfig.showGameTimerHUD;

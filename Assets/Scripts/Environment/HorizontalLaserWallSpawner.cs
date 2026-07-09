@@ -31,7 +31,7 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
     private void Awake()
     {
         if (playerMovement == null)
-            playerMovement = FindFirstObjectByType<PlayerMovement>();
+            playerMovement = FindAnyObjectByType<PlayerMovement>();
     }
 
     private void OnDisable()

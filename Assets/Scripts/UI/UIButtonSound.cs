@@ -18,7 +18,7 @@ public class UIButtonSound : MonoBehaviour
     private void Awake()
     {
         button = GetComponent<Button>();
-        soundManager = FindFirstObjectByType<SoundManager>();
+        soundManager = FindAnyObjectByType<SoundManager>();
 
         if (button != null)
             button.onClick.AddListener(PlayClickSound);
