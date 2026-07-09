@@ -9,7 +9,6 @@ public class GameStateManager : MonoBehaviour
     [Header("References")]
     public PlayerMovement playerMovement;
     public PlayerDash playerDash;
-    public CameraShake cameraShake;
     public SoundManager soundManager;
     public GameResultUI gameResultUI;
 
@@ -95,10 +94,19 @@ public class GameStateManager : MonoBehaviour
             currentLevel = levelManager.currentLevel;
         }
 
+        bool levelAlreadyCompleted = false;
+
+        if (currentLevel != null && SelectedLevelData.isLevelMode)
+        {
+            levelAlreadyCompleted =
+                PlayerPrefs.GetInt("CompletedLevel_" + currentLevel.levelNumber, 0) == 1;
+        }
+
         bool shouldShowTutorial =
             currentLevel != null &&
             currentLevel.showTutorial &&
-            tutorialPanelUI != null;
+            tutorialPanelUI != null &&
+            !levelAlreadyCompleted;
 
         if (shouldShowTutorial)
         {
@@ -260,9 +268,6 @@ public class GameStateManager : MonoBehaviour
 
         SetHUD(false);
         StopLaserSystems();
-
-        if (cameraShake != null)
-            cameraShake.Shake();
 
         if (gameResultUI != null)
             gameResultUI.ShowLose(score, gameTimer);

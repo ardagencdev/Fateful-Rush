@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -16,16 +17,23 @@ public class MenuMusicApply : MonoBehaviour
 
     private AudioSource audioSource;
     private Coroutine fadeRoutine;
+    private Coroutine playlistRoutine;
+
+    private readonly List<int> shuffledPlaylist = new List<int>();
+    private int playlistPosition;
+    private int lastPlayedIndex = -1;
+    private bool isStoppingMusic;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+        audioSource.loop = false;
         ApplyMusicVolume();
     }
 
     private void Start()
     {
-        PlayRandomMenuMusic();
+        StartMenuPlaylist();
     }
 
     public void ApplyMusicVolume()
@@ -37,29 +45,100 @@ public class MenuMusicApply : MonoBehaviour
         RefreshVolume();
     }
 
-    private void PlayRandomMenuMusic()
+    private void StartMenuPlaylist()
+    {
+        if (playlistRoutine != null)
+            StopCoroutine(playlistRoutine);
+
+        playlistRoutine = StartCoroutine(MenuPlaylistRoutine());
+    }
+
+    private IEnumerator MenuPlaylistRoutine()
+    {
+        while (true)
+        {
+            AudioClip nextClip = GetNextShuffledMusic();
+
+            if (nextClip == null)
+                yield break;
+
+            audioSource.clip = nextClip;
+            audioSource.volume = 0f;
+            audioSource.Play();
+
+            FadeTo(GetTargetVolume(), fadeInDuration);
+
+            float waitTime = Mathf.Max(0f, nextClip.length - fadeOutDuration);
+            yield return new WaitForSecondsRealtime(waitTime);
+
+            FadeTo(0f, fadeOutDuration, true);
+            yield return new WaitForSecondsRealtime(fadeOutDuration);
+        }
+    }
+
+    private AudioClip GetNextShuffledMusic()
     {
         if (menuMusics == null || menuMusics.Length == 0)
-            return;
+            return null;
 
-        int randomIndex = Random.Range(0, menuMusics.Length);
+        if (menuMusics.Length == 1)
+        {
+            lastPlayedIndex = 0;
+            return menuMusics[0];
+        }
 
-        audioSource.clip = menuMusics[randomIndex];
-        audioSource.loop = true;
+        if (shuffledPlaylist.Count == 0 || playlistPosition >= shuffledPlaylist.Count)
+            BuildNewShufflePlaylist();
 
-        audioSource.volume = 0f;
-        audioSource.Play();
+        int index = shuffledPlaylist[playlistPosition];
+        playlistPosition++;
 
-        FadeTo(GetTargetVolume(), fadeInDuration);
+        lastPlayedIndex = index;
+        return menuMusics[index];
+    }
+
+    private void BuildNewShufflePlaylist()
+    {
+        shuffledPlaylist.Clear();
+
+        for (int i = 0; i < menuMusics.Length; i++)
+            shuffledPlaylist.Add(i);
+
+        for (int i = 0; i < shuffledPlaylist.Count; i++)
+        {
+            int randomIndex = Random.Range(i, shuffledPlaylist.Count);
+            (shuffledPlaylist[i], shuffledPlaylist[randomIndex]) =
+                (shuffledPlaylist[randomIndex], shuffledPlaylist[i]);
+        }
+
+        if (shuffledPlaylist.Count > 1 && shuffledPlaylist[0] == lastPlayedIndex)
+        {
+            int swapIndex = Random.Range(1, shuffledPlaylist.Count);
+            (shuffledPlaylist[0], shuffledPlaylist[swapIndex]) =
+                (shuffledPlaylist[swapIndex], shuffledPlaylist[0]);
+        }
+
+        playlistPosition = 0;
     }
 
     public void FadeOutMusic()
     {
+        isStoppingMusic = true;
+
+        if (playlistRoutine != null)
+        {
+            StopCoroutine(playlistRoutine);
+            playlistRoutine = null;
+        }
+
         FadeTo(0f, fadeOutDuration, true);
     }
 
     public void RefreshVolume()
     {
+        if (isStoppingMusic)
+            return;
+
         FadeTo(GetTargetVolume(), 0.2f);
     }
 
@@ -72,7 +151,6 @@ public class MenuMusicApply : MonoBehaviour
             return 0f;
 
         float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
-
         return musicVolume * menuMusicBaseVolume;
     }
 
@@ -87,7 +165,6 @@ public class MenuMusicApply : MonoBehaviour
     private IEnumerator FadeRoutine(float target, float duration, bool stopAfter)
     {
         float start = audioSource.volume;
-
         float timer = 0f;
 
         while (timer < duration)

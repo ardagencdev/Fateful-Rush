@@ -19,46 +19,14 @@ MonoBehaviour:
   tutorialPages:
   - 'Welcome to your first mission.
 
-    
 
-    Collect coins to reach the target
-    score.
 
-    Stay alive until you complete the objective.'
-  - 'Collect coins quickly to build a combo.
+    Collect coins to reach the target score.
 
-    
-
-    Higher combos grant bonus
-    score and increase your movement speed.
-
-    
-
-    Keep the chain alive to
-    maximize your efficiency.'
-  - 'Black Holes are permanent obstacles.
-
-    
-
-    They cannot hurt you directly,
-    but they block your path and limit your movement.
-
-    
-
-    Plan your route
-    carefully and avoid getting trapped.'
-  - 'No enemies will appear in this mission.
-
-    
-
-    Take your time to learn
-    the controls, understand the arena, and master the combo system.
-
-    
-
-    Good
-    luck, Pilot.'
-  winScore: 20
+    Stay
+    alive until you complete the objective.'
+  winScore: 10
+  showGameTimerHUD: 0
   playerMoveSpeed: 6.5
   playerComboSpeedBonus: 1.2
   dashEnabled: 0
@@ -76,6 +44,13 @@ MonoBehaviour:
   comboEnabled: 1
   comboTimeLimit: 2.5
   maxCombo: 5
+  comboSpeedStages:
+  - comboMultiplier: 2
+    coinsRequired: 2
+    playerSpeedMultiplier: 1.25
+  - comboMultiplier: 3
+    coinsRequired: 5
+    playerSpeedMultiplier: 1.5
   nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1

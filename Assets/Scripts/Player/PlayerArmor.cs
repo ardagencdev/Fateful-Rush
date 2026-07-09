@@ -5,7 +5,6 @@ public class PlayerArmor : MonoBehaviour
 {
     [Header("References")]
     public SoundManager soundManager;
-    public CameraZoomPulse cameraZoomPulse;
 
     [Header("Visual")]
     public GameObject shieldVisual;
@@ -62,9 +61,6 @@ public class PlayerArmor : MonoBehaviour
 
         if (soundManager != null)
             soundManager.PlayArmorBreakSound();
-
-        if (cameraZoomPulse != null)
-            cameraZoomPulse.Pulse();
 
         if (immuneRoutine != null)
             StopCoroutine(immuneRoutine);
