@@ -10642,7 +10642,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &176593739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10944,7 +10944,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &201356013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11246,7 +11246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &222511715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11659,7 +11659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &278642105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12127,6 +12127,7 @@ MonoBehaviour:
   tutorialOpenSound: {fileID: 0}
   premiumInterfaceSound: {fileID: 0}
   missionSelectSound: {fileID: 8300000, guid: df9dfe86f849b01419acf1947178cd4e, type: 3}
+  optionButtonSound: {fileID: 8300000, guid: 6b40e451120119846b3ac88f53276239, type: 3}
   beaconActivationWaveSound: {fileID: 0}
   beaconLoopWaveSound: {fileID: 0}
   beaconDeathSound: {fileID: 0}
@@ -13827,7 +13828,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &571473937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14040,7 +14041,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &624749658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16490,7 +16491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &854373738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19145,7 +19146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &1322227957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20775,7 +20776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &1555422790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21640,7 +21641,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 2
 --- !u!114 &1775333467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21734,7 +21735,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 558379306}
         m_TargetAssemblyTypeName: OptionsUI, Assembly-CSharp
-        m_MethodName: MenuMusicOff
+        m_MethodName: SoundOff
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

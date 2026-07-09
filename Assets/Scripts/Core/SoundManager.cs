@@ -27,6 +27,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip tutorialOpenSound;
     public AudioClip premiumInterfaceSound;
     public AudioClip missionSelectSound;
+    public AudioClip optionButtonSound;
 
     [Header("Beacon Enemy Sounds")]
     public AudioClip beaconActivationWaveSound;
@@ -101,6 +102,8 @@ public class SoundManager : MonoBehaviour
     public void PlayMenuButtonSound() => PlaySound(menuButtonSound);
 
     public void PlayBackButtonSound() => PlaySound(backButtonSound);
+
+    public void PlayOptionButtonSound() => PlaySound(optionButtonSound);
 
     private void PlaySound(AudioClip clip)
     {

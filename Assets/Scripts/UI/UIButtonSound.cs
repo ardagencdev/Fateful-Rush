@@ -6,7 +6,8 @@ public class UIButtonSound : MonoBehaviour
     public enum ButtonSoundType
     {
         Menu,
-        Back
+        Back,
+        Option
     }
 
     [SerializeField] private ButtonSoundType soundType = ButtonSoundType.Menu;
@@ -35,6 +36,9 @@ public class UIButtonSound : MonoBehaviour
 
                 case ButtonSoundType.Back:
                     soundManager.PlayBackButtonSound();
+                    break;
+                case ButtonSoundType.Option:
+                    soundManager.PlayOptionButtonSound();
                     break;
             }
         }
