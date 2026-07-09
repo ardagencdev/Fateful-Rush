@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
+    public static SoundManager Instance;
+
     [Header("SFX Source")]
     public AudioSource sfxSource;
 
@@ -20,7 +22,11 @@ public class SoundManager : MonoBehaviour
     public AudioClip voidCloneSound;
 
     [Header("UI Sounds")]
-    public AudioClip[] buttonClickSounds;
+    public AudioClip menuButtonSound;
+    public AudioClip backButtonSound;
+    public AudioClip tutorialOpenSound;
+    public AudioClip premiumInterfaceSound;
+    public AudioClip missionSelectSound;
 
     [Header("Beacon Enemy Sounds")]
     public AudioClip beaconActivationWaveSound;
@@ -46,6 +52,8 @@ public class SoundManager : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         if (sfxSource == null)
             sfxSource = GetComponent<AudioSource>();
     }
@@ -70,6 +78,11 @@ public class SoundManager : MonoBehaviour
     public void PlayDashSound() => PlaySound(dashSound);
     public void PlayVoidCloneSound() => PlaySound(voidCloneSound);
 
+    public void PlayTutorialOpenSound() => PlaySound(tutorialOpenSound);
+    public void PlayPremiumInterfaceSound() => PlaySound(premiumInterfaceSound);
+
+    public void PlayMissionSelectSound() => PlaySound(missionSelectSound);
+
     public void PlayBeaconActivationWaveSound()
     {
         PlaySound(beaconActivationWaveSound, beaconActivationVolume);
@@ -85,14 +98,9 @@ public class SoundManager : MonoBehaviour
         PlaySound(beaconDeathSound);
     }
 
-    public void PlayButtonClickSound()
-    {
-        if (buttonClickSounds == null || buttonClickSounds.Length == 0)
-            return;
+    public void PlayMenuButtonSound() => PlaySound(menuButtonSound);
 
-        AudioClip clip = buttonClickSounds[Random.Range(0, buttonClickSounds.Length)];
-        PlaySound(clip);
-    }
+    public void PlayBackButtonSound() => PlaySound(backButtonSound);
 
     private void PlaySound(AudioClip clip)
     {

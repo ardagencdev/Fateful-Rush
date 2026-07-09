@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 2593184219193535137}
   - component: {fileID: 5729418071965797755}
   - component: {fileID: 3475198044422798961}
-  - component: {fileID: -7031071464937444991}
   m_Layer: 5
   m_Name: LevelButton
   m_TagString: Untagged
@@ -149,18 +148,6 @@ MonoBehaviour:
   hoverScale: 1.08
   clickScale: 0.95
   transitionSpeed: 10
---- !u!114 &-7031071464937444991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3378782795321804067}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
 --- !u!1 &6481318531330300109
 GameObject:
   m_ObjectHideFlags: 0

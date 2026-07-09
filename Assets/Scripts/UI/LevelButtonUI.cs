@@ -86,6 +86,10 @@ public class LevelButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private void PlayLevel()
     {
         if (!unlocked) return;
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayMissionSelectSound();
+
         panel.StartLevel(config);
     }
 

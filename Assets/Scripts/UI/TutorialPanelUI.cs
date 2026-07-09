@@ -109,6 +109,9 @@ public class TutorialPanelUI : MonoBehaviour
 
         tutorialPanel.SetActive(true);
 
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayTutorialOpenSound();
+
         if (panelGroup != null)
         {
             panelGroup.alpha = 0f;

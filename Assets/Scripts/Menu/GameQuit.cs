@@ -58,6 +58,9 @@ public class GameQuit : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0f;
 
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayPremiumInterfaceSound();
+
         FadeGameplayMusicOut();
 
         if (pausePanel != null)
@@ -69,6 +72,9 @@ public class GameQuit : MonoBehaviour
         if (!isPaused) return;
 
         isPaused = false;
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayPremiumInterfaceSound();
 
         FadeGameplayMusicIn();
 

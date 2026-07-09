@@ -14,6 +14,11 @@ public class IntroController : MonoBehaviour
     [SerializeField] private float holdDuration = 2.2f;
     [SerializeField] private float fadeOutDuration = 0.8f;
 
+    [Header("Intro Sound")]
+    [SerializeField] private AudioSource introAudioSource;
+    [SerializeField] private AudioClip introSound;
+    [SerializeField] private bool fadeOutSoundWhenSkipping = true;
+
     [Header("Logo")]
     [SerializeField] private CanvasGroup logoGroup;
     [SerializeField] private RectTransform logoTransform;
@@ -33,9 +38,16 @@ public class IntroController : MonoBehaviour
 
     private bool isLoading;
 
+    private void Awake()
+    {
+        if (introAudioSource == null)
+            introAudioSource = GetComponent<AudioSource>();
+    }
+
     private void Start()
     {
         Time.timeScale = 1f;
+        PlayIntroSound();
         StartCoroutine(IntroRoutine());
     }
 
@@ -49,6 +61,18 @@ public class IntroController : MonoBehaviour
 
         if (mousePressed || touchPressed || keyboardPressed)
             SkipIntro();
+    }
+
+    private void PlayIntroSound()
+    {
+        if (introAudioSource == null || introSound == null)
+            return;
+
+        introAudioSource.clip = introSound;
+        introAudioSource.loop = false;
+        introAudioSource.ignoreListenerPause = true;
+        introAudioSource.volume = SoundManager.SFXVolume;
+        introAudioSource.Play();
     }
 
     private IEnumerator IntroRoutine()
@@ -125,6 +149,8 @@ public class IntroController : MonoBehaviour
         float glowStartAlpha = glowGroup != null ? glowGroup.alpha : 1f;
         float skipStartAlpha = tapToSkipGroup != null ? tapToSkipGroup.alpha : 1f;
 
+        float soundStartVolume = introAudioSource != null ? introAudioSource.volume : 0f;
+
         Vector3 logoStartScale = logoTransform != null ? logoTransform.localScale : Vector3.one;
         Vector3 glowStartScaleValue = glowTransform != null ? glowTransform.localScale : Vector3.one;
 
@@ -137,6 +163,9 @@ public class IntroController : MonoBehaviour
             SetAlpha(logoGroup, Mathf.Lerp(logoStartAlpha, 0f, eased));
             SetAlpha(glowGroup, Mathf.Lerp(glowStartAlpha, 0f, eased));
             SetAlpha(tapToSkipGroup, Mathf.Lerp(skipStartAlpha, 0f, eased));
+
+            if (fadeOutSoundWhenSkipping && introAudioSource != null)
+                introAudioSource.volume = Mathf.Lerp(soundStartVolume, 0f, eased);
 
             if (logoTransform != null)
                 logoTransform.localScale = Vector3.Lerp(logoStartScale, Vector3.one * 0.96f, eased);
