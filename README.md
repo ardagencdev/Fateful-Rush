@@ -36,7 +36,6 @@ Difficulty increases over time by introducing new enemy types, hazards, spawn pa
 - Responsive turning system
 - Adjustable movement feel
 - Dash mechanic
-- Camera shake feedback
 
 ---
 
@@ -46,13 +45,13 @@ The game contains multiple enemy archetypes with unique behaviors.
 
 ### Current enemy roster includes:
 
-- Normal Enemy
-- Hunter Enemy
-- Projectile Enemy
+- Stalker
+- Hunter
+- Blaster
 - Beacon Enemy
-- Obstacle Hazards
+- Boss
+- Mini Boss
 - Laser Walls
-- Horizontal Laser Walls
 - Space Bombs
 
 Each enemy introduces different movement patterns and attack behaviors, encouraging different survival strategies.
@@ -68,7 +67,6 @@ Temporary power-ups provide short-term advantages during gameplay.
 - Slow Motion
 - Void Clone
 - Shield
-- Magnet
 - Coin Multiplier
 
 Each power-up changes the player's decision-making during combat.
@@ -111,7 +109,6 @@ Each level introduces new gameplay elements to maintain pacing and player engage
 - Smooth music transitions
 - Gameplay sound effects
 - UI sound effects
-- Camera feedback synchronization
 
 ---
 
