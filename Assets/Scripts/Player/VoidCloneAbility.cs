@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -7,10 +6,14 @@ using TMPro;
 
 public class VoidCloneAbility : MonoBehaviour
 {
+    public static Transform ActiveCloneTarget { get; private set; }
+
+    public static bool HasActiveClone =>
+        ActiveCloneTarget != null;
+
     [Header("Clone")]
     public GameObject clonePrefab;
     public float cloneDuration = 3f;
-    public int enemiesToDistract = 2;
 
     [Header("Cooldown")]
     public float cloneCooldown = 8f;
@@ -33,18 +36,11 @@ public class VoidCloneAbility : MonoBehaviour
 
     private float cooldownTimer;
     private float textRefreshTimer;
+
     private const float TextRefreshInterval = 0.1f;
 
-    private readonly List<TargetData> targetBuffer = new List<TargetData>();
-
-    private class TargetData
-    {
-        public EnemyFollow enemy;
-        public ProjectileEnemyFollow projectileEnemy;
-        public MiniBossFollow miniBoss;
-        public HunterEnemyFollow hunter;
-        public Transform originalTarget;
-    }
+    private GameObject activeCloneObject;
+    private Coroutine cloneRoutine;
 
     private void Awake()
     {
@@ -59,31 +55,51 @@ public class VoidCloneAbility : MonoBehaviour
         ResetCloneState();
     }
 
+    private void OnDisable()
+    {
+        ClearActiveClone();
+    }
+
+    private void OnDestroy()
+    {
+        ClearActiveClone();
+    }
+
     private void Update()
     {
         if (!GameStateManager.IsGameplayStarted)
             return;
 
-        if (playerMovement != null && playerMovement.IsGameOver)
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
         {
-            if (!gameOverHandled)
-            {
-                gameOverHandled = true;
-
-                if (cloneButton != null)
-                    cloneButton.interactable = false;
-
-                HideCooldownUI();
-            }
-
+            HandleGameOver();
             return;
         }
 
-        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current != null &&
+            Keyboard.current.eKey.wasPressedThisFrame)
+        {
             UseClone();
+        }
 
         if (!canUseClone)
             UpdateCooldownUI();
+    }
+
+    private void HandleGameOver()
+    {
+        if (gameOverHandled)
+            return;
+
+        gameOverHandled = true;
+
+        ClearActiveClone();
+
+        if (cloneButton != null)
+            cloneButton.interactable = false;
+
+        HideCooldownUI();
     }
 
     public void SetCloneCooldown(float cooldown)
@@ -99,11 +115,23 @@ public class VoidCloneAbility : MonoBehaviour
 
     public void UseClone()
     {
-        if (!GameStateManager.IsGameplayStarted) return;
-        if (!canUseClone) return;
-        if (cloneActive) return;
-        if (playerMovement != null && playerMovement.IsGameOver) return;
-        if (clonePrefab == null) return;
+        if (!GameStateManager.IsGameplayStarted)
+            return;
+
+        if (!canUseClone)
+            return;
+
+        if (cloneActive)
+            return;
+
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
+            return;
+        }
+
+        if (clonePrefab == null)
+            return;
 
         canUseClone = false;
         cooldownTimer = cloneCooldown;
@@ -117,34 +145,77 @@ public class VoidCloneAbility : MonoBehaviour
         ShowCooldownUI();
         UpdateUI();
 
-        StartCoroutine(CloneRoutine());
+        cloneRoutine =
+            StartCoroutine(CloneRoutine());
     }
 
     private IEnumerator CloneRoutine()
     {
         cloneActive = true;
 
-        GameObject clone = Instantiate(clonePrefab, transform.position, Quaternion.identity);
+        activeCloneObject =
+            Instantiate(
+                clonePrefab,
+                transform.position,
+                Quaternion.identity
+            );
 
-        VoidClone cloneScript = clone.GetComponent<VoidClone>();
+        ActiveCloneTarget =
+            activeCloneObject.transform;
+
+        VoidClone cloneScript =
+            activeCloneObject.GetComponent<VoidClone>();
+
         if (cloneScript != null)
-            cloneScript.StartClone(cloneDuration);
+        {
+            Vector2 playerVelocity = Vector2.zero;
 
-        List<TargetData> selectedTargets = GetRandomEnemies();
+            if (playerMovement != null)
+            {
+                playerVelocity =
+                    playerMovement.CurrentVelocity;
 
-        foreach (TargetData data in selectedTargets)
-            SetEnemyTarget(data, clone.transform);
+                // FixedUpdate henüz velocity üretmediyse,
+                // doğrudan joystick/input yönünden hesapla.
+                if (playerVelocity.sqrMagnitude < 0.01f &&
+                    playerMovement.CurrentMoveInput.sqrMagnitude > 0.01f)
+                {
+                    playerVelocity =
+                        playerMovement.CurrentMoveInput.normalized *
+                        playerMovement.CurrentMoveSpeed;
+                }
+            }
+
+            cloneScript.StartClone(
+                cloneDuration,
+                playerVelocity
+            );
+        }
 
         yield return new WaitForSeconds(cloneDuration);
 
-        foreach (TargetData data in selectedTargets)
-            RestoreEnemyTarget(data);
+        ClearActiveClone();
 
-        if (clone != null)
-            Destroy(clone);
+        cloneRoutine = null;
 
-        cloneActive = false;
         UpdateUI();
+    }
+
+    private void ClearActiveClone()
+    {
+        if (cloneRoutine != null)
+        {
+            StopCoroutine(cloneRoutine);
+            cloneRoutine = null;
+        }
+
+        ActiveCloneTarget = null;
+
+        if (activeCloneObject != null)
+            Destroy(activeCloneObject);
+
+        activeCloneObject = null;
+        cloneActive = false;
     }
 
     private void UpdateCooldownUI()
@@ -153,21 +224,33 @@ public class VoidCloneAbility : MonoBehaviour
         cooldownTimer = Mathf.Max(cooldownTimer, 0f);
 
         if (cooldownFill != null)
-            cooldownFill.fillAmount = cloneCooldown <= 0f ? 0f : cooldownTimer / cloneCooldown;
+        {
+            cooldownFill.fillAmount =
+                cloneCooldown <= 0f
+                    ? 0f
+                    : cooldownTimer / cloneCooldown;
+        }
 
         textRefreshTimer -= Time.deltaTime;
 
         if (textRefreshTimer <= 0f)
         {
-            textRefreshTimer = TextRefreshInterval;
+            textRefreshTimer =
+                TextRefreshInterval;
 
             if (cooldownText != null)
-                cooldownText.text = cooldownTimer > 0f ? cooldownTimer.ToString("F1") : "";
+            {
+                cooldownText.text =
+                    cooldownTimer > 0f
+                        ? cooldownTimer.ToString("F1")
+                        : "";
+            }
         }
 
         if (cooldownTimer <= 0f)
         {
             canUseClone = true;
+
             HideCooldownUI();
             UpdateUI();
         }
@@ -201,9 +284,19 @@ public class VoidCloneAbility : MonoBehaviour
     {
         StopAllCoroutines();
 
+        cloneRoutine = null;
+
+        ActiveCloneTarget = null;
+
+        if (activeCloneObject != null)
+            Destroy(activeCloneObject);
+
+        activeCloneObject = null;
+
         canUseClone = true;
         cloneActive = false;
         gameOverHandled = false;
+
         cooldownTimer = 0f;
         textRefreshTimer = 0f;
 
@@ -213,104 +306,20 @@ public class VoidCloneAbility : MonoBehaviour
 
     private void UpdateUI()
     {
-        bool usable = canUseClone && !cloneActive;
+        bool usable =
+            canUseClone &&
+            !cloneActive &&
+            !gameOverHandled;
 
         if (cloneButton != null)
             cloneButton.interactable = usable;
 
         if (cloneButtonImage != null)
-            cloneButtonImage.sprite = usable ? readySprite : usedSprite;
-    }
-
-    private List<TargetData> GetRandomEnemies()
-    {
-        targetBuffer.Clear();
-
-        List<TargetData> allTargets = new List<TargetData>();
-        HashSet<GameObject> addedObjects = new HashSet<GameObject>();
-
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-
-        foreach (GameObject enemyObj in enemies)
-            AddEnemyTarget(enemyObj, allTargets, addedObjects);
-
-        HunterEnemyFollow[] hunters = FindObjectsByType<HunterEnemyFollow>(FindObjectsInactive.Exclude);
-
-        foreach (HunterEnemyFollow hunter in hunters)
         {
-            if (hunter != null)
-                AddEnemyTarget(hunter.gameObject, allTargets, addedObjects);
-        }
-
-        Shuffle(allTargets);
-
-        int count = Mathf.Min(enemiesToDistract, allTargets.Count);
-        return allTargets.GetRange(0, count);
-    }
-
-    private void AddEnemyTarget(GameObject enemyObj, List<TargetData> allTargets, HashSet<GameObject> addedObjects)
-    {
-        if (enemyObj == null) return;
-        if (addedObjects.Contains(enemyObj)) return;
-
-        if (enemyObj.GetComponent<BossEnemyFollow>() != null)
-            return;
-
-        EnemyFollow enemy = enemyObj.GetComponent<EnemyFollow>();
-        ProjectileEnemyFollow projectileEnemy = enemyObj.GetComponent<ProjectileEnemyFollow>();
-        MiniBossFollow miniBoss = enemyObj.GetComponent<MiniBossFollow>();
-        HunterEnemyFollow hunter = enemyObj.GetComponent<HunterEnemyFollow>();
-
-        if (enemy == null && projectileEnemy == null && miniBoss == null && hunter == null)
-            return;
-
-        TargetData data = new TargetData
-        {
-            enemy = enemy,
-            projectileEnemy = projectileEnemy,
-            miniBoss = miniBoss,
-            hunter = hunter
-        };
-
-        if (enemy != null)
-            data.originalTarget = enemy.player;
-        else if (projectileEnemy != null)
-            data.originalTarget = projectileEnemy.player;
-        else if (miniBoss != null)
-            data.originalTarget = miniBoss.player;
-        else if (hunter != null)
-            data.originalTarget = hunter.player;
-
-        addedObjects.Add(enemyObj);
-        allTargets.Add(data);
-    }
-
-    private void SetEnemyTarget(TargetData data, Transform target)
-    {
-        if (data.enemy != null) data.enemy.player = target;
-        if (data.projectileEnemy != null) data.projectileEnemy.player = target;
-        if (data.miniBoss != null) data.miniBoss.player = target;
-        if (data.hunter != null) data.hunter.player = target;
-    }
-
-    private void RestoreEnemyTarget(TargetData data)
-    {
-        if (data.originalTarget == null) return;
-
-        if (data.enemy != null) data.enemy.player = data.originalTarget;
-        if (data.projectileEnemy != null) data.projectileEnemy.player = data.originalTarget;
-        if (data.miniBoss != null) data.miniBoss.player = data.originalTarget;
-        if (data.hunter != null) data.hunter.player = data.originalTarget;
-    }
-
-    private void Shuffle(List<TargetData> list)
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            int randomIndex = Random.Range(i, list.Count);
-            TargetData temp = list[i];
-            list[i] = list[randomIndex];
-            list[randomIndex] = temp;
+            cloneButtonImage.sprite =
+                usable
+                    ? readySprite
+                    : usedSprite;
         }
     }
 }

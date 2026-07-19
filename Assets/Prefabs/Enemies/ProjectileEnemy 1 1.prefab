@@ -196,6 +196,25 @@ MonoBehaviour:
   moveSpeed: 3
   stoppingDistance: 7
   retreatDistance: 4
+  strafeEnabled: 1
+  strafeSpeedMultiplier: 0.65
+  strafeDirectionChangeMinTime: 1.5
+  strafeDirectionChangeMaxTime: 3
+  strafeDistanceTolerance: 0.6
+  predictiveAimEnabled: 1
+  predictionTime: 0.25
+  maxPredictionDistance: 1.5
+  predictionDistanceThreshold: 2.5
+  separationEnabled: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  separationRadius: 0.9
+  separationStrength: 0.45
+  minSideMoveAmount: 0.05
+  maxSideMoveAmount: 0.18
+  minSideMoveSpeed: 1.5
+  maxSideMoveSpeed: 3
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -208,8 +227,8 @@ MonoBehaviour:
   poolSize: 12
   stuckCheckTime: 0.5
   stuckDistance: 0.05
-  unstuckDuration: 0.5
-  unstuckSideForce: 1.5
+  unstuckDuration: 0.35
+  unstuckSideForce: 2
   fireSound: {fileID: 8300000, guid: 6fec7ab44c9fe2144a0fbb06fdf6db46, type: 3}
   spawnEffectDuration: 0.15
 --- !u!1 &2194490060352627480
@@ -247,7 +266,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6008980486549237774
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -304,6 +323,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &4656978265787915307
 MonoBehaviour:
   m_ObjectHideFlags: 0

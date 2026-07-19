@@ -59,7 +59,6 @@ public class LevelConfig : ScriptableObject
 
     [Header("CLONE")]
     public float cloneDuration = 3f;
-    public int cloneEnemiesToDistract = 2;
     public float cloneCooldown = 8f;
     public int cloneUses = 1;
 
@@ -115,6 +114,16 @@ public class LevelConfig : ScriptableObject
     public float normalMaxStartSpeed = 2.5f;
     public float normalMaxSpeed = 7f;
     public float normalSpeedIncreaseRate = 0.1f;
+
+    [Header("NORMAL ENEMY AI")]
+    public bool normalPredictionEnabled = true;
+    public float normalPredictionDistanceThreshold = 2.5f;
+    public float normalPredictionTime = 0.25f;
+    public float normalMaxPredictionDistance = 1.5f;
+
+    public bool normalSeparationEnabled = true;
+    public float normalSeparationRadius = 0.75f;
+    public float normalSeparationStrength = 0.65f;
 
     [Header("PROJECTILE ENEMY")]
     public int projectileEnemyCount = 0;

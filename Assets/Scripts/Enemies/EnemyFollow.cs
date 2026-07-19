@@ -14,6 +14,25 @@ public class EnemyFollow : MonoBehaviour
     public float minStartSpeed = 1.5f;
     public float maxStartSpeed = 2.5f;
 
+    [Header("Predictive Pursuit")]
+    public bool predictionEnabled = true;
+    public float predictionDistanceThreshold = 2.5f;
+    public float predictionTime = 0.25f;
+    public float maxPredictionDistance = 1.5f;
+
+    [Header("Wave Movement")]
+    public float minSideMoveAmount = 0.1f;
+    public float maxSideMoveAmount = 0.35f;
+    public float minSideMoveSpeed = 1.5f;
+    public float maxSideMoveSpeed = 3f;
+    public float waveFadeDistance = 2.5f;
+
+    [Header("Enemy Separation")]
+    public bool separationEnabled = true;
+    public LayerMask enemyLayer;
+    public float separationRadius = 0.75f;
+    public float separationStrength = 0.65f;
+
     [Header("Advanced Unstuck")]
     public LayerMask obstacleLayer;
     public float escapeCheckRadius = 1.2f;
@@ -30,14 +49,17 @@ public class EnemyFollow : MonoBehaviour
 
     [Header("Close Range Smoothing")]
     public float closeRangeDistance = 0.8f;
-    public float closeRangeSpeedMultiplier = 0.75f;
+    [Range(0.5f, 1f)]
+    public float closeRangeSpeedMultiplier = 0.9f;
 
     private float movementOffset;
     private float sideMoveAmount;
     private float sideMoveSpeed;
 
     private Rigidbody2D rb;
+    private Rigidbody2D targetRigidbody;
     private PlayerMovement playerMovement;
+    private Transform originalPlayerTarget;
 
     private Vector3 spawnTargetScale;
     private Vector2 lastPosition;
@@ -48,7 +70,8 @@ public class EnemyFollow : MonoBehaviour
     private float unstuckTimer;
     private int unstuckDirection = 1;
 
-    private readonly Collider2D[] escapeHits = new Collider2D[8];
+    private readonly Collider2D[] escapeHits = new Collider2D[16];
+    private readonly Collider2D[] separationHits = new Collider2D[16];
 
     private void Awake()
     {
@@ -65,14 +88,21 @@ public class EnemyFollow : MonoBehaviour
         transform.localScale = Vector3.zero;
 
         speed = Random.Range(minStartSpeed, maxStartSpeed);
+
         unstuckDirection = Random.Range(0, 2) == 0 ? -1 : 1;
-        unstuckTimer = Random.Range(0f, 0.2f);
+        unstuckTimer = 0f;
 
         FindPlayerIfNeeded();
 
+        originalPlayerTarget = player;
+
         movementOffset = Random.Range(0f, 100f);
-        sideMoveAmount = Random.Range(-0.35f, 0.35f);
-        sideMoveSpeed = Random.Range(1.5f, 3f);
+        sideMoveAmount = Random.Range(minSideMoveAmount, maxSideMoveAmount);
+
+        if (Random.value < 0.5f)
+            sideMoveAmount *= -1f;
+
+        sideMoveSpeed = Random.Range(minSideMoveSpeed, maxSideMoveSpeed);
 
         lastPosition = rb.position;
 
@@ -82,6 +112,7 @@ public class EnemyFollow : MonoBehaviour
     private void FixedUpdate()
     {
         FindPlayerIfNeeded();
+        UpdateTarget();
 
         if (player == null)
         {
@@ -101,31 +132,52 @@ public class EnemyFollow : MonoBehaviour
             return;
         }
 
-        FollowPlayer();
+        FollowTarget();
         IncreaseSpeed();
+    }
+
+    private void UpdateTarget()
+    {
+        Transform desiredTarget = VoidCloneAbility.ActiveCloneTarget != null
+            ? VoidCloneAbility.ActiveCloneTarget
+            : originalPlayerTarget;
+
+        if (player == desiredTarget)
+            return;
+
+        player = desiredTarget;
+        targetRigidbody = player != null
+            ? player.GetComponent<Rigidbody2D>()
+            : null;
     }
 
     private void FindPlayerIfNeeded()
     {
-        if (player != null)
-        {
-            if (playerMovement == null)
-                playerMovement = player.GetComponent<PlayerMovement>();
-
+        if (originalPlayerTarget != null)
             return;
-        }
 
         GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
 
-        if (foundPlayer == null) return;
+        if (foundPlayer == null)
+            return;
 
-        player = foundPlayer.transform;
+        originalPlayerTarget = foundPlayer.transform;
+        player = originalPlayerTarget;
+
         playerMovement = foundPlayer.GetComponent<PlayerMovement>();
+        targetRigidbody = foundPlayer.GetComponent<Rigidbody2D>();
     }
 
     private IEnumerator SpawnEffect()
     {
         isSpawning = true;
+
+        if (spawnEffectDuration <= 0f)
+        {
+            transform.localScale = spawnTargetScale;
+            isSpawning = false;
+            yield break;
+        }
 
         float time = 0f;
 
@@ -134,77 +186,290 @@ public class EnemyFollow : MonoBehaviour
             time += Time.deltaTime;
 
             float t = Mathf.Clamp01(time / spawnEffectDuration);
-            transform.localScale = Vector3.Lerp(Vector3.zero, spawnTargetScale, t);
+
+            // Hafif yumuşak spawn eğrisi.
+            t = t * t * (3f - 2f * t);
+
+            transform.localScale = Vector3.Lerp(
+                Vector3.zero,
+                spawnTargetScale,
+                t
+            );
 
             yield return null;
         }
 
         transform.localScale = spawnTargetScale;
         isSpawning = false;
+
+        lastPosition = rb.position;
+        stuckTimer = 0f;
     }
 
-    private void FollowPlayer()
+    private void FollowTarget()
     {
-        Vector2 toPlayer = (Vector2)player.position - rb.position;
+        Vector2 targetPosition = GetTargetPosition();
+        Vector2 toTarget = targetPosition - rb.position;
 
-        if (toPlayer.sqrMagnitude <= 0.001f)
+        float distanceToTarget = Vector2.Distance(
+            rb.position,
+            player.position
+        );
+
+        if (toTarget.sqrMagnitude <= 0.001f)
+        {
+            ResetStuckCheck();
             return;
+        }
 
-        Vector2 direction = toPlayer.normalized;
+        Vector2 targetDirection = toTarget.normalized;
+        Vector2 finalDirection = targetDirection;
 
-        Vector2 waveSideDirection = new Vector2(-direction.y, direction.x);
-        float wave = Mathf.Sin((Time.time + movementOffset) * sideMoveSpeed) * sideMoveAmount;
-        direction = (direction + waveSideDirection * wave).normalized;
+        finalDirection += GetWaveDirection(
+            targetDirection,
+            distanceToTarget
+        );
+
+        finalDirection += GetSeparationDirection()
+            * separationStrength;
+
+        if (finalDirection.sqrMagnitude <= 0.001f)
+            finalDirection = targetDirection;
+        else
+            finalDirection.Normalize();
 
         if (unstuckTimer > 0f)
         {
             unstuckTimer -= Time.fixedDeltaTime;
 
-            Vector2 sideDirection = new Vector2(-direction.y, direction.x) * unstuckDirection;
-            Vector2 finalDirection = (direction + sideDirection * unstuckSideForce).normalized;
+            Vector2 sideDirection = new Vector2(
+                -targetDirection.y,
+                targetDirection.x
+            ) * unstuckDirection;
 
-            Move(finalDirection, toPlayer.magnitude);
-            FlipSprite(direction);
-            return;
+            finalDirection = (
+                finalDirection +
+                sideDirection * unstuckSideForce
+            ).normalized;
         }
 
-        Move(direction, toPlayer.magnitude);
-        HandleStuckCheck();
-        FlipSprite(direction);
+        Move(finalDirection, distanceToTarget);
+        HandleStuckCheck(distanceToTarget);
+        FlipSprite(finalDirection);
     }
 
-    private void Move(Vector2 direction, float distanceToPlayer)
+    private Vector2 GetTargetPosition()
+    {
+        Vector2 targetPosition = player.position;
+
+        if (!predictionEnabled)
+            return targetPosition;
+
+        if (player != originalPlayerTarget)
+            return targetPosition;
+
+        if (targetRigidbody == null)
+            return targetPosition;
+
+        float distance = Vector2.Distance(
+            rb.position,
+            targetPosition
+        );
+
+        if (distance < predictionDistanceThreshold)
+            return targetPosition;
+
+        Vector2 targetVelocity = targetRigidbody.linearVelocity;
+
+        Vector2 predictionOffset =
+            targetVelocity * predictionTime;
+
+        predictionOffset = Vector2.ClampMagnitude(
+            predictionOffset,
+            maxPredictionDistance
+        );
+
+        return targetPosition + predictionOffset;
+    }
+
+    private Vector2 GetWaveDirection(
+        Vector2 targetDirection,
+        float distanceToTarget
+    )
+    {
+        if (waveFadeDistance <= 0f)
+            return Vector2.zero;
+
+        float waveStrength = Mathf.InverseLerp(
+            closeRangeDistance,
+            waveFadeDistance,
+            distanceToTarget
+        );
+
+        if (waveStrength <= 0f)
+            return Vector2.zero;
+
+        Vector2 sideDirection = new Vector2(
+            -targetDirection.y,
+            targetDirection.x
+        );
+
+        float wave = Mathf.Sin(
+            (Time.time + movementOffset) * sideMoveSpeed
+        );
+
+        return sideDirection
+            * wave
+            * sideMoveAmount
+            * waveStrength;
+    }
+
+    private Vector2 GetSeparationDirection()
+    {
+        if (!separationEnabled)
+            return Vector2.zero;
+
+        if (separationRadius <= 0f)
+            return Vector2.zero;
+
+        ContactFilter2D filter = new ContactFilter2D();
+        filter.SetLayerMask(enemyLayer);
+        filter.useLayerMask = true;
+        filter.useTriggers = false;
+
+        int hitCount = Physics2D.OverlapCircle(
+            rb.position,
+            separationRadius,
+            filter,
+            separationHits
+        );
+
+        if (hitCount <= 0)
+            return Vector2.zero;
+
+        Vector2 separationDirection = Vector2.zero;
+        int validEnemyCount = 0;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = separationHits[i];
+
+            if (hit == null)
+                continue;
+
+            if (hit.attachedRigidbody == rb)
+                continue;
+
+            EnemyFollow otherEnemy =
+                hit.GetComponentInParent<EnemyFollow>();
+
+            if (otherEnemy == null || otherEnemy == this)
+                continue;
+
+            Vector2 awayDirection =
+                rb.position -
+                (Vector2)otherEnemy.transform.position;
+
+            float sqrDistance = awayDirection.sqrMagnitude;
+
+            if (sqrDistance <= 0.001f)
+            {
+                awayDirection = Random.insideUnitCircle.normalized;
+                sqrDistance = 0.001f;
+            }
+
+            float distance = Mathf.Sqrt(sqrDistance);
+
+            float proximityStrength = 1f -
+                Mathf.Clamp01(distance / separationRadius);
+
+            separationDirection +=
+                awayDirection.normalized * proximityStrength;
+
+            validEnemyCount++;
+        }
+
+        if (validEnemyCount <= 0)
+            return Vector2.zero;
+
+        separationDirection /= validEnemyCount;
+
+        return Vector2.ClampMagnitude(
+            separationDirection,
+            1f
+        );
+    }
+
+    private void Move(
+        Vector2 direction,
+        float distanceToTarget
+    )
     {
         float finalSpeed = speed;
 
-        if (distanceToPlayer < closeRangeDistance)
-            finalSpeed *= closeRangeSpeedMultiplier;
+        if (distanceToTarget < closeRangeDistance)
+        {
+            float closeRangeT = Mathf.InverseLerp(
+                0f,
+                closeRangeDistance,
+                distanceToTarget
+            );
 
-        rb.MovePosition(rb.position + direction * finalSpeed * Time.fixedDeltaTime);
+            float speedMultiplier = Mathf.Lerp(
+                closeRangeSpeedMultiplier,
+                1f,
+                closeRangeT
+            );
+
+            finalSpeed *= speedMultiplier;
+        }
+
+        rb.MovePosition(
+            rb.position +
+            direction *
+            finalSpeed *
+            Time.fixedDeltaTime
+        );
     }
 
-    private void HandleStuckCheck()
+    private void HandleStuckCheck(float distanceToTarget)
     {
+        if (distanceToTarget <= closeRangeDistance)
+        {
+            ResetStuckCheck();
+            return;
+        }
+
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime) return;
+        if (stuckTimer < stuckCheckTime)
+            return;
 
-        float movedSqrDistance = (rb.position - lastPosition).sqrMagnitude;
-        float stuckSqrDistance = stuckDistance * stuckDistance;
+        float movedSqrDistance =
+            (rb.position - lastPosition).sqrMagnitude;
+
+        float stuckSqrDistance =
+            stuckDistance * stuckDistance;
 
         if (movedSqrDistance < stuckSqrDistance)
         {
             Vector2 escapeDirection = GetEscapeDirection();
 
-            if (escapeDirection == Vector2.zero)
+            if (escapeDirection != Vector2.zero)
             {
-                unstuckDirection *= -1;
-                escapeDirection = new Vector2(unstuckDirection, Random.Range(-0.5f, 0.5f)).normalized;
+                rb.MovePosition(
+                    rb.position +
+                    escapeDirection *
+                    speed *
+                    escapeSpeedMultiplier *
+                    Time.fixedDeltaTime
+                );
+
+                unstuckDirection =
+                    Random.Range(0, 2) == 0 ? -1 : 1;
+
+                unstuckTimer = unstuckDuration;
             }
-
-            rb.MovePosition(rb.position + escapeDirection * speed * escapeSpeedMultiplier * Time.fixedDeltaTime);
-
-            unstuckTimer = unstuckDuration;
         }
 
         lastPosition = rb.position;
@@ -215,11 +480,17 @@ public class EnemyFollow : MonoBehaviour
     {
         ContactFilter2D filter = new ContactFilter2D();
         filter.SetLayerMask(obstacleLayer);
+        filter.useLayerMask = true;
         filter.useTriggers = false;
 
-        int hitCount = Physics2D.OverlapCircle(rb.position, escapeCheckRadius, filter, escapeHits);
+        int hitCount = Physics2D.OverlapCircle(
+            rb.position,
+            escapeCheckRadius,
+            filter,
+            escapeHits
+        );
 
-        if (hitCount == 0)
+        if (hitCount <= 0)
             return Vector2.zero;
 
         Vector2 escapeDirection = Vector2.zero;
@@ -227,21 +498,46 @@ public class EnemyFollow : MonoBehaviour
         for (int i = 0; i < hitCount; i++)
         {
             Collider2D hit = escapeHits[i];
-            if (hit == null) continue;
 
-            Vector2 closestPoint = hit.ClosestPoint(rb.position);
-            Vector2 awayFromObstacle = rb.position - closestPoint;
+            if (hit == null)
+                continue;
+
+            Vector2 closestPoint =
+                hit.ClosestPoint(rb.position);
+
+            Vector2 awayFromObstacle =
+                rb.position - closestPoint;
+
+            if (awayFromObstacle.sqrMagnitude <= 0.001f)
+            {
+                awayFromObstacle =
+                    rb.position -
+                    (Vector2)hit.bounds.center;
+            }
 
             if (awayFromObstacle.sqrMagnitude > 0.001f)
-                escapeDirection += awayFromObstacle.normalized;
+            {
+                escapeDirection +=
+                    awayFromObstacle.normalized;
+            }
         }
+
+        if (escapeDirection.sqrMagnitude <= 0.001f)
+            return Vector2.zero;
 
         return escapeDirection.normalized;
     }
 
+    private void ResetStuckCheck()
+    {
+        stuckTimer = 0f;
+        lastPosition = rb.position;
+    }
+
     private void FlipSprite(Vector2 direction)
     {
-        if (isSpawning) return;
+        if (isSpawning)
+            return;
 
         Vector3 scale = transform.localScale;
         float absX = Mathf.Abs(scale.x);

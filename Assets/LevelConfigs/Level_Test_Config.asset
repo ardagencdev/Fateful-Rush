@@ -27,11 +27,10 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2
-  cloneDuration: 3
-  cloneEnemiesToDistract: 2
+  cloneDuration: 6
   cloneCooldown: 8
   cloneUses: 1
-  armorImmuneDuration: 1
+  armorImmuneDuration: 2
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
@@ -82,27 +81,34 @@ MonoBehaviour:
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
   normalSpeedIncreaseRate: 0.1
+  normalPredictionEnabled: 1
+  normalPredictionDistanceThreshold: 2.5
+  normalPredictionTime: 0.25
+  normalMaxPredictionDistance: 1.5
+  normalSeparationEnabled: 1
+  normalSeparationRadius: 0.75
+  normalSeparationStrength: 0.65
   projectileEnemyCount: 1
   projectileEnemySpawnInterval: 5
   projectileMoveSpeed: 3
   projectileStoppingDistance: 7
   projectileRetreatDistance: 4
   projectileFireRate: 1.5
-  projectileSpeed: 6
+  projectileSpeed: 7
   hunterEnemyCount: 1
   hunterEnemySpawnInterval: 8
   hunterRepositionTime: 1.2
   hunterWarningDuration: 1
   hunterChargeSpeed: 15
   hunterStunDuration: 1
-  bossEnabled: 1
+  bossEnabled: 0
   bossSpawnScore: 75
   bossSpeed: 4.5
   bossCanSplit: 1
   bossSplitDelay: 0.8
   bossSplitDistance: 1.2
   miniBossSpeed: 4.5
-  beaconEnemyCount: 1
+  beaconEnemyCount: 0
   beaconMinSpawnTime: 3
   beaconMaxSpawnTime: 15
   beaconBuffDuration: 15
@@ -117,9 +123,9 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   armorEnabled: 1
-  slowEnabled: 1
-  armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
+  slowEnabled: 0
+  armorMinSpawnTime: 1
+  armorMaxSpawnTime: 2
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0

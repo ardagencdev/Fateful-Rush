@@ -55,8 +55,6 @@ public class LevelConfigEditor : Editor
         Box("PLAYER", () =>
         {
             Prop("playerMoveSpeed");
-            Prop("playerComboSpeedBonus");
-            Prop("armorImmuneDuration");
         });
 
         Box("ABILITIES", () =>
@@ -79,7 +77,6 @@ public class LevelConfigEditor : Editor
             {
                 MiniTitle("Void Clone");
                 Prop("cloneDuration");
-                Prop("cloneEnemiesToDistract");
                 Prop("cloneCooldown");
                 Prop("cloneUses");
             }
@@ -96,13 +93,14 @@ public class LevelConfigEditor : Editor
 
         Box("UI / COMBO", () =>
         {
-            Prop("comboEnabled");
-
             if (Bool("comboEnabled"))
             {
                 Prop("comboTimeLimit");
                 Prop("maxCombo");
+                Prop("playerComboSpeedBonus");
                 Prop("comboSpeedStages", true);
+
+                Help("Player Combo Speed, Combo Speed Stages boşsa kullanılan eski sabit hız bonusudur.");
                 Help("Her stage: combo kaç X olacak, kaç coin chain ile açılacak, player speed kaçla çarpılacak. Örnek: 3x / 5 coin / 1.5 speed.");
             }
         });
@@ -152,13 +150,37 @@ public class LevelConfigEditor : Editor
         {
             Prop("normalEnemyCount");
 
-            if (Int("normalEnemyCount") <= 0) return;
+            if (Int("normalEnemyCount") <= 0)
+                return;
 
             Prop("normalEnemySpawnInterval");
             Prop("normalMinStartSpeed");
             Prop("normalMaxStartSpeed");
             Prop("normalMaxSpeed");
             Prop("normalSpeedIncreaseRate");
+
+            EditorGUILayout.Space();
+
+            MiniTitle("AI");
+
+            Prop("normalPredictionEnabled");
+
+            if (Bool("normalPredictionEnabled"))
+            {
+                Prop("normalPredictionDistanceThreshold");
+                Prop("normalPredictionTime");
+                Prop("normalMaxPredictionDistance");
+            }
+
+            EditorGUILayout.Space();
+
+            Prop("normalSeparationEnabled");
+
+            if (Bool("normalSeparationEnabled"))
+            {
+                Prop("normalSeparationRadius");
+                Prop("normalSeparationStrength");
+            }
         });
 
         Box("PROJECTILE ENEMY", () =>

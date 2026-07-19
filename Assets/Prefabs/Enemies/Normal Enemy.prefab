@@ -57,18 +57,33 @@ MonoBehaviour:
   speedIncreaseRate: 0.2
   minStartSpeed: 1.4
   maxStartSpeed: 2.2
+  predictionEnabled: 1
+  predictionDistanceThreshold: 2.5
+  predictionTime: 0.25
+  maxPredictionDistance: 1.5
+  minSideMoveAmount: 0.1
+  maxSideMoveAmount: 0.35
+  minSideMoveSpeed: 1.5
+  maxSideMoveSpeed: 3
+  waveFadeDistance: 2.5
+  separationEnabled: 1
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  separationRadius: 0.75
+  separationStrength: 0.65
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   escapeCheckRadius: 1.2
   escapeSpeedMultiplier: 2.2
   spawnEffectDuration: 0.15
-  stuckCheckTime: 0.25
+  stuckCheckTime: 0.35
   stuckDistance: 0.05
-  unstuckDuration: 0.35
-  unstuckSideForce: 3
+  unstuckDuration: 0.3
+  unstuckSideForce: 2.2
   closeRangeDistance: 0.8
-  closeRangeSpeedMultiplier: 0.75
+  closeRangeSpeedMultiplier: 0.9
 --- !u!58 &5786403730699468108
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -213,7 +228,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1355761673977388191
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -270,6 +285,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &171378394795034474
 MonoBehaviour:
   m_ObjectHideFlags: 0

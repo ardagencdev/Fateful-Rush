@@ -8096,6 +8096,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &312114300
 MonoBehaviour:
@@ -8213,6 +8215,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &328346780
 MonoBehaviour:
@@ -10873,6 +10877,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &693777072
 MonoBehaviour:
@@ -11796,6 +11802,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &799240661
 MonoBehaviour:
@@ -19678,6 +19686,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!222 &1119875426
 CanvasRenderer:
@@ -19777,6 +19787,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1175529237
 MonoBehaviour:
@@ -20387,6 +20399,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: 0}
   hoverScale: 1.03
   clickScale: 0.98
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!1 &1252622766
 GameObject:
@@ -21926,6 +21940,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!1001 &1414743315
 PrefabInstance:
@@ -22499,6 +22515,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!222 &1472432466
 CanvasRenderer:
@@ -22647,6 +22665,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1528949893
 MonoBehaviour:
@@ -23027,6 +23047,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1557053850
 MonoBehaviour:
@@ -23563,6 +23585,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1672707851
 MonoBehaviour:
@@ -23759,6 +23783,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: 0}
   hoverScale: 1.03
   clickScale: 0.98
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1686932947
 MonoBehaviour:
@@ -24692,6 +24718,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1900544690
 MonoBehaviour:
@@ -24857,6 +24885,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1924886480
 MonoBehaviour:
@@ -25345,7 +25375,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VoidCloneAbility
   clonePrefab: {fileID: 8148499819742328233, guid: bb69abe7204b91e45a74e7fe40fbfa98, type: 3}
   cloneDuration: 4
-  enemiesToDistract: 4
   cloneCooldown: 8
   cloneButton: {fileID: 1252523010}
   cloneButtonImage: {fileID: 1252523006}
@@ -25427,6 +25456,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1996056623
 MonoBehaviour:
@@ -25693,6 +25724,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &2011239679
 MonoBehaviour:
@@ -26214,6 +26247,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &2039041042
 MonoBehaviour:
@@ -26578,6 +26613,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &2040246004
 MonoBehaviour:
@@ -26756,6 +26793,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &2046742923
 MonoBehaviour:

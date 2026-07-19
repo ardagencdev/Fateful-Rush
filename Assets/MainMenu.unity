@@ -5204,6 +5204,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &57724734
 MonoBehaviour:
@@ -10659,6 +10661,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &176593740
 MonoBehaviour:
@@ -10961,6 +10965,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &201356014
 MonoBehaviour:
@@ -11263,6 +11269,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &222511716
 MonoBehaviour:
@@ -11676,6 +11684,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &278642106
 MonoBehaviour:
@@ -13501,6 +13511,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &547709594
 MonoBehaviour:
@@ -13845,6 +13857,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &571473938
 MonoBehaviour:
@@ -14058,6 +14072,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &624749659
 MonoBehaviour:
@@ -15174,6 +15190,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &730339147
 MonoBehaviour:
@@ -15258,6 +15276,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &737094104
 MonoBehaviour:
@@ -15874,6 +15894,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &784139689
 MonoBehaviour:
@@ -16508,6 +16530,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &854373739
 MonoBehaviour:
@@ -16875,6 +16899,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!222 &897481940
 CanvasRenderer:
@@ -19163,6 +19189,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1322227958
 MonoBehaviour:
@@ -19879,6 +19907,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1432845825
 MonoBehaviour:
@@ -20371,6 +20401,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1497216670
 MonoBehaviour:
@@ -20793,6 +20825,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1555422791
 MonoBehaviour:
@@ -21658,6 +21692,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 1
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1775333468
 MonoBehaviour:
@@ -22508,6 +22544,8 @@ MonoBehaviour:
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   hoverScale: 1.08
   clickScale: 0.95
+  usePersistentSelectedState: 0
+  selectedScale: 1.05
   transitionSpeed: 10
 --- !u!114 &1879665408
 MonoBehaviour:

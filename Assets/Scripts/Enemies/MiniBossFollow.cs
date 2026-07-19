@@ -11,9 +11,22 @@ public class MiniBossFollow : MonoBehaviour
     public float speed = 2.5f;
     public float shakeAmount = 0.03f;
 
+    [Tooltip("Hedef yönündeki değişimlerin ne kadar yumuşak olacağı.")]
+    public float directionSmoothness = 8f;
+
+    [Header("Wave Movement")]
+    public float minSideMoveAmount = 0.18f;
+    public float maxSideMoveAmount = 0.35f;
+    public float minSideMoveSpeed = 1.5f;
+    public float maxSideMoveSpeed = 3f;
+
     [Header("Collision")]
     public LayerMask solidLayers;
     public float castSkin = 0.05f;
+
+    [Tooltip("Düz yol kapalıysa kaç farklı kayma açısı denenecek.")]
+    [Range(1, 8)]
+    public int slideDirectionAttempts = 4;
 
     [Header("Advanced Unstuck")]
     public LayerMask obstacleLayer;
@@ -26,190 +39,639 @@ public class MiniBossFollow : MonoBehaviour
     public float unstuckDuration = 0.5f;
     public float unstuckSideForce = 1.5f;
 
+    [Header("Clone Targeting")]
+    [Tooltip("Bu Mini Boss, Void Clone tarafından hedef olarak seçilebilir mi?")]
+    public bool canTargetClone;
+
     private float movementOffset;
     private float sideMoveAmount;
     private float sideMoveSpeed;
 
     private Rigidbody2D rb;
     private Collider2D col;
+
     private PlayerMovement playerMovement;
 
     private Vector3 originalScale;
     private Vector2 lastPosition;
+    private Vector2 smoothedDirection;
 
     private float stuckTimer;
     private float unstuckTimer;
+
     private int unstuckDirection = 1;
 
+    private bool stopped;
+
     private ContactFilter2D solidFilter;
-    private readonly RaycastHit2D[] castHits = new RaycastHit2D[4];
-    private readonly Collider2D[] escapeHits = new Collider2D[8];
+
+    private readonly RaycastHit2D[] castHits =
+        new RaycastHit2D[8];
+
+    private readonly Collider2D[] escapeHits =
+        new Collider2D[16];
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
         originalScale = transform.localScale;
 
-        solidFilter = new ContactFilter2D();
-        solidFilter.SetLayerMask(solidLayers);
+        if (originalScale == Vector3.zero)
+            originalScale = Vector3.one;
+
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
+
+        rb.collisionDetectionMode =
+            CollisionDetectionMode2D.Continuous;
+
+        rb.bodyType =
+            RigidbodyType2D.Dynamic;
+
+        solidFilter =
+            new ContactFilter2D();
+
+        solidFilter.SetLayerMask(
+            solidLayers
+        );
+
+        solidFilter.useLayerMask = true;
         solidFilter.useTriggers = false;
     }
 
     private void Start()
     {
-        if (player != null)
-            playerMovement = player.GetComponent<PlayerMovement>();
+        FindPlayerIfNeeded();
 
-        rb.gravityScale = 0f;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb.bodyType = RigidbodyType2D.Dynamic;
+        movementOffset =
+            Random.Range(0f, 100f);
 
-        movementOffset = Random.Range(0f, 100f);
-        sideMoveAmount = Random.Range(-0.35f, 0.35f);
-        sideMoveSpeed = Random.Range(1.5f, 3f);
+        float sideMagnitude =
+            Random.Range(
+                minSideMoveAmount,
+                maxSideMoveAmount
+            );
+
+        sideMoveAmount =
+            Random.value < 0.5f
+                ? -sideMagnitude
+                : sideMagnitude;
+
+        sideMoveSpeed =
+            Random.Range(
+                minSideMoveSpeed,
+                maxSideMoveSpeed
+            );
+
+        unstuckDirection =
+            Random.Range(0, 2) == 0
+                ? -1
+                : 1;
 
         lastPosition = rb.position;
     }
 
     private void FixedUpdate()
     {
-        if (player == null) return;
-        if (playerMovement == null || playerMovement.IsGameOver) return;
+        if (stopped)
+            return;
+
+        FindPlayerIfNeeded();
+
+        if (rb == null || player == null)
+            return;
+
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
+            StopMiniBoss();
+            return;
+        }
 
         MoveMiniBoss();
     }
 
+    private void FindPlayerIfNeeded()
+    {
+        if (player != null)
+        {
+            if (playerMovement == null)
+            {
+                playerMovement =
+                    player.GetComponent<PlayerMovement>();
+            }
+
+            return;
+        }
+
+        GameObject foundPlayer =
+            GameObject.FindGameObjectWithTag("Player");
+
+        if (foundPlayer == null)
+            return;
+
+        player = foundPlayer.transform;
+
+        playerMovement =
+            foundPlayer.GetComponent<PlayerMovement>();
+    }
+
+    private Transform GetCurrentTarget()
+    {
+        if (canTargetClone &&
+            VoidCloneAbility.ActiveCloneTarget != null)
+        {
+            return VoidCloneAbility.ActiveCloneTarget;
+        }
+
+        return player;
+    }
+
     private void MoveMiniBoss()
     {
-        Vector2 direction = ((Vector2)player.position - rb.position).normalized;
+        Transform currentTarget = GetCurrentTarget();
 
-        FlipSprite(direction);
+        if (currentTarget == null)
+        {
+            ResetStuckCheck();
+            return;
+        }
 
-        Vector2 waveSideDirection = new Vector2(-direction.y, direction.x);
-        float wave = Mathf.Sin((Time.time + movementOffset) * sideMoveSpeed) * sideMoveAmount;
-        direction = (direction + waveSideDirection * wave).normalized;
+        Vector2 toPlayer =
+            (Vector2)currentTarget.position -
+            rb.position;
+
+        if (toPlayer.sqrMagnitude <= 0.001f)
+        {
+            ResetStuckCheck();
+            return;
+        }
+
+        Vector2 targetDirection =
+            toPlayer.normalized;
+
+        smoothedDirection =
+            Vector2.Lerp(
+                smoothedDirection == Vector2.zero
+                    ? targetDirection
+                    : smoothedDirection,
+                targetDirection,
+                directionSmoothness *
+                Time.fixedDeltaTime
+            ).normalized;
+
+        FlipSprite(smoothedDirection);
+
+        Vector2 waveSideDirection =
+            GetPerpendicularDirection(
+                smoothedDirection,
+                1
+            );
+
+        float wave =
+            Mathf.Sin(
+                (Time.time +
+                 movementOffset) *
+                sideMoveSpeed
+            ) *
+            sideMoveAmount;
+
+        Vector2 movementDirection =
+            (
+                smoothedDirection +
+                waveSideDirection *
+                wave
+            ).normalized;
 
         if (unstuckTimer > 0f)
         {
-            unstuckTimer -= Time.fixedDeltaTime;
+            unstuckTimer -=
+                Time.fixedDeltaTime;
 
-            Vector2 sideDirection = new Vector2(-direction.y, direction.x) * unstuckDirection;
-            Vector2 finalDirection = (direction + sideDirection * unstuckSideForce).normalized;
+            Vector2 escapeSideDirection =
+                GetPerpendicularDirection(
+                    movementDirection,
+                    unstuckDirection
+                );
 
-            MoveWithCollision(finalDirection);
-            return;
+            movementDirection =
+                (
+                    movementDirection +
+                    escapeSideDirection *
+                    unstuckSideForce
+                ).normalized;
         }
 
-        MoveWithCollision(direction);
-        HandleStuckCheck();
+        bool moved =
+            MoveWithCollision(
+                movementDirection
+            );
+
+        HandleStuckCheck(moved);
     }
 
-    private void MoveWithCollision(Vector2 direction)
+    private bool MoveWithCollision(
+        Vector2 direction
+    )
     {
-        if (direction.sqrMagnitude <= 0.001f) return;
+        if (direction.sqrMagnitude <= 0.001f)
+            return false;
 
-        Vector2 shake = new Vector2(
-            Random.Range(-shakeAmount, shakeAmount),
-            Random.Range(-shakeAmount, shakeAmount)
-        );
+        Vector2 intendedMovement =
+            direction *
+            speed *
+            Time.fixedDeltaTime;
 
-        Vector2 movement = direction * speed * Time.fixedDeltaTime + shake;
+        Vector2 shakeOffset =
+            new Vector2(
+                Random.Range(
+                    -shakeAmount,
+                    shakeAmount
+                ),
+                Random.Range(
+                    -shakeAmount,
+                    shakeAmount
+                )
+            );
 
-        if (CanMove(movement))
+        Vector2 finalMovement =
+            intendedMovement +
+            shakeOffset;
+
+        if (CanMove(finalMovement))
         {
-            rb.MovePosition(rb.position + movement);
-            return;
+            rb.MovePosition(
+                rb.position +
+                finalMovement
+            );
+
+            return true;
         }
 
-        Vector2 sideDirection = new Vector2(-direction.y, direction.x) * unstuckDirection;
-        Vector2 sideMovement = sideDirection.normalized * speed * Time.fixedDeltaTime;
-
-        if (CanMove(sideMovement))
-            rb.MovePosition(rb.position + sideMovement);
-        else
-            unstuckDirection *= -1;
-    }
-
-    private bool CanMove(Vector2 movement)
-    {
-        if (col == null) return true;
-        if (movement.sqrMagnitude <= 0.001f) return true;
-
-        int hitCount = col.Cast(
-            movement.normalized,
-            solidFilter,
-            castHits,
-            movement.magnitude + castSkin
-        );
-
-        return hitCount == 0;
-    }
-
-    private void HandleStuckCheck()
-    {
-        stuckTimer += Time.fixedDeltaTime;
-
-        if (stuckTimer < stuckCheckTime) return;
-
-        float movedDistanceSqr = ((Vector2)rb.position - lastPosition).sqrMagnitude;
-        float stuckDistanceSqr = stuckDistance * stuckDistance;
-
-        if (movedDistanceSqr < stuckDistanceSqr)
+        if (TrySlideAroundObstacle(
+                direction,
+                intendedMovement.magnitude))
         {
-            Vector2 escapeDirection = GetEscapeDirection();
+            return true;
+        }
 
-            if (escapeDirection == Vector2.zero)
+        unstuckDirection *= -1;
+
+        return false;
+    }
+
+    private bool TrySlideAroundObstacle(
+        Vector2 forwardDirection,
+        float movementDistance
+    )
+    {
+        if (movementDistance <= 0f)
+            return false;
+
+        Vector2 leftDirection =
+            GetPerpendicularDirection(
+                forwardDirection,
+                1
+            );
+
+        Vector2 rightDirection =
+            GetPerpendicularDirection(
+                forwardDirection,
+                -1
+            );
+
+        for (int attempt = 0;
+             attempt < slideDirectionAttempts;
+             attempt++)
+        {
+            float blend =
+                (attempt + 1f) /
+                slideDirectionAttempts;
+
+            Vector2 preferredSide =
+                unstuckDirection > 0
+                    ? leftDirection
+                    : rightDirection;
+
+            Vector2 oppositeSide =
+                unstuckDirection > 0
+                    ? rightDirection
+                    : leftDirection;
+
+            Vector2 firstDirection =
+                Vector2.Lerp(
+                    forwardDirection,
+                    preferredSide,
+                    blend
+                ).normalized;
+
+            Vector2 firstMovement =
+                firstDirection *
+                movementDistance;
+
+            if (CanMove(firstMovement))
             {
-                unstuckDirection *= -1;
-                escapeDirection = new Vector2(unstuckDirection, Random.Range(-0.5f, 0.5f)).normalized;
+                rb.MovePosition(
+                    rb.position +
+                    firstMovement
+                );
+
+                return true;
             }
 
-            rb.MovePosition(rb.position + escapeDirection * speed * escapeSpeedMultiplier * Time.fixedDeltaTime);
-            unstuckTimer = unstuckDuration;
+            Vector2 secondDirection =
+                Vector2.Lerp(
+                    forwardDirection,
+                    oppositeSide,
+                    blend
+                ).normalized;
+
+            Vector2 secondMovement =
+                secondDirection *
+                movementDistance;
+
+            if (CanMove(secondMovement))
+            {
+                rb.MovePosition(
+                    rb.position +
+                    secondMovement
+                );
+
+                unstuckDirection *= -1;
+
+                return true;
+            }
         }
 
-        lastPosition = rb.position;
+        return false;
+    }
+
+    private bool CanMove(
+        Vector2 movement
+    )
+    {
+        if (col == null)
+            return true;
+
+        if (movement.sqrMagnitude <= 0.001f)
+            return true;
+
+        int hitCount =
+            col.Cast(
+                movement.normalized,
+                solidFilter,
+                castHits,
+                movement.magnitude +
+                Mathf.Max(castSkin, 0f)
+            );
+
+        for (int i = 0;
+             i < hitCount;
+             i++)
+        {
+            Collider2D hitCollider =
+                castHits[i].collider;
+
+            if (hitCollider == null)
+                continue;
+
+            if (hitCollider == col)
+                continue;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private void HandleStuckCheck(
+        bool attemptedMove
+    )
+    {
+        stuckTimer +=
+            Time.fixedDeltaTime;
+
+        if (stuckTimer < stuckCheckTime)
+            return;
+
+        float movedDistanceSqr =
+            (rb.position - lastPosition)
+            .sqrMagnitude;
+
+        float requiredDistanceSqr =
+            stuckDistance *
+            stuckDistance;
+
+        if (movedDistanceSqr <
+            requiredDistanceSqr)
+        {
+            Vector2 escapeDirection =
+                GetEscapeDirection();
+
+            if (escapeDirection.sqrMagnitude <=
+                0.001f)
+            {
+                Transform currentTarget =
+    GetCurrentTarget();
+
+                Vector2 playerDirection =
+                    currentTarget != null
+                        ? ((Vector2)currentTarget.position -
+                           rb.position).normalized
+                        : Vector2.right;
+
+                Vector2 sideDirection =
+                    GetPerpendicularDirection(
+                        playerDirection,
+                        unstuckDirection
+                    );
+
+                escapeDirection =
+                    (
+                        sideDirection +
+                        Random.insideUnitCircle *
+                        0.35f
+                    ).normalized;
+            }
+
+            Vector2 escapeMovement =
+                escapeDirection *
+                speed *
+                escapeSpeedMultiplier *
+                Time.fixedDeltaTime;
+
+            if (CanMove(escapeMovement))
+            {
+                rb.MovePosition(
+                    rb.position +
+                    escapeMovement
+                );
+            }
+            else
+            {
+                unstuckDirection *= -1;
+            }
+
+            unstuckTimer =
+                unstuckDuration;
+        }
+
+        lastPosition =
+            rb.position;
+
         stuckTimer = 0f;
+    }
+
+    private void ResetStuckCheck()
+    {
+        stuckTimer = 0f;
+        lastPosition = rb.position;
     }
 
     private Vector2 GetEscapeDirection()
     {
-        ContactFilter2D obstacleFilter = new ContactFilter2D();
-        obstacleFilter.SetLayerMask(obstacleLayer);
-        obstacleFilter.useTriggers = true;
+        ContactFilter2D obstacleFilter =
+            new ContactFilter2D();
 
-        int hitCount = Physics2D.OverlapCircle(
-            rb.position,
-            escapeCheckRadius,
-            obstacleFilter,
-            escapeHits
+        obstacleFilter.SetLayerMask(
+            obstacleLayer |
+            solidLayers
         );
 
-        if (hitCount == 0)
+        obstacleFilter.useLayerMask = true;
+        obstacleFilter.useTriggers = true;
+
+        int hitCount =
+            Physics2D.OverlapCircle(
+                rb.position,
+                escapeCheckRadius,
+                obstacleFilter,
+                escapeHits
+            );
+
+        if (hitCount <= 0)
             return Vector2.zero;
 
-        Vector2 escapeDirection = Vector2.zero;
+        Vector2 escapeDirection =
+            Vector2.zero;
 
-        for (int i = 0; i < hitCount; i++)
+        int validHitCount = 0;
+
+        for (int i = 0;
+             i < hitCount;
+             i++)
         {
-            Collider2D hit = escapeHits[i];
-            if (hit == null) continue;
+            Collider2D hit =
+                escapeHits[i];
 
-            Vector2 awayFromObstacle = rb.position - (Vector2)hit.ClosestPoint(rb.position);
+            if (hit == null ||
+                hit == col)
+            {
+                continue;
+            }
 
-            if (awayFromObstacle.sqrMagnitude > 0.001f)
-                escapeDirection += awayFromObstacle.normalized;
+            Vector2 closestPoint =
+                hit.ClosestPoint(
+                    rb.position
+                );
+
+            Vector2 awayFromObstacle =
+                rb.position -
+                closestPoint;
+
+            if (awayFromObstacle.sqrMagnitude <=
+                0.001f)
+            {
+                awayFromObstacle =
+                    rb.position -
+                    (Vector2)hit.bounds.center;
+            }
+
+            if (awayFromObstacle.sqrMagnitude <=
+                0.001f)
+            {
+                continue;
+            }
+
+            float distance =
+                awayFromObstacle.magnitude;
+
+            float weight =
+                1f /
+                Mathf.Max(
+                    distance,
+                    0.05f
+                );
+
+            escapeDirection +=
+                awayFromObstacle.normalized *
+                weight;
+
+            validHitCount++;
+        }
+
+        if (validHitCount <= 0 ||
+            escapeDirection.sqrMagnitude <=
+            0.001f)
+        {
+            return Vector2.zero;
         }
 
         return escapeDirection.normalized;
     }
 
-    private void FlipSprite(Vector2 direction)
+    private Vector2 GetPerpendicularDirection(
+        Vector2 direction,
+        int side
+    )
     {
-        if (direction.x > 0)
-            transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
-        else if (direction.x < 0)
-            transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+        return new Vector2(
+            -direction.y,
+            direction.x
+        ) * side;
+    }
+
+    private void FlipSprite(
+        Vector2 direction
+    )
+    {
+        if (Mathf.Abs(direction.x) <=
+            0.01f)
+        {
+            return;
+        }
+
+        Vector3 scale =
+            transform.localScale;
+
+        float absoluteX =
+            Mathf.Abs(originalScale.x);
+
+        scale.x =
+            direction.x > 0f
+                ? absoluteX
+                : -absoluteX;
+
+        transform.localScale = scale;
+    }
+
+    private void StopMiniBoss()
+    {
+        if (stopped)
+            return;
+
+        stopped = true;
+
+        if (rb != null)
+        {
+            rb.linearVelocity =
+                Vector2.zero;
+
+            rb.angularVelocity = 0f;
+        }
+
+        enabled = false;
     }
 }

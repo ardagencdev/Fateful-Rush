@@ -16,22 +16,27 @@ public class UIButtonEffect : MonoBehaviour,
     public float hoverScale = 1.08f;
     public float clickScale = 0.95f;
 
+    [Header("Persistent Selected State")]
+    [SerializeField] private bool usePersistentSelectedState;
+    [SerializeField] private float selectedScale = 1.05f;
+
     [Header("Smooth")]
     public float transitionSpeed = 10f;
 
     private Image image;
+
     private Vector3 originalScale;
     private Vector3 targetScale;
-    private Color targetColor;
 
     private bool isHovering;
+    private bool isSelected;
 
     private void Awake()
     {
         image = GetComponent<Image>();
+
         originalScale = transform.localScale;
         targetScale = originalScale;
-        targetColor = Color.white;
 
         if (image != null && normalSprite != null)
             image.sprite = normalSprite;
@@ -44,18 +49,12 @@ public class UIButtonEffect : MonoBehaviour,
             targetScale,
             Time.unscaledDeltaTime * transitionSpeed
         );
-
-        if (image != null)
-            image.color = Color.Lerp(
-                image.color,
-                targetColor,
-                Time.unscaledDeltaTime * transitionSpeed
-            );
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         isHovering = true;
+
         SetHighlighted(true);
         targetScale = originalScale * hoverScale;
     }
@@ -63,22 +62,19 @@ public class UIButtonEffect : MonoBehaviour,
     public void OnPointerExit(PointerEventData eventData)
     {
         isHovering = false;
-       
+
         SetHighlighted(false);
-        targetScale = originalScale;
+        targetScale = GetRestingScale();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-       
         SetHighlighted(true);
         targetScale = originalScale * clickScale;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-       
-
         if (isHovering)
         {
             SetHighlighted(true);
@@ -87,13 +83,33 @@ public class UIButtonEffect : MonoBehaviour,
         else
         {
             SetHighlighted(false);
-            targetScale = originalScale;
+            targetScale = GetRestingScale();
         }
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (!usePersistentSelectedState)
+            return;
+
+        isSelected = selected;
+
+        if (!isHovering)
+            targetScale = GetRestingScale();
+    }
+
+    private Vector3 GetRestingScale()
+    {
+        if (usePersistentSelectedState && isSelected)
+            return originalScale * selectedScale;
+
+        return originalScale;
     }
 
     private void SetHighlighted(bool state)
     {
-        if (image == null) return;
+        if (image == null)
+            return;
 
         if (state && highlightedSprite != null)
             image.sprite = highlightedSprite;
@@ -113,7 +129,7 @@ public class UIButtonEffect : MonoBehaviour,
         if (image != null && normalSprite != null)
             image.sprite = normalSprite;
 
-        transform.localScale = originalScale;
-        targetScale = originalScale;
+        targetScale = GetRestingScale();
+        transform.localScale = targetScale;
     }
 }

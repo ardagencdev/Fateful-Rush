@@ -37,7 +37,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6025619376223866262
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -94,6 +94,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!50 &2820423169002742911
 Rigidbody2D:
   serializedVersion: 5
@@ -169,7 +170,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87ed3c64090da8f4babb54ecb3f6160f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectile
-  lifeTime: 3
+  lifeTime: 10
+  impactDisappearDuration: 0.2
+  shrinkOnImpact: 1
+  fadeOnImpact: 1
+  environmentHitSound: {fileID: 8300000, guid: dfdc400b661249141968f42531506af8, type: 3}
+  environmentHitSoundVolume: 1
   gameOverName: LASER BULLET
   hitLayers:
     serializedVersion: 2

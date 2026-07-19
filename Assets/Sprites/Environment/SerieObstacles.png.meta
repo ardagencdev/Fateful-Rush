@@ -183,10 +183,10 @@ TextureImporter:
       name: SerieObstacles_0
       rect:
         serializedVersion: 2
-        x: 76
-        y: 999
-        width: 84
-        height: 25
+        x: 12
+        y: 1
+        width: 80
+        height: 987
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -195,7 +195,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 368176b7f94e35a47b26313686ea661d
+      spriteID: 5bfe3e3cfb453c945ad647ea076e3629
       internalID: 2191462268579578875
       vertices: []
       indices: 
@@ -205,10 +205,10 @@ TextureImporter:
       name: SerieObstacles_1
       rect:
         serializedVersion: 2
-        x: 136
+        x: 65
         y: 988
-        width: 4
-        height: 4
+        width: 119
+        height: 36
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -217,7 +217,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2447384ac45b69a46b18359618e840e0
+      spriteID: ac96091668f0c574e8351e5a81c24791
       internalID: 8725007433171055882
       vertices: []
       indices: 
@@ -227,10 +227,10 @@ TextureImporter:
       name: SerieObstacles_2
       rect:
         serializedVersion: 2
-        x: 165
-        y: 736
-        width: 48
-        height: 62
+        x: 100
+        y: 2
+        width: 580
+        height: 1019
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -239,7 +239,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 79037696e0fe1454a836989c2604ba4c
+      spriteID: ad039cae3f95db442a37a25c35402370
       internalID: 6609054218294550934
       vertices: []
       indices: 
@@ -249,10 +249,10 @@ TextureImporter:
       name: SerieObstacles_3
       rect:
         serializedVersion: 2
-        x: 176
-        y: 552
-        width: 403
-        height: 388
+        x: 728
+        y: 460
+        width: 625
+        height: 563
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -261,7 +261,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 10465c973f027204baf58eb8134d31de
+      spriteID: 3cb0a0748fbe2644893671fbd853cb75
       internalID: -1209684706769594477
       vertices: []
       indices: 
@@ -271,10 +271,10 @@ TextureImporter:
       name: SerieObstacles_4
       rect:
         serializedVersion: 2
-        x: 579
-        y: 753
-        width: 64
-        height: 69
+        x: 167
+        y: 742
+        width: 46
+        height: 49
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -283,7 +283,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b25b406c00921204787976f5ffac899e
+      spriteID: 63a9b55755ab90a48a5e8cf872e0fec4
       internalID: 3559868768239676311
       vertices: []
       indices: 
@@ -293,10 +293,10 @@ TextureImporter:
       name: SerieObstacles_5
       rect:
         serializedVersion: 2
-        x: 639
-        y: 744
-        width: 17
-        height: 17
+        x: 579
+        y: 753
+        width: 62
+        height: 69
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -305,7 +305,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f741b7228aabc8546a85cea5efb709dc
+      spriteID: 8435afb92b6d1bf448905ed0e7dd2b53
       internalID: 8120570332501082121
       vertices: []
       indices: 
@@ -315,10 +315,10 @@ TextureImporter:
       name: SerieObstacles_6
       rect:
         serializedVersion: 2
-        x: 751
-        y: 545
-        width: 603
-        height: 375
+        x: 639
+        y: 744
+        width: 17
+        height: 16
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -327,7 +327,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7a96cd57c086c1641a816e84d0fe8bec
+      spriteID: 4dc3d0caf288acc4599efbf61eb31938
       internalID: 7671589959121386478
       vertices: []
       indices: 
@@ -337,9 +337,9 @@ TextureImporter:
       name: SerieObstacles_7
       rect:
         serializedVersion: 2
-        x: 576
+        x: 578
         y: 688
-        width: 11
+        width: 9
         height: 8
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -349,7 +349,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c3914e286653cd8448f359dce8e3570a
+      spriteID: 989983232e1a35a48b5c0e36ea05cfae
       internalID: 880926797853603337
       vertices: []
       indices: 
@@ -359,10 +359,10 @@ TextureImporter:
       name: SerieObstacles_8
       rect:
         serializedVersion: 2
-        x: 584
+        x: 586
         y: 642
-        width: 72
-        height: 86
+        width: 69
+        height: 84
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -371,7 +371,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 27c375a318fb77c4e9bc0fee68cbe6ea
+      spriteID: 8ab70e4b84717ab499aca65850556e9a
       internalID: -399663117774728046
       vertices: []
       indices: 
@@ -382,9 +382,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 567
-        y: 640
+        y: 641
         width: 16
-        height: 10
+        height: 9
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -393,7 +393,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eaa232f9776aae04dbcff9a48f8a9db5
+      spriteID: f49d3a5b89e4dd34eb8c016103b1556c
       internalID: -2015587148603739462
       vertices: []
       indices: 
@@ -406,7 +406,7 @@ TextureImporter:
         x: 1342
         y: 629
         width: 42
-        height: 33
+        height: 35
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -415,7 +415,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cc579d6e33dc50a4b97f3ac0db1a51a7
+      spriteID: 4b306d6ac7c6a204cbeb297a1cbc86fa
       internalID: 2280826076892219798
       vertices: []
       indices: 
@@ -425,9 +425,9 @@ TextureImporter:
       name: SerieObstacles_11
       rect:
         serializedVersion: 2
-        x: 381
+        x: 382
         y: 550
-        width: 32
+        width: 31
         height: 20
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -437,7 +437,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0e7320cabac6ab14da150f08bffb7556
+      spriteID: fe39b922c34c22544886934cf7ae4f03
       internalID: -8075335926727700807
       vertices: []
       indices: 
@@ -447,9 +447,9 @@ TextureImporter:
       name: SerieObstacles_12
       rect:
         serializedVersion: 2
-        x: 1052
+        x: 1051
         y: 537
-        width: 12
+        width: 13
         height: 13
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -459,7 +459,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e40c827b386517b428aa66850ce72cb9
+      spriteID: a1c7508a7e82a494a98eea938aca6624
       internalID: -7302459340378261382
       vertices: []
       indices: 
@@ -469,10 +469,10 @@ TextureImporter:
       name: SerieObstacles_13
       rect:
         serializedVersion: 2
-        x: 92
+        x: 94
         y: 136
-        width: 404
-        height: 344
+        width: 389
+        height: 345
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -481,7 +481,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3a90ec81b8872b74ab6dcf45afad9ef7
+      spriteID: d1bd5885152c1da4f84b0b547ffd72cd
       internalID: -7338431803929593893
       vertices: []
       indices: 
@@ -492,9 +492,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 224
-        y: 476
-        width: 7
-        height: 12
+        y: 478
+        width: 8
+        height: 9
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -503,7 +503,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7f3dd06cd9d7d444ba886decd902c473
+      spriteID: 7607bdcfd50a052438f4f2707e9f3a6a
       internalID: 7432776411159968991
       vertices: []
       indices: 
@@ -513,10 +513,10 @@ TextureImporter:
       name: SerieObstacles_15
       rect:
         serializedVersion: 2
-        x: 1051
-        y: 119
-        width: 365
-        height: 368
+        x: 1043
+        y: 2
+        width: 461
+        height: 496
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -525,7 +525,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 33e42935bfcd60b49b5f46c188402651
+      spriteID: f0075970de1cccc409b413ae1c3df8e6
       internalID: -8655242403296752046
       vertices: []
       indices: 
@@ -535,10 +535,10 @@ TextureImporter:
       name: SerieObstacles_16
       rect:
         serializedVersion: 2
-        x: 84
-        y: 312
-        width: 4
-        height: 4
+        x: 583
+        y: 2
+        width: 438
+        height: 457
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -547,7 +547,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1426a80d4ce5c6e42949ca2f5dc18453
+      spriteID: c32ddf0f090589e4ca174f6146ca7662
       internalID: -5087952699751783213
       vertices: []
       indices: 
@@ -557,31 +557,9 @@ TextureImporter:
       name: SerieObstacles_17
       rect:
         serializedVersion: 2
-        x: 581
-        y: 101
-        width: 430
-        height: 356
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e15875a1f4fe2a648bb37ac562bc9814
-      internalID: -1360004337
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SerieObstacles_18
-      rect:
-        serializedVersion: 2
-        x: 1372
-        y: 201
-        width: 50
+        x: 1374
+        y: 202
+        width: 48
         height: 55
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -591,19 +569,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0c7248a03cccda240b36c40769397a16
-      internalID: 1097962813
+      spriteID: 7430e15e8ba392e4fafb71e24379fbcb
+      internalID: -1360004337
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SerieObstacles_19
+      name: SerieObstacles_18
       rect:
         serializedVersion: 2
-        x: 1416
+        x: 1418
         y: 183
-        width: 14
+        width: 12
         height: 10
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -613,8 +591,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2bce679e9ab26e847a5c83e7c5452eed
+      spriteID: f3e4042e5e1dcdc4596851956386c13a
+      internalID: 1097962813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SerieObstacles_19
+      rect:
+        serializedVersion: 2
+        x: 1175
+        y: 119
+        width: 27
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7fc82abfb82d87a4d9899628dc7adcf5
       internalID: 1757179580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SerieObstacles_20
+      rect:
+        serializedVersion: 2
+        x: 1280
+        y: 119
+        width: 16
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e98f16e6183435a44a2a19c4e83e8cdb
+      internalID: 1027887101
       vertices: []
       indices: 
       edges: []
@@ -650,6 +672,7 @@ TextureImporter:
       SerieObstacles_18: 1097962813
       SerieObstacles_19: 1757179580
       SerieObstacles_2: 6609054218294550934
+      SerieObstacles_20: 1027887101
       SerieObstacles_3: -1209684706769594477
       SerieObstacles_4: 3559868768239676311
       SerieObstacles_5: 8120570332501082121

@@ -13,6 +13,31 @@ public class ProjectileEnemyFollow : MonoBehaviour
     public float stoppingDistance = 7f;
     public float retreatDistance = 4f;
 
+    [Header("Combat Strafe")]
+    public bool strafeEnabled = true;
+    public float strafeSpeedMultiplier = 0.65f;
+    public float strafeDirectionChangeMinTime = 1.5f;
+    public float strafeDirectionChangeMaxTime = 3f;
+    public float strafeDistanceTolerance = 0.6f;
+
+    [Header("Predictive Aim")]
+    public bool predictiveAimEnabled = true;
+    public float predictionTime = 0.3f;
+    public float maxPredictionDistance = 2f;
+    public float predictionDistanceThreshold = 2.5f;
+
+    [Header("Enemy Separation")]
+    public bool separationEnabled = true;
+    public LayerMask enemyLayer;
+    public float separationRadius = 0.9f;
+    public float separationStrength = 0.5f;
+
+    [Header("Movement Wave")]
+    public float minSideMoveAmount = 0.05f;
+    public float maxSideMoveAmount = 0.18f;
+    public float minSideMoveSpeed = 1.5f;
+    public float maxSideMoveSpeed = 3f;
+
     [Header("Advanced Unstuck")]
     public LayerMask obstacleLayer;
     public float escapeCheckRadius = 1.2f;
@@ -27,18 +52,11 @@ public class ProjectileEnemyFollow : MonoBehaviour
     [Header("Projectile Pool")]
     public int poolSize = 12;
 
-    private Queue<GameObject> projectilePool = new Queue<GameObject>();
-    private List<EnemyProjectile> ownedProjectiles = new List<EnemyProjectile>();
-
-    private float movementOffset;
-    private float sideMoveAmount;
-    private float sideMoveSpeed;
-
     [Header("Stuck Fix")]
     public float stuckCheckTime = 0.5f;
     public float stuckDistance = 0.05f;
-    public float unstuckDuration = 0.5f;
-    public float unstuckSideForce = 1.5f;
+    public float unstuckDuration = 0.4f;
+    public float unstuckSideForce = 1.8f;
 
     [Header("Sound")]
     public AudioClip fireSound;
@@ -46,22 +64,44 @@ public class ProjectileEnemyFollow : MonoBehaviour
     [Header("Spawn Effect")]
     public float spawnEffectDuration = 0.15f;
 
-    private Vector3 spawnTargetScale;
-    private bool isSpawning;
+    private readonly Queue<GameObject> projectilePool =
+        new Queue<GameObject>();
+
+    private readonly List<EnemyProjectile> ownedProjectiles =
+        new List<EnemyProjectile>();
+
+    private readonly Collider2D[] escapeHits =
+        new Collider2D[16];
+
+    private readonly Collider2D[] separationHits =
+        new Collider2D[16];
 
     private Rigidbody2D rb;
+    private Rigidbody2D targetRigidbody;
     private AudioSource audioSource;
     private PlayerMovement playerMovement;
 
-    private float fireCooldown;
-    private bool stopped;
-
+    private Vector3 spawnTargetScale;
     private Vector2 lastPosition;
+
+    private float fireCooldown;
+
+    private float movementOffset;
+    private float sideMoveAmount;
+    private float sideMoveSpeed;
+
     private float stuckTimer;
     private float unstuckTimer;
+
+    private float strafeDirectionTimer;
+    private int strafeDirection = 1;
     private int unstuckDirection = 1;
 
-    private readonly Collider2D[] escapeHits = new Collider2D[8];
+    private bool isSpawning;
+    private bool stopped;
+    private bool attemptedMovementThisFrame;
+
+    private Transform cachedCurrentTarget;
 
     private void Awake()
     {
@@ -80,49 +120,182 @@ public class ProjectileEnemyFollow : MonoBehaviour
             spawnTargetScale = Vector3.one;
 
         transform.localScale = Vector3.zero;
-        StartCoroutine(SpawnEffect());
 
-        fireCooldown = Random.Range(fireRate * 0.5f, fireRate * 1.5f);
+        fireCooldown = Random.Range(
+            fireRate * 0.5f,
+            fireRate * 1.5f
+        );
 
         movementOffset = Random.Range(0f, 100f);
-        sideMoveAmount = Random.Range(-0.2f, 0.2f);
-        sideMoveSpeed = Random.Range(1.5f, 3f);
+
+        sideMoveAmount = Random.Range(
+            minSideMoveAmount,
+            maxSideMoveAmount
+        );
+
+        if (Random.value < 0.5f)
+            sideMoveAmount *= -1f;
+
+        sideMoveSpeed = Random.Range(
+            minSideMoveSpeed,
+            maxSideMoveSpeed
+        );
+
+        strafeDirection =
+            Random.Range(0, 2) == 0 ? -1 : 1;
+
+        unstuckDirection =
+            Random.Range(0, 2) == 0 ? -1 : 1;
+
+        ResetStrafeTimer();
 
         lastPosition = rb.position;
-        unstuckDirection = Random.Range(0, 2) == 0 ? -1 : 1;
 
         FindPlayerIfNeeded();
         CreateProjectilePool();
+
+        StartCoroutine(SpawnEffect());
+    }
+
+    private void FixedUpdate()
+    {
+        FindPlayerIfNeeded();
+
+        if (isSpawning || stopped)
+            return;
+
+        Transform currentTarget = GetCurrentTarget();
+
+        if (currentTarget == null)
+        {
+            StopMovementOnly();
+            return;
+        }
+
+        UpdateCachedTarget(currentTarget);
+
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
+            StopEnemy();
+            return;
+        }
+
+        attemptedMovementThisFrame = false;
+
+        HandleStrafeDirectionTimer();
+        HandleMovement(currentTarget);
+        HandleStuckCheck(currentTarget);
+        FlipSprite(currentTarget);
+    }
+
+    private void Update()
+    {
+        FindPlayerIfNeeded();
+
+        if (isSpawning || stopped)
+            return;
+
+        Transform currentTarget = GetCurrentTarget();
+
+        if (currentTarget == null)
+            return;
+
+        UpdateCachedTarget(currentTarget);
+
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
+            return;
+        }
+
+        HandleAttack(currentTarget);
+    }
+
+    private Transform GetCurrentTarget()
+    {
+        if (VoidCloneAbility.ActiveCloneTarget != null)
+            return VoidCloneAbility.ActiveCloneTarget;
+
+        return player;
+    }
+
+    private void UpdateCachedTarget(Transform currentTarget)
+    {
+        if (cachedCurrentTarget == currentTarget)
+            return;
+
+        cachedCurrentTarget = currentTarget;
+
+        targetRigidbody = currentTarget != null
+            ? currentTarget.GetComponent<Rigidbody2D>()
+            : null;
+    }
+
+    private void FindPlayerIfNeeded()
+    {
+        if (player != null)
+        {
+            if (playerMovement == null)
+                playerMovement =
+                    player.GetComponent<PlayerMovement>();
+
+            return;
+        }
+
+        GameObject foundPlayer =
+            GameObject.FindGameObjectWithTag("Player");
+
+        if (foundPlayer == null)
+            return;
+
+        player = foundPlayer.transform;
+
+        playerMovement =
+            foundPlayer.GetComponent<PlayerMovement>();
     }
 
     private void CreateProjectilePool()
     {
-        if (projectilePrefab == null) return;
+        if (projectilePrefab == null)
+            return;
 
         for (int i = 0; i < poolSize; i++)
         {
-            GameObject projectile = Instantiate(projectilePrefab);
+            GameObject projectile =
+                Instantiate(projectilePrefab);
+
             projectile.SetActive(false);
 
-            EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
-
-            if (projectileScript != null)
-            {
-                projectileScript.SetPoolOwner(this);
-
-                if (!ownedProjectiles.Contains(projectileScript))
-                    ownedProjectiles.Add(projectileScript);
-            }
-
+            RegisterProjectile(projectile);
             projectilePool.Enqueue(projectile);
         }
     }
 
+    private void RegisterProjectile(GameObject projectile)
+    {
+        if (projectile == null)
+            return;
+
+        EnemyProjectile projectileScript =
+            projectile.GetComponent<EnemyProjectile>();
+
+        if (projectileScript == null)
+            return;
+
+        projectileScript.SetPoolOwner(this);
+
+        if (!ownedProjectiles.Contains(projectileScript))
+            ownedProjectiles.Add(projectileScript);
+    }
+
     public void ReturnProjectileToPool(GameObject projectile)
     {
-        if (projectile == null) return;
+        if (projectile == null)
+            return;
 
-        Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
+        Rigidbody2D projectileRb =
+            projectile.GetComponent<Rigidbody2D>();
 
         if (projectileRb != null)
         {
@@ -144,209 +317,572 @@ public class ProjectileEnemyFollow : MonoBehaviour
         if (projectilePrefab == null)
             return null;
 
-        GameObject projectile = Instantiate(projectilePrefab);
+        GameObject projectile =
+            Instantiate(projectilePrefab);
+
         projectile.SetActive(false);
 
-        EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
-
-        if (projectileScript != null)
-        {
-            projectileScript.SetPoolOwner(this);
-
-            if (!ownedProjectiles.Contains(projectileScript))
-                ownedProjectiles.Add(projectileScript);
-        }
+        RegisterProjectile(projectile);
 
         return projectile;
     }
 
-    private void FixedUpdate()
+    private void HandleMovement(Transform currentTarget)
     {
-        FindPlayerIfNeeded();
+        Vector2 targetPosition =
+            currentTarget.position;
 
-        if (isSpawning) return;
-        if (stopped) return;
+        Vector2 toTarget =
+            targetPosition - rb.position;
 
-        if (player == null) return;
-
-        if (playerMovement != null && playerMovement.IsGameOver)
+        if (toTarget.sqrMagnitude <= 0.001f)
         {
-            StopEnemy();
+            ResetStuckCheck();
             return;
         }
 
-        HandleMovement();
-        HandleStuckCheck();
-        FlipSprite();
-    }
+        float distance = toTarget.magnitude;
+        Vector2 targetDirection = toTarget.normalized;
 
-    private void Update()
-    {
-        FindPlayerIfNeeded();
+        Vector2 desiredDirection = Vector2.zero;
+        float speedMultiplier = 1f;
 
-        if (isSpawning) return;
-        if (stopped) return;
-        if (player == null) return;
-
-        if (playerMovement != null && playerMovement.IsGameOver) return;
-
-        HandleAttack();
-    }
-
-    private void FindPlayerIfNeeded()
-    {
-        if (player != null)
+        if (distance > stoppingDistance)
         {
-            if (playerMovement == null)
-                playerMovement = player.GetComponent<PlayerMovement>();
+            desiredDirection = targetDirection;
+        }
+        else if (distance < retreatDistance)
+        {
+            desiredDirection = -targetDirection;
+        }
+        else if (strafeEnabled)
+        {
+            desiredDirection =
+                GetStrafeDirection(
+                    targetDirection,
+                    distance
+                );
 
+            speedMultiplier = strafeSpeedMultiplier;
+        }
+        else
+        {
+            ResetStuckCheck();
             return;
         }
 
-        GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
+        Vector2 waveDirection =
+            GetWaveDirection(targetDirection);
 
-        if (foundPlayer == null)
-            return;
+        Vector2 separationDirection =
+            GetSeparationDirection();
 
-        player = foundPlayer.transform;
-        playerMovement = foundPlayer.GetComponent<PlayerMovement>();
-    }
+        Vector2 finalDirection =
+            desiredDirection +
+            waveDirection +
+            separationDirection * separationStrength;
 
-    private void HandleMovement()
-    {
-        Vector2 toPlayer = (Vector2)player.position - rb.position;
+        if (finalDirection.sqrMagnitude <= 0.001f)
+            finalDirection = desiredDirection;
 
-        if (toPlayer.sqrMagnitude <= 0.001f)
-            return;
-
-        Vector2 direction = toPlayer.normalized;
-        float distance = toPlayer.magnitude;
-
-        Vector2 waveSideDirection = new Vector2(-direction.y, direction.x);
-        float wave = Mathf.Sin((Time.time + movementOffset) * sideMoveSpeed) * sideMoveAmount;
-        direction = (direction + waveSideDirection * wave).normalized;
+        finalDirection.Normalize();
 
         if (unstuckTimer > 0f)
         {
             unstuckTimer -= Time.fixedDeltaTime;
 
-            Vector2 sideDirection = new Vector2(-direction.y, direction.x) * unstuckDirection;
-            Vector2 finalDirection = (direction + sideDirection * unstuckSideForce).normalized;
+            Vector2 sideDirection =
+                new Vector2(
+                    -targetDirection.y,
+                    targetDirection.x
+                ) * unstuckDirection;
 
-            Move(finalDirection);
-            return;
+            finalDirection =
+                (
+                    finalDirection +
+                    sideDirection * unstuckSideForce
+                ).normalized;
         }
+
+        float movementDistance =
+            moveSpeed *
+            speedMultiplier *
+            Time.fixedDeltaTime;
 
         if (distance > stoppingDistance)
         {
-            float moveStep = Mathf.Min(moveSpeed * Time.fixedDeltaTime, distance - stoppingDistance);
-            Move(direction, moveStep);
+            float excessDistance =
+                distance - stoppingDistance;
+
+            movementDistance =
+                Mathf.Min(
+                    movementDistance,
+                    excessDistance
+                );
         }
         else if (distance < retreatDistance)
         {
-            float moveStep = Mathf.Min(moveSpeed * Time.fixedDeltaTime, retreatDistance - distance);
-            Move(-direction, moveStep);
+            float missingDistance =
+                retreatDistance - distance;
+
+            movementDistance =
+                Mathf.Min(
+                    movementDistance,
+                    missingDistance
+                );
         }
+
+        Move(finalDirection, movementDistance);
     }
 
-    private void Move(Vector2 direction)
+    private Vector2 GetStrafeDirection(
+        Vector2 targetDirection,
+        float distance
+    )
     {
-        Move(direction, moveSpeed * Time.fixedDeltaTime);
+        Vector2 sideDirection =
+            new Vector2(
+                -targetDirection.y,
+                targetDirection.x
+            ) * strafeDirection;
+
+        float idealDistance =
+            (stoppingDistance + retreatDistance) * 0.5f;
+
+        float distanceDifference =
+            distance - idealDistance;
+
+        Vector2 distanceCorrection =
+            Vector2.zero;
+
+        if (Mathf.Abs(distanceDifference) >
+            strafeDistanceTolerance)
+        {
+            float correctionStrength =
+                Mathf.InverseLerp(
+                    strafeDistanceTolerance,
+                    Mathf.Max(
+                        stoppingDistance - retreatDistance,
+                        strafeDistanceTolerance + 0.01f
+                    ),
+                    Mathf.Abs(distanceDifference)
+                );
+
+            if (distanceDifference > 0f)
+            {
+                distanceCorrection =
+                    targetDirection * correctionStrength;
+            }
+            else
+            {
+                distanceCorrection =
+                    -targetDirection * correctionStrength;
+            }
+        }
+
+        Vector2 finalDirection =
+            sideDirection + distanceCorrection;
+
+        if (finalDirection.sqrMagnitude <= 0.001f)
+            return sideDirection;
+
+        return finalDirection.normalized;
     }
 
-    private void Move(Vector2 direction, float distance)
+    private Vector2 GetWaveDirection(
+        Vector2 targetDirection
+    )
     {
-        if (direction.sqrMagnitude <= 0.001f) return;
+        Vector2 sideDirection =
+            new Vector2(
+                -targetDirection.y,
+                targetDirection.x
+            );
 
-        rb.MovePosition(rb.position + direction.normalized * distance);
+        float wave =
+            Mathf.Sin(
+                (Time.time + movementOffset) *
+                sideMoveSpeed
+            );
+
+        return sideDirection *
+               wave *
+               sideMoveAmount;
     }
 
-    private void HandleAttack()
+    private Vector2 GetSeparationDirection()
+    {
+        if (!separationEnabled)
+            return Vector2.zero;
+
+        if (separationRadius <= 0f)
+            return Vector2.zero;
+
+        ContactFilter2D filter =
+            new ContactFilter2D();
+
+        filter.SetLayerMask(enemyLayer);
+        filter.useLayerMask = true;
+        filter.useTriggers = false;
+
+        int hitCount =
+            Physics2D.OverlapCircle(
+                rb.position,
+                separationRadius,
+                filter,
+                separationHits
+            );
+
+        if (hitCount <= 0)
+            return Vector2.zero;
+
+        Vector2 separationDirection =
+            Vector2.zero;
+
+        int validCount = 0;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit =
+                separationHits[i];
+
+            if (hit == null)
+                continue;
+
+            if (hit.attachedRigidbody == rb)
+                continue;
+
+            ProjectileEnemyFollow other =
+                hit.GetComponentInParent<
+                    ProjectileEnemyFollow
+                >();
+
+            if (other == null || other == this)
+                continue;
+
+            Vector2 awayDirection =
+                rb.position -
+                (Vector2)other.transform.position;
+
+            float sqrDistance =
+                awayDirection.sqrMagnitude;
+
+            if (sqrDistance <= 0.001f)
+            {
+                awayDirection =
+                    Random.insideUnitCircle.normalized;
+
+                sqrDistance = 0.001f;
+            }
+
+            float distance =
+                Mathf.Sqrt(sqrDistance);
+
+            float proximityStrength =
+                1f -
+                Mathf.Clamp01(
+                    distance / separationRadius
+                );
+
+            separationDirection +=
+                awayDirection.normalized *
+                proximityStrength;
+
+            validCount++;
+        }
+
+        if (validCount <= 0)
+            return Vector2.zero;
+
+        separationDirection /= validCount;
+
+        return Vector2.ClampMagnitude(
+            separationDirection,
+            1f
+        );
+    }
+
+    private void Move(
+        Vector2 direction,
+        float distance
+    )
+    {
+        if (direction.sqrMagnitude <= 0.001f)
+            return;
+
+        if (distance <= 0f)
+            return;
+
+        attemptedMovementThisFrame = true;
+
+        rb.MovePosition(
+            rb.position +
+            direction.normalized * distance
+        );
+    }
+
+    private void HandleStrafeDirectionTimer()
+    {
+        if (!strafeEnabled)
+            return;
+
+        strafeDirectionTimer -=
+            Time.fixedDeltaTime;
+
+        if (strafeDirectionTimer > 0f)
+            return;
+
+        strafeDirection *= -1;
+        ResetStrafeTimer();
+    }
+
+    private void ResetStrafeTimer()
+    {
+        strafeDirectionTimer =
+            Random.Range(
+                strafeDirectionChangeMinTime,
+                strafeDirectionChangeMaxTime
+            );
+    }
+
+    private void HandleAttack(
+        Transform currentTarget
+    )
     {
         fireCooldown -= Time.deltaTime;
 
-        if (fireCooldown > 0f) return;
+        if (fireCooldown > 0f)
+            return;
 
-        if (CanSeePlayer())
-            ShootProjectile();
+        if (!CanSeeTarget(currentTarget))
+        {
+            fireCooldown = Mathf.Min(
+                fireRate * 0.2f,
+                0.25f
+            );
 
+            return;
+        }
+
+        ShootProjectile(currentTarget);
         fireCooldown = fireRate;
     }
 
-    private bool CanSeePlayer()
+    private bool CanSeeTarget(
+        Transform currentTarget
+    )
     {
-        if (firePoint == null || player == null) return false;
+        if (firePoint == null ||
+            currentTarget == null)
+        {
+            return false;
+        }
 
-        Vector2 direction = (player.position - firePoint.position).normalized;
-        float distance = Vector2.Distance(firePoint.position, player.position);
+        Vector2 targetPosition =
+            GetAimPosition(currentTarget);
 
-        RaycastHit2D hit = Physics2D.Raycast(
-            firePoint.position,
-            direction,
-            distance,
-            obstacleLayer
-        );
+        Vector2 direction =
+            targetPosition -
+            (Vector2)firePoint.position;
+
+        float distance =
+            direction.magnitude;
+
+        if (distance <= 0.001f)
+            return true;
+
+        RaycastHit2D hit =
+            Physics2D.Raycast(
+                firePoint.position,
+                direction.normalized,
+                distance,
+                obstacleLayer
+            );
 
         return hit.collider == null;
     }
 
-    private void ShootProjectile()
+    private Vector2 GetAimPosition(
+        Transform currentTarget
+    )
     {
-        if (projectilePrefab == null || firePoint == null || player == null) return;
+        Vector2 targetPosition =
+            currentTarget.position;
 
-        GameObject projectile = GetProjectileFromPool();
-        if (projectile == null) return;
+        if (!predictiveAimEnabled)
+            return targetPosition;
 
-        projectile.transform.position = firePoint.position;
-        projectile.transform.rotation = Quaternion.identity;
+        if (targetRigidbody == null)
+            return targetPosition;
+
+        float distance =
+            Vector2.Distance(
+                firePoint != null
+                    ? firePoint.position
+                    : transform.position,
+                targetPosition
+            );
+
+        if (distance <
+            predictionDistanceThreshold)
+        {
+            return targetPosition;
+        }
+
+        Vector2 predictionOffset =
+            targetRigidbody.linearVelocity *
+            predictionTime;
+
+        predictionOffset =
+            Vector2.ClampMagnitude(
+                predictionOffset,
+                maxPredictionDistance
+            );
+
+        return targetPosition +
+               predictionOffset;
+    }
+
+    private void ShootProjectile(
+        Transform currentTarget
+    )
+    {
+        if (projectilePrefab == null ||
+            firePoint == null ||
+            currentTarget == null)
+        {
+            return;
+        }
+
+        GameObject projectile =
+            GetProjectileFromPool();
+
+        if (projectile == null)
+            return;
+
+        projectile.transform.position =
+            firePoint.position;
+
+        projectile.transform.rotation =
+            Quaternion.identity;
+
         projectile.SetActive(true);
 
-        Vector2 direction = (player.position - firePoint.position).normalized;
+        Vector2 aimPosition =
+            GetAimPosition(currentTarget);
 
-        EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
+        Vector2 direction =
+            aimPosition -
+            (Vector2)firePoint.position;
+
+        if (direction.sqrMagnitude <= 0.001f)
+        {
+            ReturnProjectileToPool(projectile);
+            return;
+        }
+
+        direction.Normalize();
+
+        EnemyProjectile projectileScript =
+            projectile.GetComponent<
+                EnemyProjectile
+            >();
 
         if (projectileScript != null)
         {
             projectileScript.SetPoolOwner(this);
 
-            if (!ownedProjectiles.Contains(projectileScript))
-                ownedProjectiles.Add(projectileScript);
+            if (!ownedProjectiles.Contains(
+                    projectileScript
+                ))
+            {
+                ownedProjectiles.Add(
+                    projectileScript
+                );
+            }
 
-            projectileScript.Launch(direction, projectileSpeed, playerMovement);
+            projectileScript.Launch(
+                direction,
+                projectileSpeed,
+                playerMovement
+            );
         }
         else
         {
-            Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
+            Rigidbody2D projectileRb =
+                projectile.GetComponent<
+                    Rigidbody2D
+                >();
 
             if (projectileRb != null)
-                projectileRb.linearVelocity = direction * projectileSpeed;
+            {
+                projectileRb.linearVelocity =
+                    direction * projectileSpeed;
+            }
         }
 
-        if (fireSound != null && audioSource != null)
-            audioSource.PlayOneShot(fireSound, SoundManager.SFXVolume);
+        if (fireSound != null &&
+            audioSource != null)
+        {
+            audioSource.PlayOneShot(
+                fireSound,
+                SoundManager.SFXVolume
+            );
+        }
     }
 
-    private void HandleStuckCheck()
+    private void HandleStuckCheck(
+        Transform currentTarget
+    )
     {
+        if (!attemptedMovementThisFrame)
+        {
+            ResetStuckCheck();
+            return;
+        }
+
+        if (currentTarget == null)
+        {
+            ResetStuckCheck();
+            return;
+        }
+
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime) return;
+        if (stuckTimer < stuckCheckTime)
+            return;
 
-        float movedSqrDistance = (rb.position - lastPosition).sqrMagnitude;
-        float stuckSqrDistance = stuckDistance * stuckDistance;
+        float movedSqrDistance =
+            (rb.position - lastPosition)
+            .sqrMagnitude;
 
-        if (movedSqrDistance < stuckSqrDistance)
+        float stuckSqrDistance =
+            stuckDistance * stuckDistance;
+
+        if (movedSqrDistance <
+            stuckSqrDistance)
         {
-            Vector2 escapeDirection = GetEscapeDirection();
+            Vector2 escapeDirection =
+                GetEscapeDirection();
 
-            if (escapeDirection == Vector2.zero)
+            if (escapeDirection != Vector2.zero)
             {
-                unstuckDirection *= -1;
-                escapeDirection = new Vector2(unstuckDirection, Random.Range(-0.5f, 0.5f)).normalized;
-            }
+                rb.MovePosition(
+                    rb.position +
+                    escapeDirection *
+                    moveSpeed *
+                    escapeSpeedMultiplier *
+                    Time.fixedDeltaTime
+                );
 
-            rb.MovePosition(rb.position + escapeDirection * moveSpeed * escapeSpeedMultiplier * Time.fixedDeltaTime);
-            unstuckTimer = unstuckDuration;
+                unstuckDirection =
+                    Random.Range(0, 2) == 0
+                        ? -1
+                        : 1;
+
+                unstuckTimer =
+                    unstuckDuration;
+            }
         }
 
         lastPosition = rb.position;
@@ -355,43 +891,100 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
     private Vector2 GetEscapeDirection()
     {
-        ContactFilter2D filter = new ContactFilter2D();
+        ContactFilter2D filter =
+            new ContactFilter2D();
+
         filter.SetLayerMask(obstacleLayer);
+        filter.useLayerMask = true;
         filter.useTriggers = false;
 
-        int hitCount = Physics2D.OverlapCircle(rb.position, escapeCheckRadius, filter, escapeHits);
+        int hitCount =
+            Physics2D.OverlapCircle(
+                rb.position,
+                escapeCheckRadius,
+                filter,
+                escapeHits
+            );
 
-        if (hitCount == 0)
+        if (hitCount <= 0)
             return Vector2.zero;
 
-        Vector2 escapeDirection = Vector2.zero;
+        Vector2 escapeDirection =
+            Vector2.zero;
 
         for (int i = 0; i < hitCount; i++)
         {
-            Collider2D hit = escapeHits[i];
-            if (hit == null) continue;
+            Collider2D hit =
+                escapeHits[i];
 
-            Vector2 closestPoint = hit.ClosestPoint(rb.position);
-            Vector2 awayFromObstacle = rb.position - closestPoint;
+            if (hit == null)
+                continue;
 
-            if (awayFromObstacle.sqrMagnitude > 0.001f)
-                escapeDirection += awayFromObstacle.normalized;
+            Vector2 closestPoint =
+                hit.ClosestPoint(rb.position);
+
+            Vector2 awayFromObstacle =
+                rb.position -
+                closestPoint;
+
+            if (awayFromObstacle.sqrMagnitude <=
+                0.001f)
+            {
+                awayFromObstacle =
+                    rb.position -
+                    (Vector2)hit.bounds.center;
+            }
+
+            if (awayFromObstacle.sqrMagnitude >
+                0.001f)
+            {
+                escapeDirection +=
+                    awayFromObstacle.normalized;
+            }
+        }
+
+        if (escapeDirection.sqrMagnitude <=
+            0.001f)
+        {
+            return Vector2.zero;
         }
 
         return escapeDirection.normalized;
     }
 
-    private void FlipSprite()
+    private void ResetStuckCheck()
     {
-        if (player == null || isSpawning) return;
+        stuckTimer = 0f;
+        lastPosition = rb.position;
+    }
 
-        Vector2 direction = player.position - transform.position;
-        Vector3 scale = transform.localScale;
+    private void FlipSprite(
+        Transform currentTarget
+    )
+    {
+        if (currentTarget == null ||
+            isSpawning)
+        {
+            return;
+        }
 
-        float absX = Mathf.Abs(scale.x);
+        Vector2 direction =
+            currentTarget.position -
+            transform.position;
+
+        Vector3 scale =
+            transform.localScale;
+
+        float absX =
+            Mathf.Abs(scale.x);
 
         if (absX <= 0.001f)
-            absX = Mathf.Abs(spawnTargetScale.x);
+        {
+            absX =
+                Mathf.Abs(
+                    spawnTargetScale.x
+                );
+        }
 
         if (direction.x > 0.01f)
             scale.x = absX;
@@ -401,9 +994,19 @@ public class ProjectileEnemyFollow : MonoBehaviour
         transform.localScale = scale;
     }
 
+    private void StopMovementOnly()
+    {
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+    }
+
     private void StopEnemy()
     {
+        if (stopped)
+            return;
+
         stopped = true;
+
         StopAllCoroutines();
 
         rb.linearVelocity = Vector2.zero;
@@ -420,12 +1023,18 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
     private void DisableActiveProjectiles()
     {
-        for (int i = 0; i < ownedProjectiles.Count; i++)
+        for (int i = 0;
+             i < ownedProjectiles.Count;
+             i++)
         {
-            EnemyProjectile projectile = ownedProjectiles[i];
+            EnemyProjectile projectile =
+                ownedProjectiles[i];
 
-            if (projectile != null && projectile.gameObject.activeSelf)
+            if (projectile != null &&
+                projectile.gameObject.activeSelf)
+            {
                 projectile.ReturnToPool();
+            }
         }
     }
 
@@ -433,20 +1042,47 @@ public class ProjectileEnemyFollow : MonoBehaviour
     {
         isSpawning = true;
 
+        if (spawnEffectDuration <= 0f)
+        {
+            transform.localScale =
+                spawnTargetScale;
+
+            isSpawning = false;
+            yield break;
+        }
+
         float time = 0f;
 
-        while (time < spawnEffectDuration)
+        while (time <
+               spawnEffectDuration)
         {
             time += Time.deltaTime;
 
-            float t = Mathf.Clamp01(time / spawnEffectDuration);
-            transform.localScale = Vector3.Lerp(Vector3.zero, spawnTargetScale, t);
+            float t =
+                Mathf.Clamp01(
+                    time /
+                    spawnEffectDuration
+                );
+
+            t = t * t *
+                (3f - 2f * t);
+
+            transform.localScale =
+                Vector3.Lerp(
+                    Vector3.zero,
+                    spawnTargetScale,
+                    t
+                );
 
             yield return null;
         }
 
-        transform.localScale = spawnTargetScale;
+        transform.localScale =
+            spawnTargetScale;
+
         isSpawning = false;
+
+        ResetStuckCheck();
     }
 
     private void OnDestroy()

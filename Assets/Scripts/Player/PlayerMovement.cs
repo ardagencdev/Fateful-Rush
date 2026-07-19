@@ -36,6 +36,11 @@ public class PlayerMovement : MonoBehaviour
     private int facingDirection = 1;
 
     public Vector2 LastMoveDirection { get; private set; } = Vector2.right;
+    public Vector2 CurrentVelocity => currentVelocity;
+    public Vector2 CurrentMoveInput => moveInput;
+
+    public float CurrentMoveSpeed => GetCurrentSpeed();
+
     public bool IsGameOver { get; private set; }
 
     private void Awake()
@@ -86,39 +91,16 @@ public class PlayerMovement : MonoBehaviour
 
     private float GetAdaptiveAccelerationRate()
     {
-        if (moveInput.sqrMagnitude <= 0.001f)
-            return deceleration;
-
-        float inputMagnitude = Mathf.Clamp01(moveInput.magnitude);
-
-        float analogMultiplier = Mathf.Lerp(
+        return MovementMath2D.GetAdaptiveAcceleration(
+            currentVelocity,
+            moveInput,
+            acceleration,
+            deceleration,
+            turnAcceleration,
             lowInputAccelerationMultiplier,
             highInputAccelerationMultiplier,
-            inputMagnitude
+            sharpTurnBoost
         );
-
-        float baseAcceleration = acceleration * analogMultiplier;
-
-        if (currentVelocity.sqrMagnitude <= 0.01f)
-            return baseAcceleration;
-
-        Vector2 currentDirection = currentVelocity.normalized;
-        Vector2 targetDirection = moveInput.normalized;
-
-        float directionDot = Vector2.Dot(currentDirection, targetDirection);
-
-        if (directionDot < 0.35f)
-        {
-            float turnStrength = Mathf.InverseLerp(0.35f, -1f, directionDot);
-
-            return Mathf.Lerp(
-                baseAcceleration,
-                turnAcceleration * sharpTurnBoost,
-                turnStrength
-            );
-        }
-
-        return baseAcceleration;
     }
 
     private float GetCurrentSpeed()

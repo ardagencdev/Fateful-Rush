@@ -36,9 +36,19 @@ public class SpaceBomb : MonoBehaviour
 
         triggered = true;
 
+        PlayerArmor armor = other.GetComponent<PlayerArmor>();
+        PlayerMovement player = other.GetComponent<PlayerMovement>();
+
         Explode();
 
-        PlayerMovement player = other.GetComponent<PlayerMovement>();
+        if (armor != null && armor.IsImmune)
+            return;
+
+        if (armor != null && armor.HasArmor)
+        {
+            armor.BreakArmor();
+            return;
+        }
 
         if (player != null)
         {
@@ -46,7 +56,8 @@ public class SpaceBomb : MonoBehaviour
             return;
         }
 
-        GameStateManager gameStateManager = FindAnyObjectByType<GameStateManager>();
+        GameStateManager gameStateManager =
+            FindAnyObjectByType<GameStateManager>();
 
         if (gameStateManager != null)
             gameStateManager.GameOver(0);

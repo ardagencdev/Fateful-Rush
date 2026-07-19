@@ -291,6 +291,11 @@ public class OptionsUI : MonoBehaviour
             group = button.gameObject.AddComponent<CanvasGroup>();
 
         group.alpha = selected ? 1f : 0.4f;
+
+        UIButtonEffect buttonEffect = button.GetComponent<UIButtonEffect>();
+
+        if (buttonEffect != null)
+            buttonEffect.SetSelected(selected);
     }
 
     private void Switch(GameObject fromPanel, GameObject toPanel)

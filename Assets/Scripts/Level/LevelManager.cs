@@ -117,7 +117,6 @@ public class LevelManager : MonoBehaviour
         {
             voidCloneAbility.enabled = currentLevel.cloneEnabled;
             voidCloneAbility.cloneDuration = currentLevel.cloneDuration;
-            voidCloneAbility.enemiesToDistract = currentLevel.cloneEnemiesToDistract;
             voidCloneAbility.SetCloneCooldown(currentLevel.cloneCooldown);
             voidCloneAbility.SetCloneUses(currentLevel.cloneUses);
         }
