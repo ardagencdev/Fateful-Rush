@@ -168,27 +168,9 @@ public class VoidCloneAbility : MonoBehaviour
 
         if (cloneScript != null)
         {
-            Vector2 playerVelocity = Vector2.zero;
-
-            if (playerMovement != null)
-            {
-                playerVelocity =
-                    playerMovement.CurrentVelocity;
-
-                // FixedUpdate henüz velocity üretmediyse,
-                // doğrudan joystick/input yönünden hesapla.
-                if (playerVelocity.sqrMagnitude < 0.01f &&
-                    playerMovement.CurrentMoveInput.sqrMagnitude > 0.01f)
-                {
-                    playerVelocity =
-                        playerMovement.CurrentMoveInput.normalized *
-                        playerMovement.CurrentMoveSpeed;
-                }
-            }
-
             cloneScript.StartClone(
                 cloneDuration,
-                playerVelocity
+                playerMovement
             );
         }
 

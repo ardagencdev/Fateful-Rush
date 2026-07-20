@@ -107,10 +107,24 @@ public class LevelConfigEditor : Editor
 
         Box("BACKGROUND / NEAR STARS", () =>
         {
-            Prop("nearStarsColor");
+            Prop("randomizeNearStarsColor");
+
+            if (!Bool("randomizeNearStarsColor"))
+            {
+                Prop("nearStarsColor");
+            }
+
             Prop("nearStarsSpeedMultiplier");
             Prop("nearStarsSizeMultiplier");
             Prop("nearStarsEmissionRate");
+
+            if (Bool("randomizeNearStarsColor"))
+            {
+                EditorGUILayout.HelpBox(
+                    "Level her açıldığında Near Stars rengi rastgele seçilir.",
+                    MessageType.Info
+                );
+            }
         });
     }
 

@@ -26,7 +26,9 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
     private Coroutine spawnCoroutine;
     private GameObject activeWarning;
     private GameObject activeLaser;
+
     private bool systemActive;
+    private bool settingsApplied;
 
     private void Awake()
     {
@@ -41,26 +43,65 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
 
     private void Update()
     {
-        if (!systemActive) return;
+        if (!systemActive)
+            return;
 
-        if (playerMovement != null && playerMovement.IsGameOver)
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
             StopLaserSystem();
+        }
     }
 
-    public void ApplyLevelSettings(float minTime, float maxTime, float warningTime, float lifeTime, float width, float extraWidth)
+    public void ApplyLevelSettings(
+        float minTime,
+        float maxTime,
+        float warningTime,
+        float lifeTime,
+        float width,
+        float extraWidth
+    )
     {
         minSpawnTime = Mathf.Max(0f, minTime);
         maxSpawnTime = Mathf.Max(minSpawnTime, maxTime);
+
         warningDuration = Mathf.Max(0f, warningTime);
         laserLifeTime = Mathf.Max(0.1f, lifeTime);
         laserWidth = Mathf.Max(0.01f, width);
         widthExtra = Mathf.Max(0f, extraWidth);
+
+        settingsApplied = true;
+
+        Debug.Log(
+            $"[HorizontalLaser] Level settings applied | " +
+            $"Min: {minSpawnTime} | " +
+            $"Max: {maxSpawnTime} | " +
+            $"Warning: {warningDuration} | " +
+            $"Lifetime: {laserLifeTime}",
+            this
+        );
 
         StartLaserSystem();
     }
 
     public void StartLaserSystem()
     {
+        if (!isActiveAndEnabled)
+            return;
+
+        if (!settingsApplied)
+        {
+            Debug.LogWarning(
+                "[HorizontalLaser] Level settings uygulanmadan sistem başlatılmak istendi.",
+                this
+            );
+
+            return;
+        }
+
+        if (!ValidateReferences())
+            return;
+
         StopLaserSystem();
 
         systemActive = true;
@@ -90,28 +131,83 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
     {
         while (systemActive)
         {
-            yield return new WaitForSeconds(Random.Range(minSpawnTime, maxSpawnTime));
+            float waitTime = Random.Range(
+                minSpawnTime,
+                maxSpawnTime
+            );
+
+            Debug.Log(
+                $"[HorizontalLaser] Next warning in {waitTime:F2} seconds.",
+                this
+            );
+
+            yield return new WaitForSeconds(waitTime);
 
             if (!systemActive || IsGameOver())
                 yield break;
 
             yield return SpawnHorizontalLaser();
         }
+
+        spawnCoroutine = null;
     }
 
     private IEnumerator SpawnHorizontalLaser()
     {
-        CameraWorldBounds bounds = CameraWorldBounds.Instance;
-        if (bounds == null) yield break;
+        CameraWorldBounds bounds =
+            CameraWorldBounds.Instance;
 
-        float yPos = Random.Range(bounds.MinY + edgePadding, bounds.MaxY - edgePadding);
+        if (bounds == null)
+        {
+            Debug.LogWarning(
+                "[HorizontalLaser] CameraWorldBounds.Instance bulunamadı.",
+                this
+            );
 
-        Vector3 position = new Vector3(bounds.Center.x, yPos, 0f);
-        Vector3 scale = new Vector3(laserWidth, bounds.Width + widthExtra, 1f);
-        Quaternion rotation = Quaternion.Euler(0f, 0f, 90f);
+            yield break;
+        }
 
-        activeWarning = Instantiate(laserWarningPrefab, position, rotation);
-        activeWarning.transform.localScale = scale;
+        float minimumY =
+            bounds.MinY + edgePadding;
+
+        float maximumY =
+            bounds.MaxY - edgePadding;
+
+        if (minimumY > maximumY)
+        {
+            minimumY = bounds.Center.y;
+            maximumY = bounds.Center.y;
+        }
+
+        float yPos =
+            Random.Range(minimumY, maximumY);
+
+        Vector3 position =
+            new Vector3(
+                bounds.Center.x,
+                yPos,
+                0f
+            );
+
+        Vector3 scale =
+            new Vector3(
+                laserWidth,
+                bounds.Width + widthExtra,
+                1f
+            );
+
+        Quaternion rotation =
+            Quaternion.Euler(0f, 0f, 90f);
+
+        activeWarning =
+            Instantiate(
+                laserWarningPrefab,
+                position,
+                rotation
+            );
+
+        activeWarning.transform.localScale =
+            scale;
 
         yield return PlayWarning();
 
@@ -120,38 +216,71 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
         if (!systemActive || IsGameOver())
             yield break;
 
-        activeLaser = Instantiate(laserWallPrefab, position, rotation);
-        activeLaser.transform.localScale = scale;
+        activeLaser =
+            Instantiate(
+                laserWallPrefab,
+                position,
+                rotation
+            );
 
-        LaserWall laserWall = activeLaser.GetComponent<LaserWall>();
+        activeLaser.transform.localScale =
+            scale;
+
+        LaserWall laserWall =
+            activeLaser.GetComponent<LaserWall>();
+
         if (laserWall != null)
-            laserWall.lifeTime = laserLifeTime;
+        {
+            laserWall.lifeTime =
+                laserLifeTime;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[HorizontalLaser] Laser prefab üzerinde LaserWall componenti yok.",
+                activeLaser
+            );
+        }
     }
 
     private IEnumerator PlayWarning()
     {
         if (activeWarning == null)
         {
-            yield return new WaitForSeconds(warningDuration);
+            yield return new WaitForSeconds(
+                warningDuration
+            );
+
             yield break;
         }
 
-        LaserWarning warning = activeWarning.GetComponent<LaserWarning>();
+        LaserWarning warning =
+            activeWarning.GetComponent<LaserWarning>();
 
         if (warning != null)
         {
-            warning.blinkDuration = warningDuration;
+            warning.blinkDuration =
+                warningDuration;
+
             yield return warning.PlayWarning();
         }
         else
         {
-            yield return new WaitForSeconds(warningDuration);
+            Debug.LogWarning(
+                "[HorizontalLaser] Warning prefab üzerinde LaserWarning componenti yok.",
+                activeWarning
+            );
+
+            yield return new WaitForSeconds(
+                warningDuration
+            );
         }
     }
 
     private void DestroyActiveWarning()
     {
-        if (activeWarning == null) return;
+        if (activeWarning == null)
+            return;
 
         Destroy(activeWarning);
         activeWarning = null;
@@ -159,6 +288,37 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
 
     private bool IsGameOver()
     {
-        return playerMovement != null && playerMovement.IsGameOver;
+        return playerMovement != null &&
+               playerMovement.IsGameOver;
+    }
+
+    private bool ValidateReferences()
+    {
+        bool valid = true;
+
+        if (laserWarningPrefab == null)
+        {
+            Debug.LogError(
+                "[HorizontalLaser] Laser Warning Prefab atanmamış.",
+                this
+            );
+
+            valid = false;
+        }
+
+        if (laserWallPrefab == null)
+        {
+            Debug.LogError(
+                "[HorizontalLaser] Laser Wall Prefab atanmamış.",
+                this
+            );
+
+            valid = false;
+        }
+
+        if (playerMovement == null)
+            playerMovement = FindAnyObjectByType<PlayerMovement>();
+
+        return valid;
     }
 }

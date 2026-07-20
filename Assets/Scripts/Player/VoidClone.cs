@@ -19,41 +19,52 @@ public class VoidClone : MonoBehaviour
     [Range(0.5f, 1.5f)]
     public float speedMultiplier = 0.9f;
 
-    [Tooltip("Clone'un yön değişim yumuşaklığı.")]
-    public float turnSpeed = 5f;
+    [Tooltip("Player ayarları alınamazsa kullanılacak hızlanma.")]
+    public float fallbackAcceleration = 55f;
+
+    [Tooltip("Player ayarları alınamazsa kullanılacak dönüş hızlanması.")]
+    public float fallbackTurnAcceleration = 90f;
 
     [Header("Natural Movement")]
-    [Tooltip("Clone'un kaç saniyede bir yeni yön seçebileceği.")]
-    public Vector2 directionChangeInterval =
-        new Vector2(0.3f, 0.65f);
+    [Tooltip("Clone'un sakin bir şekilde yeni rota seçme aralığı.")]
+    public Vector2 directionChangeInterval = new Vector2(0.75f, 1.25f);
 
-    [Tooltip("Her yön seçiminde yapabileceği maksimum dönüş.")]
-    [Range(0f, 90f)]
-    public float maximumTurnAngle = 30f;
+    [Tooltip("Doğal rota değişimindeki maksimum açı.")]
+    [Range(0f, 60f)]
+    public float maximumTurnAngle = 18f;
 
-    [Tooltip("İlk ters rotadan tamamen kopmasını engeller.")]
+    [Tooltip("Clone'un ilk kaçış yönünü ne kadar koruyacağı.")]
     [Range(0f, 1f)]
-    public float originalDirectionInfluence = 0.25f;
+    public float originalDirectionInfluence = 0.35f;
 
-    [Header("Collision")]
+    [Header("Collision Avoidance")]
     [Tooltip("Wall ve Obstacle layerlarını seç.")]
     public LayerMask solidLayers;
+
+    [Tooltip("Clone'un duvarı kaç birim önceden fark edeceği.")]
+    public float avoidanceLookAhead = 1.25f;
+
+    [Tooltip("Duvar algılandığında yana dönüşün gücü.")]
+    [Range(0f, 1f)]
+    public float avoidanceStrength = 0.85f;
 
     [Tooltip("Collider ile yüzey arasında bırakılacak mesafe.")]
     public float collisionSkin = 0.04f;
 
-    [Tooltip("Duvara çarptıktan sonra yeni yönüne eklenecek rastgele açı.")]
-    [Range(0f, 45f)]
-    public float bounceRandomAngle = 15f;
+    [Tooltip("Tek FixedUpdate içinde kaç kayma denemesi yapılacağı.")]
+    [Range(1, 4)]
+    public int movementIterations = 2;
 
     private Rigidbody2D rb;
     private Collider2D cloneCollider;
 
-    private Vector2 originalOppositeDirection;
+    private Vector2 originalDirection;
     private Vector2 desiredDirection;
-    private Vector2 currentDirection;
+    private Vector2 currentVelocity;
 
-    private float movementSpeed;
+    private float targetSpeed;
+    private float acceleration;
+    private float turnAcceleration;
     private float directionTimer;
     private float nextDirectionChange;
 
@@ -62,9 +73,7 @@ public class VoidClone : MonoBehaviour
 
     private Vector3 originalScale;
 
-    private readonly RaycastHit2D[] castResults =
-        new RaycastHit2D[16];
-
+    private readonly RaycastHit2D[] castResults = new RaycastHit2D[16];
     private ContactFilter2D collisionFilter;
 
     private void Awake()
@@ -73,10 +82,7 @@ public class VoidClone : MonoBehaviour
         cloneCollider = GetComponent<Collider2D>();
 
         if (spriteRenderer == null)
-        {
-            spriteRenderer =
-                GetComponentInChildren<SpriteRenderer>();
-        }
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         originalScale = transform.localScale;
 
@@ -86,359 +92,279 @@ public class VoidClone : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.gravityScale = 0f;
         rb.simulated = true;
-
-        rb.constraints =
-            RigidbodyConstraints2D.FreezeRotation;
-
-        rb.interpolation =
-            RigidbodyInterpolation2D.Interpolate;
-
-        rb.collisionDetectionMode =
-            CollisionDetectionMode2D.Continuous;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
         collisionFilter = new ContactFilter2D
         {
             useLayerMask = true,
-
-            // Wall collider Is Trigger olsa bile algılansın.
             useTriggers = true
         };
 
         collisionFilter.SetLayerMask(solidLayers);
     }
 
-    public void StartClone(
-        float duration,
-        Vector2 playerVelocity
-    )
+    public void StartClone(float duration, PlayerMovement playerMovement)
     {
         StopAllCoroutines();
 
-        float playerSpeed =
-            playerVelocity.magnitude;
+        Vector2 playerVelocity = Vector2.zero;
+        Vector2 playerInput = Vector2.zero;
+        float playerMoveSpeed = 0f;
 
-        shouldMove =
-            playerSpeed >= minimumMovementSpeed;
+        acceleration = fallbackAcceleration;
+        turnAcceleration = fallbackTurnAcceleration;
+
+        if (playerMovement != null)
+        {
+            playerVelocity = playerMovement.CurrentVelocity;
+            playerInput = playerMovement.CurrentMoveInput;
+            playerMoveSpeed = playerMovement.CurrentMoveSpeed;
+
+            acceleration = Mathf.Max(0.01f, playerMovement.acceleration);
+            turnAcceleration = Mathf.Max(0.01f, playerMovement.turnAcceleration);
+        }
+
+        if (playerVelocity.sqrMagnitude < 0.01f && playerInput.sqrMagnitude > 0.01f)
+            playerVelocity = playerInput.normalized * playerMoveSpeed;
+
+        float playerSpeed = playerVelocity.magnitude;
+        shouldMove = playerSpeed >= minimumMovementSpeed;
 
         if (shouldMove)
         {
-            originalOppositeDirection =
-                -playerVelocity.normalized;
+            originalDirection = -playerVelocity.normalized;
+            desiredDirection = originalDirection;
 
-            currentDirection =
-                originalOppositeDirection;
+            targetSpeed = Mathf.Max(playerSpeed, playerMoveSpeed * 0.7f) * speedMultiplier;
 
-            desiredDirection =
-                originalOppositeDirection;
+            // Player gibi bir anda tam hıza fırlamasın.
+            currentVelocity = originalDirection * Mathf.Min(playerSpeed, targetSpeed) * 0.55f;
 
-            movementSpeed =
-                playerSpeed * speedMultiplier;
-
+            directionTimer = 0f;
             ScheduleNextDirectionChange();
         }
         else
         {
-            originalOppositeDirection =
-                Vector2.zero;
-
-            currentDirection =
-                Vector2.zero;
-
-            desiredDirection =
-                Vector2.zero;
-
-            movementSpeed = 0f;
+            originalDirection = Vector2.zero;
+            desiredDirection = Vector2.zero;
+            currentVelocity = Vector2.zero;
+            targetSpeed = 0f;
         }
 
         cloneActive = true;
-
-        UpdateFacing(currentDirection);
-
-        StartCoroutine(
-            CloneLifetimeRoutine(duration)
-        );
+        UpdateFacing(currentVelocity);
+        StartCoroutine(CloneLifetimeRoutine(duration));
     }
 
     private void FixedUpdate()
     {
-        if (!cloneActive ||
-            !shouldMove ||
-            rb == null ||
-            cloneCollider == null ||
-            Time.timeScale <= 0f)
-        {
-            return;
-        }
-
-        UpdateNaturalDirection();
-
-        currentDirection =
-            Vector2.Lerp(
-                currentDirection,
-                desiredDirection,
-                turnSpeed * Time.fixedDeltaTime
-            ).normalized;
-
-        if (currentDirection.sqrMagnitude <= 0.001f)
+        if (!cloneActive || !shouldMove || rb == null || cloneCollider == null || Time.timeScale <= 0f)
             return;
 
-        float moveDistance =
-            movementSpeed * Time.fixedDeltaTime;
+        float delta = GetCloneDeltaTime();
 
-        MoveSafely(
-            currentDirection,
-            moveDistance
-        );
+        UpdateNaturalDirection(delta);
+        ApplyObstacleAvoidance();
+        UpdateVelocity(delta);
 
-        UpdateFacing(currentDirection);
+        if (currentVelocity.sqrMagnitude <= 0.0001f)
+            return;
+
+        MoveWithSliding(currentVelocity * delta);
+        UpdateFacing(currentVelocity);
     }
 
-    private void UpdateNaturalDirection()
+    private void UpdateNaturalDirection(float delta)
     {
-        directionTimer +=
-            Time.fixedDeltaTime;
+        directionTimer += delta;
 
-        if (directionTimer <
-            nextDirectionChange)
-        {
+        if (directionTimer < nextDirectionChange)
             return;
-        }
 
         directionTimer = 0f;
 
-        float randomAngle =
-            Random.Range(
-                -maximumTurnAngle,
-                maximumTurnAngle
-            );
+        float randomAngle = Random.Range(-maximumTurnAngle, maximumTurnAngle);
+        Vector2 naturalDirection = RotateVector(desiredDirection, randomAngle).normalized;
 
-        Vector2 turnedDirection =
-            RotateVector(
-                currentDirection,
-                randomAngle
-            );
-
-        /*
-         * Clone rastgele yön değiştirir fakat sürekli
-         * ilk ters rotaya çekilmez. Yalnızca küçük bir
-         * başlangıç yönü etkisi korunur.
-         */
-        desiredDirection =
-            Vector2.Lerp(
-                turnedDirection,
-                originalOppositeDirection,
-                originalDirectionInfluence
-            ).normalized;
+        desiredDirection = Vector2.Lerp(
+            naturalDirection,
+            originalDirection,
+            originalDirectionInfluence
+        ).normalized;
 
         ScheduleNextDirectionChange();
     }
 
-    private void ScheduleNextDirectionChange()
+    private void ApplyObstacleAvoidance()
     {
-        float minimum =
-            Mathf.Min(
-                directionChangeInterval.x,
-                directionChangeInterval.y
-            );
+        Vector2 moveDirection = currentVelocity.sqrMagnitude > 0.001f
+            ? currentVelocity.normalized
+            : desiredDirection;
 
-        float maximum =
-            Mathf.Max(
-                directionChangeInterval.x,
-                directionChangeInterval.y
-            );
+        if (moveDirection.sqrMagnitude <= 0.001f)
+            return;
 
-        nextDirectionChange =
-            Random.Range(
-                minimum,
-                maximum
-            );
+        int hitCount = cloneCollider.Cast(
+            moveDirection,
+            collisionFilter,
+            castResults,
+            avoidanceLookAhead
+        );
+
+        RaycastHit2D? closestHit = FindClosestValidHit(hitCount);
+
+        if (!closestHit.HasValue)
+            return;
+
+        RaycastHit2D hit = closestHit.Value;
+
+        Vector2 tangentA = new Vector2(-hit.normal.y, hit.normal.x);
+        Vector2 tangentB = -tangentA;
+
+        // Mevcut rotaya en yakın olan duvar paralelini seç.
+        Vector2 chosenTangent = Vector2.Dot(tangentA, moveDirection) >=
+                                Vector2.Dot(tangentB, moveDirection)
+            ? tangentA
+            : tangentB;
+
+        float proximity = 1f - Mathf.Clamp01(hit.distance / Mathf.Max(avoidanceLookAhead, 0.01f));
+        float steerAmount = Mathf.Clamp01(avoidanceStrength * (0.35f + proximity));
+
+        // Bir miktar yüzey normalini de ekleyerek duvardan uzaklaşmasını sağla.
+        Vector2 avoidanceDirection = (chosenTangent + hit.normal * 0.35f).normalized;
+
+        desiredDirection = Vector2.Lerp(
+            desiredDirection,
+            avoidanceDirection,
+            steerAmount
+        ).normalized;
     }
 
-    private void MoveSafely(
-        Vector2 direction,
-        float distance
-    )
+    private void UpdateVelocity(float delta)
     {
-        int hitCount =
-            cloneCollider.Cast(
+        Vector2 targetVelocity = desiredDirection * targetSpeed;
+
+        float angle = currentVelocity.sqrMagnitude > 0.001f
+            ? Vector2.Angle(currentVelocity, targetVelocity)
+            : 0f;
+
+        float rate = angle > 35f ? turnAcceleration : acceleration;
+
+        currentVelocity = Vector2.MoveTowards(
+            currentVelocity,
+            targetVelocity,
+            rate * delta
+        );
+    }
+
+    private void MoveWithSliding(Vector2 displacement)
+    {
+        Vector2 remaining = displacement;
+        Vector2 position = rb.position;
+
+        int iterations = Mathf.Max(1, movementIterations);
+
+        for (int i = 0; i < iterations; i++)
+        {
+            float distance = remaining.magnitude;
+
+            if (distance <= 0.0001f)
+                break;
+
+            Vector2 direction = remaining / distance;
+
+            int hitCount = cloneCollider.Cast(
                 direction,
                 collisionFilter,
                 castResults,
                 distance + collisionSkin
             );
 
-        RaycastHit2D? closestHit =
-            FindClosestValidHit(hitCount);
+            RaycastHit2D? closestHit = FindClosestValidHit(hitCount);
 
-        if (!closestHit.HasValue)
-        {
-            rb.MovePosition(
-                rb.position +
-                direction * distance
-            );
+            if (!closestHit.HasValue)
+            {
+                position += remaining;
+                remaining = Vector2.zero;
+                break;
+            }
 
-            return;
+            RaycastHit2D hit = closestHit.Value;
+            float safeDistance = Mathf.Max(0f, hit.distance - collisionSkin);
+
+            position += direction * safeDistance;
+
+            float unusedDistance = Mathf.Max(0f, distance - safeDistance);
+            Vector2 slideDirection = Vector2.Perpendicular(hit.normal);
+
+            if (Vector2.Dot(slideDirection, direction) < 0f)
+                slideDirection = -slideDirection;
+
+            remaining = slideDirection * unusedDistance;
+
+            // Top gibi geri sekmek yerine hızın duvara giren kısmını sil.
+            currentVelocity -= Vector2.Dot(currentVelocity, hit.normal) * hit.normal;
+
+            if (currentVelocity.sqrMagnitude > 0.001f)
+                desiredDirection = currentVelocity.normalized;
+            else
+                desiredDirection = (slideDirection + hit.normal * 0.25f).normalized;
         }
 
-        RaycastHit2D hit =
-            closestHit.Value;
-
-        float safeDistance =
-            Mathf.Max(
-                0f,
-                hit.distance - collisionSkin
-            );
-
-        if (safeDistance > 0f)
-        {
-            rb.MovePosition(
-                rb.position +
-                direction * safeDistance
-            );
-        }
-        else
-        {
-            /*
-             * Collider yüzeye aşırı yakınsa clone'u
-             * yüzeyden çok az dışarı iter.
-             */
-            rb.MovePosition(
-                rb.position +
-                hit.normal * collisionSkin
-            );
-        }
-
-        BounceFromSurface(
-            hit.normal
-        );
+        rb.MovePosition(position);
     }
 
-    private RaycastHit2D? FindClosestValidHit(
-        int hitCount
-    )
+    private RaycastHit2D? FindClosestValidHit(int hitCount)
     {
         bool foundHit = false;
         RaycastHit2D closestHit = default;
 
         for (int i = 0; i < hitCount; i++)
         {
-            RaycastHit2D hit =
-                castResults[i];
+            RaycastHit2D hit = castResults[i];
 
-            if (hit.collider == null)
+            if (hit.collider == null || hit.collider == cloneCollider)
                 continue;
 
-            if (hit.collider == cloneCollider)
-                continue;
-
-            if (!foundHit ||
-                hit.distance < closestHit.distance)
+            if (!foundHit || hit.distance < closestHit.distance)
             {
                 closestHit = hit;
                 foundHit = true;
             }
         }
 
-        return foundHit
-            ? closestHit
-            : null;
+        return foundHit ? closestHit : null;
     }
 
-    private void BounceFromSurface(
-        Vector2 surfaceNormal
-    )
+    private void ScheduleNextDirectionChange()
     {
-        Vector2 reflectedDirection =
-            Vector2.Reflect(
-                currentDirection,
-                surfaceNormal
-            ).normalized;
-
-        float randomAngle =
-            Random.Range(
-                -bounceRandomAngle,
-                bounceRandomAngle
-            );
-
-        reflectedDirection =
-            RotateVector(
-                reflectedDirection,
-                randomAngle
-            ).normalized;
-
-        /*
-         * Yansıyan yön hâlâ duvarın içine bakıyorsa
-         * normal yönüne doğru düzelt.
-         */
-        if (Vector2.Dot(
-                reflectedDirection,
-                surfaceNormal
-            ) <= 0.05f)
-        {
-            reflectedDirection =
-                Vector2.Lerp(
-                    reflectedDirection,
-                    surfaceNormal,
-                    0.5f
-                ).normalized;
-        }
-
-        currentDirection =
-            reflectedDirection;
-
-        desiredDirection =
-            reflectedDirection;
-
-        /*
-         * Duvara çarpınca bundan sonraki doğal hareket
-         * yeni rotanın çevresinde devam etsin.
-         */
-        originalOppositeDirection =
-            Vector2.Lerp(
-                originalOppositeDirection,
-                reflectedDirection,
-                0.65f
-            ).normalized;
-
-        directionTimer = 0f;
-        ScheduleNextDirectionChange();
+        float minimum = Mathf.Min(directionChangeInterval.x, directionChangeInterval.y);
+        float maximum = Mathf.Max(directionChangeInterval.x, directionChangeInterval.y);
+        nextDirectionChange = Random.Range(minimum, maximum);
     }
 
-    private static Vector2 RotateVector(
-        Vector2 vector,
-        float angle
-    )
+    private static Vector2 RotateVector(Vector2 vector, float angle)
     {
-        float radians =
-            angle * Mathf.Deg2Rad;
-
-        float sin =
-            Mathf.Sin(radians);
-
-        float cos =
-            Mathf.Cos(radians);
+        float radians = angle * Mathf.Deg2Rad;
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
 
         return new Vector2(
-            vector.x * cos -
-            vector.y * sin,
-
-            vector.x * sin +
-            vector.y * cos
+            vector.x * cos - vector.y * sin,
+            vector.x * sin + vector.y * cos
         );
     }
 
-    private IEnumerator CloneLifetimeRoutine(
-        float duration
-    )
+    private IEnumerator CloneLifetimeRoutine(float duration)
     {
         float timer = 0f;
 
         while (timer < duration)
         {
             timer += Time.deltaTime;
-
             UpdateVisual();
-
             yield return null;
         }
 
@@ -450,57 +376,45 @@ public class VoidClone : MonoBehaviour
         if (spriteRenderer == null)
             return;
 
-        Color color =
-            spriteRenderer.color;
+        Color color = spriteRenderer.color;
+        color.a = Mathf.Lerp(
+            minAlpha,
+            maxAlpha,
+            Mathf.PingPong(Time.time * blinkSpeed, 1f)
+        );
 
-        color.a =
-            Mathf.Lerp(
-                minAlpha,
-                maxAlpha,
-                Mathf.PingPong(
-                    Time.time * blinkSpeed,
-                    1f
-                )
-            );
-
-        spriteRenderer.color =
-            color;
+        spriteRenderer.color = color;
     }
 
-    private void UpdateFacing(
-        Vector2 direction
-    )
+    private void UpdateFacing(Vector2 direction)
     {
         if (Mathf.Abs(direction.x) <= 0.05f)
             return;
 
-        Vector3 scale =
-            transform.localScale;
+        Vector3 scale = transform.localScale;
+        scale.x = direction.x > 0f
+            ? Mathf.Abs(originalScale.x)
+            : -Mathf.Abs(originalScale.x);
 
-        scale.x =
-            direction.x > 0f
-                ? Mathf.Abs(originalScale.x)
-                : -Mathf.Abs(originalScale.x);
+        transform.localScale = scale;
+    }
 
-        transform.localScale =
-            scale;
+    private float GetCloneDeltaTime()
+    {
+        if (Time.timeScale <= 0f)
+            return Time.fixedDeltaTime;
+
+        return Time.fixedDeltaTime / Time.timeScale;
     }
 
     private void StopMovement()
     {
         cloneActive = false;
         shouldMove = false;
-
-        originalOppositeDirection =
-            Vector2.zero;
-
-        desiredDirection =
-            Vector2.zero;
-
-        currentDirection =
-            Vector2.zero;
-
-        movementSpeed = 0f;
+        originalDirection = Vector2.zero;
+        desiredDirection = Vector2.zero;
+        currentVelocity = Vector2.zero;
+        targetSpeed = 0f;
         directionTimer = 0f;
         nextDirectionChange = 0f;
     }

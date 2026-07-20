@@ -27,7 +27,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2
-  cloneDuration: 6
+  cloneDuration: 7
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 2
@@ -47,6 +47,7 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1
   nearStarsEmissionRate: 30
+  randomizeNearStarsColor: 1
   coinSpawnInterval: 1
   maxCoinCount: 8
   normalCoinChance: 70
@@ -63,17 +64,17 @@ MonoBehaviour:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
     enabled: 0
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
-    enabled: 0
-  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
-    enabled: 0
-  - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}
     enabled: 1
+  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}
+    enabled: 0
   - prefab: {fileID: 4509020153673322666, guid: ee42b4b96eb85ff48878f26ebcb46f55, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
     enabled: 0
   - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
-    enabled: 1
+    enabled: 0
   randomObstacleCount: 5
   normalEnemyCount: 1
   normalEnemySpawnInterval: 2.5
@@ -101,16 +102,16 @@ MonoBehaviour:
   hunterWarningDuration: 1
   hunterChargeSpeed: 15
   hunterStunDuration: 1
-  bossEnabled: 0
+  bossEnabled: 1
   bossSpawnScore: 75
   bossSpeed: 4.5
   bossCanSplit: 1
   bossSplitDelay: 0.8
   bossSplitDistance: 1.2
   miniBossSpeed: 4.5
-  beaconEnemyCount: 0
-  beaconMinSpawnTime: 3
-  beaconMaxSpawnTime: 15
+  beaconEnemyCount: 1
+  beaconMinSpawnTime: 8
+  beaconMaxSpawnTime: 20
   beaconBuffDuration: 15
   beaconBuffSizeMultiplier: 1.25
   beaconNormalSpeedMultiplier: 1.3
@@ -123,7 +124,7 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   armorEnabled: 1
-  slowEnabled: 0
+  slowEnabled: 1
   armorMinSpawnTime: 1
   armorMaxSpawnTime: 2
   slowMinSpawnTime: 8
@@ -136,13 +137,13 @@ MonoBehaviour:
   verticalLaserWidth: 5.5
   verticalLaserHeightExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserMinSpawnTime: 8
-  horizontalLaserMaxSpawnTime: 25
+  horizontalLaserMinSpawnTime: 5
+  horizontalLaserMaxSpawnTime: 15
   horizontalLaserWarningDuration: 2
   horizontalLaserLifeTime: 1.5
   horizontalLaserWidth: 5.5
   horizontalLaserWidthExtra: 1
   bombTrapEnabled: 1
   bombMinSpawnTime: 6
-  bombMaxSpawnTime: 14
+  bombMaxSpawnTime: 17
   maxBombCount: 3

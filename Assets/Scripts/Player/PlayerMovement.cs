@@ -91,16 +91,57 @@ public class PlayerMovement : MonoBehaviour
 
     private float GetAdaptiveAccelerationRate()
     {
-        return MovementMath2D.GetAdaptiveAcceleration(
-            currentVelocity,
-            moveInput,
-            acceleration,
-            deceleration,
-            turnAcceleration,
+        float inputMagnitude = moveInput.magnitude;
+
+        if (inputMagnitude <= 0.001f)
+            return deceleration;
+
+        if (currentVelocity.sqrMagnitude <= 0.0001f)
+        {
+            return acceleration * Mathf.Lerp(
+                lowInputAccelerationMultiplier,
+                highInputAccelerationMultiplier,
+                inputMagnitude
+            );
+        }
+
+        Vector2 currentDirection = currentVelocity.normalized;
+        Vector2 targetDirection = moveInput.normalized;
+
+        float directionDot = Vector2.Dot(
+            currentDirection,
+            targetDirection
+        );
+
+        float adaptiveAcceleration = acceleration * Mathf.Lerp(
             lowInputAccelerationMultiplier,
             highInputAccelerationMultiplier,
-            sharpTurnBoost
+            inputMagnitude
         );
+
+        if (directionDot < 0.75f)
+        {
+            float turnAmount = Mathf.InverseLerp(
+                0.75f,
+                -1f,
+                directionDot
+            );
+
+            float boostedTurnAcceleration =
+                turnAcceleration *
+                Mathf.Lerp(
+                    1f,
+                    sharpTurnBoost,
+                    turnAmount
+                );
+
+            adaptiveAcceleration = Mathf.Max(
+                adaptiveAcceleration,
+                boostedTurnAcceleration
+            );
+        }
+
+        return adaptiveAcceleration;
     }
 
     private float GetCurrentSpeed()

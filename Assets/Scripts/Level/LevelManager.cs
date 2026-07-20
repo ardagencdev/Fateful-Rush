@@ -137,15 +137,37 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyBackground()
     {
-        if (nearStars == null) return;
+        if (nearStars == null)
+            return;
+
+        Color selectedColor =
+            currentLevel.randomizeNearStarsColor
+                ? GenerateRandomNearStarsColor()
+                : currentLevel.nearStarsColor;
 
         var main = nearStars.main;
-        main.startColor = currentLevel.nearStarsColor;
-        main.startSpeed = originalNearStarsSpeed * currentLevel.nearStarsSpeedMultiplier;
-        main.startSize = originalNearStarsSize * currentLevel.nearStarsSizeMultiplier;
+        main.startColor = selectedColor;
+
+        main.startSpeed =
+            originalNearStarsSpeed *
+            currentLevel.nearStarsSpeedMultiplier;
+
+        main.startSize =
+            originalNearStarsSize *
+            currentLevel.nearStarsSizeMultiplier;
 
         var emission = nearStars.emission;
-        emission.rateOverTime = currentLevel.nearStarsEmissionRate;
+        emission.rateOverTime =
+            currentLevel.nearStarsEmissionRate;
+    }
+
+    private Color GenerateRandomNearStarsColor()
+    {
+        return Random.ColorHSV(
+            0f, 1f,     // Hue
+            0.65f, 1f,  // Saturation
+            0.8f, 1f    // Value
+        );
     }
 
     private void ApplyCoins()
@@ -258,9 +280,13 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyLasersAndTraps()
     {
+        ResolveLaserSpawnerReferences();
+
         if (verticalLaserSpawner != null)
         {
-            verticalLaserSpawner.gameObject.SetActive(currentLevel.verticalLaserEnabled);
+            verticalLaserSpawner.gameObject.SetActive(
+                currentLevel.verticalLaserEnabled
+            );
 
             if (currentLevel.verticalLaserEnabled)
             {
@@ -274,6 +300,14 @@ public class LevelManager : MonoBehaviour
                 );
             }
         }
+        else if (currentLevel.verticalLaserEnabled)
+        {
+            Debug.LogError(
+                "[LevelManager] Vertical Laser açık fakat " +
+                "LaserWallSpawner bulunamadı.",
+                this
+            );
+        }
 
         if (horizontalLaserSpawner != null)
         {
@@ -286,6 +320,13 @@ public class LevelManager : MonoBehaviour
             {
                 horizontalLaserSpawner.gameObject.SetActive(true);
 
+                Debug.Log(
+                    $"[LevelManager] Horizontal Laser uygulanıyor | " +
+                    $"Min: {currentLevel.horizontalLaserMinSpawnTime} | " +
+                    $"Max: {currentLevel.horizontalLaserMaxSpawnTime}",
+                    this
+                );
+
                 horizontalLaserSpawner.ApplyLevelSettings(
                     currentLevel.horizontalLaserMinSpawnTime,
                     currentLevel.horizontalLaserMaxSpawnTime,
@@ -296,10 +337,21 @@ public class LevelManager : MonoBehaviour
                 );
             }
         }
+        else if (currentLevel.horizontalLaserEnabled)
+        {
+            Debug.LogError(
+                "[LevelManager] Horizontal Laser açık fakat " +
+                "HorizontalLaserWallSpawner bulunamadı. " +
+                "Sahnedeki spawner objesini ve componentini kontrol et.",
+                this
+            );
+        }
 
         if (bombTrapSpawner != null)
         {
-            bombTrapSpawner.gameObject.SetActive(currentLevel.bombTrapEnabled);
+            bombTrapSpawner.gameObject.SetActive(
+                currentLevel.bombTrapEnabled
+            );
 
             if (currentLevel.bombTrapEnabled)
             {
@@ -309,6 +361,25 @@ public class LevelManager : MonoBehaviour
                     currentLevel.maxBombCount
                 );
             }
+        }
+    }
+
+    private void ResolveLaserSpawnerReferences()
+    {
+        if (verticalLaserSpawner == null)
+        {
+            verticalLaserSpawner =
+                FindAnyObjectByType<LaserWallSpawner>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        if (horizontalLaserSpawner == null)
+        {
+            horizontalLaserSpawner =
+                FindAnyObjectByType<HorizontalLaserWallSpawner>(
+                    FindObjectsInactive.Include
+                );
         }
     }
 

@@ -86,6 +86,7 @@ public class LevelConfig : ScriptableObject
     public float nearStarsSpeedMultiplier = 1f;
     public float nearStarsSizeMultiplier = 1f;
     public float nearStarsEmissionRate = 30f;
+    public bool randomizeNearStarsColor = false;
 
     [Header("COINS")]
     public float coinSpawnInterval = 1f;

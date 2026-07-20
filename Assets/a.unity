@@ -22598,7 +22598,7 @@ MonoBehaviour:
   powerUpSpawner: {fileID: 1272588392}
   beaconEnemySpawner: {fileID: 1547656630}
   verticalLaserSpawner: {fileID: 1734443694}
-  horizontalLaserSpawner: {fileID: 0}
+  horizontalLaserSpawner: {fileID: 653434498}
   bombTrapSpawner: {fileID: 239009356}
   playerMovement: {fileID: 1118182838}
   playerDash: {fileID: 1118182829}

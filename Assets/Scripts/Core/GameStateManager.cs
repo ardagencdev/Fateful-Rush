@@ -190,7 +190,10 @@ public class GameStateManager : MonoBehaviour
         if (playerMovement != null && playerMovement.IsGameOver)
             return;
 
-        gameTimer += Time.deltaTime;
+        if (Time.timeScale <= 0f)
+            return;
+
+        gameTimer += Time.unscaledDeltaTime;
     }
 
     public void WinGame(int score)
