@@ -1,48 +1,99 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class MenuFadeIn : MonoBehaviour
 {
     [Header("Fade")]
-    public CanvasGroup canvasGroup;
-    public float fadeDuration = 1.2f;
+    [SerializeField] private CanvasGroup canvasGroup;
+
+    [SerializeField, Min(0f)]
+    private float fadeDuration = 1.2f;
+
+    private Coroutine fadeRoutine;
 
     private void Awake()
     {
-        if (canvasGroup == null)
-            canvasGroup = GetComponent<CanvasGroup>();
+        RefreshReferences();
 
-        if (canvasGroup != null)
+        if (canvasGroup == null)
         {
-            canvasGroup.alpha = 0f;
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
+            Debug.LogWarning(
+                "MenuFadeIn could not find a CanvasGroup.",
+                this
+            );
+
+            enabled = false;
+            return;
         }
+
+        SetCanvasState(0f, false);
     }
 
     private void Start()
     {
-        if (canvasGroup != null)
-            StartCoroutine(FadeIn());
+        fadeRoutine = StartCoroutine(FadeInRoutine());
     }
 
-    private IEnumerator FadeIn()
+    private void OnDisable()
     {
-        float time = 0f;
+        StopFadeRoutine();
+    }
 
-        while (time < fadeDuration)
+    private IEnumerator FadeInRoutine()
+    {
+        if (fadeDuration <= 0f)
         {
-            time += Time.deltaTime;
+            SetCanvasState(1f, true);
+            fadeRoutine = null;
+            yield break;
+        }
 
-            float t = time / fadeDuration;
+        float elapsedTime = 0f;
 
-            canvasGroup.alpha = Mathf.Lerp(0f, 1f, t);
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsedTime / fadeDuration
+            );
+
+            canvasGroup.alpha = progress;
 
             yield return null;
         }
 
-        canvasGroup.alpha = 1f;
-        canvasGroup.interactable = true;
-        canvasGroup.blocksRaycasts = true;
+        SetCanvasState(1f, true);
+
+        fadeRoutine = null;
+    }
+
+    private void SetCanvasState(
+        float alpha,
+        bool interactive)
+    {
+        canvasGroup.alpha = Mathf.Clamp01(alpha);
+        canvasGroup.interactable = interactive;
+        canvasGroup.blocksRaycasts = interactive;
+    }
+
+    private void RefreshReferences()
+    {
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>();
+    }
+
+    private void StopFadeRoutine()
+    {
+        if (fadeRoutine == null)
+            return;
+
+        StopCoroutine(fadeRoutine);
+        fadeRoutine = null;
+    }
+
+    private void OnValidate()
+    {
+        fadeDuration = Mathf.Max(0f, fadeDuration);
     }
 }

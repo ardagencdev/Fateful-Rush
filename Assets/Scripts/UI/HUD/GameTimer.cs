@@ -1,6 +1,6 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
+using TMPro;
+using UnityEngine;
 
 public class GameTimer : MonoBehaviour
 {
@@ -8,63 +8,58 @@ public class GameTimer : MonoBehaviour
     public TextMeshProUGUI timerText;
 
     [Header("Optimization")]
+    [Min(0f)]
     public float uiRefreshInterval = 0.05f;
 
     private float elapsedTime;
     private float uiRefreshTimer;
 
-    private bool showHUDTimer = false;
+    private bool showHUDTimer;
 
     public bool IsTiming { get; private set; }
+    public float ElapsedTime => elapsedTime;
 
     private void Awake()
     {
-        if (timerText == null)
-            timerText = GetComponent<TextMeshProUGUI>();
+        RefreshReferences();
     }
 
     private IEnumerator Start()
     {
         ApplyLevelConfig();
 
-        elapsedTime = 0f;
-        uiRefreshTimer = 0f;
-        IsTiming = false;
-
+        ResetTimerState();
         UpdateUI();
 
-        yield return new WaitUntil(() => GameStateManager.IsGameplayStarted);
+        yield return new WaitUntil(
+            () => GameStateManager.IsGameplayStarted
+        );
 
         StartTimer();
     }
 
     private void Update()
     {
-        if (!GameStateManager.IsGameplayStarted) return;
-        if (!IsTiming) return;
+        if (!GameStateManager.IsGameplayStarted)
+            return;
 
+        if (!IsTiming)
+            return;
+
+        // Pause sırasında timer ilerlemez.
         if (Time.timeScale <= 0f)
             return;
 
+        // Slow etkisinden bağımsız gerçek oyun süresini sayar.
         elapsedTime += Time.unscaledDeltaTime;
         uiRefreshTimer += Time.unscaledDeltaTime;
 
-        if (uiRefreshTimer >= uiRefreshInterval)
+        if (uiRefreshInterval <= 0f ||
+            uiRefreshTimer >= uiRefreshInterval)
         {
             uiRefreshTimer = 0f;
             UpdateUI();
         }
-    }
-
-    private void ApplyLevelConfig()
-    {
-        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
-        LevelConfig levelConfig = levelManager != null ? levelManager.currentLevel : null;
-
-        showHUDTimer = levelConfig != null && levelConfig.showGameTimerHUD;
-
-        if (timerText != null)
-            timerText.gameObject.SetActive(showHUDTimer);
     }
 
     public void StartTimer()
@@ -78,15 +73,72 @@ public class GameTimer : MonoBehaviour
 
     public void StopTimer()
     {
+        if (!IsTiming)
+            return;
+
         IsTiming = false;
         UpdateUI();
     }
 
-    private void UpdateUI()
+    public void ResetTimer()
     {
-        if (!showHUDTimer) return;
+        ResetTimerState();
+        UpdateUI();
+    }
+
+    private void ResetTimerState()
+    {
+        elapsedTime = 0f;
+        uiRefreshTimer = 0f;
+        IsTiming = false;
+    }
+
+    private void ApplyLevelConfig()
+    {
+        LevelManager levelManager =
+            FindAnyObjectByType<LevelManager>();
+
+        LevelConfig levelConfig =
+            levelManager != null
+                ? levelManager.currentLevel
+                : null;
+
+        showHUDTimer =
+            levelConfig != null &&
+            levelConfig.showGameTimerHUD;
 
         if (timerText != null)
-            timerText.text = "Time: " + elapsedTime.ToString("F2");
+            timerText.gameObject.SetActive(showHUDTimer);
+    }
+
+    private void UpdateUI()
+    {
+        if (!showHUDTimer || timerText == null)
+            return;
+
+        timerText.SetText(
+            "Time: {0:F2}",
+            elapsedTime
+        );
+    }
+
+    private void RefreshReferences()
+    {
+        if (timerText == null)
+            timerText = GetComponent<TextMeshProUGUI>();
+
+        if (timerText == null)
+        {
+            Debug.LogWarning(
+                "GameTimer could not find a TextMeshProUGUI reference.",
+                this
+            );
+        }
+    }
+
+    private void OnValidate()
+    {
+        uiRefreshInterval =
+            Mathf.Max(0f, uiRefreshInterval);
     }
 }

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -10,25 +9,16 @@ public class SettingsManager : MonoBehaviour
     private const string MusicVolumeKey = "MusicVolume";
     private const string SFXVolumeKey = "SFXVolume";
     private const string VibrationKey = "VibrationEnabled";
-    private const string JoystickSideKey = "JoystickSide"; // 0 = Left, 1 = Right
-    private const string FPSKey = "FPSMode"; // 30 / 60
+    private const string FPSKey = "FPSMode";
     private const string HUDOpacityKey = "HUDOpacity";
-    private const string LanguageKey = "Language"; // EN / TR / RU / CN
+    private const string LanguageKey = "Language";
 
-    [Header("HUD Layout")]
-    public RectTransform joystick;
-    public RectTransform dashButton;
-    public RectTransform cloneButton;
+    private const int DefaultFPS = 60;
+    private const string DefaultLanguage = "EN";
 
     [Header("HUD Opacity")]
-    public CanvasGroup hudCanvasGroup;
-
-    [Header("Positions")]
-    public Vector2 joystickLeftPos = new Vector2(170f, 170f);
-    public Vector2 joystickRightPos = new Vector2(-170f, 170f);
-    public Vector2 buttonsLeftPos = new Vector2(170f, 150f);
-    public Vector2 buttonsRightPos = new Vector2(-170f, 150f);
-    public Vector2 cloneOffset = new Vector2(-120f, 0f);
+    [SerializeField]
+    private CanvasGroup hudCanvasGroup;
 
     private void Awake()
     {
@@ -39,6 +29,7 @@ public class SettingsManager : MonoBehaviour
         }
 
         Instance = this;
+
         ApplyAllSettings();
     }
 
@@ -47,29 +38,54 @@ public class SettingsManager : MonoBehaviour
         ApplySound();
         ApplyMenuMusic();
         ApplySFX();
+        ApplyVibration();
         ApplyFPS();
         ApplyHUDOpacity();
         ApplyJoystickLayout();
     }
 
+    #region Sound
+
     public void SetSound(bool value)
     {
-        PlayerPrefs.SetInt(SoundKey, value ? 1 : 0);
+        PlayerPrefs.SetInt(
+            SoundKey,
+            value ? 1 : 0
+        );
+
         PlayerPrefs.Save();
 
         ApplySound();
         ApplyMenuMusic();
         ApplySFX();
+        ApplyAudioAppliers();
     }
 
     public bool GetSound()
     {
-        return PlayerPrefs.GetInt(SoundKey, 1) == 1;
+        return PlayerPrefs.GetInt(
+            SoundKey,
+            1
+        ) == 1;
     }
+
+    private void ApplySound()
+    {
+        AudioListener.volume =
+            GetSound() ? 1f : 0f;
+    }
+
+    #endregion
+
+    #region Menu Music
 
     public void SetMenuMusic(bool value)
     {
-        PlayerPrefs.SetInt(MenuMusicKey, value ? 1 : 0);
+        PlayerPrefs.SetInt(
+            MenuMusicKey,
+            value ? 1 : 0
+        );
+
         PlayerPrefs.Save();
 
         ApplyMenuMusic();
@@ -77,12 +93,21 @@ public class SettingsManager : MonoBehaviour
 
     public bool GetMenuMusic()
     {
-        return PlayerPrefs.GetInt(MenuMusicKey, 1) == 1;
+        return PlayerPrefs.GetInt(
+            MenuMusicKey,
+            1
+        ) == 1;
     }
 
     public void SetMusicVolume(float value)
     {
-        PlayerPrefs.SetFloat(MusicVolumeKey, value);
+        value = Mathf.Clamp01(value);
+
+        PlayerPrefs.SetFloat(
+            MusicVolumeKey,
+            value
+        );
+
         PlayerPrefs.Save();
 
         ApplyMenuMusic();
@@ -91,12 +116,36 @@ public class SettingsManager : MonoBehaviour
 
     public float GetMusicVolume()
     {
-        return PlayerPrefs.GetFloat(MusicVolumeKey, 1f);
+        return Mathf.Clamp01(
+            PlayerPrefs.GetFloat(
+                MusicVolumeKey,
+                1f
+            )
+        );
     }
+
+    private void ApplyMenuMusic()
+    {
+        MenuMusicApply menuMusic =
+            FindAnyObjectByType<MenuMusicApply>();
+
+        if (menuMusic != null)
+            menuMusic.ApplyMusicVolume();
+    }
+
+    #endregion
+
+    #region SFX
 
     public void SetSFXVolume(float value)
     {
-        PlayerPrefs.SetFloat(SFXVolumeKey, value);
+        value = Mathf.Clamp01(value);
+
+        PlayerPrefs.SetFloat(
+            SFXVolumeKey,
+            value
+        );
+
         PlayerPrefs.Save();
 
         ApplySFX();
@@ -105,105 +154,18 @@ public class SettingsManager : MonoBehaviour
 
     public float GetSFXVolume()
     {
-        return PlayerPrefs.GetFloat(SFXVolumeKey, 1f);
-    }
-
-    public void SetVibration(bool value)
-    {
-        PlayerPrefs.SetInt(VibrationKey, value ? 1 : 0);
-        PlayerPrefs.Save();
-
-        if (VibrationManager.Instance != null)
-            VibrationManager.Instance.SetVibration(value);
-    }
-
-    public bool GetVibration()
-    {
-        return PlayerPrefs.GetInt(VibrationKey, 1) == 1;
-    }
-
-    public void SetJoystickLeft()
-    {
-        PlayerPrefs.SetInt(JoystickSideKey, 0);
-        PlayerPrefs.Save();
-
-        ApplyJoystickLayout();
-    }
-
-    public void SetJoystickRight()
-    {
-        PlayerPrefs.SetInt(JoystickSideKey, 1);
-        PlayerPrefs.Save();
-
-        ApplyJoystickLayout();
-    }
-
-    public int GetJoystickSide()
-    {
-        return PlayerPrefs.GetInt(JoystickSideKey, 1);
-    }
-
-    public void SetFPS30()
-    {
-        PlayerPrefs.SetInt(FPSKey, 30);
-        PlayerPrefs.Save();
-
-        ApplyFPS();
-    }
-
-    public void SetFPS60()
-    {
-        PlayerPrefs.SetInt(FPSKey, 60);
-        PlayerPrefs.Save();
-
-        ApplyFPS();
-    }
-
-    public int GetFPS()
-    {
-        return PlayerPrefs.GetInt(FPSKey, 60);
-    }
-
-    public void SetHUDOpacity(float value)
-    {
-        PlayerPrefs.SetFloat(HUDOpacityKey, value);
-        PlayerPrefs.Save();
-
-        ApplyHUDOpacity();
-    }
-
-    public float GetHUDOpacity()
-    {
-        return PlayerPrefs.GetFloat(HUDOpacityKey, 1f);
-    }
-
-    public void SetLanguage(string languageCode)
-    {
-        PlayerPrefs.SetString(LanguageKey, languageCode);
-        PlayerPrefs.Save();
-    }
-
-    public string GetLanguage()
-    {
-        return PlayerPrefs.GetString(LanguageKey, "EN");
-    }
-
-    private void ApplySound()
-    {
-        AudioListener.volume = GetSound() ? 1f : 0f;
-    }
-
-    private void ApplyMenuMusic()
-    {
-        MenuMusicApply menuMusic = FindAnyObjectByType<MenuMusicApply>();
-
-        if (menuMusic != null)
-            menuMusic.ApplyMusicVolume();
+        return Mathf.Clamp01(
+            PlayerPrefs.GetFloat(
+                SFXVolumeKey,
+                1f
+            )
+        );
     }
 
     private void ApplySFX()
     {
-        SoundManager soundManager = FindAnyObjectByType<SoundManager>();
+        SoundManager soundManager =
+            FindAnyObjectByType<SoundManager>();
 
         if (soundManager != null)
             soundManager.ApplySFXVolume();
@@ -211,10 +173,158 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplyAudioAppliers()
     {
-       AudioSettingsApply[] audioAppliers = FindObjectsByType<AudioSettingsApply>(FindObjectsInactive.Exclude);
+        AudioSettingsApply[] audioAppliers =
+    FindObjectsByType<AudioSettingsApply>(
+        FindObjectsInactive.Exclude
+    );
 
         foreach (AudioSettingsApply applier in audioAppliers)
-            applier.Apply();
+        {
+            if (applier != null)
+                applier.Apply();
+        }
+    }
+
+    #endregion
+
+    #region Vibration
+
+    public void SetVibration(bool value)
+    {
+        PlayerPrefs.SetInt(
+            VibrationKey,
+            value ? 1 : 0
+        );
+
+        PlayerPrefs.Save();
+
+        ApplyVibration();
+    }
+
+    public bool GetVibration()
+    {
+        return PlayerPrefs.GetInt(
+            VibrationKey,
+            1
+        ) == 1;
+    }
+
+    private void ApplyVibration()
+    {
+        if (VibrationManager.Instance != null)
+        {
+            VibrationManager.Instance.SetVibration(
+                GetVibration()
+            );
+        }
+    }
+
+    #endregion
+
+    #region Joystick Layout
+
+    public void SetJoystickLeft()
+    {
+        if (ControlLayoutManager.Instance != null)
+        {
+            ControlLayoutManager.Instance
+                .SetJoystickLeft();
+        }
+        else
+        {
+            SaveJoystickSideFallback(
+                ControlLayoutManager.JoystickSide.Left
+            );
+        }
+    }
+
+    public void SetJoystickRight()
+    {
+        if (ControlLayoutManager.Instance != null)
+        {
+            ControlLayoutManager.Instance
+                .SetJoystickRight();
+        }
+        else
+        {
+            SaveJoystickSideFallback(
+                ControlLayoutManager.JoystickSide.Right
+            );
+        }
+    }
+
+    public int GetJoystickSide()
+    {
+        return PlayerPrefs.GetInt(
+            "JoystickSide",
+            (int)ControlLayoutManager
+                .JoystickSide.Right
+        );
+    }
+
+    private void ApplyJoystickLayout()
+    {
+        if (ControlLayoutManager.Instance != null)
+        {
+            ControlLayoutManager.Instance
+                .ApplySavedLayout();
+        }
+    }
+
+    private static void SaveJoystickSideFallback(
+        ControlLayoutManager.JoystickSide side
+    )
+    {
+        /*
+         * Settings sahnesinde ControlLayoutManager yoksa
+         * ayarı yine de kaydediyoruz. Gameplay sahnesi
+         * açıldığında ControlLayoutManager uygular.
+         */
+        PlayerPrefs.SetInt(
+            "JoystickSide",
+            (int)side
+        );
+
+        PlayerPrefs.Save();
+    }
+
+    #endregion
+
+    #region FPS
+
+    public void SetFPS30()
+    {
+        SetFPS(30);
+    }
+
+    public void SetFPS60()
+    {
+        SetFPS(60);
+    }
+
+    private void SetFPS(int fps)
+    {
+        int validatedFPS =
+            fps == 30 ? 30 : 60;
+
+        PlayerPrefs.SetInt(
+            FPSKey,
+            validatedFPS
+        );
+
+        PlayerPrefs.Save();
+
+        ApplyFPS();
+    }
+
+    public int GetFPS()
+    {
+        int savedFPS = PlayerPrefs.GetInt(
+            FPSKey,
+            DefaultFPS
+        );
+
+        return savedFPS == 30 ? 30 : 60;
     }
 
     private void ApplyFPS()
@@ -222,44 +332,95 @@ public class SettingsManager : MonoBehaviour
         Application.targetFrameRate = GetFPS();
     }
 
+    #endregion
+
+    #region HUD Opacity
+
+    public void SetHUDOpacity(float value)
+    {
+        value = Mathf.Clamp01(value);
+
+        PlayerPrefs.SetFloat(
+            HUDOpacityKey,
+            value
+        );
+
+        PlayerPrefs.Save();
+
+        ApplyHUDOpacity();
+    }
+
+    public float GetHUDOpacity()
+    {
+        return Mathf.Clamp01(
+            PlayerPrefs.GetFloat(
+                HUDOpacityKey,
+                1f
+            )
+        );
+    }
+
     private void ApplyHUDOpacity()
     {
         if (hudCanvasGroup != null)
-            hudCanvasGroup.alpha = GetHUDOpacity();
+        {
+            hudCanvasGroup.alpha =
+                GetHUDOpacity();
+        }
     }
 
-    private void ApplyJoystickLayout()
+    #endregion
+
+    #region Language
+
+    public void SetLanguage(string languageCode)
     {
-        int side = GetJoystickSide();
+        string validatedLanguage =
+            ValidateLanguageCode(languageCode);
 
-        bool joystickOnLeft = side == 0;
+        PlayerPrefs.SetString(
+            LanguageKey,
+            validatedLanguage
+        );
 
-        if (joystick != null)
+        PlayerPrefs.Save();
+    }
+
+    public string GetLanguage()
+    {
+        string savedLanguage =
+            PlayerPrefs.GetString(
+                LanguageKey,
+                DefaultLanguage
+            );
+
+        return ValidateLanguageCode(savedLanguage);
+    }
+
+    private static string ValidateLanguageCode(
+        string languageCode
+    )
+    {
+        if (string.IsNullOrWhiteSpace(languageCode))
+            return DefaultLanguage;
+
+        string normalizedCode =
+            languageCode.Trim().ToUpperInvariant();
+
+        return normalizedCode switch
         {
-            joystick.anchorMin = joystickOnLeft ? new Vector2(0f, 0f) : new Vector2(1f, 0f);
-            joystick.anchorMax = joystickOnLeft ? new Vector2(0f, 0f) : new Vector2(1f, 0f);
-            joystick.pivot = joystickOnLeft ? new Vector2(0f, 0f) : new Vector2(1f, 0f);
-            joystick.anchoredPosition = joystickOnLeft ? joystickLeftPos : joystickRightPos;
-        }
+            "TR" => "TR",
+            "RU" => "RU",
+            "CN" => "CN",
+            _ => DefaultLanguage
+        };
+    }
 
-        Vector2 buttonAnchor = joystickOnLeft ? new Vector2(1f, 0f) : new Vector2(0f, 0f);
-        Vector2 buttonPivot = joystickOnLeft ? new Vector2(1f, 0f) : new Vector2(0f, 0f);
-        Vector2 buttonPos = joystickOnLeft ? buttonsRightPos : buttonsLeftPos;
+    #endregion
 
-        if (dashButton != null)
-        {
-            dashButton.anchorMin = buttonAnchor;
-            dashButton.anchorMax = buttonAnchor;
-            dashButton.pivot = buttonPivot;
-            dashButton.anchoredPosition = buttonPos;
-        }
-
-        if (cloneButton != null)
-        {
-            cloneButton.anchorMin = buttonAnchor;
-            cloneButton.anchorMax = buttonAnchor;
-            cloneButton.pivot = buttonPivot;
-            cloneButton.anchoredPosition = buttonPos + cloneOffset;
-        }
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 }

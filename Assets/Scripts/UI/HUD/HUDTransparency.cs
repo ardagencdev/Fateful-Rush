@@ -1,6 +1,7 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class HUDTransparency : MonoBehaviour
 {
@@ -10,6 +11,14 @@ public class HUDTransparency : MonoBehaviour
     [Header("Ignore")]
     public Graphic[] ignoreGraphics;
 
+    private Graphic[] cachedGraphics;
+    private HashSet<Graphic> ignoredGraphics;
+
+    private void Awake()
+    {
+        CacheGraphics();
+    }
+
     private void Start()
     {
         ApplyTransparency();
@@ -17,26 +26,43 @@ public class HUDTransparency : MonoBehaviour
 
     public void ApplyTransparency()
     {
-        Graphic[] graphics = GetComponentsInChildren<Graphic>(true);
+        if (cachedGraphics == null)
+            CacheGraphics();
 
-        foreach (Graphic g in graphics)
+        foreach (Graphic graphic in cachedGraphics)
         {
-            bool ignored = false;
+            if (graphic == null)
+                continue;
 
-            foreach (Graphic ignore in ignoreGraphics)
-            {
-                if (g == ignore)
-                {
-                    ignored = true;
-                    break;
-                }
-            }
+            if (ignoredGraphics.Contains(graphic))
+                continue;
 
-            if (ignored) continue;
-
-            Color c = g.color;
-            c.a = alpha;
-            g.color = c;
+            Color color = graphic.color;
+            color.a = alpha;
+            graphic.color = color;
         }
     }
+
+    private void CacheGraphics()
+    {
+        cachedGraphics = GetComponentsInChildren<Graphic>(true);
+
+        ignoredGraphics = new HashSet<Graphic>();
+
+        if (ignoreGraphics == null)
+            return;
+
+        foreach (Graphic graphic in ignoreGraphics)
+        {
+            if (graphic != null)
+                ignoredGraphics.Add(graphic);
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        alpha = Mathf.Clamp01(alpha);
+    }
+#endif
 }

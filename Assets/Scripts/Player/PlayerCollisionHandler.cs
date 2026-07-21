@@ -2,6 +2,15 @@ using UnityEngine;
 
 public class PlayerCollisionHandler : MonoBehaviour
 {
+    private const string UnknownCause = "UNKNOWN";
+    private const string LaserWallCause = "LASER WALL";
+    private const string BossCause = "BOSS";
+    private const string MiniBossCause = "MINI BOSS";
+    private const string HunterCause = "HUNTER";
+    private const string BlasterCause = "BLASTER";
+    private const string LaserBulletCause = "LASER BULLET";
+    private const string StalkerCause = "STALKER";
+
     [Header("References")]
     public PlayerMovement playerMovement;
     public PlayerArmor playerArmor;
@@ -18,11 +27,14 @@ public class PlayerCollisionHandler : MonoBehaviour
 
         if (coinCollector == null)
             coinCollector = GetComponent<PlayerCoinCollector>();
+
+        if (gameStateManager == null)
+            gameStateManager = FindAnyObjectByType<GameStateManager>();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (playerMovement != null && playerMovement.IsGameOver)
+        if (IsGameOver())
             return;
 
         if (!collision.gameObject.CompareTag("Enemy"))
@@ -33,18 +45,23 @@ public class PlayerCollisionHandler : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (playerMovement != null && playerMovement.IsGameOver)
+        if (IsGameOver())
             return;
 
-        if (other.CompareTag("Enemy"))
-            HandleHit(other.gameObject);
+        if (!other.CompareTag("Enemy") &&
+            !other.CompareTag("Laser"))
+        {
+            return;
+        }
 
-        if (other.CompareTag("Laser"))
-            HandleHit(other.gameObject);
+        HandleHit(other.gameObject);
     }
 
     private void HandleHit(GameObject danger)
     {
+        if (danger == null)
+            return;
+
         if (playerArmor != null && playerArmor.IsImmune)
             return;
 
@@ -52,92 +69,143 @@ public class PlayerCollisionHandler : MonoBehaviour
         {
             playerArmor.BreakArmor();
 
-            GameObject rootDanger = GetDangerRoot(danger);
+            bool isLaser =
+                danger.CompareTag("Laser") ||
+                danger.GetComponentInParent<LaserWall>() != null;
 
-            if (rootDanger != null)
-            {
-                DeathFadeEffect fade = rootDanger.GetComponent<DeathFadeEffect>();
-
-                if (fade != null)
-                    fade.Play();
-                else
-                    Destroy(rootDanger);
-            }
+            if (!isLaser)
+                RemoveDanger(danger);
 
             return;
         }
 
-        int finalScore = 0;
-
-        if (coinCollector != null)
-            finalScore = coinCollector.Score;
-
         string deathCause = GetDeathCause(danger);
+        int finalScore = coinCollector != null
+            ? coinCollector.Score
+            : 0;
 
         if (playerMovement != null)
-            playerMovement.GameOver(deathCause);
-        else
         {
-            LastDeathInfo.Cause = deathCause;
-
-            if (gameStateManager != null)
-                gameStateManager.GameOver(finalScore);
+            playerMovement.GameOver(deathCause);
+            return;
         }
+
+        LastDeathInfo.Cause = deathCause;
+
+        if (gameStateManager != null)
+            gameStateManager.GameOver(finalScore);
+    }
+
+    private void RemoveDanger(GameObject danger)
+    {
+        GameObject rootDanger = GetDangerRoot(danger);
+
+        if (rootDanger == null)
+            return;
+
+        DeathFadeEffect fade =
+            rootDanger.GetComponent<DeathFadeEffect>();
+
+        if (fade != null)
+        {
+            fade.Play();
+            return;
+        }
+
+        Destroy(rootDanger);
     }
 
     private string GetDeathCause(GameObject danger)
     {
-        if (danger == null) return "UNKNOWN";
+        if (danger == null)
+            return UnknownCause;
 
-        if (danger.CompareTag("Laser") || danger.GetComponentInParent<LaserWall>() != null)
-            return "LASER WALL";
+        if (danger.CompareTag("Laser") ||
+            danger.GetComponentInParent<LaserWall>() != null)
+        {
+            return LaserWallCause;
+        }
 
         if (danger.GetComponentInParent<BossEnemyFollow>() != null)
-            return "BOSS";
+            return BossCause;
 
         if (danger.GetComponentInParent<MiniBossFollow>() != null)
-            return "MINI BOSS";
+            return MiniBossCause;
 
         if (danger.GetComponentInParent<HunterEnemyFollow>() != null)
-            return "HUNTER";
+            return HunterCause;
 
         if (danger.GetComponentInParent<ProjectileEnemyFollow>() != null)
-            return "BLASTER";
+            return BlasterCause;
 
         if (danger.GetComponentInParent<EnemyProjectile>() != null)
-            return "LASER BULLET";
+            return LaserBulletCause;
 
         if (danger.GetComponentInParent<EnemyFollow>() != null)
-            return "STALKER";
+            return StalkerCause;
 
-        return danger.name.Replace("(Clone)", "").Trim().ToUpper();
+        string cleanName = danger.name
+            .Replace("(Clone)", "")
+            .Trim();
+
+        return string.IsNullOrWhiteSpace(cleanName)
+            ? UnknownCause
+            : cleanName.ToUpperInvariant();
     }
 
     private GameObject GetDangerRoot(GameObject danger)
     {
-        if (danger == null) return null;
+        if (danger == null)
+            return null;
 
-        EnemyFollow enemy = danger.GetComponentInParent<EnemyFollow>();
-        if (enemy != null) return enemy.gameObject;
+        BossEnemyFollow boss =
+            danger.GetComponentInParent<BossEnemyFollow>();
 
-        BossEnemyFollow boss = danger.GetComponentInParent<BossEnemyFollow>();
-        if (boss != null) return boss.gameObject;
+        if (boss != null)
+            return boss.gameObject;
 
-        MiniBossFollow miniBoss = danger.GetComponentInParent<MiniBossFollow>();
-        if (miniBoss != null) return miniBoss.gameObject;
+        MiniBossFollow miniBoss =
+            danger.GetComponentInParent<MiniBossFollow>();
 
-        HunterEnemyFollow hunter = danger.GetComponentInParent<HunterEnemyFollow>();
-        if (hunter != null) return hunter.gameObject;
+        if (miniBoss != null)
+            return miniBoss.gameObject;
 
-        ProjectileEnemyFollow projectileEnemy = danger.GetComponentInParent<ProjectileEnemyFollow>();
-        if (projectileEnemy != null) return projectileEnemy.gameObject;
+        HunterEnemyFollow hunter =
+            danger.GetComponentInParent<HunterEnemyFollow>();
 
-        EnemyProjectile projectile = danger.GetComponentInParent<EnemyProjectile>();
-        if (projectile != null) return projectile.gameObject;
+        if (hunter != null)
+            return hunter.gameObject;
 
-        LaserWall laserWall = danger.GetComponentInParent<LaserWall>();
-        if (laserWall != null) return laserWall.gameObject;
+        ProjectileEnemyFollow projectileEnemy =
+            danger.GetComponentInParent<ProjectileEnemyFollow>();
+
+        if (projectileEnemy != null)
+            return projectileEnemy.gameObject;
+
+        EnemyProjectile projectile =
+            danger.GetComponentInParent<EnemyProjectile>();
+
+        if (projectile != null)
+            return projectile.gameObject;
+
+        EnemyFollow enemy =
+            danger.GetComponentInParent<EnemyFollow>();
+
+        if (enemy != null)
+            return enemy.gameObject;
+
+        LaserWall laserWall =
+            danger.GetComponentInParent<LaserWall>();
+
+        if (laserWall != null)
+            return laserWall.gameObject;
 
         return danger;
+    }
+
+    private bool IsGameOver()
+    {
+        return playerMovement != null &&
+               playerMovement.IsGameOver;
     }
 }

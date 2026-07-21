@@ -2,91 +2,289 @@ using UnityEngine;
 
 public static class StatsManager
 {
-    private const string TotalRuns = "Stats_TotalRuns";
-    private const string TotalWins = "Stats_TotalWins";
-    private const string TotalDeaths = "Stats_TotalDeaths";
+    private const int FirstLevelNumber = 1;
+    private const int LastLevelNumber = 20;
 
-    private const string TotalCoins = "Stats_TotalCoins";
-    private const string NormalCoins = "Stats_NormalCoins";
-    private const string GoldCoins = "Stats_GoldCoins";
-    private const string RareCoins = "Stats_RareCoins";
+    private const string NormalCoinType = "Normal";
+    private const string GoldCoinType = "Gold";
+    private const string RareCoinType = "Rare";
 
-    private const string DashUses = "Stats_DashUses";
-    private const string CloneUses = "Stats_CloneUses";
-    private const string SlowBuffUses = "Stats_SlowBuffUses";
-    private const string ArmorBuffUses = "Stats_ArmorBuffUses";
-    private const string ArmorKills = "Stats_ArmorKills";
+    private const string TotalRunsKey =
+        "Stats_TotalRuns";
 
-    private const string TotalPlayTime = "Stats_TotalPlayTime";
+    private const string TotalWinsKey =
+        "Stats_TotalWins";
 
-    public static void AddRun() => AddInt(TotalRuns, 1);
-    public static void AddWin() => AddInt(TotalWins, 1);
-    public static void AddDeath() => AddInt(TotalDeaths, 1);
-    public static void AddDashUse() => AddInt(DashUses, 1);
-    public static void AddCloneUse() => AddInt(CloneUses, 1);
-    public static void AddSlowBuffUse() => AddInt(SlowBuffUses, 1);
-    public static void AddArmorBuffUse() => AddInt(ArmorBuffUses, 1);
-    public static void AddArmorKill() => AddInt(ArmorKills, 1);
+    private const string TotalDeathsKey =
+        "Stats_TotalDeaths";
 
-    public static void AddCoin(int value, string coinType)
+    private const string TotalCoinsKey =
+        "Stats_TotalCoins";
+
+    private const string TotalCoinValueKey =
+    "Stats_TotalCoinValue";
+
+    private const string NormalCoinsKey =
+        "Stats_NormalCoins";
+
+    private const string GoldCoinsKey =
+        "Stats_GoldCoins";
+
+    private const string RareCoinsKey =
+        "Stats_RareCoins";
+
+    private const string DashUsesKey =
+        "Stats_DashUses";
+
+    private const string CloneUsesKey =
+        "Stats_CloneUses";
+
+    private const string SlowBuffUsesKey =
+        "Stats_SlowBuffUses";
+
+    private const string ArmorBuffUsesKey =
+        "Stats_ArmorBuffUses";
+
+    private const string ArmorKillsKey =
+        "Stats_ArmorKills";
+
+    private const string TotalPlayTimeKey =
+        "Stats_TotalPlayTime";
+
+    private const string BestTimeLevelPrefix =
+        "BestTime_Level_";
+
+    private const string BestTimeDevRoomKey =
+        "BestTime_DevRoom";
+
+    public static void AddRun()
     {
-        AddInt(TotalCoins, 1);
+        AddInt(TotalRunsKey);
+    }
 
-        if (coinType == "Normal") AddInt(NormalCoins, 1);
-        else if (coinType == "Gold") AddInt(GoldCoins, 1);
-        else if (coinType == "Rare") AddInt(RareCoins, 1);
+    public static void AddWin()
+    {
+        AddInt(TotalWinsKey);
+    }
+
+    public static void AddDeath()
+    {
+        AddInt(TotalDeathsKey);
+    }
+
+    public static void AddDashUse()
+    {
+        AddInt(DashUsesKey);
+    }
+
+    public static void AddCloneUse()
+    {
+        AddInt(CloneUsesKey);
+    }
+
+    public static void AddSlowBuffUse()
+    {
+        AddInt(SlowBuffUsesKey);
+    }
+
+    public static void AddArmorBuffUse()
+    {
+        AddInt(ArmorBuffUsesKey);
+    }
+
+    public static void AddArmorKill()
+    {
+        AddInt(ArmorKillsKey);
+    }
+
+    public static void AddCoin(
+        int value,
+        string coinType
+    )
+    {
+        /*
+         * TotalCoins şu anda coin değerini değil,
+         * toplanan coin adedini temsil ediyor.
+         *
+         * value parametresi mevcut çağrıları bozmamak
+         * için korunuyor ancak istatistikte kullanılmıyor.
+         */
+        AddInt(TotalCoinsKey);
+
+        if (value > 0)
+        {
+            AddInt(TotalCoinValueKey, value);
+        }
+
+        switch (coinType)
+        {
+            case NormalCoinType:
+                AddInt(NormalCoinsKey);
+                break;
+
+            case GoldCoinType:
+                AddInt(GoldCoinsKey);
+                break;
+
+            case RareCoinType:
+                AddInt(RareCoinsKey);
+                break;
+
+            default:
+                Debug.LogWarning(
+                    $"Unknown coin type received: {coinType}"
+                );
+                break;
+        }
     }
 
     public static void AddPlayTime(float seconds)
     {
-        PlayerPrefs.SetFloat(TotalPlayTime, PlayerPrefs.GetFloat(TotalPlayTime, 0f) + seconds);
+        if (seconds <= 0f ||
+            float.IsNaN(seconds) ||
+            float.IsInfinity(seconds))
+        {
+            return;
+        }
+
+        float currentPlayTime =
+            PlayerPrefs.GetFloat(
+                TotalPlayTimeKey,
+                0f
+            );
+
+        PlayerPrefs.SetFloat(
+            TotalPlayTimeKey,
+            currentPlayTime + seconds
+        );
+
         PlayerPrefs.Save();
     }
 
-    public static void SetBestTime(string key, float time)
+    public static void SetBestTime(
+        string key,
+        float time
+    )
     {
-        float current = PlayerPrefs.GetFloat(key, Mathf.Infinity);
-
-        if (time < current)
+        if (string.IsNullOrWhiteSpace(key))
         {
-            PlayerPrefs.SetFloat(key, time);
-            PlayerPrefs.Save();
+            Debug.LogWarning(
+                "Best time could not be saved because the key was empty."
+            );
+
+            return;
         }
+
+        if (time <= 0f ||
+            float.IsNaN(time) ||
+            float.IsInfinity(time))
+        {
+            Debug.LogWarning(
+                $"Invalid best time value received: {time}"
+            );
+
+            return;
+        }
+
+        float currentBestTime =
+            PlayerPrefs.GetFloat(
+                key,
+                Mathf.Infinity
+            );
+
+        if (time >= currentBestTime)
+            return;
+
+        PlayerPrefs.SetFloat(key, time);
+        PlayerPrefs.Save();
     }
 
-    public static int GetInt(string key) => PlayerPrefs.GetInt(key, 0);
-    public static float GetFloat(string key) => PlayerPrefs.GetFloat(key, 0f);
-
-    private static void AddInt(string key, int amount)
+    public static int GetInt(string key)
     {
-        PlayerPrefs.SetInt(key, PlayerPrefs.GetInt(key, 0) + amount);
+        if (string.IsNullOrWhiteSpace(key))
+            return 0;
+
+        return PlayerPrefs.GetInt(key, 0);
+    }
+
+    public static float GetFloat(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return 0f;
+
+        return PlayerPrefs.GetFloat(key, 0f);
+    }
+
+    private static void AddInt(
+        string key,
+        int amount = 1
+    )
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return;
+
+        if (amount == 0)
+            return;
+
+        int currentValue =
+            PlayerPrefs.GetInt(key, 0);
+
+        long newValue =
+            (long)currentValue + amount;
+
+        int safeValue = (int)Mathf.Clamp(
+            newValue,
+            0L,
+            int.MaxValue
+        );
+
+        PlayerPrefs.SetInt(key, safeValue);
         PlayerPrefs.Save();
     }
 
     public static void ResetAllStats()
     {
-        PlayerPrefs.DeleteKey(TotalRuns);
-        PlayerPrefs.DeleteKey(TotalWins);
-        PlayerPrefs.DeleteKey(TotalDeaths);
+        DeleteKeys(
+            TotalRunsKey,
+            TotalWinsKey,
+            TotalDeathsKey,
+            TotalCoinsKey,
+            TotalCoinValueKey,
+            NormalCoinsKey,
+            GoldCoinsKey,
+            RareCoinsKey,
+            DashUsesKey,
+            CloneUsesKey,
+            SlowBuffUsesKey,
+            ArmorBuffUsesKey,
+            ArmorKillsKey,
+            TotalPlayTimeKey
+        );
 
-        PlayerPrefs.DeleteKey(TotalCoins);
-        PlayerPrefs.DeleteKey(NormalCoins);
-        PlayerPrefs.DeleteKey(GoldCoins);
-        PlayerPrefs.DeleteKey(RareCoins);
+        for (int levelNumber = FirstLevelNumber;
+             levelNumber <= LastLevelNumber;
+             levelNumber++)
+        {
+            PlayerPrefs.DeleteKey(
+                BestTimeLevelPrefix +
+                levelNumber
+            );
+        }
 
-        PlayerPrefs.DeleteKey(DashUses);
-        PlayerPrefs.DeleteKey(CloneUses);
-        PlayerPrefs.DeleteKey(SlowBuffUses);
-        PlayerPrefs.DeleteKey(ArmorBuffUses);
-        PlayerPrefs.DeleteKey(ArmorKills);
-
-        PlayerPrefs.DeleteKey(TotalPlayTime);
-
-        for (int i = 1; i <= 20; i++)
-            PlayerPrefs.DeleteKey("BestTime_Level_" + i);
-
-        PlayerPrefs.DeleteKey("BestTime_DevRoom");
+        PlayerPrefs.DeleteKey(
+            BestTimeDevRoomKey
+        );
 
         PlayerPrefs.Save();
+    }
+
+    private static void DeleteKeys(
+        params string[] keys
+    )
+    {
+        for (int i = 0; i < keys.Length; i++)
+        {
+            PlayerPrefs.DeleteKey(keys[i]);
+        }
     }
 }

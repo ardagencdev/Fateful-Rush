@@ -3,8 +3,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class LevelButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+public class LevelButtonUI : MonoBehaviour,
+    IPointerEnterHandler,
+    IPointerExitHandler,
+    IPointerDownHandler,
+    IPointerUpHandler
 {
+    private const string UnlockedLevelKey = "UnlockedLevel";
+    private const string CompletedLevelKeyPrefix = "CompletedLevel_";
+
     [Header("References")]
     public Button button;
     public Image buttonImage;
@@ -24,11 +31,17 @@ public class LevelButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     [Header("Text Colors")]
     public Color unlockedTextColor = Color.white;
-    public Color completedTextColor = new Color32(255, 200, 70, 255);
+    public Color completedTextColor =
+        new Color32(255, 200, 70, 255);
 
     [Header("Scale")]
+    [Min(0f)]
     public float hoverScale = 1.08f;
+
+    [Min(0f)]
     public float clickScale = 0.95f;
+
+    [Min(0f)]
     public float transitionSpeed = 10f;
 
     private LevelConfig config;
@@ -37,117 +50,316 @@ public class LevelButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private bool unlocked;
     private bool completed;
     private bool hovering;
+    private bool pressing;
 
     private Vector3 originalScale;
     private Vector3 targetScale;
 
     private void Awake()
     {
+        RefreshReferences();
+
         originalScale = transform.localScale;
         targetScale = originalScale;
     }
 
     private void Update()
     {
-        transform.localScale = Vector3.Lerp(transform.localScale, targetScale, transitionSpeed * Time.unscaledDeltaTime);
+        if (transitionSpeed <= 0f)
+        {
+            transform.localScale = targetScale;
+            return;
+        }
+
+        transform.localScale = Vector3.Lerp(
+            transform.localScale,
+            targetScale,
+            transitionSpeed * Time.unscaledDeltaTime
+        );
     }
 
-    public void Setup(LevelConfig levelConfig, LevelSelectPanel owner)
+    private void OnDisable()
+    {
+        hovering = false;
+        pressing = false;
+
+        targetScale = originalScale;
+        transform.localScale = originalScale;
+
+        ApplyNormalSprite();
+    }
+
+    private void OnDestroy()
+    {
+        if (button != null)
+            button.onClick.RemoveListener(PlayLevel);
+    }
+
+    public void Setup(
+        LevelConfig levelConfig,
+        LevelSelectPanel owner)
     {
         config = levelConfig;
         panel = owner;
 
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(PlayLevel);
+        RefreshReferences();
+
+        if (button != null)
+        {
+            button.onClick.RemoveListener(PlayLevel);
+            button.onClick.AddListener(PlayLevel);
+        }
 
         Refresh();
     }
 
     public void Refresh()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
-
-        unlocked = config.levelNumber <= unlockedLevel;
-        completed = PlayerPrefs.GetInt("CompletedLevel_" + config.levelNumber, 0) == 1;
-
-        button.interactable = unlocked;
-
-        ApplyNormalSprite();
-
-        levelText.text = unlocked ? config.levelNumber.ToString() : "";
-        levelText.alpha = unlocked ? 1f : 0f;
-
-        if (unlocked)
+        if (config == null)
         {
-            levelText.color = completed ? completedTextColor : unlockedTextColor;
+            SetInvalidState();
+            return;
         }
+
+        int unlockedLevel = PlayerPrefs.GetInt(
+            UnlockedLevelKey,
+            1
+        );
+
+        unlocked =
+            config.levelNumber <= unlockedLevel;
+
+        completed = PlayerPrefs.GetInt(
+            CompletedLevelKeyPrefix + config.levelNumber,
+            0
+        ) == 1;
+
+        if (button != null)
+            button.interactable = unlocked;
+
+        ApplyCurrentSprite();
+        RefreshLevelText();
+        RefreshTargetScale();
     }
 
     private void PlayLevel()
     {
-        if (!unlocked) return;
+        if (!unlocked || config == null)
+            return;
 
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayMissionSelectSound();
+        {
+            SoundManager.Instance
+                .PlayMissionSelectSound();
+        }
 
-        panel.StartLevel(config);
+        if (panel != null)
+        {
+            panel.StartLevel(config);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "LevelButtonUI has no LevelSelectPanel reference.",
+                this
+            );
+        }
+    }
+
+    private void RefreshLevelText()
+    {
+        if (levelText == null)
+            return;
+
+        if (!unlocked)
+        {
+            levelText.text = string.Empty;
+            levelText.alpha = 0f;
+            return;
+        }
+
+        levelText.SetText(
+            "{0}",
+            config.levelNumber
+        );
+
+        levelText.alpha = 1f;
+        levelText.color = completed
+            ? completedTextColor
+            : unlockedTextColor;
+    }
+
+    private void ApplyCurrentSprite()
+    {
+        if (hovering)
+            ApplyHighlightedSprite();
+        else
+            ApplyNormalSprite();
     }
 
     private void ApplyNormalSprite()
     {
+        if (buttonImage == null)
+            return;
+
         if (!unlocked)
         {
             buttonImage.sprite = lockedNormalSprite;
             return;
         }
 
-        if (completed && completedNormalSprite != null)
+        if (completed &&
+            completedNormalSprite != null)
         {
-            buttonImage.sprite = completedNormalSprite;
+            buttonImage.sprite =
+                completedNormalSprite;
+
             return;
         }
 
-        buttonImage.sprite = unlockedNormalSprite;
+        buttonImage.sprite =
+            unlockedNormalSprite;
     }
 
     private void ApplyHighlightedSprite()
     {
+        if (buttonImage == null)
+            return;
+
         if (!unlocked)
         {
-            buttonImage.sprite = lockedHighlightedSprite != null ? lockedHighlightedSprite : lockedNormalSprite;
+            buttonImage.sprite =
+                lockedHighlightedSprite != null
+                    ? lockedHighlightedSprite
+                    : lockedNormalSprite;
+
             return;
         }
 
         if (completed)
         {
-            buttonImage.sprite = completedHighlightedSprite != null ? completedHighlightedSprite : completedNormalSprite;
+            buttonImage.sprite =
+                completedHighlightedSprite != null
+                    ? completedHighlightedSprite
+                    : completedNormalSprite != null
+                        ? completedNormalSprite
+                        : unlockedNormalSprite;
+
             return;
         }
 
-        buttonImage.sprite = unlockedHighlightedSprite != null ? unlockedHighlightedSprite : unlockedNormalSprite;
+        buttonImage.sprite =
+            unlockedHighlightedSprite != null
+                ? unlockedHighlightedSprite
+                : unlockedNormalSprite;
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    private void RefreshTargetScale()
+    {
+        if (pressing)
+        {
+            targetScale =
+                originalScale * clickScale;
+
+            return;
+        }
+
+        targetScale = hovering
+            ? originalScale * hoverScale
+            : originalScale;
+    }
+
+    private void SetInvalidState()
+    {
+        unlocked = false;
+        completed = false;
+
+        if (button != null)
+            button.interactable = false;
+
+        if (levelText != null)
+        {
+            levelText.text = string.Empty;
+            levelText.alpha = 0f;
+        }
+
+        ApplyNormalSprite();
+        RefreshTargetScale();
+    }
+
+    private void RefreshReferences()
+    {
+        if (button == null)
+            button = GetComponent<Button>();
+
+        if (buttonImage == null &&
+            button != null)
+        {
+            buttonImage =
+                button.targetGraphic as Image;
+        }
+
+        if (levelText == null)
+        {
+            levelText =
+                GetComponentInChildren<TMP_Text>(true);
+        }
+    }
+
+    public void OnPointerEnter(
+        PointerEventData eventData)
     {
         hovering = true;
+
         ApplyHighlightedSprite();
-        targetScale = originalScale * hoverScale;
+        RefreshTargetScale();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public void OnPointerExit(
+        PointerEventData eventData)
     {
         hovering = false;
+        pressing = false;
+
         ApplyNormalSprite();
-        targetScale = originalScale;
+        RefreshTargetScale();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnPointerDown(
+        PointerEventData eventData)
     {
-        targetScale = originalScale * clickScale;
+        if (eventData.button !=
+            PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        pressing = true;
+        RefreshTargetScale();
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public void OnPointerUp(
+        PointerEventData eventData)
     {
-        targetScale = hovering ? originalScale * hoverScale : originalScale;
+        if (eventData.button !=
+            PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        pressing = false;
+        RefreshTargetScale();
+    }
+
+    private void OnValidate()
+    {
+        hoverScale =
+            Mathf.Max(0f, hoverScale);
+
+        clickScale =
+            Mathf.Max(0f, clickScale);
+
+        transitionSpeed =
+            Mathf.Max(0f, transitionSpeed);
     }
 }

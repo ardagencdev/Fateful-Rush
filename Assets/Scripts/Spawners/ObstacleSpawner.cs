@@ -11,19 +11,30 @@ public class ObstacleSpawner : MonoBehaviour
     public LevelObstacleOption[] levelObstacles;
 
     [Header("Random Obstacles")]
+    [Min(0)]
     public int randomObstacleCount = 5;
 
     [Header("Spawn Settings")]
+    [Min(0f)]
     public float minDistanceBetweenObstacles = 2.5f;
+
+    [Min(0f)]
     public float playerSafeDistance = 3f;
+
+    [Min(0f)]
     public float edgePadding = 1f;
+
+    [Min(0f)]
     public float checkRadius = 0.8f;
+
+    [Min(1)]
     public int maxAttempts = 100;
 
     [Header("References")]
     public Transform player;
 
     [Header("Intro Popups")]
+    [Min(0f)]
     public float obstaclePopupGap = 0.04f;
 
     private int obstacleLayerIndex;
@@ -31,7 +42,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     private ContactFilter2D spawnFilter;
 
-    private readonly Collider2D[] spawnHits = new Collider2D[16];
+    private readonly Collider2D[] spawnHits = new Collider2D[32];
     private readonly List<Vector2> spawnedPositions = new List<Vector2>();
     private readonly List<GameObject> spawnedObstacles = new List<GameObject>();
 
@@ -111,7 +122,7 @@ public class ObstacleSpawner : MonoBehaviour
             yield break;
 
         List<GameObject> popupList = new List<GameObject>(spawnedObstacles);
-        ShuffleGameObjects(popupList);
+        Shuffle(popupList);
 
         foreach (GameObject obstacle in popupList)
         {
@@ -152,7 +163,6 @@ public class ObstacleSpawner : MonoBehaviour
 
         spawnedObstacles.Clear();
         spawnedPositions.Clear();
-        spawnedObstacles.Clear();
     }
 
     private bool TryGetValidPosition(out Vector2 spawnPos)
@@ -224,15 +234,27 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
-    private void ShuffleGameObjects(List<GameObject> list)
+    private void OnValidate()
     {
-        for (int i = 0; i < list.Count; i++)
-        {
-            int randomIndex = Random.Range(i, list.Count);
+        randomObstacleCount =
+            Mathf.Max(0, randomObstacleCount);
 
-            GameObject temp = list[i];
-            list[i] = list[randomIndex];
-            list[randomIndex] = temp;
-        }
+        minDistanceBetweenObstacles =
+            Mathf.Max(0f, minDistanceBetweenObstacles);
+
+        playerSafeDistance =
+            Mathf.Max(0f, playerSafeDistance);
+
+        edgePadding =
+            Mathf.Max(0f, edgePadding);
+
+        checkRadius =
+            Mathf.Max(0f, checkRadius);
+
+        maxAttempts =
+            Mathf.Max(1, maxAttempts);
+
+        obstaclePopupGap =
+            Mathf.Max(0f, obstaclePopupGap);
     }
 }

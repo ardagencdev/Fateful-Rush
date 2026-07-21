@@ -8341,6 +8341,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab77ba0ffb8aced45ad6830ea2d5e1b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobilePerformanceSettings
+  targetFrameRate: 60
+  preventScreenSleep: 1
+  runInBackground: 0
 --- !u!4 &333522789
 Transform:
   m_ObjectHideFlags: 0
@@ -24586,6 +24589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlLayoutManager
   defaultSide: 1
+  playerInputController: {fileID: 2867039574598277700}
   joystick: {fileID: 1318913966}
   dashButton: {fileID: 1686932945}
   cloneButton: {fileID: 1252523009}
@@ -24607,15 +24611,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1e3dba343d5814881b58215b1166d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsManager
-  joystick: {fileID: 0}
-  dashButton: {fileID: 0}
-  cloneButton: {fileID: 0}
   hudCanvasGroup: {fileID: 517449647}
-  joystickLeftPos: {x: 170, y: 170}
-  joystickRightPos: {x: -170, y: 170}
-  buttonsLeftPos: {x: 170, y: 150}
-  buttonsRightPos: {x: -170, y: 150}
-  cloneOffset: {x: -120, y: 0}
 --- !u!1 &1900544686
 GameObject:
   m_ObjectHideFlags: 0
@@ -27350,6 +27346,10 @@ PrefabInstance:
       propertyPath: cameraZoomPulse
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 7386240938810041582, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: playerSpriteRenderer
+      value: 
+      objectReference: {fileID: 2867039574598277699}
     - target: {fileID: 7818038825221792328, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_Name
       value: Player
@@ -27375,6 +27375,22 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1979272561}
   m_SourcePrefab: {fileID: 100100000, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+--- !u!212 &2867039574598277699 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 66808903290035563, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+  m_PrefabInstance: {fileID: 2867039574598277698}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2867039574598277700 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4065927315343198356, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+  m_PrefabInstance: {fileID: 2867039574598277698}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978220357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f8547a311d4474e9d3b734c37f1dda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputController
 --- !u!1001 &4023838829864494741
 PrefabInstance:
   m_ObjectHideFlags: 0

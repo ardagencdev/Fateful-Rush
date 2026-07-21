@@ -1,22 +1,42 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpaceBombSpawner : MonoBehaviour
 {
+    private const float FailedSpawnRetryDelay = 0.25f;
+    private const float ForwardBlockWidth = 3.5f;
+
     [Header("Prefab")]
     public GameObject bombPrefab;
 
     [Header("Spawn Time")]
+    [Min(0f)]
     public float minSpawnTime = 6f;
+
+    [Min(0f)]
     public float maxSpawnTime = 14f;
 
     [Header("Spawn Rules")]
+    [Min(0)]
     public int maxBombCount = 3;
+
+    [Min(0f)]
     public float spawnPadding = 1.5f;
+
+    [Min(0f)]
     public float checkRadius = 1f;
+
+    [Min(1)]
     public int maxAttempts = 50;
+
+    [Min(0f)]
     public float playerSafeDistance = 2.5f;
+
+    [Min(0f)]
     public float playerForwardSafeDistance = 7f;
-    [Range(0f, 1f)] public float forwardDotLimit = 0.45f;
+
+    [Range(0f, 1f)]
+    public float forwardDotLimit = 0.45f;
 
     [Header("Game State")]
     public PlayerMovement playerMovement;
@@ -29,19 +49,17 @@ public class SpaceBombSpawner : MonoBehaviour
 
     private ContactFilter2D spawnFilter;
 
-    private readonly Collider2D[] hits = new Collider2D[16];
-    private readonly System.Collections.Generic.List<GameObject> activeBombs = new System.Collections.Generic.List<GameObject>(8);
+    private readonly Collider2D[] hits = new Collider2D[32];
+    private readonly List<GameObject> activeBombs = new List<GameObject>(8);
 
     private void Awake()
     {
-        if (playerMovement == null)
-            playerMovement = FindAnyObjectByType<PlayerMovement>();
+        RefreshPlayerReference();
 
         wallLayerIndex = LayerMask.NameToLayer("Wall");
         obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
 
-        spawnFilter = ContactFilter2D.noFilter;
-        spawnFilter.useTriggers = true;
+        RefreshSpawnFilter();
     }
 
     private void Start()
@@ -51,22 +69,41 @@ public class SpaceBombSpawner : MonoBehaviour
 
     private void Update()
     {
-        if (playerMovement != null && playerMovement.IsGameOver) return;
+        if (!GameStateManager.IsGameplayStarted)
+            return;
+
+        if (playerMovement == null)
+            RefreshPlayerReference();
+
+        if (playerMovement != null && playerMovement.IsGameOver)
+            return;
+
+        CleanupActiveBombs();
+
+        if (activeBombs.Count >= maxBombCount)
+            return;
 
         timer += Time.deltaTime;
 
-        if (timer < nextSpawnTime) return;
-
-        timer = 0f;
-        SetNextSpawnTime();
-
-        if (GetActiveBombCount() >= maxBombCount)
+        if (timer < nextSpawnTime)
             return;
 
-        SpawnBomb();
+        if (TrySpawnBomb())
+        {
+            timer = 0f;
+            SetNextSpawnTime();
+        }
+        else
+        {
+            timer = 0f;
+            nextSpawnTime = FailedSpawnRetryDelay;
+        }
     }
 
-    public void ApplyLevelSettings(float minTime, float maxTime, int maxCount)
+    public void ApplyLevelSettings(
+        float minTime,
+        float maxTime,
+        int maxCount)
     {
         minSpawnTime = Mathf.Max(0f, minTime);
         maxSpawnTime = Mathf.Max(minSpawnTime, maxTime);
@@ -78,117 +115,240 @@ public class SpaceBombSpawner : MonoBehaviour
     public void ResetSpawner()
     {
         timer = 0f;
-        activeBombs.Clear();
+
+        CleanupActiveBombs();
+        RefreshPlayerReference();
+        RefreshSpawnFilter();
+
         SetNextSpawnTime();
     }
 
-    private void SpawnBomb()
+    private bool TrySpawnBomb()
     {
-        if (bombPrefab == null) return;
-        if (CameraWorldBounds.Instance == null) return;
+        if (bombPrefab == null)
+            return false;
 
-        if (!TryGetValidSpawnPosition(out Vector2 spawnPos)) return;
+        if (CameraWorldBounds.Instance == null)
+            return false;
 
-        GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
+        if (!TryGetValidSpawnPosition(out Vector2 spawnPosition))
+            return false;
+
+        GameObject bomb = Instantiate(
+            bombPrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        if (bomb == null)
+            return false;
+
         activeBombs.Add(bomb);
-        SpawnAreaRegistry.Register(bomb, checkRadius);
+
+        SpawnAreaRegistry.Register(
+            bomb,
+            checkRadius
+        );
+
+        return true;
     }
 
-    private int GetActiveBombCount()
+    private void CleanupActiveBombs()
     {
-        int count = 0;
-
         for (int i = activeBombs.Count - 1; i >= 0; i--)
         {
             if (activeBombs[i] == null)
-            {
                 activeBombs.RemoveAt(i);
-                continue;
-            }
-
-            if (activeBombs[i].CompareTag("Bomb"))
-                count++;
         }
-
-        return count;
     }
 
-    private bool TryGetValidSpawnPosition(out Vector2 spawnPos)
+    private bool TryGetValidSpawnPosition(out Vector2 spawnPosition)
     {
-        for (int i = 0; i < maxAttempts; i++)
+        if (CameraWorldBounds.Instance == null)
         {
-            spawnPos = CameraWorldBounds.Instance.RandomPointInside(spawnPadding);
+            spawnPosition = Vector2.zero;
+            return false;
+        }
 
-            if (IsAreaClear(spawnPos))
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            spawnPosition =
+                CameraWorldBounds.Instance.RandomPointInside(spawnPadding);
+
+            if (IsAreaClear(spawnPosition))
                 return true;
         }
 
-        spawnPos = Vector2.zero;
+        spawnPosition = Vector2.zero;
         return false;
     }
 
-    private bool IsAreaClear(Vector2 pos)
+    private bool IsAreaClear(Vector2 position)
     {
-        if (!SpawnAreaRegistry.IsAreaFree(pos, checkRadius))
+        if (!SpawnAreaRegistry.IsAreaFree(position, checkRadius))
             return false;
 
-        if (playerMovement != null)
-        {
-            Vector2 playerPos = playerMovement.transform.position;
-            Vector2 toSpawn = pos - playerPos;
+        if (!IsSafeFromPlayer(position))
+            return false;
 
-            float safeDistanceSqr = playerSafeDistance * playerSafeDistance;
-
-            if (toSpawn.sqrMagnitude < safeDistanceSqr)
-                return false;
-
-            Vector2 moveDir = playerMovement.LastMoveDirection;
-
-            if (moveDir.sqrMagnitude > 0.001f)
-            {
-                Vector2 dir = moveDir.normalized;
-
-                float forwardAmount = Vector2.Dot(toSpawn, dir);
-
-                Vector2 closestPointOnForwardLine = playerPos + dir * forwardAmount;
-                float sideDistance = Vector2.Distance(pos, closestPointOnForwardLine);
-
-                float forwardBlockDistance = playerForwardSafeDistance;
-                float forwardBlockWidth = 3.5f;
-
-                if (forwardAmount > 0f &&
-                    forwardAmount < forwardBlockDistance &&
-                    sideDistance < forwardBlockWidth)
-                {
-                    return false;
-                }
-            }
-        }
-
-        int hitCount = Physics2D.OverlapCircle(pos, checkRadius, spawnFilter, hits);
+        int hitCount = Physics2D.OverlapCircle(
+            position,
+            checkRadius,
+            spawnFilter,
+            hits
+        );
 
         for (int i = 0; i < hitCount; i++)
         {
             Collider2D hit = hits[i];
-            if (hit == null) continue;
 
-            GameObject obj = hit.gameObject;
+            if (hit == null)
+                continue;
 
-            if (hit.CompareTag("Enemy")) return false;
-            if (hit.CompareTag("Coin")) return false;
-            if (hit.CompareTag("Player")) return false;
-            if (hit.CompareTag("PowerUp")) return false;
-            if (hit.CompareTag("Bomb")) return false;
-
-            if (obj.layer == wallLayerIndex) return false;
-            if (obj.layer == obstacleLayerIndex) return false;
+            if (IsBlocked(hit))
+                return false;
         }
 
         return true;
     }
 
+    private bool IsSafeFromPlayer(Vector2 spawnPosition)
+    {
+        if (playerMovement == null)
+            return true;
+
+        Vector2 playerPosition =
+            playerMovement.transform.position;
+
+        Vector2 toSpawn =
+            spawnPosition - playerPosition;
+
+        float distanceSqr =
+            toSpawn.sqrMagnitude;
+
+        float safeDistanceSqr =
+            playerSafeDistance * playerSafeDistance;
+
+        if (distanceSqr < safeDistanceSqr)
+            return false;
+
+        Vector2 moveDirection =
+            playerMovement.LastMoveDirection;
+
+        if (moveDirection.sqrMagnitude <= 0.001f)
+            return true;
+
+        float distance =
+            Mathf.Sqrt(distanceSqr);
+
+        if (distance <= Mathf.Epsilon)
+            return false;
+
+        Vector2 normalizedMoveDirection =
+            moveDirection.normalized;
+
+        Vector2 normalizedSpawnDirection =
+            toSpawn / distance;
+
+        float forwardDot = Vector2.Dot(
+            normalizedSpawnDirection,
+            normalizedMoveDirection
+        );
+
+        if (forwardDot < forwardDotLimit)
+            return true;
+
+        float forwardAmount = Vector2.Dot(
+            toSpawn,
+            normalizedMoveDirection
+        );
+
+        if (forwardAmount <= 0f ||
+            forwardAmount >= playerForwardSafeDistance)
+        {
+            return true;
+        }
+
+        Vector2 closestPointOnForwardLine =
+            playerPosition +
+            normalizedMoveDirection * forwardAmount;
+
+        float sideDistance =
+            Vector2.Distance(
+                spawnPosition,
+                closestPointOnForwardLine
+            );
+
+        return sideDistance >= ForwardBlockWidth;
+    }
+
+    private bool IsBlocked(Collider2D hit)
+    {
+        GameObject hitObject = hit.gameObject;
+
+        return hit.CompareTag("Enemy") ||
+               hit.CompareTag("Coin") ||
+               hit.CompareTag("Player") ||
+               hit.CompareTag("PowerUp") ||
+               hit.CompareTag("Bomb") ||
+               hitObject.layer == wallLayerIndex ||
+               hitObject.layer == obstacleLayerIndex;
+    }
+
     private void SetNextSpawnTime()
     {
-        nextSpawnTime = Random.Range(minSpawnTime, maxSpawnTime);
+        nextSpawnTime =
+            Random.Range(
+                minSpawnTime,
+                maxSpawnTime
+            );
+    }
+
+    private void RefreshPlayerReference()
+    {
+        if (playerMovement == null)
+        {
+            playerMovement =
+                FindAnyObjectByType<PlayerMovement>();
+        }
+    }
+
+    private void RefreshSpawnFilter()
+    {
+        spawnFilter = ContactFilter2D.noFilter;
+        spawnFilter.useTriggers = true;
+    }
+
+    private void OnValidate()
+    {
+        minSpawnTime =
+            Mathf.Max(0f, minSpawnTime);
+
+        maxSpawnTime =
+            Mathf.Max(minSpawnTime, maxSpawnTime);
+
+        maxBombCount =
+            Mathf.Max(0, maxBombCount);
+
+        spawnPadding =
+            Mathf.Max(0f, spawnPadding);
+
+        checkRadius =
+            Mathf.Max(0f, checkRadius);
+
+        maxAttempts =
+            Mathf.Max(1, maxAttempts);
+
+        playerSafeDistance =
+            Mathf.Max(0f, playerSafeDistance);
+
+        playerForwardSafeDistance =
+            Mathf.Max(0f, playerForwardSafeDistance);
+
+        forwardDotLimit =
+            Mathf.Clamp01(forwardDotLimit);
+
+        if (Application.isPlaying)
+            RefreshSpawnFilter();
     }
 }

@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class CoinManager : MonoBehaviour
 {
@@ -9,44 +9,72 @@ public class CoinManager : MonoBehaviour
     public GameObject rareCoin;
 
     [Header("Spawn Settings")]
+    [Min(0f)]
     public float spawnInterval = 1f;
+
+    [Min(0)]
     public int maxCoinCount = 8;
 
     [Header("Coin Chances")]
-    [Range(0f, 100f)] public float normalCoinChance = 70f;
-    [Range(0f, 100f)] public float goldCoinChance = 25f;
-    [Range(0f, 100f)] public float rareCoinChance = 5f;
+    [Range(0f, 100f)]
+    public float normalCoinChance = 70f;
+
+    [Range(0f, 100f)]
+    public float goldCoinChance = 25f;
+
+    [Range(0f, 100f)]
+    public float rareCoinChance = 5f;
 
     [Header("Coin Values")]
+    [Min(1)]
     public int normalCoinValue = 1;
+
+    [Min(1)]
     public int goldCoinValue = 3;
+
+    [Min(1)]
     public int rareCoinValue = 5;
 
     [Header("Spawn Rules")]
+    [Min(0f)]
     public float spawnPadding = 0.8f;
+
+    [Min(0f)]
     public float checkRadius = 0.6f;
+
+    [Min(0f)]
     public float playerSafeDistance = 2.5f;
+
+    [Min(1)]
     public int maxTry = 100;
 
     [Header("References")]
     public PlayerMovement playerMovement;
 
     private float timer;
+
+    private Transform playerTransform;
+
     private int obstacleLayerIndex;
     private int wallLayerIndex;
 
     private ContactFilter2D spawnFilter;
 
-    private readonly List<GameObject> activeCoins = new List<GameObject>(32);
-    private readonly Collider2D[] spawnCheckHits = new Collider2D[12];
+    private readonly List<GameObject> activeCoins =
+        new List<GameObject>(32);
+
+    private readonly Collider2D[] spawnCheckHits =
+        new Collider2D[32];
 
     private void Awake()
     {
-        if (playerMovement == null)
-            playerMovement = FindAnyObjectByType<PlayerMovement>();
+        RefreshPlayerReference();
 
-        obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
-        wallLayerIndex = LayerMask.NameToLayer("Wall");
+        obstacleLayerIndex =
+            LayerMask.NameToLayer("Obstacle");
+
+        wallLayerIndex =
+            LayerMask.NameToLayer("Wall");
 
         spawnFilter = ContactFilter2D.noFilter;
         spawnFilter.useTriggers = true;
@@ -54,8 +82,14 @@ public class CoinManager : MonoBehaviour
 
     private void Update()
     {
-        if (!GameStateManager.IsGameplayStarted) return;
-        if (playerMovement != null && playerMovement.IsGameOver) return;
+        if (!GameStateManager.IsGameplayStarted)
+            return;
+
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
+            return;
+        }
 
         HandleCoinSpawn();
     }
@@ -63,138 +97,311 @@ public class CoinManager : MonoBehaviour
     public void ResetSpawner()
     {
         timer = 0f;
-        activeCoins.Clear();
+
+        /*
+         * Sahnedeki canlı coinleri listeden silmiyoruz.
+         * Yalnızca yok edilmiş coin referanslarını
+         * temizliyoruz. Böylece maxCoinCount aşılmaz.
+         */
+        RemoveDestroyedCoins();
+
+        RefreshPlayerReference();
     }
 
     private void HandleCoinSpawn()
     {
+        if (maxCoinCount <= 0)
+            return;
+
         timer += Time.deltaTime;
 
-        if (timer < spawnInterval) return;
+        if (timer < spawnInterval)
+            return;
 
         timer = 0f;
 
-        if (GetActiveCoinCount() >= maxCoinCount) return;
+        if (GetActiveCoinCount() >= maxCoinCount)
+            return;
 
-        SpawnCoin();
+        TrySpawnCoin();
     }
 
     private int GetActiveCoinCount()
     {
-        int count = 0;
+        RemoveDestroyedCoins();
+        return activeCoins.Count;
+    }
 
-        for (int i = activeCoins.Count - 1; i >= 0; i--)
+    private void RemoveDestroyedCoins()
+    {
+        for (int i = activeCoins.Count - 1;
+             i >= 0;
+             i--)
         {
             if (activeCoins[i] == null)
-            {
                 activeCoins.RemoveAt(i);
-                continue;
-            }
+        }
+    }
 
-            if (activeCoins[i].CompareTag("Coin"))
-                count++;
+    private bool TrySpawnCoin()
+    {
+        if (CameraWorldBounds.Instance == null)
+            return false;
+
+        GameObject coinPrefab = GetRandomCoin();
+
+        if (coinPrefab == null)
+            return false;
+
+        if (!TryGetValidSpawnPosition(
+                out Vector2 spawnPosition))
+        {
+            return false;
         }
 
-        return count;
+        GameObject coinObject = Instantiate(
+            coinPrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
+
+        Coin coin =
+            coinObject.GetComponent<Coin>();
+
+        if (coin == null)
+        {
+            Debug.LogError(
+                $"Coin prefabında Coin componenti bulunamadı: {coinPrefab.name}",
+                coinPrefab
+            );
+
+            Destroy(coinObject);
+            return false;
+        }
+
+        ApplyCoinValue(
+            coin,
+            coinPrefab
+        );
+
+        activeCoins.Add(coinObject);
+
+        SpawnAreaRegistry.Register(
+            coinObject,
+            checkRadius
+        );
+
+        return true;
     }
 
-    private void SpawnCoin()
+    private void ApplyCoinValue(
+        Coin coin,
+        GameObject prefab
+    )
     {
-        if (CameraWorldBounds.Instance == null) return;
-        if (!TryGetValidSpawnPosition(out Vector2 spawnPos)) return;
-
-        GameObject coinToSpawn = GetRandomCoin();
-        if (coinToSpawn == null) return;
-
-        GameObject coinObj = Instantiate(coinToSpawn, spawnPos, Quaternion.identity);
-        activeCoins.Add(coinObj);
-        SpawnAreaRegistry.Register(coinObj, checkRadius);
-
-        ApplyCoinValue(coinObj, coinToSpawn);
-    }
-
-    private void ApplyCoinValue(GameObject coinObj, GameObject prefab)
-    {
-        Coin coin = coinObj.GetComponent<Coin>();
-        if (coin == null) return;
-
         if (prefab == normalCoin)
+        {
             coin.value = normalCoinValue;
-        else if (prefab == goldCoin)
+            return;
+        }
+
+        if (prefab == goldCoin)
+        {
             coin.value = goldCoinValue;
-        else if (prefab == rareCoin)
+            return;
+        }
+
+        if (prefab == rareCoin)
             coin.value = rareCoinValue;
     }
 
-    private bool TryGetValidSpawnPosition(out Vector2 spawnPos)
+    private bool TryGetValidSpawnPosition(
+        out Vector2 spawnPosition
+    )
     {
-        for (int i = 0; i < maxTry; i++)
-        {
-            spawnPos = CameraWorldBounds.Instance.RandomPointInside(spawnPadding);
+        CameraWorldBounds bounds =
+            CameraWorldBounds.Instance;
 
-            if (IsValidPosition(spawnPos))
+        if (bounds == null)
+        {
+            spawnPosition = Vector2.zero;
+            return false;
+        }
+
+        for (int attempt = 0;
+             attempt < maxTry;
+             attempt++)
+        {
+            spawnPosition =
+                bounds.RandomPointInside(
+                    spawnPadding
+                );
+
+            if (IsValidPosition(spawnPosition))
                 return true;
         }
 
-        spawnPos = Vector2.zero;
+        spawnPosition = Vector2.zero;
         return false;
     }
 
-    private bool IsValidPosition(Vector2 pos)
+    private bool IsValidPosition(Vector2 position)
     {
-        if (!SpawnAreaRegistry.IsAreaFree(pos, checkRadius))
-            return false;
-
-        if (playerMovement != null)
+        if (!SpawnAreaRegistry.IsAreaFree(
+                position,
+                checkRadius))
         {
-            Vector2 playerPos = playerMovement.transform.position;
-            float safeDistanceSqr = playerSafeDistance * playerSafeDistance;
-
-            if (((Vector2)pos - playerPos).sqrMagnitude < safeDistanceSqr)
-                return false;
+            return false;
         }
 
-        int hitCount = Physics2D.OverlapCircle(pos, checkRadius, spawnFilter, spawnCheckHits);
+        if (playerTransform != null)
+        {
+            float safeDistanceSquared =
+                playerSafeDistance *
+                playerSafeDistance;
+
+            Vector2 playerPosition =
+                playerTransform.position;
+
+            if ((position - playerPosition)
+                    .sqrMagnitude <
+                safeDistanceSquared)
+            {
+                return false;
+            }
+        }
+
+        int hitCount = Physics2D.OverlapCircle(
+            position,
+            checkRadius,
+            spawnFilter,
+            spawnCheckHits
+        );
 
         for (int i = 0; i < hitCount; i++)
         {
-            Collider2D hit = spawnCheckHits[i];
-            if (hit == null) continue;
+            Collider2D hit =
+                spawnCheckHits[i];
 
-            if (hit.CompareTag("Coin")) return false;
-            if (hit.CompareTag("Enemy")) return false;
-            if (hit.CompareTag("Player")) return false;
-            if (hit.CompareTag("PowerUp")) return false;
-            if (hit.CompareTag("Bomb")) return false;
+            if (hit == null)
+                continue;
 
-            if (hit.gameObject.layer == obstacleLayerIndex) return false;
-            if (hit.gameObject.layer == wallLayerIndex) return false;
+            if (BlocksCoinSpawn(hit))
+                return false;
         }
 
         return true;
     }
 
+    private bool BlocksCoinSpawn(Collider2D hit)
+    {
+        if (hit.CompareTag("Coin"))
+            return true;
+
+        if (hit.CompareTag("Enemy"))
+            return true;
+
+        if (hit.CompareTag("Player"))
+            return true;
+
+        if (hit.CompareTag("PowerUp"))
+            return true;
+
+        if (hit.CompareTag("Bomb"))
+            return true;
+
+        int objectLayer =
+            hit.gameObject.layer;
+
+        if (objectLayer == obstacleLayerIndex)
+            return true;
+
+        if (objectLayer == wallLayerIndex)
+            return true;
+
+        return false;
+    }
+
     private GameObject GetRandomCoin()
     {
-        float normalChance = normalCoin != null ? normalCoinChance : 0f;
-        float goldChance = goldCoin != null ? goldCoinChance : 0f;
-        float rareChance = rareCoin != null ? rareCoinChance : 0f;
+        float normalChance =
+            normalCoin != null
+                ? normalCoinChance
+                : 0f;
 
-        float totalChance = normalChance + goldChance + rareChance;
+        float goldChance =
+            goldCoin != null
+                ? goldCoinChance
+                : 0f;
+
+        float rareChance =
+            rareCoin != null
+                ? rareCoinChance
+                : 0f;
+
+        float totalChance =
+            normalChance +
+            goldChance +
+            rareChance;
 
         if (totalChance <= 0f)
             return null;
 
-        float rand = Random.Range(0f, totalChance);
+        float randomValue =
+            Random.Range(0f, totalChance);
 
-        if (rand < normalChance)
+        if (randomValue < normalChance)
             return normalCoin;
 
-        rand -= normalChance;
+        randomValue -= normalChance;
 
-        if (rand < goldChance)
+        if (randomValue < goldChance)
             return goldCoin;
 
         return rareCoin;
+    }
+
+    private void RefreshPlayerReference()
+    {
+        if (playerMovement == null)
+        {
+            playerMovement =
+                FindAnyObjectByType<PlayerMovement>();
+        }
+
+        playerTransform =
+            playerMovement != null
+                ? playerMovement.transform
+                : null;
+    }
+
+    private void OnValidate()
+    {
+        spawnInterval =
+            Mathf.Max(0f, spawnInterval);
+
+        maxCoinCount =
+            Mathf.Max(0, maxCoinCount);
+
+        normalCoinValue =
+            Mathf.Max(1, normalCoinValue);
+
+        goldCoinValue =
+            Mathf.Max(1, goldCoinValue);
+
+        rareCoinValue =
+            Mathf.Max(1, rareCoinValue);
+
+        spawnPadding =
+            Mathf.Max(0f, spawnPadding);
+
+        checkRadius =
+            Mathf.Max(0f, checkRadius);
+
+        playerSafeDistance =
+            Mathf.Max(0f, playerSafeDistance);
+
+        maxTry =
+            Mathf.Max(1, maxTry);
     }
 }

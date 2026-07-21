@@ -4,31 +4,41 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SliderValueText : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class SliderValueText : MonoBehaviour,
+    IPointerDownHandler,
+    IPointerUpHandler
 {
-    [SerializeField] private Slider slider;
-    [SerializeField] private TMP_Text valueText;
+    [Header("References")]
+    [SerializeField]
+    private Slider slider;
+
+    [SerializeField]
+    private TMP_Text valueText;
 
     [Header("Fade")]
-    [SerializeField] private float fadeInDuration = 0.12f;
-    [SerializeField] private float fadeOutDuration = 0.25f;
-    [SerializeField] private float hideDelay = 0.45f;
+    [Min(0f)]
+    [SerializeField]
+    private float fadeInDuration = 0.12f;
+
+    [Min(0f)]
+    [SerializeField]
+    private float fadeOutDuration = 0.25f;
+
+    [Min(0f)]
+    [SerializeField]
+    private float hideDelay = 0.45f;
 
     private CanvasGroup canvasGroup;
     private Coroutine fadeRoutine;
+
+    private bool isPointerDown;
 
     private void Awake()
     {
         if (slider == null)
             slider = GetComponent<Slider>();
 
-        if (valueText != null)
-        {
-            canvasGroup = valueText.GetComponent<CanvasGroup>();
-
-            if (canvasGroup == null)
-                canvasGroup = valueText.gameObject.AddComponent<CanvasGroup>();
-        }
+        SetupValueText();
 
         if (slider != null)
             slider.onValueChanged.AddListener(UpdateText);
@@ -38,9 +48,18 @@ public class SliderValueText : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     private void OnEnable()
     {
-        if (slider != null)
-            UpdateText(slider.value);
+        isPointerDown = false;
 
+        if (slider != null)
+            UpdateTextValue();
+
+        HideInstant();
+    }
+
+    private void OnDisable()
+    {
+        isPointerDown = false;
+        StopFadeRoutine();
         HideInstant();
     }
 
@@ -52,56 +71,123 @@ public class SliderValueText : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        isPointerDown = true;
         Show();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        isPointerDown = false;
         HideAfterDelay();
+    }
+
+    private void SetupValueText()
+    {
+        if (valueText == null)
+            return;
+
+        canvasGroup =
+            valueText.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+        {
+            canvasGroup =
+                valueText.gameObject
+                    .AddComponent<CanvasGroup>();
+        }
     }
 
     private void UpdateText(float value)
     {
-        if (valueText == null) return;
+        UpdateTextValue();
 
-        valueText.text = Mathf.RoundToInt(value * 100f) + "%";
+        if (!gameObject.activeInHierarchy)
+            return;
 
-        if (gameObject.activeInHierarchy)
-            Show();
+        Show();
+
+        /*
+         * Mouse veya parmakla sürüklenmiyorsa
+         * yazı kısa süre sonra otomatik kapanır.
+         *
+         * Bu sayede klavye, controller veya kod
+         * üzerinden yapılan değişikliklerde yazı
+         * ekranda sürekli açık kalmaz.
+         */
+        if (!isPointerDown)
+            HideAfterDelay();
+    }
+
+    private void UpdateTextValue()
+    {
+        if (valueText == null || slider == null)
+            return;
+
+        int percentage = Mathf.RoundToInt(
+            slider.normalizedValue * 100f
+        );
+
+        valueText.SetText("{0}%", percentage);
     }
 
     private void Show()
     {
-        if (valueText == null || canvasGroup == null) return;
+        if (valueText == null || canvasGroup == null)
+            return;
 
-        if (fadeRoutine != null)
-            StopCoroutine(fadeRoutine);
+        StopFadeRoutine();
 
         valueText.gameObject.SetActive(true);
-        fadeRoutine = StartCoroutine(FadeRoutine(1f, fadeInDuration));
+
+        fadeRoutine = StartCoroutine(
+            FadeRoutine(
+                1f,
+                fadeInDuration
+            )
+        );
     }
 
     private void HideAfterDelay()
     {
-        if (fadeRoutine != null)
-            StopCoroutine(fadeRoutine);
+        if (valueText == null || canvasGroup == null)
+            return;
 
-        fadeRoutine = StartCoroutine(HideDelayRoutine());
+        StopFadeRoutine();
+
+        fadeRoutine = StartCoroutine(
+            HideDelayRoutine()
+        );
     }
 
     private IEnumerator HideDelayRoutine()
     {
-        yield return new WaitForSecondsRealtime(hideDelay);
-        yield return FadeRoutine(0f, fadeOutDuration);
+        if (hideDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                hideDelay
+            );
+        }
+
+        yield return FadeRoutine(
+            0f,
+            fadeOutDuration
+        );
 
         if (valueText != null)
             valueText.gameObject.SetActive(false);
+
+        fadeRoutine = null;
     }
 
-    private IEnumerator FadeRoutine(float targetAlpha, float duration)
+    private IEnumerator FadeRoutine(
+        float targetAlpha,
+        float duration
+    )
     {
+        if (canvasGroup == null)
+            yield break;
+
         float startAlpha = canvasGroup.alpha;
-        float timer = 0f;
 
         if (duration <= 0f)
         {
@@ -109,13 +195,28 @@ public class SliderValueText : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             yield break;
         }
 
+        float timer = 0f;
+
         while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / duration);
+
+            float t = Mathf.Clamp01(
+                timer / duration
+            );
+
+            /*
+             * Smoothstep:
+             * Fade başlangıcını ve bitişini yumuşatır.
+             */
             t = t * t * (3f - 2f * t);
 
-            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+            canvasGroup.alpha = Mathf.Lerp(
+                startAlpha,
+                targetAlpha,
+                t
+            );
+
             yield return null;
         }
 
@@ -124,11 +225,21 @@ public class SliderValueText : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     private void HideInstant()
     {
-        if (valueText == null) return;
+        if (valueText == null)
+            return;
 
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
 
         valueText.gameObject.SetActive(false);
+    }
+
+    private void StopFadeRoutine()
+    {
+        if (fadeRoutine == null)
+            return;
+
+        StopCoroutine(fadeRoutine);
+        fadeRoutine = null;
     }
 }

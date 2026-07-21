@@ -1,6 +1,6 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class UIButtonEffect : MonoBehaviour,
     IPointerEnterHandler,
@@ -13,14 +13,21 @@ public class UIButtonEffect : MonoBehaviour,
     public Sprite highlightedSprite;
 
     [Header("Scale")]
+    [Min(0f)]
     public float hoverScale = 1.08f;
+
+    [Min(0f)]
     public float clickScale = 0.95f;
 
     [Header("Persistent Selected State")]
-    [SerializeField] private bool usePersistentSelectedState;
-    [SerializeField] private float selectedScale = 1.05f;
+    [SerializeField]
+    private bool usePersistentSelectedState;
+
+    [SerializeField, Min(0f)]
+    private float selectedScale = 1.05f;
 
     [Header("Smooth")]
+    [Min(0f)]
     public float transitionSpeed = 10f;
 
     private Image image;
@@ -29,21 +36,27 @@ public class UIButtonEffect : MonoBehaviour,
     private Vector3 targetScale;
 
     private bool isHovering;
+    private bool isPressed;
     private bool isSelected;
 
     private void Awake()
     {
-        image = GetComponent<Image>();
+        RefreshReferences();
 
         originalScale = transform.localScale;
-        targetScale = originalScale;
+        targetScale = GetRestingScale();
 
-        if (image != null && normalSprite != null)
-            image.sprite = normalSprite;
+        ApplyCurrentSprite();
     }
 
     private void Update()
     {
+        if (transitionSpeed <= 0f)
+        {
+            transform.localScale = targetScale;
+            return;
+        }
+
         transform.localScale = Vector3.Lerp(
             transform.localScale,
             targetScale,
@@ -55,36 +68,39 @@ public class UIButtonEffect : MonoBehaviour,
     {
         isHovering = true;
 
-        SetHighlighted(true);
-        targetScale = originalScale * hoverScale;
+        ApplyCurrentSprite();
+        RefreshTargetScale();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         isHovering = false;
+        isPressed = false;
 
-        SetHighlighted(false);
-        targetScale = GetRestingScale();
+        ApplyCurrentSprite();
+        RefreshTargetScale();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        SetHighlighted(true);
-        targetScale = originalScale * clickScale;
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        isPressed = true;
+
+        ApplyCurrentSprite();
+        RefreshTargetScale();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (isHovering)
-        {
-            SetHighlighted(true);
-            targetScale = originalScale * hoverScale;
-        }
-        else
-        {
-            SetHighlighted(false);
-            targetScale = GetRestingScale();
-        }
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        isPressed = false;
+
+        ApplyCurrentSprite();
+        RefreshTargetScale();
     }
 
     public void SetSelected(bool selected)
@@ -94,8 +110,36 @@ public class UIButtonEffect : MonoBehaviour,
 
         isSelected = selected;
 
-        if (!isHovering)
-            targetScale = GetRestingScale();
+        ApplyCurrentSprite();
+        RefreshTargetScale();
+    }
+
+    public void ResetButtonVisual()
+    {
+        isHovering = false;
+        isPressed = false;
+
+        ApplyCurrentSprite();
+
+        targetScale = GetRestingScale();
+        transform.localScale = targetScale;
+    }
+
+    private void RefreshTargetScale()
+    {
+        if (isPressed)
+        {
+            targetScale = originalScale * clickScale;
+            return;
+        }
+
+        if (isHovering)
+        {
+            targetScale = originalScale * hoverScale;
+            return;
+        }
+
+        targetScale = GetRestingScale();
     }
 
     private Vector3 GetRestingScale()
@@ -106,15 +150,31 @@ public class UIButtonEffect : MonoBehaviour,
         return originalScale;
     }
 
-    private void SetHighlighted(bool state)
+    private void ApplyCurrentSprite()
+    {
+        bool shouldHighlight = isHovering || isPressed;
+        SetHighlighted(shouldHighlight);
+    }
+
+    private void SetHighlighted(bool highlighted)
     {
         if (image == null)
             return;
 
-        if (state && highlightedSprite != null)
+        if (highlighted && highlightedSprite != null)
+        {
             image.sprite = highlightedSprite;
-        else if (!state && normalSprite != null)
+            return;
+        }
+
+        if (normalSprite != null)
             image.sprite = normalSprite;
+    }
+
+    private void RefreshReferences()
+    {
+        if (image == null)
+            image = GetComponent<Image>();
     }
 
     private void OnDisable()
@@ -122,14 +182,11 @@ public class UIButtonEffect : MonoBehaviour,
         ResetButtonVisual();
     }
 
-    public void ResetButtonVisual()
+    private void OnValidate()
     {
-        isHovering = false;
-
-        if (image != null && normalSprite != null)
-            image.sprite = normalSprite;
-
-        targetScale = GetRestingScale();
-        transform.localScale = targetScale;
+        hoverScale = Mathf.Max(0f, hoverScale);
+        clickScale = Mathf.Max(0f, clickScale);
+        selectedScale = Mathf.Max(0f, selectedScale);
+        transitionSpeed = Mathf.Max(0f, transitionSpeed);
     }
 }

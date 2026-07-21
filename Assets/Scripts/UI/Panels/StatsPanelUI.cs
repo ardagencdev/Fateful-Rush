@@ -71,16 +71,17 @@ public class StatsPanelUI : MonoBehaviour
             $"Total Play Time:\n{FormatTime(playTime)}";
 
         gameplayText.text =
-            "GAMEPLAY\n" +
-            $"Total Coins: {StatsManager.GetInt("Stats_TotalCoins")}\n" +
-            $"Normal Coins: {StatsManager.GetInt("Stats_NormalCoins")}\n" +
-            $"Gold Coins: {StatsManager.GetInt("Stats_GoldCoins")}\n" +
-            $"Rare Coins: {StatsManager.GetInt("Stats_RareCoins")}\n\n" +
-            $"Dash Uses: {StatsManager.GetInt("Stats_DashUses")}\n" +
-            $"Clone Uses: {StatsManager.GetInt("Stats_CloneUses")}\n\n" +
-            $"Slow Buff Uses: {StatsManager.GetInt("Stats_SlowBuffUses")}\n" +
-            $"Armor Buff Uses: {StatsManager.GetInt("Stats_ArmorBuffUses")}\n" +
-            $"Armor Kills: {StatsManager.GetInt("Stats_ArmorKills")}";
+    "GAMEPLAY\n" +
+    $"Total Coins: {StatsManager.GetInt("Stats_TotalCoins")}\n" +
+    $"Coins Earned: {StatsManager.GetInt("Stats_TotalCoinValue")}\n" +
+    $"Normal Coins: {StatsManager.GetInt("Stats_NormalCoins")}\n" +
+    $"Gold Coins: {StatsManager.GetInt("Stats_GoldCoins")}\n" +
+    $"Rare Coins: {StatsManager.GetInt("Stats_RareCoins")}\n\n" +
+    $"Dash Uses: {StatsManager.GetInt("Stats_DashUses")}\n" +
+    $"Clone Uses: {StatsManager.GetInt("Stats_CloneUses")}\n\n" +
+    $"Slow Buff Uses: {StatsManager.GetInt("Stats_SlowBuffUses")}\n" +
+    $"Armor Buff Uses: {StatsManager.GetInt("Stats_ArmorBuffUses")}\n" +
+    $"Armor Kills: {StatsManager.GetInt("Stats_ArmorKills")}";
 
         bestTimesLeftText.text =
             "BEST TIMES\n" +

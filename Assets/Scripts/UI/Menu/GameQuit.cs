@@ -1,9 +1,14 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameQuit : MonoBehaviour
 {
+    private const string MainMenuSceneName = "MainMenu";
+    private const string SoundEnabledKey = "SoundOn";
+    private const string MusicVolumeKey = "MusicVolume";
+
     [Header("Pause UI")]
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private UIPanelFadeSwitcher fadeSwitcher;
@@ -11,24 +16,27 @@ public class GameQuit : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioSource gameplayMusicSource;
-    [SerializeField] private float musicFadeDuration = 0.25f;
+
+    [SerializeField, Min(0f)]
+    private float musicFadeDuration = 0.25f;
 
     private Coroutine musicFadeRoutine;
-    private float gameplayMusicVolume = 1f;
+    private float defaultGameplayMusicVolume = 1f;
 
-    private bool isPaused;
-    public bool IsPaused => isPaused;
+    public bool IsPaused { get; private set; }
 
     private void Awake()
     {
         Time.timeScale = 1f;
-        isPaused = false;
+        IsPaused = false;
+
+        RefreshReferences();
 
         if (gameplayMusicSource != null)
-            gameplayMusicVolume = gameplayMusicSource.volume;
-
-        if (optionsUI == null)
-            optionsUI = FindAnyObjectByType<OptionsUI>();
+        {
+            defaultGameplayMusicVolume =
+                gameplayMusicSource.volume;
+        }
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
@@ -39,27 +47,36 @@ public class GameQuit : MonoBehaviour
         if (!GameStateManager.IsGameplayStarted)
             return;
 
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current == null ||
+            !Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (isPaused && optionsUI != null && optionsUI.HandleEscapeBack())
-                return;
-
-            TogglePause();
+            return;
         }
+
+        if (IsPaused &&
+            optionsUI != null &&
+            optionsUI.HandleEscapeBack())
+        {
+            return;
+        }
+
+        TogglePause();
+    }
+
+    private void OnDestroy()
+    {
+        StopMusicFade();
     }
 
     public void PauseGame()
     {
-        if (!GameStateManager.IsGameplayStarted)
+        if (!GameStateManager.IsGameplayStarted || IsPaused)
             return;
 
-        if (isPaused) return;
-
-        isPaused = true;
+        IsPaused = true;
         Time.timeScale = 0f;
 
-        if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayPremiumInterfaceSound();
+        SoundManager.Instance?.PlayPremiumInterfaceSound();
 
         FadeGameplayMusicOut();
 
@@ -69,27 +86,31 @@ public class GameQuit : MonoBehaviour
 
     public void ResumeGame()
     {
-        if (!isPaused) return;
+        if (!IsPaused)
+            return;
 
-        isPaused = false;
+        IsPaused = false;
 
-        if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayPremiumInterfaceSound();
-
-        FadeGameplayMusicIn();
+        SoundManager.Instance?.PlayPremiumInterfaceSound();
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
         if (TimeSlowController.Instance != null)
+        {
             TimeSlowController.Instance.ResumeAfterPause();
+        }
         else
+        {
             Time.timeScale = 1f;
+        }
+
+        FadeGameplayMusicIn();
     }
 
     public void TogglePause()
     {
-        if (isPaused)
+        if (IsPaused)
             ResumeGame();
         else
             PauseGame();
@@ -97,22 +118,37 @@ public class GameQuit : MonoBehaviour
 
     public void RestartGame()
     {
-        Time.timeScale = 1f;
+        PrepareForSceneChange();
+
+        int activeSceneIndex =
+            SceneManager.GetActiveScene().buildIndex;
 
         if (SceneTransition.Instance != null)
-            SceneTransition.Instance.LoadSceneWithFade(SceneManager.GetActiveScene().buildIndex);
+        {
+            SceneTransition.Instance.LoadSceneWithFade(
+                activeSceneIndex
+            );
+        }
         else
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        {
+            SceneManager.LoadScene(activeSceneIndex);
+        }
     }
 
     public void BackToMainMenu()
     {
-        Time.timeScale = 1f;
+        PrepareForSceneChange();
 
         if (SceneTransition.Instance != null)
-            SceneTransition.Instance.LoadSceneWithFade("MainMenu");
+        {
+            SceneTransition.Instance.LoadSceneWithFade(
+                MainMenuSceneName
+            );
+        }
         else
-            SceneManager.LoadScene("MainMenu");
+        {
+            SceneManager.LoadScene(MainMenuSceneName);
+        }
     }
 
     public void ExitToMenu()
@@ -122,18 +158,21 @@ public class GameQuit : MonoBehaviour
 
     public void QuitGame()
     {
+        StopMusicFade();
+        Time.timeScale = 1f;
+        IsPaused = false;
+
         if (SceneTransition.Instance != null)
         {
             SceneTransition.Instance.QuitGameWithFade();
+            return;
         }
-        else
-        {
+
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+        UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
-        }
     }
 
     private void FadeGameplayMusicOut()
@@ -141,10 +180,17 @@ public class GameQuit : MonoBehaviour
         if (gameplayMusicSource == null)
             return;
 
-        if (musicFadeRoutine != null)
-            StopCoroutine(musicFadeRoutine);
+        StopMusicFade();
 
-        musicFadeRoutine = StartCoroutine(FadeMusicOutRoutine());
+        if (musicFadeDuration <= 0f)
+        {
+            gameplayMusicSource.volume = 0f;
+            gameplayMusicSource.Pause();
+            return;
+        }
+
+        musicFadeRoutine =
+            StartCoroutine(FadeMusicOutRoutine());
     }
 
     private void FadeGameplayMusicIn()
@@ -152,52 +198,146 @@ public class GameQuit : MonoBehaviour
         if (gameplayMusicSource == null)
             return;
 
-        if (musicFadeRoutine != null)
-            StopCoroutine(musicFadeRoutine);
+        StopMusicFade();
+
+        float targetVolume =
+            GetTargetGameplayMusicVolume();
 
         gameplayMusicSource.UnPause();
-        musicFadeRoutine = StartCoroutine(FadeMusicInRoutine());
+
+        if (musicFadeDuration <= 0f)
+        {
+            gameplayMusicSource.volume = targetVolume;
+            return;
+        }
+
+        musicFadeRoutine =
+            StartCoroutine(
+                FadeMusicInRoutine(targetVolume)
+            );
     }
 
-    private System.Collections.IEnumerator FadeMusicOutRoutine()
+    private IEnumerator FadeMusicOutRoutine()
     {
-        float startVolume = gameplayMusicSource.volume;
-        float timer = 0f;
+        float startVolume =
+            gameplayMusicSource.volume;
 
-        while (timer < musicFadeDuration)
+        float elapsedTime = 0f;
+
+        while (elapsedTime < musicFadeDuration)
         {
-            timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / musicFadeDuration);
+            if (gameplayMusicSource == null)
+                yield break;
 
-            gameplayMusicSource.volume = Mathf.Lerp(startVolume, 0f, t);
+            elapsedTime += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsedTime / musicFadeDuration
+            );
+
+            gameplayMusicSource.volume = Mathf.Lerp(
+                startVolume,
+                0f,
+                progress
+            );
+
             yield return null;
         }
 
-        gameplayMusicSource.volume = 0f;
-        gameplayMusicSource.Pause();
+        if (gameplayMusicSource != null)
+        {
+            gameplayMusicSource.volume = 0f;
+            gameplayMusicSource.Pause();
+        }
 
         musicFadeRoutine = null;
     }
 
-    private System.Collections.IEnumerator FadeMusicInRoutine()
+    private IEnumerator FadeMusicInRoutine(
+        float targetVolume)
     {
-        float targetVolume = PlayerPrefs.GetInt("SoundOn", 1) == 1
-            ? PlayerPrefs.GetFloat("MusicVolume", gameplayMusicVolume)
-            : 0f;
+        float startVolume =
+            gameplayMusicSource.volume;
 
-        float startVolume = gameplayMusicSource.volume;
-        float timer = 0f;
+        float elapsedTime = 0f;
 
-        while (timer < musicFadeDuration)
+        while (elapsedTime < musicFadeDuration)
         {
-            timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / musicFadeDuration);
+            if (gameplayMusicSource == null)
+                yield break;
 
-            gameplayMusicSource.volume = Mathf.Lerp(startVolume, targetVolume, t);
+            elapsedTime += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsedTime / musicFadeDuration
+            );
+
+            gameplayMusicSource.volume = Mathf.Lerp(
+                startVolume,
+                targetVolume,
+                progress
+            );
+
             yield return null;
         }
 
-        gameplayMusicSource.volume = targetVolume;
+        if (gameplayMusicSource != null)
+        {
+            gameplayMusicSource.volume =
+                targetVolume;
+        }
+
         musicFadeRoutine = null;
+    }
+
+    private float GetTargetGameplayMusicVolume()
+    {
+        bool soundEnabled =
+            PlayerPrefs.GetInt(SoundEnabledKey, 1) == 1;
+
+        if (!soundEnabled)
+            return 0f;
+
+        return Mathf.Clamp01(
+            PlayerPrefs.GetFloat(
+                MusicVolumeKey,
+                defaultGameplayMusicVolume
+            )
+        );
+    }
+
+    private void PrepareForSceneChange()
+    {
+        StopMusicFade();
+
+        IsPaused = false;
+        Time.timeScale = 1f;
+
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+    }
+
+    private void StopMusicFade()
+    {
+        if (musicFadeRoutine == null)
+            return;
+
+        StopCoroutine(musicFadeRoutine);
+        musicFadeRoutine = null;
+    }
+
+    private void RefreshReferences()
+    {
+        if (optionsUI == null)
+        {
+            optionsUI =
+                FindAnyObjectByType<OptionsUI>();
+        }
+    }
+
+    private void OnValidate()
+    {
+        musicFadeDuration =
+            Mathf.Max(0f, musicFadeDuration);
     }
 }

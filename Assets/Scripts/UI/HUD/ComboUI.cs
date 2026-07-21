@@ -1,6 +1,6 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ComboUI : MonoBehaviour
@@ -14,12 +14,20 @@ public class ComboUI : MonoBehaviour
     public Color combo3Color = new Color(1f, 0.15f, 0.1f);
 
     [Header("Pulse")]
+    [Min(0f)]
     public float pulseScale = 1.25f;
+
+    [Min(0f)]
     public float pulseDuration = 0.12f;
 
     [Header("Max Combo")]
+    [Min(0f)]
     public float maxComboShakeDuration = 0.18f;
+
+    [Min(0f)]
     public float maxComboShakeAmount = 8f;
+
+    [Min(0f)]
     public float maxComboScale = 1.4f;
 
     [Header("Timer Bar")]
@@ -28,204 +36,317 @@ public class ComboUI : MonoBehaviour
     public Color timerLowColor = Color.red;
 
     [Header("Reset")]
+    [Min(0f)]
     public float resetFadeDuration = 0.25f;
 
-    private Coroutine routine;
+    private Coroutine activeRoutine;
 
     private Vector3 originalScale;
-    private Vector3 originalPos;
+    private Vector3 originalPosition;
 
     private bool timerBarVisible;
 
     private void Awake()
     {
+        RefreshReferences();
+
         if (comboText == null)
-            comboText = GetComponent<TextMeshProUGUI>();
+        {
+            Debug.LogError(
+                "ComboUI could not find a TextMeshProUGUI component.",
+                this
+            );
+
+            enabled = false;
+            return;
+        }
 
         originalScale = comboText.transform.localScale;
-        originalPos = comboText.transform.localPosition;
+        originalPosition = comboText.transform.localPosition;
 
         UpdateCombo(1);
-        UpdateTimerBar(0f, 1);
 
-        SetTimerBarVisible(false);
+        if (comboTimerBar != null)
+        {
+            comboTimerBar.fillAmount = 0f;
+            timerBarVisible = comboTimerBar.gameObject.activeSelf;
+            SetTimerBarVisible(false);
+        }
+    }
+
+    private void OnDisable()
+    {
+        StopActiveRoutine();
+        ResetTextTransform();
+
+        if (comboTimerBar != null)
+        {
+            comboTimerBar.fillAmount = 0f;
+            SetTimerBarVisible(false);
+        }
     }
 
     public void ShowCombo(int gainedScore, int combo)
     {
-        if (!gameObject.activeInHierarchy)
+        if (!isActiveAndEnabled || comboText == null)
             return;
 
         UpdateCombo(combo);
 
-        if (routine != null)
-            StopCoroutine(routine);
+        StopActiveRoutine();
+        ResetTextTransform();
 
-        if (combo >= 3)
-            routine = StartCoroutine(MaxComboRoutine());
-        else
-            routine = StartCoroutine(PulseRoutine());
+        activeRoutine = combo >= 3
+            ? StartCoroutine(MaxComboRoutine())
+            : StartCoroutine(PulseRoutine());
     }
 
     public void UpdateTimerBar(float normalizedTime, int combo)
     {
-        if (!gameObject.activeInHierarchy)
+        if (!isActiveAndEnabled || comboTimerBar == null)
             return;
-
-        if (comboTimerBar == null) return;
 
         normalizedTime = Mathf.Clamp01(normalizedTime);
 
-        bool shouldShow = combo > 1 && normalizedTime > 0f;
+        bool shouldShow =
+            combo > 1 &&
+            normalizedTime > 0f;
 
         SetTimerBarVisible(shouldShow);
 
-        if (!shouldShow) return;
+        if (!shouldShow)
+        {
+            comboTimerBar.fillAmount = 0f;
+            return;
+        }
 
         comboTimerBar.fillAmount = normalizedTime;
-        comboTimerBar.color = Color.Lerp(timerLowColor, timerFullColor, normalizedTime);
-    }
 
-    private void SetTimerBarVisible(bool state)
-    {
-        if (comboTimerBar == null) return;
-        if (timerBarVisible == state) return;
-
-        timerBarVisible = state;
-        comboTimerBar.gameObject.SetActive(state);
+        comboTimerBar.color = Color.Lerp(
+            timerLowColor,
+            timerFullColor,
+            normalizedTime
+        );
     }
 
     public void UpdateCombo(int combo)
     {
-        if (comboText == null) return;
+        if (comboText == null)
+            return;
+
+        combo = Mathf.Max(1, combo);
 
         if (!comboText.gameObject.activeSelf)
             comboText.gameObject.SetActive(true);
 
-        comboText.text = "x" + combo;
+        comboText.SetText("x{0}", combo);
         comboText.color = GetComboColor(combo);
     }
 
     public void ResetCombo()
     {
-        if (comboText == null)
+        if (!isActiveAndEnabled || comboText == null)
             return;
 
-        if (!gameObject.activeInHierarchy)
-            return;
+        StopActiveRoutine();
+        ResetTextTransform();
 
-        if (routine != null)
-            StopCoroutine(routine);
-
-        routine = StartCoroutine(ResetRoutine());
+        activeRoutine = StartCoroutine(ResetRoutine());
     }
 
     private IEnumerator PulseRoutine()
     {
-        float time = 0f;
-
-        Vector3 targetScale = originalScale * pulseScale;
-
-        while (time < pulseDuration)
+        if (pulseDuration <= 0f)
         {
-            time += Time.unscaledDeltaTime;
-
-            float t = time / pulseDuration;
-
-            comboText.transform.localScale =
-                Vector3.Lerp(originalScale, targetScale, t);
-
-            yield return null;
+            ResetTextTransform();
+            activeRoutine = null;
+            yield break;
         }
 
-        time = 0f;
+        Vector3 targetScale =
+            originalScale * pulseScale;
 
-        while (time < pulseDuration)
-        {
-            time += Time.unscaledDeltaTime;
+        yield return AnimateScale(
+            originalScale,
+            targetScale,
+            pulseDuration
+        );
 
-            float t = time / pulseDuration;
+        yield return AnimateScale(
+            targetScale,
+            originalScale,
+            pulseDuration
+        );
 
-            comboText.transform.localScale =
-                Vector3.Lerp(targetScale, originalScale, t);
-
-            yield return null;
-        }
-
-        comboText.transform.localScale = originalScale;
-        routine = null;
+        ResetTextTransform();
+        activeRoutine = null;
     }
 
     private IEnumerator MaxComboRoutine()
     {
-        float time = 0f;
-
-        Vector3 targetScale = originalScale * maxComboScale;
-
-        while (time < maxComboShakeDuration)
+        if (maxComboShakeDuration <= 0f)
         {
-            time += Time.unscaledDeltaTime;
+            ResetTextTransform();
+            activeRoutine = null;
+            yield break;
+        }
 
-            float t = time / maxComboShakeDuration;
+        Vector3 targetScale =
+            originalScale * maxComboScale;
 
-            comboText.transform.localScale =
-                Vector3.Lerp(originalScale, targetScale, t);
+        float elapsedTime = 0f;
 
-            Vector2 shakeOffset = Random.insideUnitCircle * maxComboShakeAmount;
+        while (elapsedTime < maxComboShakeDuration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsedTime / maxComboShakeDuration
+            );
+
+            comboText.transform.localScale = Vector3.Lerp(
+                originalScale,
+                targetScale,
+                progress
+            );
+
+            Vector2 shakeOffset =
+                Random.insideUnitCircle * maxComboShakeAmount;
 
             comboText.transform.localPosition =
-                originalPos + (Vector3)shakeOffset;
+                originalPosition + (Vector3)shakeOffset;
 
             yield return null;
         }
 
-        time = 0f;
+        elapsedTime = 0f;
+        Vector3 returnStartPosition =
+            comboText.transform.localPosition;
 
-        while (time < maxComboShakeDuration)
+        while (elapsedTime < maxComboShakeDuration)
         {
-            time += Time.unscaledDeltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
 
-            float t = time / maxComboShakeDuration;
+            float progress = Mathf.Clamp01(
+                elapsedTime / maxComboShakeDuration
+            );
 
-            comboText.transform.localScale =
-                Vector3.Lerp(targetScale, originalScale, t);
+            comboText.transform.localScale = Vector3.Lerp(
+                targetScale,
+                originalScale,
+                progress
+            );
 
-            comboText.transform.localPosition =
-                Vector3.Lerp(comboText.transform.localPosition, originalPos, t);
+            comboText.transform.localPosition = Vector3.Lerp(
+                returnStartPosition,
+                originalPosition,
+                progress
+            );
 
             yield return null;
         }
 
-        comboText.transform.localScale = originalScale;
-        comboText.transform.localPosition = originalPos;
-
-        routine = null;
+        ResetTextTransform();
+        activeRoutine = null;
     }
 
     private IEnumerator ResetRoutine()
     {
-        Color startColor = comboText.color;
-
-        float time = 0f;
-
-        while (time < resetFadeDuration)
+        if (resetFadeDuration <= 0f)
         {
-            time += Time.unscaledDeltaTime;
+            UpdateCombo(1);
+            ResetTextTransform();
 
-            float t = time / resetFadeDuration;
+            activeRoutine = null;
+            yield break;
+        }
 
-            comboText.color =
-                Color.Lerp(startColor, combo1Color, t);
+        Color startColor = comboText.color;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < resetFadeDuration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsedTime / resetFadeDuration
+            );
+
+            comboText.color = Color.Lerp(
+                startColor,
+                combo1Color,
+                progress
+            );
 
             yield return null;
         }
 
         UpdateCombo(1);
+        ResetTextTransform();
+
+        activeRoutine = null;
+    }
+
+    private IEnumerator AnimateScale(
+        Vector3 startScale,
+        Vector3 endScale,
+        float duration)
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsedTime / duration
+            );
+
+            comboText.transform.localScale = Vector3.Lerp(
+                startScale,
+                endScale,
+                progress
+            );
+
+            yield return null;
+        }
+
+        comboText.transform.localScale = endScale;
+    }
+
+    private void SetTimerBarVisible(bool visible)
+    {
+        if (comboTimerBar == null)
+            return;
+
+        timerBarVisible = visible;
+
+        if (comboTimerBar.gameObject.activeSelf != visible)
+            comboTimerBar.gameObject.SetActive(visible);
+    }
+
+    private void StopActiveRoutine()
+    {
+        if (activeRoutine == null)
+            return;
+
+        StopCoroutine(activeRoutine);
+        activeRoutine = null;
+    }
+
+    private void ResetTextTransform()
+    {
+        if (comboText == null)
+            return;
 
         comboText.transform.localScale = originalScale;
-        comboText.transform.localPosition = originalPos;
+        comboText.transform.localPosition = originalPosition;
+    }
 
-        routine = null;
+    private void RefreshReferences()
+    {
+        if (comboText == null)
+            comboText = GetComponent<TextMeshProUGUI>();
     }
 
     private Color GetComboColor(int combo)
@@ -237,5 +358,23 @@ public class ComboUI : MonoBehaviour
             return combo2Color;
 
         return combo1Color;
+    }
+
+    private void OnValidate()
+    {
+        pulseScale = Mathf.Max(0f, pulseScale);
+        pulseDuration = Mathf.Max(0f, pulseDuration);
+
+        maxComboShakeDuration =
+            Mathf.Max(0f, maxComboShakeDuration);
+
+        maxComboShakeAmount =
+            Mathf.Max(0f, maxComboShakeAmount);
+
+        maxComboScale =
+            Mathf.Max(0f, maxComboScale);
+
+        resetFadeDuration =
+            Mathf.Max(0f, resetFadeDuration);
     }
 }

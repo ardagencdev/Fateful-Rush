@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections;
 using TMPro;
+using UnityEngine;
 
 public class ScoreUIEffect : MonoBehaviour
 {
@@ -8,55 +8,164 @@ public class ScoreUIEffect : MonoBehaviour
     public TextMeshProUGUI scoreText;
 
     [Header("Pop Settings")]
+    [Min(0f)]
     public float popScale = 1.25f;
+
+    [Min(0f)]
     public float duration = 0.08f;
 
-    private Coroutine scoreCoroutine;
+    private Coroutine activeRoutine;
+
+    private Transform scoreTransform;
+    private Vector3 originalScale;
+
+    private void Awake()
+    {
+        RefreshReferences();
+
+        if (scoreText == null)
+        {
+            Debug.LogWarning(
+                "ScoreUIEffect could not find a TextMeshProUGUI reference.",
+                this
+            );
+
+            enabled = false;
+            return;
+        }
+
+        scoreTransform = scoreText.transform;
+        originalScale = scoreTransform.localScale;
+    }
+
+    private void OnDisable()
+    {
+        StopActiveRoutine();
+        ResetScale();
+    }
 
     public void PlayPop()
     {
-        if (scoreText == null) return;
+        if (!isActiveAndEnabled || scoreTransform == null)
+            return;
 
-        if (scoreCoroutine != null)
-            StopCoroutine(scoreCoroutine);
+        StopActiveRoutine();
 
-        scoreCoroutine = StartCoroutine(PopEffect());
+        activeRoutine = StartCoroutine(PopEffect());
     }
 
     private IEnumerator PopEffect()
     {
-        Vector3 normalScale = Vector3.one;
-        Vector3 bigScale = Vector3.one * popScale;
+        Vector3 enlargedScale =
+            originalScale * popScale;
 
-        yield return ScaleRoutine(normalScale, bigScale, SmoothStep);
-        yield return ScaleRoutine(bigScale, normalScale, EaseIn);
+        if (duration <= 0f)
+        {
+            ResetScale();
+            activeRoutine = null;
+            yield break;
+        }
 
-        scoreText.transform.localScale = normalScale;
-        scoreCoroutine = null;
+        // Efekt yeniden tetiklendiyse mevcut scale'den devam eder.
+        yield return ScaleRoutine(
+            scoreTransform.localScale,
+            enlargedScale,
+            duration,
+            EasingType.SmoothStep
+        );
+
+        yield return ScaleRoutine(
+            enlargedScale,
+            originalScale,
+            duration,
+            EasingType.EaseIn
+        );
+
+        ResetScale();
+        activeRoutine = null;
     }
 
-    private IEnumerator ScaleRoutine(Vector3 from, Vector3 to, System.Func<float, float> easing)
+    private IEnumerator ScaleRoutine(
+        Vector3 startScale,
+        Vector3 targetScale,
+        float animationDuration,
+        EasingType easingType)
     {
-        float time = 0f;
+        float elapsedTime = 0f;
 
-        while (time < duration)
+        while (elapsedTime < animationDuration)
         {
-            time += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
 
-            float t = easing(time / duration);
-            scoreText.transform.localScale = Vector3.Lerp(from, to, t);
+            float normalizedTime = Mathf.Clamp01(
+                elapsedTime / animationDuration
+            );
+
+            float easedTime = ApplyEasing(
+                normalizedTime,
+                easingType
+            );
+
+            scoreTransform.localScale = Vector3.LerpUnclamped(
+                startScale,
+                targetScale,
+                easedTime
+            );
 
             yield return null;
         }
+
+        scoreTransform.localScale = targetScale;
     }
 
-    private float SmoothStep(float t)
+    private static float ApplyEasing(
+        float value,
+        EasingType easingType)
     {
-        return t * t * (3f - 2f * t);
+        switch (easingType)
+        {
+            case EasingType.EaseIn:
+                return value * value;
+
+            case EasingType.SmoothStep:
+            default:
+                return value * value * (3f - 2f * value);
+        }
     }
 
-    private float EaseIn(float t)
+    private void StopActiveRoutine()
     {
-        return t * t;
+        if (activeRoutine == null)
+            return;
+
+        StopCoroutine(activeRoutine);
+        activeRoutine = null;
+    }
+
+    private void ResetScale()
+    {
+        if (scoreTransform != null)
+            scoreTransform.localScale = originalScale;
+    }
+
+    private void RefreshReferences()
+    {
+        if (scoreText == null)
+            scoreText = GetComponent<TextMeshProUGUI>();
+
+        if (scoreText == null)
+            scoreText = GetComponentInChildren<TextMeshProUGUI>(true);
+    }
+
+    private void OnValidate()
+    {
+        popScale = Mathf.Max(0f, popScale);
+        duration = Mathf.Max(0f, duration);
+    }
+
+    private enum EasingType
+    {
+        SmoothStep,
+        EaseIn
     }
 }

@@ -3,40 +3,114 @@ using UnityEngine;
 
 public static class SpawnAreaRegistry
 {
-    private class Entry
+    private struct Entry
     {
         public Transform transform;
         public float radius;
+
+        public Entry(Transform transform, float radius)
+        {
+            this.transform = transform;
+            this.radius = radius;
+        }
     }
 
-    private static readonly List<Entry> entries = new List<Entry>(64);
+    private static readonly List<Entry> entries =
+        new List<Entry>(64);
 
-    public static bool IsAreaFree(Vector2 pos, float radius)
+    [RuntimeInitializeOnLoadMethod(
+        RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetRegistry()
+    {
+        entries.Clear();
+    }
+
+    public static bool IsAreaFree(
+        Vector2 position,
+        float radius)
     {
         Cleanup();
 
-        float r;
+        radius = Mathf.Max(0f, radius);
+
         for (int i = 0; i < entries.Count; i++)
         {
-            if (entries[i].transform == null) continue;
+            Entry entry = entries[i];
 
-            r = radius + entries[i].radius;
-            if (((Vector2)entries[i].transform.position - pos).sqrMagnitude < r * r)
+            if (entry.transform == null)
+                continue;
+
+            float combinedRadius =
+                radius + entry.radius;
+
+            Vector2 registeredPosition =
+                entry.transform.position;
+
+            if ((registeredPosition - position).sqrMagnitude <
+                combinedRadius * combinedRadius)
+            {
                 return false;
+            }
         }
 
         return true;
     }
 
-    public static void Register(GameObject obj, float radius)
+    public static void Register(
+        GameObject obj,
+        float radius)
     {
-        if (obj == null) return;
+        if (obj == null)
+            return;
 
-        entries.Add(new Entry
+        Cleanup();
+
+        Transform targetTransform = obj.transform;
+        radius = Mathf.Max(0f, radius);
+
+        for (int i = 0; i < entries.Count; i++)
         {
-            transform = obj.transform,
-            radius = radius
-        });
+            Entry entry = entries[i];
+
+            if (entry.transform != targetTransform)
+                continue;
+
+            entries[i] = new Entry(
+                targetTransform,
+                radius
+            );
+
+            return;
+        }
+
+        entries.Add(
+            new Entry(
+                targetTransform,
+                radius
+            )
+        );
+    }
+
+    public static void Unregister(GameObject obj)
+    {
+        if (obj == null)
+            return;
+
+        Transform targetTransform = obj.transform;
+
+        for (int i = entries.Count - 1; i >= 0; i--)
+        {
+            if (entries[i].transform == null ||
+                entries[i].transform == targetTransform)
+            {
+                entries.RemoveAt(i);
+            }
+        }
+    }
+
+    public static void Clear()
+    {
+        entries.Clear();
     }
 
     private static void Cleanup()

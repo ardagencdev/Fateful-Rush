@@ -1,9 +1,21 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class OptionsUI : MonoBehaviour
 {
+    private const string SoundEnabledKey = "SoundOn";
+    private const string VibrationEnabledKey = "VibrationEnabled";
+    private const string FPSModeKey = "FPSMode";
+
+    private const int DefaultSoundState = 1;
+    private const int DefaultVibrationState = 1;
+    private const int DefaultFPS = 60;
+
+    private const float SelectedAlpha = 1f;
+    private const float UnselectedAlpha = 0.4f;
+
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject optionsPanel;
@@ -35,85 +47,58 @@ public class OptionsUI : MonoBehaviour
     [Header("Gameplay UI")]
     [SerializeField] private Slider hudOpacitySlider;
 
+    private readonly Dictionary<Button, CanvasGroup> buttonCanvasGroups =
+        new Dictionary<Button, CanvasGroup>();
+
     private SettingsManager settings;
+    private SoundManager soundManager;
+    private VibrationManager vibrationManager;
+    private ControlLayoutManager controlLayoutManager;
 
     private void Awake()
     {
-        if (fadeSwitcher == null)
-            fadeSwitcher = GetComponent<UIPanelFadeSwitcher>();
-
-        settings = FindAnyObjectByType<SettingsManager>();
+        RefreshReferences();
+        CacheButtonCanvasGroups();
     }
 
     private void Start()
     {
-        LoadSettingsToUI();
-
         if (settings != null)
             settings.ApplyAllSettings();
 
-        Application.targetFrameRate = PlayerPrefs.GetInt("FPSMode", 60);
+        Application.targetFrameRate = GetSavedFPS();
 
-        if (fadeSwitcher != null)
-        {
-            fadeSwitcher.SetInstant(mainMenuPanel, true);
-            fadeSwitcher.SetInstant(optionsPanel, false);
-        }
-        else
-        {
-            SetPanel(mainMenuPanel, true);
-            SetPanel(optionsPanel, false);
-        }
+        LoadSettingsToUI();
+        SetInitialPanelState();
     }
 
     public void OpenOptions()
     {
-        Switch(mainMenuPanel, optionsPanel);
+        RefreshReferences();
+
+        SwitchPanels(mainMenuPanel, optionsPanel);
         LoadSettingsToUI();
     }
 
     public void CloseOptions()
     {
-        Switch(optionsPanel, mainMenuPanel);
+        SwitchPanels(optionsPanel, mainMenuPanel);
     }
 
     public void SoundOn()
     {
-        PlayerPrefs.SetInt("SoundOn", 1);
-        PlayerPrefs.Save();
-
-        AudioListener.volume = 1f;
-
-        SoundManager soundManager = FindAnyObjectByType<SoundManager>();
-        if (soundManager != null)
-            soundManager.ApplySFXVolume();
-
-        RefreshButtonStates();
+        SetMasterSound(true);
     }
 
     public void SoundOff()
     {
-        PlayerPrefs.SetInt("SoundOn", 0);
-        PlayerPrefs.Save();
-
-        AudioListener.volume = 0f;
-
-        SoundManager soundManager = FindAnyObjectByType<SoundManager>();
-        if (soundManager != null)
-            soundManager.ApplySFXVolume();
-
-        RefreshButtonStates();
-    }
-
-    private void UpdatePercentText(TMP_Text text, float value)
-    {
-        if (text == null) return;
-
-        text.text = Mathf.RoundToInt(value * 100f) + "%";
+        SetMasterSound(false);
     }
 
     public void MenuMusicOn()
     {
+        RefreshReferences();
+
         if (settings != null)
             settings.SetMenuMusic(true);
 
@@ -122,6 +107,8 @@ public class OptionsUI : MonoBehaviour
 
     public void MenuMusicOff()
     {
+        RefreshReferences();
+
         if (settings != null)
             settings.SetMenuMusic(false);
 
@@ -130,6 +117,10 @@ public class OptionsUI : MonoBehaviour
 
     public void ChangeMusicVolume(float value)
     {
+        value = Mathf.Clamp01(value);
+
+        RefreshReferences();
+
         if (settings != null)
             settings.SetMusicVolume(value);
 
@@ -138,6 +129,10 @@ public class OptionsUI : MonoBehaviour
 
     public void ChangeSFXVolume(float value)
     {
+        value = Mathf.Clamp01(value);
+
+        RefreshReferences();
+
         if (settings != null)
             settings.SetSFXVolume(value);
 
@@ -146,172 +141,60 @@ public class OptionsUI : MonoBehaviour
 
     public void VibrationOn()
     {
-        PlayerPrefs.SetInt("VibrationEnabled", 1);
-        PlayerPrefs.Save();
-
-        VibrationManager vibration = FindAnyObjectByType<VibrationManager>();
-        if (vibration != null)
-            vibration.SetVibration(true);
-
-        RefreshButtonStates();
+        SetVibration(true);
     }
 
     public void VibrationOff()
     {
-        PlayerPrefs.SetInt("VibrationEnabled", 0);
-        PlayerPrefs.Save();
-
-        VibrationManager vibration = FindAnyObjectByType<VibrationManager>();
-        if (vibration != null)
-            vibration.SetVibration(false);
-
-        RefreshButtonStates();
+        SetVibration(false);
     }
 
     public void SetFPS30()
     {
-        PlayerPrefs.SetInt("FPSMode", 30);
-        PlayerPrefs.Save();
-
-        Application.targetFrameRate = 30;
-
-        RefreshButtonStates();
+        SetFPS(30);
     }
 
     public void SetFPS60()
     {
-        PlayerPrefs.SetInt("FPSMode", 60);
-        PlayerPrefs.Save();
-
-        Application.targetFrameRate = 60;
-
-        RefreshButtonStates();
+        SetFPS(60);
     }
 
     public void SetJoystickLeft()
     {
-        ControlLayoutManager layout = FindAnyObjectByType<ControlLayoutManager>();
+        RefreshReferences();
 
-        if (layout != null)
-            layout.SetJoystickLeft();
+        if (controlLayoutManager != null)
+            controlLayoutManager.SetJoystickLeft();
 
         RefreshButtonStates();
     }
 
     public void SetJoystickRight()
     {
-        ControlLayoutManager layout = FindAnyObjectByType<ControlLayoutManager>();
+        RefreshReferences();
 
-        if (layout != null)
-            layout.SetJoystickRight();
+        if (controlLayoutManager != null)
+            controlLayoutManager.SetJoystickRight();
 
         RefreshButtonStates();
     }
 
     public void ChangeHUDOpacity(float value)
     {
+        value = Mathf.Clamp01(value);
+
+        RefreshReferences();
+
         if (settings != null)
             settings.SetHUDOpacity(value);
 
         UpdatePercentText(hudOpacityValueText, value);
     }
 
-    private void LoadSettingsToUI()
-    {
-        if (settings == null)
-            settings = FindAnyObjectByType<SettingsManager>();
-
-        if (settings != null)
-        {
-            if (musicSlider != null)
-            {
-                musicSlider.SetValueWithoutNotify(settings.GetMusicVolume());
-                UpdatePercentText(musicValueText, musicSlider.value);
-            }
-
-            if (sfxSlider != null)
-            {
-                sfxSlider.SetValueWithoutNotify(settings.GetSFXVolume());
-                UpdatePercentText(sfxValueText, sfxSlider.value);
-            }
-
-            if (hudOpacitySlider != null)
-            {
-                hudOpacitySlider.SetValueWithoutNotify(settings.GetHUDOpacity());
-                UpdatePercentText(hudOpacityValueText, hudOpacitySlider.value);
-            }
-        }
-
-        RefreshButtonStates();
-    }
-
-    private void RefreshButtonStates()
-    {
-        bool soundOn = PlayerPrefs.GetInt("SoundOn", 1) == 1;
-
-        SetButtonState(soundOnButton, soundOn);
-        SetButtonState(soundOffButton, !soundOn);
-
-        if (settings != null)
-        {
-            SetButtonState(menuMusicOnButton, settings.GetMenuMusic());
-            SetButtonState(menuMusicOffButton, !settings.GetMenuMusic());
-        }
-
-        bool vibrationOn = PlayerPrefs.GetInt("VibrationEnabled", 1) == 1;
-
-        SetButtonState(vibrationOnButton, vibrationOn);
-        SetButtonState(vibrationOffButton, !vibrationOn);
-
-        int fps = PlayerPrefs.GetInt("FPSMode", 60);
-
-        SetButtonState(fps30Button, fps == 30);
-        SetButtonState(fps60Button, fps == 60);
-
-        ControlLayoutManager layout = FindAnyObjectByType<ControlLayoutManager>();
-
-        if (layout != null)
-        {
-            bool left =
-                layout.GetSavedSide() == ControlLayoutManager.JoystickSide.Left;
-
-            SetButtonState(joystickLeftButton, left);
-            SetButtonState(joystickRightButton, !left);
-        }
-    }
-
-    private void SetButtonState(Button button, bool selected)
-    {
-        if (button == null)
-            return;
-
-        CanvasGroup group = button.GetComponent<CanvasGroup>();
-
-        if (group == null)
-            group = button.gameObject.AddComponent<CanvasGroup>();
-
-        group.alpha = selected ? 1f : 0.4f;
-
-        UIButtonEffect buttonEffect = button.GetComponent<UIButtonEffect>();
-
-        if (buttonEffect != null)
-            buttonEffect.SetSelected(selected);
-    }
-
-    private void Switch(GameObject fromPanel, GameObject toPanel)
-    {
-        if (fadeSwitcher != null)
-            fadeSwitcher.SwitchPanel(fromPanel, toPanel);
-        else
-        {
-            SetPanel(fromPanel, false);
-            SetPanel(toPanel, true);
-        }
-    }
-
     public bool IsOptionsOpen()
     {
-        return optionsPanel != null && optionsPanel.activeSelf;
+        return optionsPanel != null &&
+               optionsPanel.activeSelf;
     }
 
     public bool HandleEscapeBack()
@@ -323,7 +206,344 @@ public class OptionsUI : MonoBehaviour
         return true;
     }
 
-    private void SetPanel(GameObject panel, bool state)
+    private void SetMasterSound(bool enabled)
+    {
+        PlayerPrefs.SetInt(
+            SoundEnabledKey,
+            enabled ? 1 : 0
+        );
+
+        PlayerPrefs.Save();
+
+        AudioListener.volume = enabled ? 1f : 0f;
+
+        RefreshReferences();
+
+        if (soundManager != null)
+            soundManager.ApplySFXVolume();
+
+        RefreshButtonStates();
+    }
+
+    private void SetVibration(bool enabled)
+    {
+        PlayerPrefs.SetInt(
+            VibrationEnabledKey,
+            enabled ? 1 : 0
+        );
+
+        PlayerPrefs.Save();
+
+        RefreshReferences();
+
+        if (vibrationManager != null)
+            vibrationManager.SetVibration(enabled);
+
+        RefreshButtonStates();
+    }
+
+    private void SetFPS(int targetFPS)
+    {
+        PlayerPrefs.SetInt(FPSModeKey, targetFPS);
+        PlayerPrefs.Save();
+
+        Application.targetFrameRate = targetFPS;
+
+        RefreshButtonStates();
+    }
+
+    private int GetSavedFPS()
+    {
+        int savedFPS = PlayerPrefs.GetInt(
+            FPSModeKey,
+            DefaultFPS
+        );
+
+        return savedFPS == 30 ? 30 : 60;
+    }
+
+    private void LoadSettingsToUI()
+    {
+        RefreshReferences();
+
+        if (settings != null)
+        {
+            SetSliderValue(
+                musicSlider,
+                musicValueText,
+                settings.GetMusicVolume()
+            );
+
+            SetSliderValue(
+                sfxSlider,
+                sfxValueText,
+                settings.GetSFXVolume()
+            );
+
+            SetSliderValue(
+                hudOpacitySlider,
+                hudOpacityValueText,
+                settings.GetHUDOpacity()
+            );
+        }
+
+        RefreshButtonStates();
+    }
+
+    private void SetSliderValue(
+        Slider slider,
+        TMP_Text valueText,
+        float value)
+    {
+        value = Mathf.Clamp01(value);
+
+        if (slider != null)
+            slider.SetValueWithoutNotify(value);
+
+        UpdatePercentText(valueText, value);
+    }
+
+    private void RefreshButtonStates()
+    {
+        RefreshReferences();
+
+        bool soundEnabled =
+            PlayerPrefs.GetInt(
+                SoundEnabledKey,
+                DefaultSoundState
+            ) == 1;
+
+        SetButtonState(
+            soundOnButton,
+            soundEnabled
+        );
+
+        SetButtonState(
+            soundOffButton,
+            !soundEnabled
+        );
+
+        if (settings != null)
+        {
+            bool menuMusicEnabled =
+                settings.GetMenuMusic();
+
+            SetButtonState(
+                menuMusicOnButton,
+                menuMusicEnabled
+            );
+
+            SetButtonState(
+                menuMusicOffButton,
+                !menuMusicEnabled
+            );
+        }
+
+        bool vibrationEnabled =
+            PlayerPrefs.GetInt(
+                VibrationEnabledKey,
+                DefaultVibrationState
+            ) == 1;
+
+        SetButtonState(
+            vibrationOnButton,
+            vibrationEnabled
+        );
+
+        SetButtonState(
+            vibrationOffButton,
+            !vibrationEnabled
+        );
+
+        int fps = GetSavedFPS();
+
+        SetButtonState(
+            fps30Button,
+            fps == 30
+        );
+
+        SetButtonState(
+            fps60Button,
+            fps == 60
+        );
+
+        if (controlLayoutManager != null)
+        {
+            bool joystickIsLeft =
+                controlLayoutManager.GetSavedSide() ==
+                ControlLayoutManager.JoystickSide.Left;
+
+            SetButtonState(
+                joystickLeftButton,
+                joystickIsLeft
+            );
+
+            SetButtonState(
+                joystickRightButton,
+                !joystickIsLeft
+            );
+        }
+    }
+
+    private void SetButtonState(
+        Button button,
+        bool selected)
+    {
+        if (button == null)
+            return;
+
+        CanvasGroup canvasGroup =
+            GetButtonCanvasGroup(button);
+
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = selected
+                ? SelectedAlpha
+                : UnselectedAlpha;
+        }
+
+        UIButtonEffect buttonEffect =
+            button.GetComponent<UIButtonEffect>();
+
+        if (buttonEffect != null)
+            buttonEffect.SetSelected(selected);
+    }
+
+    private CanvasGroup GetButtonCanvasGroup(
+        Button button)
+    {
+        if (buttonCanvasGroups.TryGetValue(
+                button,
+                out CanvasGroup cachedGroup))
+        {
+            return cachedGroup;
+        }
+
+        CanvasGroup canvasGroup =
+            button.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+        {
+            canvasGroup =
+                button.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        buttonCanvasGroups[button] = canvasGroup;
+
+        return canvasGroup;
+    }
+
+    private void CacheButtonCanvasGroups()
+    {
+        CacheButtonCanvasGroup(soundOnButton);
+        CacheButtonCanvasGroup(soundOffButton);
+        CacheButtonCanvasGroup(menuMusicOnButton);
+        CacheButtonCanvasGroup(menuMusicOffButton);
+        CacheButtonCanvasGroup(vibrationOnButton);
+        CacheButtonCanvasGroup(vibrationOffButton);
+        CacheButtonCanvasGroup(fps30Button);
+        CacheButtonCanvasGroup(fps60Button);
+        CacheButtonCanvasGroup(joystickLeftButton);
+        CacheButtonCanvasGroup(joystickRightButton);
+    }
+
+    private void CacheButtonCanvasGroup(Button button)
+    {
+        if (button != null)
+            GetButtonCanvasGroup(button);
+    }
+
+    private void SetInitialPanelState()
+    {
+        if (fadeSwitcher != null)
+        {
+            fadeSwitcher.SetInstant(
+                mainMenuPanel,
+                true
+            );
+
+            fadeSwitcher.SetInstant(
+                optionsPanel,
+                false
+            );
+
+            return;
+        }
+
+        SetPanel(mainMenuPanel, true);
+        SetPanel(optionsPanel, false);
+    }
+
+    private void SwitchPanels(
+        GameObject fromPanel,
+        GameObject toPanel)
+    {
+        if (fadeSwitcher != null)
+        {
+            fadeSwitcher.SwitchPanel(
+                fromPanel,
+                toPanel
+            );
+
+            return;
+        }
+
+        SetPanel(fromPanel, false);
+        SetPanel(toPanel, true);
+    }
+
+    private void RefreshReferences()
+    {
+        if (fadeSwitcher == null)
+        {
+            fadeSwitcher =
+                GetComponent<UIPanelFadeSwitcher>();
+        }
+
+        if (settings == null)
+        {
+            settings =
+                FindAnyObjectByType<SettingsManager>();
+        }
+
+        if (soundManager == null)
+        {
+            soundManager =
+                SoundManager.Instance != null
+                    ? SoundManager.Instance
+                    : FindAnyObjectByType<SoundManager>();
+        }
+
+        if (vibrationManager == null)
+        {
+            vibrationManager =
+                FindAnyObjectByType<VibrationManager>();
+        }
+
+        if (controlLayoutManager == null)
+        {
+            controlLayoutManager =
+                FindAnyObjectByType<ControlLayoutManager>();
+        }
+    }
+
+    private static void UpdatePercentText(
+        TMP_Text text,
+        float value)
+    {
+        if (text == null)
+            return;
+
+        int percentage = Mathf.RoundToInt(
+            Mathf.Clamp01(value) * 100f
+        );
+
+        text.SetText("{0}%", percentage);
+    }
+
+    private static void SetPanel(
+        GameObject panel,
+        bool state)
     {
         if (panel != null)
             panel.SetActive(state);
