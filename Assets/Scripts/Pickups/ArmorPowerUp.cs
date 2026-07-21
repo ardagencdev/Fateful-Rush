@@ -2,24 +2,48 @@ using UnityEngine;
 
 public class ArmorPowerUp : MonoBehaviour
 {
-    private Collider2D col;
+    private Collider2D pickupCollider;
     private SoundManager soundManager;
     private SpawnScaleEffect spawnEffect;
+
     private bool collected;
 
     private void Awake()
     {
-        col = GetComponent<Collider2D>();
-        soundManager = FindAnyObjectByType<SoundManager>();
+        pickupCollider = GetComponent<Collider2D>();
         spawnEffect = GetComponentInChildren<SpawnScaleEffect>();
+
+        soundManager =
+            FindAnyObjectByType<SoundManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collected) return;
-        if (!other.CompareTag("Player")) return;
+        if (collected)
+            return;
+
+        if (!other.CompareTag("Player"))
+            return;
+
+        PlayerArmor armor =
+            other.GetComponentInParent<PlayerArmor>();
+
+        if (armor == null)
+        {
+            Debug.LogWarning(
+                "[ArmorPowerUp] PlayerArmor component bulunamadı.",
+                this
+            );
+
+            return;
+        }
 
         collected = true;
+
+        if (pickupCollider != null)
+            pickupCollider.enabled = false;
+
+        armor.ActivateArmor();
 
         VibrationManager.Instance?.VibrateMedium();
         StatsManager.AddArmorBuffUse();
@@ -27,17 +51,15 @@ public class ArmorPowerUp : MonoBehaviour
         if (soundManager != null)
             soundManager.PlayArmorCollectSound();
 
-        PlayerArmor armor = other.GetComponent<PlayerArmor>();
-
-        if (armor != null)
-            armor.ActivateArmor();
-
-        if (col != null)
-            col.enabled = false;
-
         if (spawnEffect != null)
             spawnEffect.Collect();
         else
             Destroy(gameObject);
+    }
+
+    private void OnValidate()
+    {
+        if (pickupCollider == null)
+            pickupCollider = GetComponent<Collider2D>();
     }
 }

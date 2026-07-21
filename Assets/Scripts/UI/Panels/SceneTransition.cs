@@ -15,13 +15,15 @@ public class SceneTransition : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance != null &&
+            Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
+
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
 
@@ -31,6 +33,7 @@ public class SceneTransition : MonoBehaviour
         PrepareFadeCanvas();
 
         SetAlpha(0f);
+
         fadeImage.raycastTarget = false;
         fadeImage.gameObject.SetActive(false);
 
@@ -39,54 +42,87 @@ public class SceneTransition : MonoBehaviour
 
     private IEnumerator FadeOutMusic()
     {
-        MenuMusicApply menuMusic = FindAnyObjectByType<MenuMusicApply>();
+        MenuMusicApply menuMusic =
+            FindAnyObjectByType<MenuMusicApply>();
 
         if (menuMusic != null)
         {
             menuMusic.FadeOutMusic();
-            yield return new WaitForSecondsRealtime(menuMusic.fadeOutDuration);
+
+            yield return new WaitForSecondsRealtime(
+                menuMusic.FadeOutDuration
+            );
+
             yield break;
         }
 
-        GameplayMusicFade gameplayMusic = FindAnyObjectByType<GameplayMusicFade>();
+        GameplayMusicFade gameplayMusic =
+            FindAnyObjectByType<GameplayMusicFade>();
 
         if (gameplayMusic != null)
         {
             gameplayMusic.FadeOut();
-            yield return new WaitForSecondsRealtime(gameplayMusic.fadeOutDuration);
+
+            yield return new WaitForSecondsRealtime(
+                gameplayMusic.FadeOutDuration
+            );
         }
     }
 
     private void OnDestroy()
     {
         if (Instance == this)
-            SceneManager.sceneLoaded -= OnSceneLoaded;
+        {
+            SceneManager.sceneLoaded -=
+                OnSceneLoaded;
+
+            Instance = null;
+        }
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void OnSceneLoaded(
+        Scene scene,
+        LoadSceneMode mode)
     {
         PrepareFadeCanvas();
     }
 
-    public void LoadSceneWithFade(string sceneName)
+    public void LoadSceneWithFade(
+        string sceneName)
     {
-        if (isTransitioning) return;
-        if (string.IsNullOrEmpty(sceneName)) return;
+        if (isTransitioning)
+            return;
 
-        StartCoroutine(TransitionRoutine(sceneName));
+        if (string.IsNullOrEmpty(sceneName))
+            return;
+
+        StartCoroutine(
+            TransitionRoutine(sceneName)
+        );
     }
 
-    public void LoadSceneWithFade(int sceneIndex)
+    public void LoadSceneWithFade(
+        int sceneIndex)
     {
-        if (isTransitioning) return;
-        if (sceneIndex < 0 || sceneIndex >= SceneManager.sceneCountInBuildSettings) return;
+        if (isTransitioning)
+            return;
 
-        StartCoroutine(TransitionRoutine(sceneIndex));
+        if (sceneIndex < 0 ||
+            sceneIndex >=
+            SceneManager.sceneCountInBuildSettings)
+        {
+            return;
+        }
+
+        StartCoroutine(
+            TransitionRoutine(sceneIndex)
+        );
     }
 
     public void QuitGameWithFade()
     {
-        if (isTransitioning) return;
+        if (isTransitioning)
+            return;
 
         StartCoroutine(QuitRoutine());
     }
@@ -95,58 +131,73 @@ public class SceneTransition : MonoBehaviour
     {
         isTransitioning = true;
 
+        Time.timeScale = 0f;
+
+        yield return FadeOutMusic();
         yield return FadeOut();
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-    Application.Quit();
+        Application.Quit();
 #endif
     }
 
-    private IEnumerator TransitionRoutine(string sceneName)
+    private IEnumerator TransitionRoutine(
+        string sceneName)
     {
         isTransitioning = true;
 
-        Time.timeScale = 0f; // Fade başlarken oyun kesin durur
+        Time.timeScale = 0f;
 
         yield return FadeOutMusic();
         yield return FadeOut();
 
-        AsyncOperation load = SceneManager.LoadSceneAsync(sceneName);
+        AsyncOperation load =
+            SceneManager.LoadSceneAsync(sceneName);
 
-        while (load != null && !load.isDone)
+        while (load != null &&
+               !load.isDone)
+        {
             yield return null;
+        }
 
-        Time.timeScale = 1f; // Yeni sahne yüklendiğinde normale döner
+        Time.timeScale = 1f;
 
         yield return null;
 
         PrepareFadeCanvas();
+
         yield return FadeIn();
 
         isTransitioning = false;
     }
 
-    private IEnumerator TransitionRoutine(int sceneIndex)
+    private IEnumerator TransitionRoutine(
+        int sceneIndex)
     {
         isTransitioning = true;
 
-        Time.timeScale = 0f; // Fade başlarken oyun kesin durur
+        Time.timeScale = 0f;
 
         yield return FadeOutMusic();
         yield return FadeOut();
 
-        AsyncOperation load = SceneManager.LoadSceneAsync(sceneIndex);
+        AsyncOperation load =
+            SceneManager.LoadSceneAsync(sceneIndex);
 
-        while (load != null && !load.isDone)
+        while (load != null &&
+               !load.isDone)
+        {
             yield return null;
+        }
 
-        Time.timeScale = 1f; // Yeni sahne yüklendiğinde normale döner
+        Time.timeScale = 1f;
 
         yield return null;
 
         PrepareFadeCanvas();
+
         yield return FadeIn();
 
         isTransitioning = false;
@@ -170,26 +221,50 @@ public class SceneTransition : MonoBehaviour
         fadeImage.raycastTarget = true;
 
         SetAlpha(1f);
+
         yield return Fade(1f, 0f);
 
         SetAlpha(0f);
+
         fadeImage.raycastTarget = false;
         fadeImage.gameObject.SetActive(false);
     }
 
-    private IEnumerator Fade(float from, float to)
+    private IEnumerator Fade(
+        float from,
+        float to)
     {
         float timer = 0f;
-        float duration = Mathf.Max(0.01f, fadeDuration);
+
+        float duration =
+            Mathf.Max(
+                0.01f,
+                fadeDuration
+            );
 
         while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;
 
-            float t = Mathf.Clamp01(timer / duration);
-            t = Mathf.SmoothStep(0f, 1f, t);
+            float progress =
+                Mathf.Clamp01(
+                    timer / duration
+                );
 
-            SetAlpha(Mathf.Lerp(from, to, t));
+            progress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            SetAlpha(
+                Mathf.Lerp(
+                    from,
+                    to,
+                    progress
+                )
+            );
 
             yield return null;
         }
@@ -199,61 +274,114 @@ public class SceneTransition : MonoBehaviour
 
     private void SetAlpha(float alpha)
     {
-        if (fadeImage == null) return;
+        if (fadeImage == null)
+            return;
 
-        Color c = fadeImage.color;
-        c.a = alpha;
-        fadeImage.color = c;
+        Color color = fadeImage.color;
+        color.a = alpha;
+        fadeImage.color = color;
     }
 
     private void PrepareFadeCanvas()
     {
-        if (fadeImage == null) return;
+        if (fadeImage == null)
+            return;
 
-        Canvas canvas = fadeImage.GetComponentInParent<Canvas>();
+        Canvas canvas =
+            fadeImage.GetComponentInParent<Canvas>();
 
         if (canvas != null)
         {
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.renderMode =
+                RenderMode.ScreenSpaceOverlay;
+
             canvas.sortingOrder = 9999;
         }
 
-        fadeImage.color = new Color(0f, 0f, 0f, fadeImage.color.a);
+        fadeImage.color = new Color(
+            0f,
+            0f,
+            0f,
+            fadeImage.color.a
+        );
+
         fadeImage.transform.SetAsLastSibling();
     }
 
     private void CreateFadeImage()
     {
-        Canvas canvas = GetComponentInChildren<Canvas>();
+        Canvas canvas =
+            GetComponentInChildren<Canvas>();
 
         if (canvas == null)
         {
-            GameObject canvasObj = new GameObject("TransitionCanvas");
-            canvasObj.transform.SetParent(transform, false);
+            GameObject canvasObject =
+                new GameObject(
+                    "TransitionCanvas"
+                );
 
-            canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvasObject.transform.SetParent(
+                transform,
+                false
+            );
+
+            canvas =
+                canvasObject.AddComponent<Canvas>();
+
+            canvas.renderMode =
+                RenderMode.ScreenSpaceOverlay;
+
             canvas.sortingOrder = 9999;
 
-            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080f, 1920f);
+            CanvasScaler scaler =
+                canvasObject
+                    .AddComponent<CanvasScaler>();
+
+            scaler.uiScaleMode =
+                CanvasScaler.ScaleMode
+                    .ScaleWithScreenSize;
+
+            scaler.referenceResolution =
+                new Vector2(
+                    1080f,
+                    1920f
+                );
+
             scaler.matchWidthOrHeight = 0.5f;
 
-            canvasObj.AddComponent<GraphicRaycaster>();
+            canvasObject
+                .AddComponent<GraphicRaycaster>();
         }
 
-        GameObject imageObj = new GameObject("FadeImage");
-        imageObj.transform.SetParent(canvas.transform, false);
+        GameObject imageObject =
+            new GameObject("FadeImage");
 
-        fadeImage = imageObj.AddComponent<Image>();
+        imageObject.transform.SetParent(
+            canvas.transform,
+            false
+        );
+
+        fadeImage =
+            imageObject.AddComponent<Image>();
+
         fadeImage.color = Color.black;
         fadeImage.raycastTarget = false;
 
-        RectTransform rt = imageObj.GetComponent<RectTransform>();
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
+        RectTransform rectTransform =
+            imageObject.GetComponent<RectTransform>();
+
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+    }
+
+    private void OnValidate()
+    {
+        fadeDuration =
+            Mathf.Max(
+                0f,
+                fadeDuration
+            );
     }
 }

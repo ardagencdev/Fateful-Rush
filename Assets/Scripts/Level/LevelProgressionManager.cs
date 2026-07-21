@@ -3,15 +3,29 @@ using UnityEngine.SceneManagement;
 
 public class LevelProgressionManager : MonoBehaviour
 {
-    public static LevelProgressionManager Instance;
+    public static LevelProgressionManager Instance { get; private set; }
 
     [Header("Levels")]
     public LevelConfig[] levels;
 
-    [Header("Scene")]
+    [Header("Scenes")]
     public string gameSceneName = "a";
+    public string mainMenuSceneName = "MainMenu";
 
-    private int currentLevelIndex = 0;
+    private int currentLevelIndex;
+
+    public int CurrentLevelIndex => currentLevelIndex;
+
+    public LevelConfig CurrentLevel
+    {
+        get
+        {
+            if (!IsValidLevelIndex(currentLevelIndex))
+                return null;
+
+            return levels[currentLevelIndex];
+        }
+    }
 
     private void Awake()
     {
@@ -27,28 +41,187 @@ public class LevelProgressionManager : MonoBehaviour
 
     public void StartLevelMode()
     {
-        SelectedLevelData.SetMission(levels[0]);
-        currentLevelIndex = 0;
-        LoadCurrentLevel();
-    }
-
-    public void LoadNextLevel()
-    {
-        currentLevelIndex++;
-
-        if (currentLevelIndex >= levels.Length)
+        if (!HasValidLevels())
         {
-            Debug.Log("All levels completed!");
-            SceneManager.LoadScene("MainMenu");
+            Debug.LogError(
+                "[LevelProgressionManager] Level Mode başlatılamadı. " +
+                "Levels dizisi boş veya geçerli LevelConfig içermiyor.",
+                this
+            );
+
+            return;
+        }
+
+        currentLevelIndex = FindNextValidLevelIndex(0);
+
+        if (currentLevelIndex < 0)
+        {
+            Debug.LogError(
+                "[LevelProgressionManager] Başlatılabilecek geçerli bir level bulunamadı.",
+                this
+            );
+
             return;
         }
 
         LoadCurrentLevel();
     }
 
+    public void LoadNextLevel()
+    {
+        if (!HasValidLevels())
+        {
+            Debug.LogError(
+                "[LevelProgressionManager] Sonraki level yüklenemedi. " +
+                "Levels dizisi boş veya geçersiz.",
+                this
+            );
+
+            return;
+        }
+
+        int nextLevelIndex =
+            FindNextValidLevelIndex(currentLevelIndex + 1);
+
+        if (nextLevelIndex < 0)
+        {
+            CompleteLevelMode();
+            return;
+        }
+
+        currentLevelIndex = nextLevelIndex;
+        LoadCurrentLevel();
+    }
+
     private void LoadCurrentLevel()
     {
-        SelectedLevelData.selectedLevel = levels[currentLevelIndex];
+        LevelConfig level = CurrentLevel;
+
+        if (level == null)
+        {
+            Debug.LogError(
+                $"[LevelProgressionManager] Geçersiz level indexi: " +
+                $"{currentLevelIndex}",
+                this
+            );
+
+            return;
+        }
+
+        if (!CanLoadScene(gameSceneName))
+        {
+            Debug.LogError(
+                $"[LevelProgressionManager] Oyun sahnesi yüklenemiyor: " +
+                $"'{gameSceneName}'. Build Profiles içindeki " +
+                $"Scene List'i kontrol et.",
+                this
+            );
+
+            return;
+        }
+
+        SelectedLevelData.SetMission(level);
+
+        Debug.Log(
+            $"[LevelProgressionManager] Level yükleniyor: " +
+            $"{level.levelNumber} - {level.levelName} | " +
+            $"Index: {currentLevelIndex}",
+            this
+        );
+
         SceneManager.LoadScene(gameSceneName);
     }
+
+    private void CompleteLevelMode()
+    {
+        Debug.Log(
+            "[LevelProgressionManager] Bütün levellar tamamlandı.",
+            this
+        );
+
+        if (!CanLoadScene(mainMenuSceneName))
+        {
+            Debug.LogError(
+                $"[LevelProgressionManager] Ana menü sahnesi yüklenemiyor: " +
+                $"'{mainMenuSceneName}'. Build Profiles içindeki " +
+                $"Scene List'i kontrol et.",
+                this
+            );
+
+            return;
+        }
+
+        SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    private bool HasValidLevels()
+    {
+        if (levels == null || levels.Length == 0)
+            return false;
+
+        for (int i = 0; i < levels.Length; i++)
+        {
+            if (levels[i] != null)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsValidLevelIndex(int index)
+    {
+        return levels != null &&
+               index >= 0 &&
+               index < levels.Length &&
+               levels[index] != null;
+    }
+
+    private int FindNextValidLevelIndex(int startIndex)
+    {
+        if (levels == null)
+            return -1;
+
+        int safeStartIndex = Mathf.Max(0, startIndex);
+
+        for (int i = safeStartIndex; i < levels.Length; i++)
+        {
+            if (levels[i] != null)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private bool CanLoadScene(string sceneName)
+    {
+        return !string.IsNullOrWhiteSpace(sceneName) &&
+               Application.CanStreamedLevelBeLoaded(sceneName);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (string.IsNullOrWhiteSpace(gameSceneName))
+        {
+            Debug.LogWarning(
+                "[LevelProgressionManager] Game Scene Name boş.",
+                this
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(mainMenuSceneName))
+        {
+            Debug.LogWarning(
+                "[LevelProgressionManager] Main Menu Scene Name boş.",
+                this
+            );
+        }
+    }
+#endif
 }

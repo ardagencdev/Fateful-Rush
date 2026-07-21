@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager Instance;
+    public static SoundManager Instance { get; private set; }
 
     [Header("SFX Source")]
     public AudioSource sfxSource;
@@ -53,6 +53,13 @@ public class SoundManager : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("Birden fazla SoundManager bulundu. Fazladan olan siliniyor.");
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
 
         if (sfxSource == null)
@@ -96,7 +103,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlayBeaconDeathSound()
     {
-        PlaySound(beaconDeathSound);
+        PlaySound(beaconDeathSound, beaconDeathVolume);
     }
 
     public void PlayMenuButtonSound() => PlaySound(menuButtonSound);
@@ -115,6 +122,6 @@ public class SoundManager : MonoBehaviour
         if (clip == null || sfxSource == null)
             return;
 
-        sfxSource.PlayOneShot(clip, SFXVolume * volumeMultiplier);
+        sfxSource.PlayOneShot(clip, volumeMultiplier);
     }
 }

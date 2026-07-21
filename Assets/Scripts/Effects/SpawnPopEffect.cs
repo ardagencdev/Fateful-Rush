@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class SpawnPopEffect : MonoBehaviour
 {
@@ -27,48 +27,76 @@ public class SpawnPopEffect : MonoBehaviour
 
     public void HideInstant()
     {
+        StopCurrentRoutine();
         transform.localScale = Vector3.zero;
     }
 
     public void ShowInstant()
     {
+        StopCurrentRoutine();
         transform.localScale = targetScale;
     }
 
     public void Play()
     {
-        if (routine != null)
-            StopCoroutine(routine);
-
-        routine = StartCoroutine(SpawnRoutine());
+        StopCurrentRoutine();
+        routine = StartCoroutine(PlayRoutine());
     }
 
     public IEnumerator PlayAndWait()
     {
-        if (routine != null)
-            StopCoroutine(routine);
+        StopCurrentRoutine();
 
+        routine = StartCoroutine(PlayRoutine());
+
+        yield return routine;
+    }
+
+    private IEnumerator PlayRoutine()
+    {
         yield return SpawnRoutine();
         routine = null;
     }
 
     private IEnumerator SpawnRoutine()
     {
-        float time = 0f;
+        float duration = Mathf.Max(0.01f, spawnDuration);
+        float safeOvershoot = Mathf.Max(1f, overshoot);
+
         transform.localScale = Vector3.zero;
 
-        while (time < spawnDuration)
+        float time = 0f;
+
+        while (time < duration)
         {
             time += Time.unscaledDeltaTime;
 
-            float t = Mathf.Clamp01(time / spawnDuration);
-            float scale = Mathf.Sin(t * Mathf.PI * 0.5f) * overshoot;
+            float t = Mathf.Clamp01(time / duration);
 
-            transform.localScale = targetScale * scale;
+            float scale =
+                Mathf.Sin(t * Mathf.PI * 0.5f) *
+                safeOvershoot;
+
+            transform.localScale =
+                targetScale * scale;
 
             yield return null;
         }
 
         transform.localScale = targetScale;
+    }
+
+    private void StopCurrentRoutine()
+    {
+        if (routine == null)
+            return;
+
+        StopCoroutine(routine);
+        routine = null;
+    }
+
+    private void OnDisable()
+    {
+        StopCurrentRoutine();
     }
 }

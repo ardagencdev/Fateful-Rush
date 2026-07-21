@@ -17,27 +17,36 @@ public class SpaceBomb : MonoBehaviour
     {
         bombCollider = GetComponent<Collider2D>();
 
-        if (bombCollider != null)
-            bombCollider.enabled = false;
+        SetColliderEnabled(false);
     }
 
     private IEnumerator Start()
     {
-        yield return new WaitForSeconds(spawnSafeTime);
+        float safeTime = Mathf.Max(0f, spawnSafeTime);
 
-        if (bombCollider != null)
-            bombCollider.enabled = true;
+        if (safeTime > 0f)
+            yield return new WaitForSeconds(safeTime);
+
+        if (!triggered)
+            SetColliderEnabled(true);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (triggered) return;
-        if (!other.CompareTag("Player")) return;
+        if (triggered)
+            return;
+
+        if (!other.CompareTag("Player"))
+            return;
 
         triggered = true;
+        SetColliderEnabled(false);
 
-        PlayerArmor armor = other.GetComponent<PlayerArmor>();
-        PlayerMovement player = other.GetComponent<PlayerMovement>();
+        PlayerArmor armor =
+            other.GetComponentInParent<PlayerArmor>();
+
+        PlayerMovement player =
+            other.GetComponentInParent<PlayerMovement>();
 
         Explode();
 
@@ -66,11 +75,34 @@ public class SpaceBomb : MonoBehaviour
     private void Explode()
     {
         if (explosionEffectPrefab != null)
-            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+        {
+            Instantiate(
+                explosionEffectPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+        }
 
         if (explosionSound != null)
-            AudioSource.PlayClipAtPoint(explosionSound, transform.position, SoundManager.SFXVolume);
+        {
+            AudioSource.PlayClipAtPoint(
+                explosionSound,
+                transform.position,
+                SoundManager.SFXVolume
+            );
+        }
 
         Destroy(gameObject);
+    }
+
+    private void SetColliderEnabled(bool enabledState)
+    {
+        if (bombCollider != null)
+            bombCollider.enabled = enabledState;
+    }
+
+    private void OnValidate()
+    {
+        spawnSafeTime = Mathf.Max(0f, spawnSafeTime);
     }
 }

@@ -35,7 +35,7 @@ public class LevelManager : MonoBehaviour
     private float originalNearStarsSpeed = 1f;
     private float originalNearStarsSize = 1f;
 
-    private bool initialized = false;
+    private bool initialized;
 
     private void Start()
     {
@@ -44,31 +44,44 @@ public class LevelManager : MonoBehaviour
 
     public void InitializeLevel()
     {
-        if (initialized) return;
+        if (initialized)
+            return;
+
         initialized = true;
 
         CacheStarDefaults();
+        ResolveSpawnerReferences();
+        ResolveSelectedLevel();
 
-        if (SelectedLevelData.selectedLevel != null)
-            currentLevel = SelectedLevelData.selectedLevel;
-
-        if (currentLevel != null)
+        if (currentLevel == null)
         {
-            Debug.Log(
-                $"[LevelManager] Loaded Config: {currentLevel.name} | Mode: {SelectedLevelData.launchMode}"
+            Debug.LogError(
+                "[LevelManager] currentLevel NULL! LevelConfig atanmadı.",
+                this
             );
+
+            return;
         }
-        else
-        {
-            Debug.LogError("[LevelManager] currentLevel NULL! Config atanmadı.");
-        }
+
+        Debug.Log(
+            $"[LevelManager] Loaded Config: {currentLevel.name} | " +
+            $"Mode: {SelectedLevelData.launchMode}",
+            this
+        );
 
         ApplyLevelConfig();
     }
 
+    private void ResolveSelectedLevel()
+    {
+        if (SelectedLevelData.selectedLevel != null)
+            currentLevel = SelectedLevelData.selectedLevel;
+    }
+
     private void ApplyLevelConfig()
     {
-        if (currentLevel == null) return;
+        if (currentLevel == null)
+            return;
 
         ApplyPlayer();
         ApplyUI();
@@ -84,41 +97,66 @@ public class LevelManager : MonoBehaviour
     private void ApplyPlayer()
     {
         if (coinCollector != null)
-        {
             coinCollector.winScore = currentLevel.winScore;
-            coinCollector.comboTimeLimit = currentLevel.comboTimeLimit;
-            coinCollector.maxCombo = currentLevel.maxCombo;
-            coinCollector.comboSpeedStages = currentLevel.comboSpeedStages;
-            coinCollector.comboSpeedStages = currentLevel.comboSpeedStages;
-        }
 
         if (playerMovement != null)
         {
-            playerMovement.speed = currentLevel.playerMoveSpeed;
-            playerMovement.comboSpeedBonus = currentLevel.playerComboSpeedBonus;
-            playerMovement.comboSpeedStages = currentLevel.comboSpeedStages;
+            playerMovement.speed =
+                currentLevel.playerMoveSpeed;
+
+            playerMovement.comboSpeedBonus =
+                currentLevel.playerComboSpeedBonus;
+
+            playerMovement.comboSpeedStages =
+                currentLevel.comboSpeedStages;
         }
 
         if (playerDash != null)
         {
-            playerDash.enabled = currentLevel.dashEnabled;
-            playerDash.dashDistance = currentLevel.dashDistance;
-            playerDash.dashDuration = currentLevel.dashDuration;
-            playerDash.dashCooldown = currentLevel.dashCooldown;
+            playerDash.enabled =
+                currentLevel.dashEnabled;
+
+            playerDash.dashDistance =
+                currentLevel.dashDistance;
+
+            playerDash.dashDuration =
+                currentLevel.dashDuration;
+
+            playerDash.dashCooldown =
+                currentLevel.dashCooldown;
         }
 
         if (playerArmor != null)
-            playerArmor.immuneDuration = currentLevel.armorImmuneDuration;
+        {
+            playerArmor.immuneDuration =
+                currentLevel.armorImmuneDuration;
+        }
 
-        SetUIVisible(dashButton, currentLevel.dashEnabled);
-        SetUIVisible(cloneButton, currentLevel.cloneEnabled);
+        SetUIVisible(
+            dashButton,
+            currentLevel.dashEnabled
+        );
+
+        SetUIVisible(
+            cloneButton,
+            currentLevel.cloneEnabled
+        );
 
         if (voidCloneAbility != null)
         {
-            voidCloneAbility.enabled = currentLevel.cloneEnabled;
-            voidCloneAbility.cloneDuration = currentLevel.cloneDuration;
-            voidCloneAbility.SetCloneCooldown(currentLevel.cloneCooldown);
-            voidCloneAbility.SetCloneUses(currentLevel.cloneUses);
+            voidCloneAbility.enabled =
+                currentLevel.cloneEnabled;
+
+            voidCloneAbility.cloneDuration =
+                currentLevel.cloneDuration;
+
+            voidCloneAbility.SetCloneCooldown(
+                currentLevel.cloneCooldown
+            );
+
+            voidCloneAbility.SetCloneUses(
+                currentLevel.cloneUses
+            );
         }
     }
 
@@ -126,13 +164,26 @@ public class LevelManager : MonoBehaviour
     {
         if (coinCollector != null)
         {
-            coinCollector.comboEnabled = currentLevel.comboEnabled;
-            coinCollector.comboTimeLimit = currentLevel.comboTimeLimit;
-            coinCollector.maxCombo = currentLevel.maxCombo;
+            coinCollector.comboEnabled =
+                currentLevel.comboEnabled;
+
+            coinCollector.comboTimeLimit =
+                currentLevel.comboTimeLimit;
+
+            coinCollector.maxCombo =
+                currentLevel.maxCombo;
+
+            coinCollector.comboSpeedStages =
+                currentLevel.comboSpeedStages;
         }
 
         if (comboUI != null)
-            SetUIVisible(comboUI.gameObject, currentLevel.comboEnabled);
+        {
+            SetUIVisible(
+                comboUI.gameObject,
+                currentLevel.comboEnabled
+            );
+        }
     }
 
     private void ApplyBackground()
@@ -145,7 +196,9 @@ public class LevelManager : MonoBehaviour
                 ? GenerateRandomNearStarsColor()
                 : currentLevel.nearStarsColor;
 
-        var main = nearStars.main;
+        ParticleSystem.MainModule main =
+            nearStars.main;
+
         main.startColor = selectedColor;
 
         main.startSpeed =
@@ -156,42 +209,109 @@ public class LevelManager : MonoBehaviour
             originalNearStarsSize *
             currentLevel.nearStarsSizeMultiplier;
 
-        var emission = nearStars.emission;
+        ParticleSystem.EmissionModule emission =
+            nearStars.emission;
+
         emission.rateOverTime =
             currentLevel.nearStarsEmissionRate;
+
+        ApplyColorToExistingParticles(selectedColor);
+    }
+
+    private void ApplyColorToExistingParticles(Color color)
+    {
+        if (nearStars == null)
+            return;
+
+        int maxParticles =
+            nearStars.main.maxParticles;
+
+        if (maxParticles <= 0)
+            return;
+
+        ParticleSystem.Particle[] particles =
+            new ParticleSystem.Particle[maxParticles];
+
+        int particleCount =
+            nearStars.GetParticles(particles);
+
+        for (int i = 0; i < particleCount; i++)
+            particles[i].startColor = color;
+
+        if (particleCount > 0)
+        {
+            nearStars.SetParticles(
+                particles,
+                particleCount
+            );
+        }
     }
 
     private Color GenerateRandomNearStarsColor()
     {
         return Random.ColorHSV(
-            0f, 1f,     // Hue
-            0.65f, 1f,  // Saturation
-            0.8f, 1f    // Value
+            0f,
+            1f,
+            0.65f,
+            1f,
+            0.8f,
+            1f,
+            1f,
+            1f
         );
     }
 
     private void ApplyCoins()
     {
-        if (coinManager == null) return;
+        if (coinManager == null)
+            return;
 
-        coinManager.spawnInterval = currentLevel.coinSpawnInterval;
-        coinManager.maxCoinCount = currentLevel.maxCoinCount;
-        coinManager.normalCoinChance = currentLevel.normalCoinEnabled ? currentLevel.normalCoinChance : 0f;
-        coinManager.goldCoinChance = currentLevel.goldCoinEnabled ? currentLevel.goldCoinChance : 0f;
-        coinManager.rareCoinChance = currentLevel.rareCoinEnabled ? currentLevel.rareCoinChance : 0f;
-        coinManager.normalCoinValue = currentLevel.normalCoinValue;
-        coinManager.goldCoinValue = currentLevel.goldCoinValue;
-        coinManager.rareCoinValue = currentLevel.rareCoinValue;
+        coinManager.spawnInterval =
+            currentLevel.coinSpawnInterval;
+
+        coinManager.maxCoinCount =
+            currentLevel.maxCoinCount;
+
+        coinManager.normalCoinChance =
+            currentLevel.normalCoinEnabled
+                ? currentLevel.normalCoinChance
+                : 0f;
+
+        coinManager.goldCoinChance =
+            currentLevel.goldCoinEnabled
+                ? currentLevel.goldCoinChance
+                : 0f;
+
+        coinManager.rareCoinChance =
+            currentLevel.rareCoinEnabled
+                ? currentLevel.rareCoinChance
+                : 0f;
+
+        coinManager.normalCoinValue =
+            currentLevel.normalCoinValue;
+
+        coinManager.goldCoinValue =
+            currentLevel.goldCoinValue;
+
+        coinManager.rareCoinValue =
+            currentLevel.rareCoinValue;
+
         coinManager.ResetSpawner();
     }
 
     private void ApplyObstacles()
     {
-        if (obstacleSpawner == null) return;
+        if (obstacleSpawner == null)
+            return;
 
-        obstacleSpawner.levelObstacles = currentLevel.levelObstacles;
-        obstacleSpawner.obstacleSpawnMode = currentLevel.obstacleSpawnMode;
-        obstacleSpawner.randomObstacleCount = currentLevel.randomObstacleCount;
+        obstacleSpawner.levelObstacles =
+            currentLevel.levelObstacles;
+
+        obstacleSpawner.obstacleSpawnMode =
+            currentLevel.obstacleSpawnMode;
+
+        obstacleSpawner.randomObstacleCount =
+            currentLevel.randomObstacleCount;
 
         obstacleSpawner.ClearObstacles();
         obstacleSpawner.SpawnObstacles();
@@ -199,47 +319,122 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyEnemies()
     {
-        if (enemySpawner == null) return;
+        if (enemySpawner == null)
+            return;
 
-        enemySpawner.normalEnemyCount = currentLevel.normalEnemyCount;
-        enemySpawner.normalEnemySpawnInterval = currentLevel.normalEnemySpawnInterval;
-
-        enemySpawner.projectileEnemyCount = currentLevel.projectileEnemyCount;
-        enemySpawner.projectileEnemySpawnInterval = currentLevel.projectileEnemySpawnInterval;
-
-        enemySpawner.hunterEnemyCount = currentLevel.hunterEnemyCount;
-        enemySpawner.hunterEnemySpawnInterval = currentLevel.hunterEnemySpawnInterval;
-
-        enemySpawner.normalMinStartSpeed = currentLevel.normalMinStartSpeed;
-        enemySpawner.normalMaxStartSpeed = currentLevel.normalMaxStartSpeed;
-        enemySpawner.normalMaxSpeed = currentLevel.normalMaxSpeed;
-        enemySpawner.normalSpeedIncreaseRate = currentLevel.normalSpeedIncreaseRate;
-
-        enemySpawner.projectileMoveSpeed = currentLevel.projectileMoveSpeed;
-        enemySpawner.projectileStoppingDistance = currentLevel.projectileStoppingDistance;
-        enemySpawner.projectileRetreatDistance = currentLevel.projectileRetreatDistance;
-        enemySpawner.projectileFireRate = currentLevel.projectileFireRate;
-        enemySpawner.projectileSpeed = currentLevel.projectileSpeed;
-
-        enemySpawner.hunterRepositionTime = currentLevel.hunterRepositionTime;
-        enemySpawner.hunterWarningDuration = currentLevel.hunterWarningDuration;
-        enemySpawner.hunterChargeSpeed = currentLevel.hunterChargeSpeed;
-        enemySpawner.hunterStunDuration = currentLevel.hunterStunDuration;
-
-        enemySpawner.bossEnabled = currentLevel.bossEnabled;
-        enemySpawner.bossSpawnScore = currentLevel.bossSpawnScore;
-        enemySpawner.bossSpeed = currentLevel.bossSpeed;
-        enemySpawner.bossCanSplit = currentLevel.bossCanSplit;
-        enemySpawner.bossSplitDelay = currentLevel.bossSplitDelay;
-        enemySpawner.bossSplitDistance = currentLevel.bossSplitDistance;
-        enemySpawner.miniBossSpeed = currentLevel.miniBossSpeed;
+        ApplyNormalEnemySettings();
+        ApplyProjectileEnemySettings();
+        ApplyHunterEnemySettings();
+        ApplyBossSettings();
 
         enemySpawner.ResetSpawner();
     }
 
+    private void ApplyNormalEnemySettings()
+    {
+        enemySpawner.normalEnemyCount =
+            currentLevel.normalEnemyCount;
+
+        enemySpawner.normalEnemySpawnInterval =
+            currentLevel.normalEnemySpawnInterval;
+
+        enemySpawner.normalMinStartSpeed =
+            currentLevel.normalMinStartSpeed;
+
+        enemySpawner.normalMaxStartSpeed =
+            currentLevel.normalMaxStartSpeed;
+
+        enemySpawner.normalMaxSpeed =
+            currentLevel.normalMaxSpeed;
+
+        enemySpawner.normalSpeedIncreaseRate =
+            currentLevel.normalSpeedIncreaseRate;
+    }
+
+    private void ApplyProjectileEnemySettings()
+    {
+        enemySpawner.projectileEnemyCount =
+            currentLevel.projectileEnemyCount;
+
+        enemySpawner.projectileEnemySpawnInterval =
+            currentLevel.projectileEnemySpawnInterval;
+
+        enemySpawner.projectileMoveSpeed =
+            currentLevel.projectileMoveSpeed;
+
+        enemySpawner.projectileStoppingDistance =
+            currentLevel.projectileStoppingDistance;
+
+        enemySpawner.projectileRetreatDistance =
+            currentLevel.projectileRetreatDistance;
+
+        enemySpawner.projectileFireRate =
+            currentLevel.projectileFireRate;
+
+        enemySpawner.projectileSpeed =
+            currentLevel.projectileSpeed;
+    }
+
+    private void ApplyHunterEnemySettings()
+    {
+        enemySpawner.hunterEnemyCount =
+            currentLevel.hunterEnemyCount;
+
+        enemySpawner.hunterEnemySpawnInterval =
+            currentLevel.hunterEnemySpawnInterval;
+
+        enemySpawner.hunterRepositionTime =
+            currentLevel.hunterRepositionTime;
+
+        enemySpawner.hunterWarningDuration =
+            currentLevel.hunterWarningDuration;
+
+        enemySpawner.hunterChargeSpeed =
+            currentLevel.hunterChargeSpeed;
+
+        enemySpawner.hunterStunDuration =
+            currentLevel.hunterStunDuration;
+    }
+
+    private void ApplyBossSettings()
+    {
+        enemySpawner.bossEnabled =
+            currentLevel.bossEnabled;
+
+        enemySpawner.bossSpawnScore =
+            currentLevel.bossSpawnScore;
+
+        enemySpawner.bossSpeed =
+            currentLevel.bossSpeed;
+
+        enemySpawner.bossCanSplit =
+            currentLevel.bossCanSplit;
+
+        enemySpawner.bossSplitDelay =
+            currentLevel.bossSplitDelay;
+
+        enemySpawner.bossSplitDistance =
+            currentLevel.bossSplitDistance;
+
+        enemySpawner.miniBossSpeed =
+            currentLevel.miniBossSpeed;
+    }
+
     private void ApplyBeaconEnemy()
     {
-        if (beaconEnemySpawner == null) return;
+        if (beaconEnemySpawner == null)
+        {
+            if (currentLevel.beaconEnemyCount > 0)
+            {
+                Debug.LogWarning(
+                    "[LevelManager] Beacon enemy açık fakat " +
+                    "BeaconEnemySpawner bulunamadı.",
+                    this
+                );
+            }
+
+            return;
+        }
 
         beaconEnemySpawner.ApplyLevelSettings(
             currentLevel.beaconEnemyCount,
@@ -264,7 +459,20 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyPowerUps()
     {
-        if (powerUpSpawner == null) return;
+        if (powerUpSpawner == null)
+        {
+            if (currentLevel.slowEnabled ||
+                currentLevel.armorEnabled)
+            {
+                Debug.LogWarning(
+                    "[LevelManager] Power-up açık fakat " +
+                    "PowerUpSpawner bulunamadı.",
+                    this
+                );
+            }
+
+            return;
+        }
 
         powerUpSpawner.ApplyLevelSettings(
             currentLevel.slowEnabled,
@@ -280,91 +488,110 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyLasersAndTraps()
     {
-        ResolveLaserSpawnerReferences();
-
-        if (verticalLaserSpawner != null)
-        {
-            verticalLaserSpawner.gameObject.SetActive(
-                currentLevel.verticalLaserEnabled
-            );
-
-            if (currentLevel.verticalLaserEnabled)
-            {
-                verticalLaserSpawner.ApplyLevelSettings(
-                    currentLevel.verticalLaserMinSpawnTime,
-                    currentLevel.verticalLaserMaxSpawnTime,
-                    currentLevel.verticalLaserWarningDuration,
-                    currentLevel.verticalLaserLifeTime,
-                    currentLevel.verticalLaserWidth,
-                    currentLevel.verticalLaserHeightExtra
-                );
-            }
-        }
-        else if (currentLevel.verticalLaserEnabled)
-        {
-            Debug.LogError(
-                "[LevelManager] Vertical Laser açık fakat " +
-                "LaserWallSpawner bulunamadı.",
-                this
-            );
-        }
-
-        if (horizontalLaserSpawner != null)
-        {
-            if (!currentLevel.horizontalLaserEnabled)
-            {
-                horizontalLaserSpawner.StopLaserSystem();
-                horizontalLaserSpawner.gameObject.SetActive(false);
-            }
-            else
-            {
-                horizontalLaserSpawner.gameObject.SetActive(true);
-
-                Debug.Log(
-                    $"[LevelManager] Horizontal Laser uygulanıyor | " +
-                    $"Min: {currentLevel.horizontalLaserMinSpawnTime} | " +
-                    $"Max: {currentLevel.horizontalLaserMaxSpawnTime}",
-                    this
-                );
-
-                horizontalLaserSpawner.ApplyLevelSettings(
-                    currentLevel.horizontalLaserMinSpawnTime,
-                    currentLevel.horizontalLaserMaxSpawnTime,
-                    currentLevel.horizontalLaserWarningDuration,
-                    currentLevel.horizontalLaserLifeTime,
-                    currentLevel.horizontalLaserWidth,
-                    currentLevel.horizontalLaserWidthExtra
-                );
-            }
-        }
-        else if (currentLevel.horizontalLaserEnabled)
-        {
-            Debug.LogError(
-                "[LevelManager] Horizontal Laser açık fakat " +
-                "HorizontalLaserWallSpawner bulunamadı. " +
-                "Sahnedeki spawner objesini ve componentini kontrol et.",
-                this
-            );
-        }
-
-        if (bombTrapSpawner != null)
-        {
-            bombTrapSpawner.gameObject.SetActive(
-                currentLevel.bombTrapEnabled
-            );
-
-            if (currentLevel.bombTrapEnabled)
-            {
-                bombTrapSpawner.ApplyLevelSettings(
-                    currentLevel.bombMinSpawnTime,
-                    currentLevel.bombMaxSpawnTime,
-                    currentLevel.maxBombCount
-                );
-            }
-        }
+        ApplyVerticalLaser();
+        ApplyHorizontalLaser();
+        ApplyBombTraps();
     }
 
-    private void ResolveLaserSpawnerReferences()
+    private void ApplyVerticalLaser()
+    {
+        if (verticalLaserSpawner == null)
+        {
+            if (currentLevel.verticalLaserEnabled)
+            {
+                Debug.LogError(
+                    "[LevelManager] Vertical Laser açık fakat " +
+                    "LaserWallSpawner bulunamadı.",
+                    this
+                );
+            }
+
+            return;
+        }
+
+        verticalLaserSpawner.gameObject.SetActive(
+            currentLevel.verticalLaserEnabled
+        );
+
+        if (!currentLevel.verticalLaserEnabled)
+            return;
+
+        verticalLaserSpawner.ApplyLevelSettings(
+            currentLevel.verticalLaserMinSpawnTime,
+            currentLevel.verticalLaserMaxSpawnTime,
+            currentLevel.verticalLaserWarningDuration,
+            currentLevel.verticalLaserLifeTime,
+            currentLevel.verticalLaserWidth,
+            currentLevel.verticalLaserHeightExtra
+        );
+    }
+
+    private void ApplyHorizontalLaser()
+    {
+        if (horizontalLaserSpawner == null)
+        {
+            if (currentLevel.horizontalLaserEnabled)
+            {
+                Debug.LogError(
+                    "[LevelManager] Horizontal Laser açık fakat " +
+                    "HorizontalLaserWallSpawner bulunamadı.",
+                    this
+                );
+            }
+
+            return;
+        }
+
+        if (!currentLevel.horizontalLaserEnabled)
+        {
+            horizontalLaserSpawner.StopLaserSystem();
+            horizontalLaserSpawner.gameObject.SetActive(false);
+            return;
+        }
+
+        horizontalLaserSpawner.gameObject.SetActive(true);
+
+        horizontalLaserSpawner.ApplyLevelSettings(
+            currentLevel.horizontalLaserMinSpawnTime,
+            currentLevel.horizontalLaserMaxSpawnTime,
+            currentLevel.horizontalLaserWarningDuration,
+            currentLevel.horizontalLaserLifeTime,
+            currentLevel.horizontalLaserWidth,
+            currentLevel.horizontalLaserWidthExtra
+        );
+    }
+
+    private void ApplyBombTraps()
+    {
+        if (bombTrapSpawner == null)
+        {
+            if (currentLevel.bombTrapEnabled)
+            {
+                Debug.LogError(
+                    "[LevelManager] Bomb Trap açık fakat " +
+                    "SpaceBombSpawner bulunamadı.",
+                    this
+                );
+            }
+
+            return;
+        }
+
+        bombTrapSpawner.gameObject.SetActive(
+            currentLevel.bombTrapEnabled
+        );
+
+        if (!currentLevel.bombTrapEnabled)
+            return;
+
+        bombTrapSpawner.ApplyLevelSettings(
+            currentLevel.bombMinSpawnTime,
+            currentLevel.bombMaxSpawnTime,
+            currentLevel.maxBombCount
+        );
+    }
+
+    private void ResolveSpawnerReferences()
     {
         if (verticalLaserSpawner == null)
         {
@@ -381,29 +608,55 @@ public class LevelManager : MonoBehaviour
                     FindObjectsInactive.Include
                 );
         }
+
+        if (bombTrapSpawner == null)
+        {
+            bombTrapSpawner =
+                FindAnyObjectByType<SpaceBombSpawner>(
+                    FindObjectsInactive.Include
+                );
+        }
     }
 
     private void CacheStarDefaults()
     {
-        if (nearStars == null) return;
+        if (nearStars == null)
+            return;
 
-        var main = nearStars.main;
-        originalNearStarsSpeed = main.startSpeed.constant;
-        originalNearStarsSize = main.startSize.constant;
+        ParticleSystem.MainModule main =
+            nearStars.main;
+
+        originalNearStarsSpeed =
+            main.startSpeed.constant;
+
+        originalNearStarsSize =
+            main.startSize.constant;
     }
 
-    private void SetUIVisible(GameObject obj, bool visible)
+    private void SetUIVisible(
+        GameObject obj,
+        bool visible
+    )
     {
-        if (obj == null) return;
+        if (obj == null)
+            return;
 
-        obj.SetActive(true);
+        if (!obj.activeSelf)
+            obj.SetActive(true);
 
-        CanvasGroup group = obj.GetComponent<CanvasGroup>();
+        CanvasGroup group =
+            obj.GetComponent<CanvasGroup>();
+
         if (group == null)
             group = obj.AddComponent<CanvasGroup>();
 
-        group.alpha = visible ? 1f : 0f;
-        group.interactable = visible;
-        group.blocksRaycasts = visible;
+        group.alpha =
+            visible ? 1f : 0f;
+
+        group.interactable =
+            visible;
+
+        group.blocksRaycasts =
+            visible;
     }
 }

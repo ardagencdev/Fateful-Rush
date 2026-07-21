@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TimeSlowController : MonoBehaviour
 {
-    public static TimeSlowController Instance;
+    public static TimeSlowController Instance { get; private set; }
 
     private float originalFixedDeltaTime;
     private Coroutine slowRoutine;
@@ -22,7 +22,6 @@ public class TimeSlowController : MonoBehaviour
         Instance = this;
 
         originalFixedDeltaTime = Time.fixedDeltaTime;
-        Time.timeScale = 1f;
 
         player = FindAnyObjectByType<PlayerMovement>();
         pauseMenu = FindAnyObjectByType<GameQuit>();
@@ -30,18 +29,31 @@ public class TimeSlowController : MonoBehaviour
 
     public void StartSlow(float multiplier, float duration)
     {
-        if (IsGameOver()) return;
+        if (IsGameOver())
+            return;
+
+        multiplier = Mathf.Clamp(multiplier, 0.01f, 1f);
+        duration = Mathf.Max(0f, duration);
 
         if (slowRoutine != null)
+        {
             StopCoroutine(slowRoutine);
+            slowRoutine = null;
+        }
 
-        slowRoutine = StartCoroutine(SlowRoutine(multiplier, duration));
+        SlowPowerUp.isSlowActive = true;
+        SlowPowerUp.currentSlowMultiplier = multiplier;
+
+        slowRoutine = StartCoroutine(
+            SlowRoutine(multiplier, duration)
+        );
     }
 
-    private IEnumerator SlowRoutine(float multiplier, float duration)
+    private IEnumerator SlowRoutine(
+        float multiplier,
+        float duration)
     {
-        Time.timeScale = multiplier;
-        Time.fixedDeltaTime = originalFixedDeltaTime * multiplier;
+        ApplySlow(multiplier);
 
         float timer = 0f;
 
@@ -54,10 +66,16 @@ public class TimeSlowController : MonoBehaviour
             }
 
             if (pauseMenu == null)
-                pauseMenu = FindAnyObjectByType<GameQuit>();
+            {
+                pauseMenu =
+                    FindAnyObjectByType<GameQuit>();
+            }
 
-            if (pauseMenu == null || !pauseMenu.IsPaused)
+            if (pauseMenu == null ||
+                !pauseMenu.IsPaused)
+            {
                 timer += Time.unscaledDeltaTime;
+            }
 
             yield return null;
         }
@@ -67,36 +85,55 @@ public class TimeSlowController : MonoBehaviour
 
     public void ResetTime()
     {
-        Time.fixedDeltaTime = originalFixedDeltaTime;
+        if (slowRoutine != null)
+        {
+            StopCoroutine(slowRoutine);
+            slowRoutine = null;
+        }
 
         SlowPowerUp.isSlowActive = false;
-        slowRoutine = null;
+        SlowPowerUp.currentSlowMultiplier = 1f;
+
+        Time.fixedDeltaTime =
+            originalFixedDeltaTime;
 
         if (IsGameOver())
             return;
 
         if (pauseMenu == null)
-            pauseMenu = FindAnyObjectByType<GameQuit>();
+        {
+            pauseMenu =
+                FindAnyObjectByType<GameQuit>();
+        }
 
-        if (pauseMenu != null && pauseMenu.IsPaused)
-            Time.timeScale = 0f;
-        else
-            Time.timeScale = 1f;
+        Time.timeScale =
+            pauseMenu != null &&
+            pauseMenu.IsPaused
+                ? 0f
+                : 1f;
     }
 
     public void ResumeAfterPause()
     {
-        if (IsGameOver()) return;
+        if (IsGameOver())
+            return;
 
         if (SlowPowerUp.isSlowActive)
         {
-            Time.timeScale = SlowPowerUp.currentSlowMultiplier;
-            Time.fixedDeltaTime = originalFixedDeltaTime * SlowPowerUp.currentSlowMultiplier;
+            float multiplier =
+                Mathf.Clamp(
+                    SlowPowerUp.currentSlowMultiplier,
+                    0.01f,
+                    1f
+                );
+
+            ApplySlow(multiplier);
         }
         else
         {
             Time.timeScale = 1f;
-            Time.fixedDeltaTime = originalFixedDeltaTime;
+            Time.fixedDeltaTime =
+                originalFixedDeltaTime;
         }
     }
 
@@ -109,14 +146,59 @@ public class TimeSlowController : MonoBehaviour
         }
 
         SlowPowerUp.isSlowActive = false;
-        Time.fixedDeltaTime = originalFixedDeltaTime;
+        SlowPowerUp.currentSlowMultiplier = 1f;
+
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime =
+            originalFixedDeltaTime;
+    }
+
+    private void ApplySlow(float multiplier)
+    {
+        Time.timeScale = multiplier;
+
+        Time.fixedDeltaTime =
+            originalFixedDeltaTime * multiplier;
     }
 
     private bool IsGameOver()
     {
         if (player == null)
-            player = FindAnyObjectByType<PlayerMovement>();
+        {
+            player =
+                FindAnyObjectByType<PlayerMovement>();
+        }
 
-        return player != null && player.IsGameOver;
+        return player != null &&
+               player.IsGameOver;
+    }
+
+    private void OnDisable()
+    {
+        CleanupTimeState();
+    }
+
+    private void OnDestroy()
+    {
+        CleanupTimeState();
+
+        if (Instance == this)
+            Instance = null;
+    }
+
+    private void CleanupTimeState()
+    {
+        if (slowRoutine != null)
+        {
+            StopCoroutine(slowRoutine);
+            slowRoutine = null;
+        }
+
+        SlowPowerUp.isSlowActive = false;
+        SlowPowerUp.currentSlowMultiplier = 1f;
+
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime =
+            originalFixedDeltaTime;
     }
 }

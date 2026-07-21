@@ -43,11 +43,11 @@ MonoBehaviour:
   - comboMultiplier: 3
     coinsRequired: 5
     playerSpeedMultiplier: 1.5
+  randomizeNearStarsColor: 1
   nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1
   nearStarsEmissionRate: 30
-  randomizeNearStarsColor: 1
   coinSpawnInterval: 1
   maxCoinCount: 8
   normalCoinChance: 70

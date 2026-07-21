@@ -13200,7 +13200,6 @@ GameObject:
   - component: {fileID: 930414939}
   - component: {fileID: 930414941}
   - component: {fileID: 930414940}
-  - component: {fileID: 930414942}
   m_Layer: 0
   m_Name: NearStars
   m_TagString: Untagged
@@ -18026,20 +18025,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!114 &930414942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 930414938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2e66a9e68792764fb5203196d703477, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NearStarsBlackHoleController
-  globalMultiplier: 0.8
-  maxParticleSpeed: 7
 --- !u!1 &934371194
 GameObject:
   m_ObjectHideFlags: 0
@@ -18886,9 +18871,7 @@ MonoBehaviour:
   horizontalLaserWallSpawner: {fileID: 653434498}
   obstacleSpawner: {fileID: 1062955815}
   tutorialPanelUI: {fileID: 178901137}
-  gameplayMusicSource: {fileID: 1117733028}
-  gameplayMusicFadeInDuration: 0.45
-  gameplayMusicBaseVolume: 1
+  gameplayMusic: {fileID: 1117733029}
   scoreHUD: {fileID: 1262024874}
   timeHUD: {fileID: 1827781981}
   joystickHUD: {fileID: 1318913965}
@@ -19373,7 +19356,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1117733026}
   - component: {fileID: 1117733028}
-  - component: {fileID: 1117733027}
   - component: {fileID: 1117733029}
   m_Layer: 0
   m_Name: MusicManager
@@ -19397,20 +19379,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1117733027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1117733025}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddcda9aec3ba08541bb1930fd8f48dbf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AudioSettingsApply
-  soundType: 0
-  audioSource: {fileID: 1117733028}
 --- !u!82 &1117733028
 AudioSource:
   m_ObjectHideFlags: 0
@@ -19423,7 +19391,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 6d07178cb2390b84b8ec85774517c708, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1

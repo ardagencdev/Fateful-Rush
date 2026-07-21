@@ -20,19 +20,24 @@ public class SlowScreenEffect : MonoBehaviour
 
     private Coroutine effectRoutine;
     private Coroutine zoomRoutine;
-    private float originalCameraSize;
+
+    private Texture2D generatedVignetteTexture;
+
+    private float baseCameraSize;
+    private bool cameraSizeCached;
 
     private void Awake()
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
 
-        if (mainCamera != null)
-            originalCameraSize = mainCamera.orthographicSize;
+        CacheCameraSize();
 
         if (vignetteImage != null)
         {
-            vignetteImage.texture = CreateVignetteTexture(512, 512);
+            generatedVignetteTexture = CreateVignetteTexture(512, 512);
+
+            vignetteImage.texture = generatedVignetteTexture;
             vignetteImage.color = new Color(0f, 0f, 0f, 0f);
             vignetteImage.raycastTarget = false;
         }
@@ -40,11 +45,10 @@ public class SlowScreenEffect : MonoBehaviour
 
     public void PlayEffect(float duration)
     {
-        if (effectRoutine != null)
-            StopCoroutine(effectRoutine);
+        duration = Mathf.Max(0f, duration);
 
-        if (zoomRoutine != null)
-            StopCoroutine(zoomRoutine);
+        StopEffectRoutine();
+        StopZoomRoutineAndRestoreCamera();
 
         effectRoutine = StartCoroutine(EffectRoutine(duration));
         zoomRoutine = StartCoroutine(CameraPulseRoutine());
@@ -52,90 +56,244 @@ public class SlowScreenEffect : MonoBehaviour
 
     private IEnumerator EffectRoutine(float duration)
     {
-        yield return FadeVignette(0f, vignetteAlpha, vignetteFadeIn);
+        if (vignetteImage == null)
+        {
+            effectRoutine = null;
+            yield break;
+        }
 
-        yield return new WaitForSecondsRealtime(duration);
+        float currentAlpha = vignetteImage.color.a;
 
-        yield return FadeVignette(vignetteAlpha, 0f, vignetteFadeOut);
+        yield return FadeVignette(
+            currentAlpha,
+            vignetteAlpha,
+            vignetteFadeIn
+        );
+
+        if (duration > 0f)
+            yield return new WaitForSecondsRealtime(duration);
+
+        currentAlpha = vignetteImage.color.a;
+
+        yield return FadeVignette(
+            currentAlpha,
+            0f,
+            vignetteFadeOut
+        );
 
         effectRoutine = null;
     }
 
     private IEnumerator CameraPulseRoutine()
     {
-        if (mainCamera == null) yield break;
-
-        originalCameraSize = mainCamera.orthographicSize;
-        float targetSize = originalCameraSize - zoomAmount;
-
-        float time = 0f;
-
-        while (time < zoomInDuration)
+        if (mainCamera == null)
         {
-            time += Time.unscaledDeltaTime;
-            float t = time / zoomInDuration;
-
-            mainCamera.orthographicSize = Mathf.Lerp(originalCameraSize, targetSize, t);
-
-            yield return null;
+            zoomRoutine = null;
+            yield break;
         }
 
-        time = 0f;
+        CacheCameraSize();
 
-        while (time < zoomOutDuration)
-        {
-            time += Time.unscaledDeltaTime;
-            float t = time / zoomOutDuration;
+        float targetSize = Mathf.Max(
+            0.01f,
+            baseCameraSize - Mathf.Max(0f, zoomAmount)
+        );
 
-            mainCamera.orthographicSize = Mathf.Lerp(targetSize, originalCameraSize, t);
+        yield return AnimateCameraSize(
+            baseCameraSize,
+            targetSize,
+            zoomInDuration
+        );
 
-            yield return null;
-        }
+        yield return AnimateCameraSize(
+            targetSize,
+            baseCameraSize,
+            zoomOutDuration
+        );
 
-        mainCamera.orthographicSize = originalCameraSize;
+        mainCamera.orthographicSize = baseCameraSize;
         zoomRoutine = null;
     }
 
-    private IEnumerator FadeVignette(float from, float to, float duration)
+    private IEnumerator AnimateCameraSize(
+        float from,
+        float to,
+        float duration)
     {
-        if (vignetteImage == null) yield break;
+        if (mainCamera == null)
+            yield break;
+
+        if (duration <= 0f)
+        {
+            mainCamera.orthographicSize = to;
+            yield break;
+        }
 
         float time = 0f;
 
         while (time < duration)
         {
             time += Time.unscaledDeltaTime;
-            float t = time / duration;
 
-            float alpha = Mathf.Lerp(from, to, t);
-            vignetteImage.color = new Color(0f, 0f, 0f, alpha);
+            float t = Mathf.Clamp01(time / duration);
+
+            mainCamera.orthographicSize =
+                Mathf.Lerp(from, to, t);
 
             yield return null;
         }
 
-        vignetteImage.color = new Color(0f, 0f, 0f, to);
+        mainCamera.orthographicSize = to;
     }
 
-    private Texture2D CreateVignetteTexture(int width, int height)
+    private IEnumerator FadeVignette(
+        float from,
+        float to,
+        float duration)
     {
-        Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        if (vignetteImage == null)
+            yield break;
 
-        Vector2 center = new Vector2(width / 2f, height / 2f);
-        float maxDistance = Vector2.Distance(Vector2.zero, center);
+        if (duration <= 0f)
+        {
+            SetVignetteAlpha(to);
+            yield break;
+        }
+
+        float time = 0f;
+
+        while (time < duration)
+        {
+            time += Time.unscaledDeltaTime;
+
+            float t = Mathf.Clamp01(time / duration);
+            float alpha = Mathf.Lerp(from, to, t);
+
+            SetVignetteAlpha(alpha);
+
+            yield return null;
+        }
+
+        SetVignetteAlpha(to);
+    }
+
+    private void CacheCameraSize()
+    {
+        if (mainCamera == null || cameraSizeCached)
+            return;
+
+        baseCameraSize = mainCamera.orthographicSize;
+        cameraSizeCached = true;
+    }
+
+    private void StopEffectRoutine()
+    {
+        if (effectRoutine == null)
+            return;
+
+        StopCoroutine(effectRoutine);
+        effectRoutine = null;
+    }
+
+    private void StopZoomRoutineAndRestoreCamera()
+    {
+        if (zoomRoutine != null)
+        {
+            StopCoroutine(zoomRoutine);
+            zoomRoutine = null;
+        }
+
+        RestoreCameraSize();
+    }
+
+    private void RestoreCameraSize()
+    {
+        if (mainCamera == null || !cameraSizeCached)
+            return;
+
+        mainCamera.orthographicSize = baseCameraSize;
+    }
+
+    private void SetVignetteAlpha(float alpha)
+    {
+        if (vignetteImage == null)
+            return;
+
+        Color color = vignetteImage.color;
+        color.a = Mathf.Clamp01(alpha);
+
+        vignetteImage.color = color;
+    }
+
+    private Texture2D CreateVignetteTexture(
+        int width,
+        int height)
+    {
+        Texture2D texture = new Texture2D(
+            width,
+            height,
+            TextureFormat.RGBA32,
+            false
+        );
+
+        texture.name = "Runtime Slow Vignette";
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Bilinear;
+
+        Vector2 center = new Vector2(
+            width * 0.5f,
+            height * 0.5f
+        );
+
+        float maxDistance =
+            Vector2.Distance(Vector2.zero, center);
+
+        Color[] pixels = new Color[width * height];
 
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                float distance = Vector2.Distance(new Vector2(x, y), center);
-                float t = Mathf.InverseLerp(maxDistance * 0.35f, maxDistance, distance);
+                float distance = Vector2.Distance(
+                    new Vector2(x, y),
+                    center
+                );
+
+                float t = Mathf.InverseLerp(
+                    maxDistance * 0.35f,
+                    maxDistance,
+                    distance
+                );
+
                 t = Mathf.SmoothStep(0f, 1f, t);
 
-                texture.SetPixel(x, y, new Color(0f, 0f, 0f, t));
+                pixels[(y * width) + x] =
+                    new Color(0f, 0f, 0f, t);
             }
         }
 
-        texture.Apply();
+        texture.SetPixels(pixels);
+        texture.Apply(false, false);
+
         return texture;
+    }
+
+    private void OnDisable()
+    {
+        StopEffectRoutine();
+        StopZoomRoutineAndRestoreCamera();
+        SetVignetteAlpha(0f);
+    }
+
+    private void OnDestroy()
+    {
+        StopEffectRoutine();
+        StopZoomRoutineAndRestoreCamera();
+
+        if (generatedVignetteTexture != null)
+        {
+            Destroy(generatedVignetteTexture);
+            generatedVignetteTexture = null;
+        }
     }
 }

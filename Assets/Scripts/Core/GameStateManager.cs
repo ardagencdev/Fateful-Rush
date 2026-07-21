@@ -1,6 +1,6 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
 
 public class GameStateManager : MonoBehaviour
 {
@@ -20,9 +20,8 @@ public class GameStateManager : MonoBehaviour
     public TutorialPanelUI tutorialPanelUI;
 
     [Header("Gameplay Music")]
-    [SerializeField] private AudioSource gameplayMusicSource;
-    [SerializeField] private float gameplayMusicFadeInDuration = 0.45f;
-    [SerializeField] private float gameplayMusicBaseVolume = 1f;
+    [SerializeField]
+    private GameplayMusicFade gameplayMusic;
 
     [Header("HUD")]
     public GameObject scoreHUD;
@@ -33,52 +32,39 @@ public class GameStateManager : MonoBehaviour
     public GameObject pauseButtonHUD;
     public HUDIntroAnimator hudIntroAnimator;
 
-    private bool gameFrozen = false;
-    private float gameTimer = 0f;
+    private LevelManager levelManager;
+    private GameTimer gameTimerComponent;
+    private BossScreenEffect bossScreenEffect;
 
-    private Coroutine gameplayMusicRoutine;
+    private bool gameFrozen;
+    private bool gameEnded;
+    private float gameTimer;
 
     private void Awake()
     {
-        if (playerMovement == null)
-            playerMovement = FindAnyObjectByType<PlayerMovement>();
-
-        if (playerDash == null)
-            playerDash = FindAnyObjectByType<PlayerDash>();
-
-        if (laserWallSpawner == null)
-            laserWallSpawner = FindAnyObjectByType<LaserWallSpawner>();
-
-        if (horizontalLaserWallSpawner == null)
-            horizontalLaserWallSpawner = FindAnyObjectByType<HorizontalLaserWallSpawner>();
-
-        if (obstacleSpawner == null)
-            obstacleSpawner = FindAnyObjectByType<ObstacleSpawner>();
-
-        if (tutorialPanelUI == null)
-            tutorialPanelUI = FindAnyObjectByType<TutorialPanelUI>();
-
-        CacheGameplayMusic();
+        FindMissingReferences();
     }
 
     private IEnumerator Start()
     {
         Time.timeScale = 1f;
+
         IsGameplayStarted = false;
+        gameFrozen = false;
+        gameEnded = false;
         gameTimer = 0f;
 
-        CacheGameplayMusic();
-        StopGameplayMusicImmediately();
+        gameplayMusic?.StopImmediately();
 
         yield return null;
-
-        StopGameplayMusicImmediately();
 
         Vector3 playerTargetScale = Vector3.one;
 
         if (playerMovement != null)
         {
-            playerTargetScale = playerMovement.transform.localScale;
+            playerTargetScale =
+                playerMovement.transform.localScale;
+
             playerMovement.StopMovement();
             playerMovement.gameObject.SetActive(false);
         }
@@ -86,7 +72,6 @@ public class GameStateManager : MonoBehaviour
         SetHUD(false);
 
         LevelConfig currentLevel = null;
-        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
 
         if (levelManager != null)
         {
@@ -96,10 +81,18 @@ public class GameStateManager : MonoBehaviour
 
         bool levelAlreadyCompleted = false;
 
-        if (currentLevel != null && SelectedLevelData.isLevelMode)
+        if (currentLevel != null &&
+            SelectedLevelData.isLevelMode)
         {
+            string completedKey =
+                "CompletedLevel_" +
+                currentLevel.levelNumber;
+
             levelAlreadyCompleted =
-                PlayerPrefs.GetInt("CompletedLevel_" + currentLevel.levelNumber, 0) == 1;
+                PlayerPrefs.GetInt(
+                    completedKey,
+                    0
+                ) == 1;
         }
 
         bool shouldShowTutorial =
@@ -110,9 +103,10 @@ public class GameStateManager : MonoBehaviour
 
         if (shouldShowTutorial)
         {
-            StopGameplayMusicImmediately();
+            gameplayMusic?.StopImmediately();
 
-            yield return new WaitForSecondsRealtime(0.25f);
+            yield return
+                new WaitForSecondsRealtime(0.25f);
 
             bool tutorialClosed = false;
 
@@ -122,10 +116,12 @@ public class GameStateManager : MonoBehaviour
                 () => tutorialClosed = true
             );
 
-            yield return new WaitUntil(() => tutorialClosed);
+            yield return new WaitUntil(
+                () => tutorialClosed
+            );
         }
 
-        StartGameplayMusicFadeIn();
+        gameplayMusic?.PlayAndFadeIn();
 
         yield return null;
 
@@ -134,7 +130,9 @@ public class GameStateManager : MonoBehaviour
         if (hudIntroAnimator != null)
         {
             hudIntroAnimator.HideInstant();
-            yield return hudIntroAnimator.PlayAndWait();
+
+            yield return
+                hudIntroAnimator.PlayAndWait();
         }
         else
         {
@@ -142,42 +140,66 @@ public class GameStateManager : MonoBehaviour
         }
 
         if (obstacleSpawner != null)
-            yield return obstacleSpawner.PlaySpawnedObstaclePopupsAndWait();
+        {
+            yield return
+                obstacleSpawner
+                    .PlaySpawnedObstaclePopupsAndWait();
+        }
 
         if (playerMovement != null)
         {
             playerMovement.gameObject.SetActive(true);
-            playerMovement.transform.localScale = Vector3.zero;
+
+            playerMovement.transform.localScale =
+                Vector3.zero;
 
             float timer = 0f;
-            float duration = 0.18f;
+            const float duration = 0.18f;
 
             while (timer < duration)
             {
                 timer += Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(timer / duration);
+
+                float progress =
+                    Mathf.Clamp01(timer / duration);
 
                 float scale;
 
-                if (t < 0.75f)
+                if (progress < 0.75f)
                 {
-                    float p = t / 0.75f;
-                    scale = Mathf.Lerp(0f, 1.15f, p);
+                    float firstPhase =
+                        progress / 0.75f;
+
+                    scale = Mathf.Lerp(
+                        0f,
+                        1.15f,
+                        firstPhase
+                    );
                 }
                 else
                 {
-                    float p = (t - 0.75f) / 0.25f;
-                    scale = Mathf.Lerp(1.15f, 1f, p);
+                    float secondPhase =
+                        (progress - 0.75f) / 0.25f;
+
+                    scale = Mathf.Lerp(
+                        1.15f,
+                        1f,
+                        secondPhase
+                    );
                 }
 
-                playerMovement.transform.localScale = playerTargetScale * scale;
+                playerMovement.transform.localScale =
+                    playerTargetScale * scale;
+
                 yield return null;
             }
 
-            playerMovement.transform.localScale = playerTargetScale;
+            playerMovement.transform.localScale =
+                playerTargetScale;
         }
 
-        yield return new WaitForSecondsRealtime(0.05f);
+        yield return
+            new WaitForSecondsRealtime(0.05f);
 
         IsGameplayStarted = true;
     }
@@ -187,8 +209,14 @@ public class GameStateManager : MonoBehaviour
         if (!IsGameplayStarted)
             return;
 
-        if (playerMovement != null && playerMovement.IsGameOver)
+        if (gameEnded)
             return;
+
+        if (playerMovement != null &&
+            playerMovement.IsGameOver)
+        {
+            return;
+        }
 
         if (Time.timeScale <= 0f)
             return;
@@ -198,37 +226,69 @@ public class GameStateManager : MonoBehaviour
 
     public void WinGame(int score)
     {
+        if (gameEnded)
+            return;
+
+        gameEnded = true;
+        IsGameplayStarted = false;
+
         Time.timeScale = 1f;
 
         if (TimeSlowController.Instance != null)
-            TimeSlowController.Instance.ForceStopForGameEnd();
+        {
+            TimeSlowController.Instance
+                .ForceStopForGameEnd();
+        }
 
         StatsManager.AddRun();
         StatsManager.AddWin();
         StatsManager.AddPlayTime(gameTimer);
 
-        IsGameplayStarted = false;
-
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
 
-        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
-        string bestTimeKey = GetBestTimeKey(levelManager);
+        string bestTimeKey =
+            GetBestTimeKey();
 
-        float bestTime = PlayerPrefs.GetFloat(bestTimeKey, Mathf.Infinity);
+        float bestTime =
+            PlayerPrefs.GetFloat(
+                bestTimeKey,
+                Mathf.Infinity
+            );
 
         if (gameTimer < bestTime)
-            PlayerPrefs.SetFloat(bestTimeKey, gameTimer);
-
-        if (levelManager != null && levelManager.currentLevel != null && SelectedLevelData.isLevelMode)
         {
-            int levelNumber = levelManager.currentLevel.levelNumber;
-            int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
+            PlayerPrefs.SetFloat(
+                bestTimeKey,
+                gameTimer
+            );
+        }
+
+        if (levelManager != null &&
+            levelManager.currentLevel != null &&
+            SelectedLevelData.isLevelMode)
+        {
+            int levelNumber =
+                levelManager.currentLevel.levelNumber;
+
+            int unlockedLevel =
+                PlayerPrefs.GetInt(
+                    "UnlockedLevel",
+                    1
+                );
 
             if (levelNumber >= unlockedLevel)
-                PlayerPrefs.SetInt("UnlockedLevel", levelNumber + 1);
+            {
+                PlayerPrefs.SetInt(
+                    "UnlockedLevel",
+                    levelNumber + 1
+                );
+            }
 
-            PlayerPrefs.SetInt("CompletedLevel_" + levelNumber, 1);
+            PlayerPrefs.SetInt(
+                "CompletedLevel_" + levelNumber,
+                1
+            );
         }
 
         PlayerPrefs.Save();
@@ -237,10 +297,15 @@ public class GameStateManager : MonoBehaviour
         StopLaserSystems();
 
         if (gameResultUI != null)
-            gameResultUI.ShowWin(score, gameTimer);
+        {
+            gameResultUI.ShowWin(
+                score,
+                gameTimer
+            );
+        }
 
-        FindAnyObjectByType<GameTimer>()?.StopTimer();
-        FindAnyObjectByType<BossScreenEffect>()?.StopEffect();
+        gameTimerComponent?.StopTimer();
+        bossScreenEffect?.StopEffect();
 
         StopMusic();
 
@@ -252,16 +317,23 @@ public class GameStateManager : MonoBehaviour
 
     public void GameOver(int score)
     {
+        if (gameEnded)
+            return;
+
+        gameEnded = true;
+        IsGameplayStarted = false;
+
         Time.timeScale = 1f;
 
         if (TimeSlowController.Instance != null)
-            TimeSlowController.Instance.ForceStopForGameEnd();
+        {
+            TimeSlowController.Instance
+                .ForceStopForGameEnd();
+        }
 
         StatsManager.AddRun();
         StatsManager.AddDeath();
         StatsManager.AddPlayTime(gameTimer);
-
-        IsGameplayStarted = false;
 
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
@@ -273,10 +345,15 @@ public class GameStateManager : MonoBehaviour
         StopLaserSystems();
 
         if (gameResultUI != null)
-            gameResultUI.ShowLose(score, gameTimer);
+        {
+            gameResultUI.ShowLose(
+                score,
+                gameTimer
+            );
+        }
 
-        FindAnyObjectByType<GameTimer>()?.StopTimer();
-        FindAnyObjectByType<BossScreenEffect>()?.StopEffect();
+        gameTimerComponent?.StopTimer();
+        bossScreenEffect?.StopEffect();
 
         StopMusic();
 
@@ -286,130 +363,83 @@ public class GameStateManager : MonoBehaviour
         StartCoroutine(FreezeGameRoutine());
     }
 
-    private string GetBestTimeKey(LevelManager levelManager)
+    private string GetBestTimeKey()
     {
-        if (SelectedLevelData.isLevelMode && levelManager != null && levelManager.currentLevel != null)
-            return "BestTime_Level_" + levelManager.currentLevel.levelNumber;
+        if (SelectedLevelData.isLevelMode &&
+            levelManager != null &&
+            levelManager.currentLevel != null)
+        {
+            return "BestTime_Level_" +
+                   levelManager.currentLevel.levelNumber;
+        }
 
         return "BestTime_DevRoom";
     }
 
     private IEnumerator FreezeGameRoutine()
     {
-        if (gameFrozen) yield break;
+        if (gameFrozen)
+            yield break;
+
         gameFrozen = true;
 
-        yield return new WaitForSecondsRealtime(0.35f);
+        yield return
+            new WaitForSecondsRealtime(0.35f);
 
         Time.timeScale = 0f;
 
-        Rigidbody2D[] bodies = FindObjectsByType<Rigidbody2D>(FindObjectsInactive.Exclude);
+        Rigidbody2D[] bodies =
+            FindObjectsByType<Rigidbody2D>(
+                FindObjectsInactive.Exclude
+            );
 
-        foreach (Rigidbody2D rb in bodies)
+        foreach (Rigidbody2D body in bodies)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-            rb.simulated = false;
+            body.linearVelocity = Vector2.zero;
+            body.angularVelocity = 0f;
+            body.simulated = false;
         }
     }
 
     private void StopLaserSystems()
     {
         if (laserWallSpawner != null)
-            laserWallSpawner.StopLaserSystem();
+        {
+            laserWallSpawner
+                .StopLaserSystem();
+        }
 
         if (horizontalLaserWallSpawner != null)
-            horizontalLaserWallSpawner.StopLaserSystem();
+        {
+            horizontalLaserWallSpawner
+                .StopLaserSystem();
+        }
     }
 
     private void SetHUD(bool state)
     {
-        if (scoreHUD != null) scoreHUD.SetActive(state);
-        if (timeHUD != null) timeHUD.SetActive(state);
-        if (joystickHUD != null) joystickHUD.SetActive(state);
-        if (dashHUD != null) dashHUD.SetActive(state);
-        if (cloneHUD != null) cloneHUD.SetActive(state);
-        if (pauseButtonHUD != null) pauseButtonHUD.SetActive(state);
-    }
+        if (scoreHUD != null)
+            scoreHUD.SetActive(state);
 
-    private void CacheGameplayMusic()
-    {
-        if (gameplayMusicSource != null)
-            return;
+        if (timeHUD != null)
+            timeHUD.SetActive(state);
 
-        GameplayMusicFade gameplayMusic = FindAnyObjectByType<GameplayMusicFade>();
+        if (joystickHUD != null)
+            joystickHUD.SetActive(state);
 
-        if (gameplayMusic != null)
-            gameplayMusicSource = gameplayMusic.GetComponent<AudioSource>();
+        if (dashHUD != null)
+            dashHUD.SetActive(state);
 
-        if (gameplayMusicSource == null)
-        {
-            GameObject musicManager = GameObject.Find("MusicManager");
+        if (cloneHUD != null)
+            cloneHUD.SetActive(state);
 
-            if (musicManager != null)
-                gameplayMusicSource = musicManager.GetComponent<AudioSource>();
-        }
-    }
-
-    private void StopGameplayMusicImmediately()
-    {
-        CacheGameplayMusic();
-
-        if (gameplayMusicRoutine != null)
-            StopCoroutine(gameplayMusicRoutine);
-
-        if (gameplayMusicSource == null)
-            return;
-
-        gameplayMusicSource.Stop();
-        gameplayMusicSource.volume = 0f;
-    }
-
-    private void StartGameplayMusicFadeIn()
-    {
-        CacheGameplayMusic();
-
-        if (gameplayMusicSource == null)
-            return;
-
-        if (gameplayMusicRoutine != null)
-            StopCoroutine(gameplayMusicRoutine);
-
-        gameplayMusicRoutine = StartCoroutine(GameplayMusicFadeInRoutine());
-    }
-
-    private IEnumerator GameplayMusicFadeInRoutine()
-    {
-        float targetVolume = PlayerPrefs.GetInt("SoundOn", 1) == 1
-            ? PlayerPrefs.GetFloat("MusicVolume", 1f) * gameplayMusicBaseVolume
-            : 0f;
-
-        gameplayMusicSource.volume = 0f;
-        gameplayMusicSource.Play();
-
-        float timer = 0f;
-        float duration = Mathf.Max(0.01f, gameplayMusicFadeInDuration);
-
-        while (timer < duration)
-        {
-            timer += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(timer / duration);
-            t = Mathf.SmoothStep(0f, 1f, t);
-
-            gameplayMusicSource.volume = Mathf.Lerp(0f, targetVolume, t);
-            yield return null;
-        }
-
-        gameplayMusicSource.volume = targetVolume;
-        gameplayMusicRoutine = null;
+        if (pauseButtonHUD != null)
+            pauseButtonHUD.SetActive(state);
     }
 
     private void StopMusic()
     {
-        if (gameplayMusicRoutine != null)
-            StopCoroutine(gameplayMusicRoutine);
-
-        StopGameplayMusicImmediately();
+        gameplayMusic?.StopImmediately();
     }
 
     public void RestartGame()
@@ -418,8 +448,93 @@ public class GameStateManager : MonoBehaviour
         Time.timeScale = 0f;
 
         if (SceneTransition.Instance != null)
-            SceneTransition.Instance.LoadSceneWithFade(SceneManager.GetActiveScene().name);
+        {
+            SceneTransition.Instance
+                .LoadSceneWithFade(
+                    SceneManager
+                        .GetActiveScene()
+                        .name
+                );
+        }
         else
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        {
+            SceneManager.LoadScene(
+                SceneManager
+                    .GetActiveScene()
+                    .buildIndex
+            );
+        }
+    }
+
+    private void FindMissingReferences()
+    {
+        if (playerMovement == null)
+        {
+            playerMovement =
+                FindAnyObjectByType<PlayerMovement>();
+        }
+
+        if (playerDash == null)
+        {
+            playerDash =
+                FindAnyObjectByType<PlayerDash>();
+        }
+
+        if (soundManager == null)
+        {
+            soundManager =
+                FindAnyObjectByType<SoundManager>();
+        }
+
+        if (gameResultUI == null)
+        {
+            gameResultUI =
+                FindAnyObjectByType<GameResultUI>();
+        }
+
+        if (laserWallSpawner == null)
+        {
+            laserWallSpawner =
+                FindAnyObjectByType<LaserWallSpawner>();
+        }
+
+        if (horizontalLaserWallSpawner == null)
+        {
+            horizontalLaserWallSpawner =
+                FindAnyObjectByType
+                    <HorizontalLaserWallSpawner>();
+        }
+
+        if (obstacleSpawner == null)
+        {
+            obstacleSpawner =
+                FindAnyObjectByType<ObstacleSpawner>();
+        }
+
+        if (tutorialPanelUI == null)
+        {
+            tutorialPanelUI =
+                FindAnyObjectByType<TutorialPanelUI>();
+        }
+
+        if (gameplayMusic == null)
+        {
+            gameplayMusic =
+                FindAnyObjectByType<GameplayMusicFade>();
+        }
+
+        levelManager =
+            FindAnyObjectByType<LevelManager>();
+
+        gameTimerComponent =
+            FindAnyObjectByType<GameTimer>();
+
+        bossScreenEffect =
+            FindAnyObjectByType<BossScreenEffect>();
+    }
+
+    private void OnDestroy()
+    {
+        IsGameplayStarted = false;
     }
 }

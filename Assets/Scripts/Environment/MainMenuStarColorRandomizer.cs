@@ -15,6 +15,8 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         new Color(1f, 0.8f, 0.2f, 0.9f)  // Yellow
     };
 
+    private ParticleSystem.Particle[] particles;
+
     private void Start()
     {
         ApplyRandomColor();
@@ -22,20 +24,36 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
     private void ApplyRandomColor()
     {
-        if (nearStars == null) return;
-        if (possibleColors == null || possibleColors.Length == 0) return;
+        if (nearStars == null)
+            return;
 
-        Color randomColor = possibleColors[Random.Range(0, possibleColors.Length)];
+        if (possibleColors == null || possibleColors.Length == 0)
+            return;
 
         var main = nearStars.main;
-        main.startColor = new ParticleSystem.MinMaxGradient(randomColor);
 
-        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[main.maxParticles];
+        if (particles == null || particles.Length < main.maxParticles)
+            particles = new ParticleSystem.Particle[main.maxParticles];
+
+        Color randomColor =
+            possibleColors[
+                Random.Range(0, possibleColors.Length)
+            ];
+
+        main.startColor =
+            new ParticleSystem.MinMaxGradient(randomColor);
+
         int count = nearStars.GetParticles(particles);
 
         for (int i = 0; i < count; i++)
             particles[i].startColor = randomColor;
 
         nearStars.SetParticles(particles, count);
+    }
+
+    private void OnValidate()
+    {
+        if (nearStars == null)
+            nearStars = GetComponent<ParticleSystem>();
     }
 }

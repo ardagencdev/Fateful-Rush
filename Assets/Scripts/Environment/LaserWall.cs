@@ -7,32 +7,51 @@ public class LaserWall : MonoBehaviour
 
     [Header("Sound")]
     public AudioClip laserLoopSound;
+
+    [Range(0f, 1f)]
     public float volume = 1f;
 
     private AudioSource audioSource;
+    private bool soundWasPaused;
 
     private void Start()
     {
         SetupAudio();
+
+        if (lifeTime <= 0f)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Destroy(gameObject, lifeTime);
     }
 
     private void SetupAudio()
     {
-        audioSource = gameObject.AddComponent<AudioSource>();
+        if (laserLoopSound == null)
+            return;
 
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
         audioSource.clip = laserLoopSound;
-        audioSource.volume = volume * SoundManager.SFXVolume;
+        audioSource.volume =
+            Mathf.Clamp01(volume) * SoundManager.SFXVolume;
+
+        // Mevcut gameplay davranışını koruyoruz.
         audioSource.loop = false;
         audioSource.spatialBlend = 1f;
 
-        if (laserLoopSound != null)
-            audioSource.Play();
+        audioSource.Play();
     }
 
     public void FreezeLaser()
     {
-        StopAllCoroutines();
+        soundWasPaused = false;
 
         if (audioSource != null)
             audioSource.Stop();
@@ -42,13 +61,33 @@ public class LaserWall : MonoBehaviour
 
     public void PauseLaserSound()
     {
-        if (audioSource != null && audioSource.isPlaying)
-            audioSource.Pause();
+        if (audioSource == null || !audioSource.isPlaying)
+            return;
+
+        audioSource.Pause();
+        soundWasPaused = true;
     }
 
     public void ResumeLaserSound()
     {
-        if (audioSource != null)
-            audioSource.UnPause();
+        if (audioSource == null || !soundWasPaused)
+            return;
+
+        audioSource.UnPause();
+        soundWasPaused = false;
+    }
+
+    private void OnDisable()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
+
+        soundWasPaused = false;
+    }
+
+    private void OnValidate()
+    {
+        lifeTime = Mathf.Max(0f, lifeTime);
+        volume = Mathf.Clamp01(volume);
     }
 }

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4548432535975806379}
   - component: {fileID: 7883441627770816383}
   - component: {fileID: 6888777858850408741}
-  - component: {fileID: -752116969915262006}
   m_Layer: 6
   m_Name: BlackHole
   m_TagString: Wall
@@ -38,7 +37,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -20}
 --- !u!212 &2215814012315390449
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -95,6 +94,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!58 &4548432535975806379
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -168,21 +168,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnPopEffect
   spawnDuration: 0.25
   overshoot: 1.12
---- !u!114 &-752116969915262006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1982787718258633688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b601461bb50181e45825579cce7279df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlackHoleStarGravity
-  gravityStrength: 20
-  influenceRadius: 1.6
-  minDistance: 0.35
-  swirlStrength: 2
-  consumeStars: 1
-  consumeRadius: 0.6
+  playOnStart: 0

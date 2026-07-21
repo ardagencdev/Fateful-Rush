@@ -13,6 +13,7 @@ public class SpawnScaleEffect : MonoBehaviour
     public float collectDuration = 0.12f;
 
     private Vector3 targetScale;
+    private bool isCollecting;
 
     private void Awake()
     {
@@ -27,14 +28,22 @@ public class SpawnScaleEffect : MonoBehaviour
 
     private IEnumerator SpawnEffect()
     {
+        float duration = Mathf.Max(0.01f, spawnDuration);
+
         float time = 0f;
 
-        while (time < spawnDuration)
+        while (time < duration)
         {
             time += Time.deltaTime;
 
-            float t = SmoothStep(time / spawnDuration);
-            transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
+            float t = SmoothStep(Mathf.Clamp01(time / duration));
+
+            transform.localScale =
+                Vector3.Lerp(
+                    Vector3.zero,
+                    targetScale,
+                    t
+                );
 
             yield return null;
         }
@@ -44,6 +53,11 @@ public class SpawnScaleEffect : MonoBehaviour
 
     public void Collect()
     {
+        if (isCollecting)
+            return;
+
+        isCollecting = true;
+
         StopAllCoroutines();
         StartCoroutine(CollectEffect());
     }
@@ -52,24 +66,43 @@ public class SpawnScaleEffect : MonoBehaviour
     {
         Vector3 startScale = transform.localScale;
 
+        float duration = Mathf.Max(0.01f, collectDuration);
+
         float time = 0f;
 
-        while (time < collectDuration)
+        while (time < duration)
         {
-            time += Time.deltaTime;
+            time += Time.unscaledDeltaTime;
 
-            float t = time / collectDuration;
+            float t = Mathf.Clamp01(time / duration);
             t *= t;
 
-            transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+            transform.localScale =
+                Vector3.Lerp(
+                    startScale,
+                    Vector3.zero,
+                    t
+                );
 
             yield return null;
         }
 
-        if (collectParticlePrefab != null)
-            Instantiate(collectParticlePrefab, transform.position, Quaternion.identity);
+        transform.localScale = Vector3.zero;
 
-        Destroy(transform.parent != null ? transform.parent.gameObject : gameObject);
+        if (collectParticlePrefab != null)
+        {
+            Instantiate(
+                collectParticlePrefab,
+                transform.position,
+                Quaternion.identity
+            );
+        }
+
+        Destroy(
+            transform.parent != null
+                ? transform.parent.gameObject
+                : gameObject
+        );
     }
 
     private float SmoothStep(float t)
@@ -77,5 +110,3 @@ public class SpawnScaleEffect : MonoBehaviour
         return t * t * (3f - 2f * t);
     }
 }
-
-

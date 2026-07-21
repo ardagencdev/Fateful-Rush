@@ -4,11 +4,18 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class GameplayMusicFade : MonoBehaviour
 {
-    [Range(0f, 1f)]
-    public float gameplayMusicBaseVolume = 0.2f;
+    [Header("Volume")]
+    [SerializeField, Range(0f, 1f)]
+    private float gameplayMusicBaseVolume = 0.2f;
 
-    public float fadeInDuration = 0.6f;
-    public float fadeOutDuration = 0.4f;
+    [Header("Fade Durations")]
+    [SerializeField, Min(0f)]
+    private float fadeInDuration = 0.6f;
+
+    [SerializeField, Min(0f)]
+    private float fadeOutDuration = 0.4f;
+
+    public float FadeOutDuration => fadeOutDuration;
 
     private AudioSource source;
     private Coroutine fadeRoutine;
@@ -16,75 +23,182 @@ public class GameplayMusicFade : MonoBehaviour
     private void Awake()
     {
         source = GetComponent<AudioSource>();
+
+        source.playOnAwake = false;
+        source.volume = 0f;
     }
 
-    private void Start()
+    public void PlayAndFadeIn()
     {
+        StopCurrentFade();
+
+        source.Stop();
         source.volume = 0f;
         source.Play();
 
-        FadeIn();
+        FadeTo(
+            GetTargetVolume(),
+            fadeInDuration
+        );
     }
 
     public void FadeIn()
     {
-        FadeTo(GetTargetVolume(), fadeInDuration);
+        if (!source.isPlaying)
+            source.Play();
+
+        FadeTo(
+            GetTargetVolume(),
+            fadeInDuration
+        );
     }
 
     public void FadeOut()
     {
-        FadeTo(0f, fadeOutDuration, true);
+        if (!source.isPlaying)
+            return;
+
+        FadeTo(
+            0f,
+            fadeOutDuration,
+            true
+        );
+    }
+
+    public void StopImmediately()
+    {
+        StopCurrentFade();
+
+        source.Stop();
+        source.volume = 0f;
     }
 
     public void RefreshVolume()
     {
-        FadeTo(GetTargetVolume(), 0.2f);
+        if (!source.isPlaying)
+            return;
+
+        FadeTo(
+            GetTargetVolume(),
+            0.2f
+        );
     }
 
     private float GetTargetVolume()
     {
-        bool soundOn = PlayerPrefs.GetInt("SoundOn", 1) == 1;
-        bool gameplayMusicOn = PlayerPrefs.GetInt("GameplayMusicOn", 1) == 1;
+        bool soundOn =
+            PlayerPrefs.GetInt("SoundOn", 1) == 1;
+
+        bool gameplayMusicOn =
+            PlayerPrefs.GetInt("GameplayMusicOn", 1) == 1;
 
         if (!soundOn || !gameplayMusicOn)
             return 0f;
 
-        float volume = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        float userMusicVolume =
+            PlayerPrefs.GetFloat(
+                "MusicVolume",
+                1f
+            );
 
-        return volume * gameplayMusicBaseVolume;
+        return userMusicVolume *
+               gameplayMusicBaseVolume;
     }
 
-    private void FadeTo(float target, float duration, bool stopAfter = false)
+    private void FadeTo(
+        float targetVolume,
+        float duration,
+        bool stopAfterFade = false)
     {
-        if (fadeRoutine != null)
-            StopCoroutine(fadeRoutine);
+        StopCurrentFade();
 
-        fadeRoutine = StartCoroutine(FadeRoutine(target, duration, stopAfter));
+        fadeRoutine = StartCoroutine(
+            FadeRoutine(
+                targetVolume,
+                duration,
+                stopAfterFade
+            )
+        );
     }
 
-    IEnumerator FadeRoutine(float target, float duration, bool stopAfter)
+    private IEnumerator FadeRoutine(
+        float targetVolume,
+        float duration,
+        bool stopAfterFade)
     {
-        float start = source.volume;
+        duration = Mathf.Max(
+            0.01f,
+            duration
+        );
 
-        float t = 0f;
+        float startVolume = source.volume;
+        float timer = 0f;
 
-        while (t < duration)
+        while (timer < duration)
         {
-            t += Time.unscaledDeltaTime;
+            timer += Time.unscaledDeltaTime;
 
-            float p = Mathf.Clamp01(t / duration);
-            p = p * p * (3f - 2f * p);
+            float progress =
+                Mathf.Clamp01(
+                    timer / duration
+                );
 
-            source.volume = Mathf.Lerp(start, target, p);
+            progress =
+                progress *
+                progress *
+                (3f - 2f * progress);
+
+            source.volume = Mathf.Lerp(
+                startVolume,
+                targetVolume,
+                progress
+            );
 
             yield return null;
         }
 
-        source.volume = target;
+        source.volume = targetVolume;
 
-        if (stopAfter)
+        if (stopAfterFade)
+        {
             source.Stop();
+            source.volume = 0f;
+        }
 
         fadeRoutine = null;
+    }
+
+    private void StopCurrentFade()
+    {
+        if (fadeRoutine == null)
+            return;
+
+        StopCoroutine(fadeRoutine);
+        fadeRoutine = null;
+    }
+
+    private void OnDisable()
+    {
+        StopCurrentFade();
+    }
+
+    private void OnValidate()
+    {
+        fadeInDuration =
+            Mathf.Max(
+                0f,
+                fadeInDuration
+            );
+
+        fadeOutDuration =
+            Mathf.Max(
+                0f,
+                fadeOutDuration
+            );
+
+        gameplayMusicBaseVolume =
+            Mathf.Clamp01(
+                gameplayMusicBaseVolume
+            );
     }
 }
