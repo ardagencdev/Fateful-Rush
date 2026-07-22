@@ -25,6 +25,7 @@ MonoBehaviour:
 
     Stay
     alive until you complete the objective.'
+  gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winScore: 10
   showGameTimerHUD: 0
   playerMoveSpeed: 6.5
@@ -35,7 +36,6 @@ MonoBehaviour:
   dashDuration: 0.12
   dashCooldown: 2
   cloneDuration: 3
-  cloneEnemiesToDistract: 2
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
@@ -51,6 +51,7 @@ MonoBehaviour:
   - comboMultiplier: 3
     coinsRequired: 5
     playerSpeedMultiplier: 1.5
+  randomizeNearStarsColor: 0
   nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1
@@ -89,6 +90,13 @@ MonoBehaviour:
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
   normalSpeedIncreaseRate: 0.1
+  normalPredictionEnabled: 1
+  normalPredictionDistanceThreshold: 2.5
+  normalPredictionTime: 0.25
+  normalMaxPredictionDistance: 1.5
+  normalSeparationEnabled: 1
+  normalSeparationRadius: 0.75
+  normalSeparationStrength: 0.65
   projectileEnemyCount: 0
   projectileEnemySpawnInterval: 5
   projectileMoveSpeed: 3

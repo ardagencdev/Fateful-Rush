@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
 public class GameStateManager : MonoBehaviour
 {
     public static bool IsGameplayStarted { get; private set; }
@@ -103,7 +104,7 @@ public class GameStateManager : MonoBehaviour
 
         if (shouldShowTutorial)
         {
-            gameplayMusic?.StopImmediately();
+            gameplayMusic?.PlayTutorialMusic();
 
             yield return
                 new WaitForSecondsRealtime(0.25f);
@@ -119,9 +120,19 @@ public class GameStateManager : MonoBehaviour
             yield return new WaitUntil(
                 () => tutorialClosed
             );
-        }
 
-        gameplayMusic?.PlayAndFadeIn();
+            gameplayMusic?.TransitionToClip(
+                currentLevel.gameplayMusic
+            );
+        }
+        else
+        {
+            gameplayMusic?.PlayClipAndFadeIn(
+                currentLevel != null
+                    ? currentLevel.gameplayMusic
+                    : null
+            );
+        }
 
         yield return null;
 

@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 7
   levelName: Level 7
+  showTutorial: 1
+  tutorialTitle: LEVEL BRIEFING
+  tutorialPages:
+  - Tutorial text...
+  gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winScore: 15
+  showGameTimerHUD: 0
   playerMoveSpeed: 7
   playerComboSpeedBonus: 1.2
   dashEnabled: 0
@@ -23,7 +29,7 @@ MonoBehaviour:
   dashDuration: 0.12
   dashCooldown: 2
   cloneDuration: 3
-  cloneEnemiesToDistract: 2
+  cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
@@ -31,6 +37,14 @@ MonoBehaviour:
   comboEnabled: 0
   comboTimeLimit: 2
   maxCombo: 3
+  comboSpeedStages:
+  - comboMultiplier: 2
+    coinsRequired: 2
+    playerSpeedMultiplier: 1.25
+  - comboMultiplier: 3
+    coinsRequired: 5
+    playerSpeedMultiplier: 1.5
+  randomizeNearStarsColor: 0
   nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1
@@ -46,21 +60,31 @@ MonoBehaviour:
   normalCoinEnabled: 1
   goldCoinEnabled: 1
   rareCoinEnabled: 1
+  obstacleSpawnMode: 0
   levelObstacles: []
-  enemySpawnInterval: 3
-  maxEnemyOnScene: 4
+  randomObstacleCount: 5
   normalEnemyCount: 0
-  projectileEnemyCount: 0
-  hunterEnemyCount: 0
+  normalEnemySpawnInterval: 2.5
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
   normalSpeedIncreaseRate: 0.1
+  normalPredictionEnabled: 1
+  normalPredictionDistanceThreshold: 2.5
+  normalPredictionTime: 0.25
+  normalMaxPredictionDistance: 1.5
+  normalSeparationEnabled: 1
+  normalSeparationRadius: 0.75
+  normalSeparationStrength: 0.65
+  projectileEnemyCount: 0
+  projectileEnemySpawnInterval: 5
   projectileMoveSpeed: 3
   projectileStoppingDistance: 7
   projectileRetreatDistance: 4
   projectileFireRate: 1.5
   projectileSpeed: 6
+  hunterEnemyCount: 0
+  hunterEnemySpawnInterval: 8
   hunterRepositionTime: 1.2
   hunterWarningDuration: 1
   hunterChargeSpeed: 15

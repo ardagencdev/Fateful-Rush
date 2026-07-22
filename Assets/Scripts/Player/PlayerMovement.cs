@@ -129,6 +129,7 @@ public class PlayerMovement : MonoBehaviour
         if (currentVelocity.sqrMagnitude <= 0.0001f)
         {
             currentVelocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -377,6 +378,11 @@ public class PlayerMovement : MonoBehaviour
                 : deathCause;
 
         VibrationManager.Instance?.VibrateHeavy();
+
+        CameraShake.Instance?.Shake(
+            0.3f,
+            0.7f
+        );
 
         if (deathFade != null)
             deathFade.Play();

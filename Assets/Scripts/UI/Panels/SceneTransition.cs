@@ -5,11 +5,10 @@ using UnityEngine.UI;
 
 public class SceneTransition : MonoBehaviour
 {
-    public static SceneTransition Instance;
+    public static SceneTransition Instance { get; private set; }
 
-    [Header("Fade")]
-    public Image fadeImage;
-    public float fadeDuration = 0.35f;
+    [SerializeField] private Image fadeImage;
+    [SerializeField, Min(0f)] private float fadeDuration = 0.35f;
 
     private bool isTransitioning;
 
@@ -87,36 +86,42 @@ public class SceneTransition : MonoBehaviour
         PrepareFadeCanvas();
     }
 
-    public void LoadSceneWithFade(
-        string sceneName)
+    public void LoadSceneWithFade(string sceneName)
     {
         if (isTransitioning)
             return;
 
-        if (string.IsNullOrEmpty(sceneName))
-            return;
+        if (string.IsNullOrWhiteSpace(sceneName) ||
+            !Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError(
+                $"[SceneTransition] Sahne bulunamadı veya Build Profiles'a eklenmemiş: {sceneName}",
+                this
+            );
 
-        StartCoroutine(
-            TransitionRoutine(sceneName)
-        );
+            return;
+        }
+
+        StartCoroutine(TransitionRoutine(sceneName));
     }
 
-    public void LoadSceneWithFade(
-        int sceneIndex)
+    public void LoadSceneWithFade(int sceneIndex)
     {
         if (isTransitioning)
             return;
 
         if (sceneIndex < 0 ||
-            sceneIndex >=
-            SceneManager.sceneCountInBuildSettings)
+            sceneIndex >= SceneManager.sceneCountInBuildSettings)
         {
+            Debug.LogError(
+                $"[SceneTransition] Geçersiz sahne indexi: {sceneIndex}",
+                this
+            );
+
             return;
         }
 
-        StartCoroutine(
-            TransitionRoutine(sceneIndex)
-        );
+        StartCoroutine(TransitionRoutine(sceneIndex));
     }
 
     public void QuitGameWithFade()
@@ -133,8 +138,14 @@ public class SceneTransition : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        yield return FadeOutMusic();
-        yield return FadeOut();
+        Coroutine musicFade =
+    StartCoroutine(FadeOutMusic());
+
+        Coroutine screenFade =
+            StartCoroutine(FadeOut());
+
+        yield return musicFade;
+        yield return screenFade;
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -150,8 +161,14 @@ public class SceneTransition : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        yield return FadeOutMusic();
-        yield return FadeOut();
+        Coroutine musicFade =
+    StartCoroutine(FadeOutMusic());
+
+        Coroutine screenFade =
+            StartCoroutine(FadeOut());
+
+        yield return musicFade;
+        yield return screenFade;
 
         AsyncOperation load =
             SceneManager.LoadSceneAsync(sceneName);

@@ -951,6 +951,7 @@ GameObject:
   - component: {fileID: 74728190}
   - component: {fileID: 74728193}
   - component: {fileID: 74728195}
+  - component: {fileID: 74728196}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1136,6 +1137,20 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!114 &74728196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74728189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa56aa6d5bc79643afefa88b3bd0fdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  frequency: 35
+  decayPower: 1.5
 --- !u!1 &79375933
 GameObject:
   m_ObjectHideFlags: 0
@@ -1887,7 +1902,7 @@ RectTransform:
   - {fileID: 2040206646}
   - {fileID: 2134227683}
   - {fileID: 300344722}
-  - {fileID: 525826453}
+  - {fileID: 1208662968}
   - {fileID: 1757099745}
   m_Father: {fileID: 464601139}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9735,7 +9750,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 525826453}
-  - component: {fileID: 525826454}
   m_Layer: 5
   m_Name: ResultsPanel
   m_TagString: Untagged
@@ -9750,7 +9764,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 525826452}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9760,59 +9774,13 @@ RectTransform:
   - {fileID: 785480735}
   - {fileID: 2011239674}
   - {fileID: 1672707848}
-  m_Father: {fileID: 178901136}
+  m_Father: {fileID: 1208662968}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &525826454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 525826452}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5df8b1a486088145b0077f7a5afc656, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameResultUI
-  resultPanel: {fileID: 525826452}
-  winUI: {fileID: 1004449876}
-  loseUI: {fileID: 785480734}
-  winScoreValue: {fileID: 408186993}
-  winTimeValue: {fileID: 919512257}
-  winBestTimeValue: {fileID: 848225243}
-  destroyedByText: {fileID: 1532177077}
-  loseScoreValue: {fileID: 1934483913}
-  loseSurvivedValue: {fileID: 1262634668}
-  nextLevelButton: {fileID: 1996056620}
-  levels:
-  - {fileID: 11400000, guid: 8090879a21bf6034296cc5d4d29ce003, type: 2}
-  - {fileID: 11400000, guid: f1c998db1712f2f48b481ec1933eb5c8, type: 2}
-  - {fileID: 11400000, guid: f0d74b798d29d1049b2d7443363e8b9d, type: 2}
-  - {fileID: 11400000, guid: 49d6562112f71d0499da1b9f37182f94, type: 2}
-  - {fileID: 11400000, guid: 5d9f7af3d5e1def49aeb003de8b98c42, type: 2}
-  - {fileID: 11400000, guid: 5705d4da3e9878840941b2cb65cdd6b8, type: 2}
-  - {fileID: 11400000, guid: 3ae01dce05c995348b923cb73ae86b21, type: 2}
-  - {fileID: 11400000, guid: 05bab55df4c4ea5498b0ab073e5fbc57, type: 2}
-  - {fileID: 11400000, guid: e96e7851d171a394e8ac98634f85fc66, type: 2}
-  - {fileID: 11400000, guid: 03f8357f9195c4442b51e3e5510b3e44, type: 2}
-  - {fileID: 11400000, guid: afa8f311a50942544b2fdfd66dcc570a, type: 2}
-  - {fileID: 11400000, guid: 9aab271974b6a2347bbb662c05bba1b1, type: 2}
-  - {fileID: 11400000, guid: 3990b6f4ee9ffa6479b1fd6ebb64a22a, type: 2}
-  - {fileID: 11400000, guid: 40e52bcf2941a2f4cba06ebd39265aa5, type: 2}
-  - {fileID: 11400000, guid: 3a9e54c795c9d00418196981328d31ad, type: 2}
-  - {fileID: 11400000, guid: 36781cbfb3269b640b9389e90a724904, type: 2}
-  - {fileID: 11400000, guid: a997fbcbec952734191b1c53d4e23926, type: 2}
-  - {fileID: 11400000, guid: 0809794c38452e74fb9287c593396546, type: 2}
-  - {fileID: 11400000, guid: 8838553fbdf3bc24eb159ad6c5ab1a40, type: 2}
-  - {fileID: 11400000, guid: 655ad385006f74741b9c2e551f2d973c, type: 2}
-  gameSceneName: a
-  tryAgainButton: {fileID: 2011239673}
-  menuButton: {fileID: 1672707847}
 --- !u!1 &530935024
 GameObject:
   m_ObjectHideFlags: 0
@@ -18869,7 +18837,7 @@ MonoBehaviour:
   playerMovement: {fileID: 1118182838}
   playerDash: {fileID: 1118182829}
   soundManager: {fileID: 1252622767}
-  gameResultUI: {fileID: 525826454}
+  gameResultUI: {fileID: 0}
   laserWallSpawner: {fileID: 1734443694}
   horizontalLaserWallSpawner: {fileID: 653434498}
   obstacleSpawner: {fileID: 1062955815}
@@ -19393,7 +19361,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 6d07178cb2390b84b8ec85774517c708, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -19491,9 +19459,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dfd484ccd018524798ace7a05c6e171, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayMusicFade
+  tutorialMusic: {fileID: 8300000, guid: 21d85f17d7ba5c44ea49f210928b3794, type: 3}
   gameplayMusicBaseVolume: 0.2
   fadeInDuration: 0.6
   fadeOutDuration: 0.4
+  clipTransitionDuration: 0.8
 --- !u!4 &1118182825 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2307238948728083217, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
@@ -20131,6 +20101,89 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1205411121}
   m_CullTransparentMesh: 1
+--- !u!1 &1208662967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1208662968}
+  - component: {fileID: 1208662969}
+  m_Layer: 5
+  m_Name: ResultsUIController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1208662968
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208662967}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 525826453}
+  m_Father: {fileID: 178901136}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1208662969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208662967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5df8b1a486088145b0077f7a5afc656, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameResultUI
+  resultPanel: {fileID: 525826452}
+  winUI: {fileID: 1004449876}
+  loseUI: {fileID: 785480734}
+  winScoreValue: {fileID: 408186993}
+  winTimeValue: {fileID: 919512257}
+  winBestTimeValue: {fileID: 848225243}
+  destroyedByText: {fileID: 1532177077}
+  loseScoreValue: {fileID: 1934483913}
+  loseSurvivedValue: {fileID: 1262634668}
+  nextLevelButton: {fileID: 1996056620}
+  levels:
+  - {fileID: 11400000, guid: 8090879a21bf6034296cc5d4d29ce003, type: 2}
+  - {fileID: 11400000, guid: f1c998db1712f2f48b481ec1933eb5c8, type: 2}
+  - {fileID: 11400000, guid: f0d74b798d29d1049b2d7443363e8b9d, type: 2}
+  - {fileID: 11400000, guid: 49d6562112f71d0499da1b9f37182f94, type: 2}
+  - {fileID: 11400000, guid: 5d9f7af3d5e1def49aeb003de8b98c42, type: 2}
+  - {fileID: 11400000, guid: 5705d4da3e9878840941b2cb65cdd6b8, type: 2}
+  - {fileID: 11400000, guid: 3ae01dce05c995348b923cb73ae86b21, type: 2}
+  - {fileID: 11400000, guid: 05bab55df4c4ea5498b0ab073e5fbc57, type: 2}
+  - {fileID: 11400000, guid: e96e7851d171a394e8ac98634f85fc66, type: 2}
+  - {fileID: 11400000, guid: 03f8357f9195c4442b51e3e5510b3e44, type: 2}
+  - {fileID: 11400000, guid: afa8f311a50942544b2fdfd66dcc570a, type: 2}
+  - {fileID: 11400000, guid: 9aab271974b6a2347bbb662c05bba1b1, type: 2}
+  - {fileID: 11400000, guid: 3990b6f4ee9ffa6479b1fd6ebb64a22a, type: 2}
+  - {fileID: 11400000, guid: 40e52bcf2941a2f4cba06ebd39265aa5, type: 2}
+  - {fileID: 11400000, guid: 3a9e54c795c9d00418196981328d31ad, type: 2}
+  - {fileID: 11400000, guid: 36781cbfb3269b640b9389e90a724904, type: 2}
+  - {fileID: 11400000, guid: a997fbcbec952734191b1c53d4e23926, type: 2}
+  - {fileID: 11400000, guid: 0809794c38452e74fb9287c593396546, type: 2}
+  - {fileID: 11400000, guid: 8838553fbdf3bc24eb159ad6c5ab1a40, type: 2}
+  - {fileID: 11400000, guid: 655ad385006f74741b9c2e551f2d973c, type: 2}
+  gameSceneName: a
+  tryAgainButton: {fileID: 2011239673}
+  menuButton: {fileID: 1672707847}
 --- !u!1 &1250800740
 GameObject:
   m_ObjectHideFlags: 0
@@ -25467,7 +25520,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 525826454}
+      - m_Target: {fileID: 1208662969}
         m_TargetAssemblyTypeName: GameResultUI, Assembly-CSharp
         m_MethodName: NextLevel
         m_Mode: 1

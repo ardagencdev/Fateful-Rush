@@ -17,6 +17,7 @@ public class LevelConfigEditor : Editor
 
     private bool coreExpanded = true;
     private bool tutorialExpanded;
+    private bool musicExpanded = true;
     private bool playerExpanded = true;
     private bool abilitiesExpanded;
     private bool hudExpanded;
@@ -48,6 +49,7 @@ public class LevelConfigEditor : Editor
 
         DrawCore();
         DrawTutorial();
+        DrawMusic();
         DrawPlayer();
         DrawAbilities();
         DrawHUD();
@@ -164,6 +166,13 @@ public class LevelConfigEditor : Editor
             config.showTutorial
                 ? "Enabled"
                 : "Disabled"
+        );
+
+        SummaryRow(
+    "Gameplay Music",
+    config.gameplayMusic != null
+        ? config.gameplayMusic.name
+        : "Not Assigned"
         );
 
         EditorGUILayout.EndVertical();
@@ -374,8 +383,25 @@ public class LevelConfigEditor : Editor
                 Prop("tutorialPages", true);
 
                 Help(
-                    "Bu level başlarken tutorial panel açılır. " +
-                    "START'a basılana kadar gameplay başlamaz."
+                    "Tutorial Music yalnızca tutorial panel açıkken çalar. " +
+                    "START'a basılınca levelın Gameplay Music parçasına geçilir."
+                );
+            }
+        );
+    }
+
+    private void DrawMusic()
+    {
+        FoldoutBox(
+            "MUSIC",
+            ref musicExpanded,
+            () =>
+            {
+                Prop("gameplayMusic");
+
+                Help(
+                    "Bu müzik level başladığında çalar. " +
+                    "Her LevelConfig için farklı bir AudioClip seçebilirsin."
                 );
             }
         );

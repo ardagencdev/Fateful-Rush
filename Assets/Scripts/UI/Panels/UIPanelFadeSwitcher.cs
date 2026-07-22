@@ -4,151 +4,300 @@ using UnityEngine;
 public class UIPanelFadeSwitcher : MonoBehaviour
 {
     [Header("Fade")]
-    public float fadeDuration = 0.18f;
-    public float startScale = 0.92f;
+    [SerializeField, Min(0.01f)]
+    private float fadeDuration = 0.18f;
+
+    [SerializeField, Range(0.01f, 1f)]
+    private float startScale = 0.92f;
 
     private Coroutine routine;
 
-    public void SwitchPanel(GameObject fromPanel, GameObject toPanel)
+    public void SwitchPanel(
+        GameObject fromPanel,
+        GameObject toPanel
+    )
     {
-        if (routine != null)
-            StopCoroutine(routine);
+        if (fromPanel == null &&
+            toPanel == null)
+        {
+            return;
+        }
 
-        routine = StartCoroutine(SwitchRoutine(fromPanel, toPanel));
+        StartManagedRoutine(
+            SwitchRoutine(
+                fromPanel,
+                toPanel
+            )
+        );
     }
 
     public void ShowPanel(GameObject panel)
     {
-        if (routine != null)
-            StopCoroutine(routine);
+        if (panel == null)
+            return;
 
-        routine = StartCoroutine(ShowRoutine(panel));
+        StartManagedRoutine(
+            ShowRoutine(panel)
+        );
     }
 
     public void HidePanel(GameObject panel)
     {
-        if (routine != null)
-            StopCoroutine(routine);
+        if (panel == null)
+            return;
 
-        routine = StartCoroutine(HidePanelRoutine(panel));
+        StartManagedRoutine(
+            HideRoutine(panel)
+        );
     }
 
-    public IEnumerator HidePanelRoutine(GameObject panel)
+    public IEnumerator HidePanelRoutine(
+        GameObject panel
+    )
     {
+        if (panel == null)
+            yield break;
+
         yield return HideRoutine(panel);
+    }
+
+    public void SetInstant(
+        GameObject panel,
+        bool state
+    )
+    {
+        if (panel == null)
+            return;
+
+        StopCurrentRoutine();
+
+        CanvasGroup canvasGroup =
+            GetCanvasGroup(panel);
+
+        panel.SetActive(state);
+        panel.transform.localScale =
+            Vector3.one;
+
+        canvasGroup.alpha =
+            state ? 1f : 0f;
+
+        canvasGroup.interactable = state;
+        canvasGroup.blocksRaycasts = state;
+    }
+
+    private void StartManagedRoutine(
+        IEnumerator animation
+    )
+    {
+        StopCurrentRoutine();
+
+        routine =
+            StartCoroutine(
+                ManagedRoutine(animation)
+            );
+    }
+
+    private IEnumerator ManagedRoutine(
+        IEnumerator animation
+    )
+    {
+        yield return animation;
         routine = null;
     }
 
-    public void SetInstant(GameObject panel, bool state)
-    {
-        if (panel == null) return;
-
-        CanvasGroup cg = GetCanvasGroup(panel);
-
-        panel.SetActive(state);
-        panel.transform.localScale = Vector3.one;
-
-        cg.alpha = state ? 1f : 0f;
-        cg.interactable = state;
-        cg.blocksRaycasts = state;
-    }
-
-    private IEnumerator SwitchRoutine(GameObject fromPanel, GameObject toPanel)
+    private IEnumerator SwitchRoutine(
+        GameObject fromPanel,
+        GameObject toPanel
+    )
     {
         if (fromPanel == toPanel)
-        {
-            routine = null;
             yield break;
-        }
 
-        if (fromPanel != null && fromPanel.activeSelf)
+        if (fromPanel != null &&
+            fromPanel.activeSelf)
+        {
             yield return HideRoutine(fromPanel);
+        }
 
         if (toPanel != null)
             yield return ShowRoutine(toPanel);
-
-        routine = null;
     }
 
-    private IEnumerator ShowRoutine(GameObject panel)
+    private IEnumerator ShowRoutine(
+        GameObject panel
+    )
     {
-        if (panel == null) yield break;
+        if (panel == null)
+            yield break;
 
-        CanvasGroup cg = GetCanvasGroup(panel);
+        CanvasGroup canvasGroup =
+            GetCanvasGroup(panel);
+
+        Vector3 initialScale =
+            Vector3.one * startScale;
 
         panel.SetActive(true);
         panel.transform.SetAsLastSibling();
-        panel.transform.localScale = Vector3.one * startScale;
+        panel.transform.localScale =
+            initialScale;
 
-        cg.alpha = 0f;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
 
         float timer = 0f;
-        float duration = Mathf.Max(0.01f, fadeDuration);
+        float safeDuration =
+            Mathf.Max(0.01f, fadeDuration);
 
-        while (timer < duration)
+        while (timer < safeDuration)
         {
             timer += Time.unscaledDeltaTime;
 
-            float t = Mathf.Clamp01(timer / duration);
-            t = Mathf.SmoothStep(0f, 1f, t);
+            float progress =
+                Mathf.Clamp01(
+                    timer / safeDuration
+                );
 
-            cg.alpha = t;
-            panel.transform.localScale = Vector3.Lerp(Vector3.one * startScale, Vector3.one, t);
+            float easedProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            canvasGroup.alpha =
+                easedProgress;
+
+            panel.transform.localScale =
+                Vector3.LerpUnclamped(
+                    initialScale,
+                    Vector3.one,
+                    easedProgress
+                );
 
             yield return null;
         }
 
-        cg.alpha = 1f;
-        panel.transform.localScale = Vector3.one;
-        cg.interactable = true;
-        cg.blocksRaycasts = true;
+        canvasGroup.alpha = 1f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+
+        panel.transform.localScale =
+            Vector3.one;
     }
 
-    private IEnumerator HideRoutine(GameObject panel)
+    private IEnumerator HideRoutine(
+        GameObject panel
+    )
     {
-        if (panel == null) yield break;
+        if (panel == null)
+            yield break;
 
-        CanvasGroup cg = GetCanvasGroup(panel);
+        CanvasGroup canvasGroup =
+            GetCanvasGroup(panel);
 
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
 
         float timer = 0f;
-        float duration = Mathf.Max(0.01f, fadeDuration);
+        float safeDuration =
+            Mathf.Max(0.01f, fadeDuration);
 
-        float startAlpha = cg.alpha;
-        Vector3 startLocalScale = panel.transform.localScale;
-        Vector3 endScale = Vector3.one * startScale;
+        float initialAlpha =
+            canvasGroup.alpha;
 
-        while (timer < duration)
+        Vector3 initialScale =
+            panel.transform.localScale;
+
+        Vector3 targetScale =
+            Vector3.one * startScale;
+
+        while (timer < safeDuration)
         {
             timer += Time.unscaledDeltaTime;
 
-            float t = Mathf.Clamp01(timer / duration);
-            t = Mathf.SmoothStep(0f, 1f, t);
+            float progress =
+                Mathf.Clamp01(
+                    timer / safeDuration
+                );
 
-            cg.alpha = Mathf.Lerp(startAlpha, 0f, t);
-            panel.transform.localScale = Vector3.Lerp(startLocalScale, endScale, t);
+            float easedProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            canvasGroup.alpha =
+                Mathf.Lerp(
+                    initialAlpha,
+                    0f,
+                    easedProgress
+                );
+
+            panel.transform.localScale =
+                Vector3.LerpUnclamped(
+                    initialScale,
+                    targetScale,
+                    easedProgress
+                );
 
             yield return null;
         }
 
-        cg.alpha = 0f;
-        panel.transform.localScale = Vector3.one;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        panel.transform.localScale =
+            Vector3.one;
+
         panel.SetActive(false);
     }
 
-    private CanvasGroup GetCanvasGroup(GameObject panel)
+    private static CanvasGroup GetCanvasGroup(
+        GameObject panel
+    )
     {
-        CanvasGroup cg = panel.GetComponent<CanvasGroup>();
+        CanvasGroup canvasGroup =
+            panel.GetComponent<CanvasGroup>();
 
-        if (cg == null)
-            cg = panel.AddComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup =
+                panel.AddComponent<CanvasGroup>();
+        }
 
-        return cg;
+        return canvasGroup;
+    }
+
+    private void StopCurrentRoutine()
+    {
+        if (routine == null)
+            return;
+
+        StopCoroutine(routine);
+        routine = null;
+    }
+
+    private void OnDisable()
+    {
+        StopCurrentRoutine();
+    }
+
+    private void OnValidate()
+    {
+        fadeDuration =
+            Mathf.Max(
+                0.01f,
+                fadeDuration
+            );
+
+        startScale =
+            Mathf.Clamp(
+                startScale,
+                0.01f,
+                1f
+            );
     }
 }

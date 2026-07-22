@@ -11536,6 +11536,7 @@ Transform:
   - {fileID: 367609975}
   - {fileID: 658595659}
   - {fileID: 1507692535}
+  - {fileID: 1434163666}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &274417992
@@ -12408,7 +12409,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
@@ -12521,12 +12522,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuMusicApply
   menuMusics:
-  - {fileID: 8300000, guid: fed135a6fbb1eb446b190ad32c112efb, type: 3}
-  - {fileID: 8300000, guid: 31f464177824c4e48b88a363cb2aa7df, type: 3}
-  - {fileID: 8300000, guid: 20b53a55ccbb07741855024c0e547950, type: 3}
+  - {fileID: 8300000, guid: 274e69fa41f262c4dbeec35f987b9774, type: 3}
+  - {fileID: 8300000, guid: 81fc50e29709f3744b904f43f065b406, type: 3}
+  - {fileID: 8300000, guid: d2862a49eacd2dd4fae4d97fff05b6db, type: 3}
+  firstTrackIndex: 0
   menuMusicBaseVolume: 0.2
-  fadeInDuration: 0.6
-  fadeOutDuration: 0.4
+  fadeInDuration: 1.5
+  crossfadeDuration: 4
+  fadeOutDuration: 0.8
 --- !u!1 &408638744
 GameObject:
   m_ObjectHideFlags: 0
@@ -13787,6 +13790,7 @@ MonoBehaviour:
   fadeSwitcher: {fileID: 658595660}
   mainMenuPanel: {fileID: 558379304}
   devRoomConfig: {fileID: 11400000, guid: 7bc9b7110624ec840b86ec026053196c, type: 2}
+  fallbackQuitDelay: 0.35
 --- !u!1 &571473934
 GameObject:
   m_ObjectHideFlags: 0
@@ -14002,6 +14006,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8090879a21bf6034296cc5d4d29ce003, type: 2}
   - {fileID: 11400000, guid: f1c998db1712f2f48b481ec1933eb5c8, type: 2}
   gameSceneName: a
+  mainMenuSceneName: MainMenu
 --- !u!1 &624749655
 GameObject:
   m_ObjectHideFlags: 0
@@ -16142,6 +16147,7 @@ MonoBehaviour:
   fadeSwitcher: {fileID: 0}
   mainMenuPanel: {fileID: 0}
   devRoomConfig: {fileID: 0}
+  fallbackQuitDelay: 0.35
 --- !u!1 &800346258
 GameObject:
   m_ObjectHideFlags: 0
@@ -16308,6 +16314,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab77ba0ffb8aced45ad6830ea2d5e1b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobilePerformanceSettings
+  targetFrameRate: 60
+  preventScreenSleep: 1
+  runInBackground: 0
 --- !u!4 &841042591
 Transform:
   m_ObjectHideFlags: 0
@@ -19923,6 +19932,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 0
+--- !u!1 &1434163665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1434163666}
+  - component: {fileID: 1434163667}
+  m_Layer: 0
+  m_Name: MissionReset
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1434163666
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1434163665}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 273326370}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1434163667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1434163665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608dd32a1e94833438983d21afbfda49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDebugReset
+  missionCount: 20
 --- !u!1 &1469492543
 GameObject:
   m_ObjectHideFlags: 0
@@ -20462,15 +20516,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1e3dba343d5814881b58215b1166d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsManager
-  joystick: {fileID: 0}
-  dashButton: {fileID: 0}
-  cloneButton: {fileID: 0}
   hudCanvasGroup: {fileID: 0}
-  joystickLeftPos: {x: 170, y: 170}
-  joystickRightPos: {x: -170, y: 170}
-  buttonsLeftPos: {x: 170, y: 150}
-  buttonsRightPos: {x: -170, y: 150}
-  cloneOffset: {x: -120, y: 0}
 --- !u!114 &1507692537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20484,6 +20530,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlLayoutManager
   defaultSide: 1
+  playerInputController: {fileID: 0}
   joystick: {fileID: 0}
   dashButton: {fileID: 0}
   cloneButton: {fileID: 0}
@@ -21864,6 +21911,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelSelectPanel
   mainMenuPanel: {fileID: 558379304}
   levelSelectPanel: {fileID: 1781728134}
+  fadeSwitcher: {fileID: 658595660}
   levelButtonsContainer: {fileID: 1555343189}
   levelButtonPrefab: {fileID: 3475198044422798961, guid: 65bcba253fa73de4f91a200c4a34cddd, type: 3}
   levels:
@@ -21888,7 +21936,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8838553fbdf3bc24eb159ad6c5ab1a40, type: 2}
   - {fileID: 11400000, guid: 655ad385006f74741b9c2e551f2d973c, type: 2}
   gameSceneName: a
-  fadeSwitcher: {fileID: 658595660}
 --- !u!114 &1781728137
 MonoBehaviour:
   m_ObjectHideFlags: 0

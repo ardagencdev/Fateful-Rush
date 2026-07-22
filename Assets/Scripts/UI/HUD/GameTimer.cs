@@ -116,10 +116,8 @@ public class GameTimer : MonoBehaviour
         if (!showHUDTimer || timerText == null)
             return;
 
-        timerText.SetText(
-            "Time: {0:F2}",
-            elapsedTime
-        );
+        timerText.text =
+            $"Time: {elapsedTime:F1}";
     }
 
     private void RefreshReferences()

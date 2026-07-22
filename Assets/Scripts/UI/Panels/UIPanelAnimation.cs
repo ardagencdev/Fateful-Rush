@@ -1,11 +1,15 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
+[RequireComponent(typeof(CanvasGroup))]
 public class UIPanelAnimation : MonoBehaviour
 {
     [Header("Animation")]
-    [SerializeField] private float duration = 0.2f;
-    [SerializeField] private float startScale = 0.8f;
+    [SerializeField, Min(0.01f)]
+    private float duration = 0.2f;
+
+    [SerializeField, Range(0.01f, 1f)]
+    private float startScale = 0.8f;
 
     private CanvasGroup canvasGroup;
     private Coroutine animationRoutine;
@@ -17,42 +21,88 @@ public class UIPanelAnimation : MonoBehaviour
 
     private void OnEnable()
     {
-        if (animationRoutine != null)
-            StopCoroutine(animationRoutine);
+        StopAnimation();
 
-        animationRoutine = StartCoroutine(AnimatePanel());
+        animationRoutine =
+            StartCoroutine(AnimatePanel());
+    }
+
+    private void OnDisable()
+    {
+        StopAnimation();
     }
 
     private IEnumerator AnimatePanel()
     {
-        float time = 0f;
+        float timer = 0f;
 
-        Vector3 fromScale = Vector3.one * startScale;
-        Vector3 toScale = Vector3.one;
+        Vector3 fromScale =
+            Vector3.one * startScale;
+
+        Vector3 targetScale =
+            Vector3.one;
 
         transform.localScale = fromScale;
 
-        if (canvasGroup != null)
-            canvasGroup.alpha = 0f;
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
 
-        while (time < duration)
+        while (timer < duration)
         {
-            time += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
 
-            float t = time / duration;
+            float progress =
+                Mathf.Clamp01(timer / duration);
 
-            if (canvasGroup != null)
-                canvasGroup.alpha = Mathf.Lerp(0f, 1f, t);
+            float easedProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
 
-            transform.localScale = Vector3.Lerp(fromScale, toScale, t);
+            canvasGroup.alpha =
+                easedProgress;
+
+            transform.localScale =
+                Vector3.LerpUnclamped(
+                    fromScale,
+                    targetScale,
+                    easedProgress
+                );
 
             yield return null;
         }
 
-        if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
+        canvasGroup.alpha = 1f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
 
-        transform.localScale = toScale;
+        transform.localScale = targetScale;
+
         animationRoutine = null;
+    }
+
+    private void StopAnimation()
+    {
+        if (animationRoutine == null)
+            return;
+
+        StopCoroutine(animationRoutine);
+        animationRoutine = null;
+    }
+
+    private void OnValidate()
+    {
+        duration =
+            Mathf.Max(0.01f, duration);
+
+        startScale =
+            Mathf.Clamp(
+                startScale,
+                0.01f,
+                1f
+            );
     }
 }

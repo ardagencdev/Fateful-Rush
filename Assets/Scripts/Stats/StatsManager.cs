@@ -22,7 +22,7 @@ public static class StatsManager
         "Stats_TotalCoins";
 
     private const string TotalCoinValueKey =
-    "Stats_TotalCoinValue";
+        "Stats_TotalCoinValue";
 
     private const string NormalCoinsKey =
         "Stats_NormalCoins";
@@ -102,19 +102,10 @@ public static class StatsManager
         string coinType
     )
     {
-        /*
-         * TotalCoins şu anda coin değerini değil,
-         * toplanan coin adedini temsil ediyor.
-         *
-         * value parametresi mevcut çağrıları bozmamak
-         * için korunuyor ancak istatistikte kullanılmıyor.
-         */
         AddInt(TotalCoinsKey);
 
         if (value > 0)
-        {
             AddInt(TotalCoinValueKey, value);
-        }
 
         switch (coinType)
         {
@@ -132,7 +123,7 @@ public static class StatsManager
 
             default:
                 Debug.LogWarning(
-                    $"Unknown coin type received: {coinType}"
+                    $"[StatsManager] Unknown coin type: {coinType}"
                 );
                 break;
         }
@@ -169,7 +160,7 @@ public static class StatsManager
         if (string.IsNullOrWhiteSpace(key))
         {
             Debug.LogWarning(
-                "Best time could not be saved because the key was empty."
+                "[StatsManager] Best time key is empty."
             );
 
             return;
@@ -180,7 +171,7 @@ public static class StatsManager
             float.IsInfinity(time))
         {
             Debug.LogWarning(
-                $"Invalid best time value received: {time}"
+                $"[StatsManager] Invalid best time: {time}"
             );
 
             return;
@@ -197,6 +188,100 @@ public static class StatsManager
 
         PlayerPrefs.SetFloat(key, time);
         PlayerPrefs.Save();
+    }
+
+    public static int GetTotalRuns()
+    {
+        return GetInt(TotalRunsKey);
+    }
+
+    public static int GetTotalWins()
+    {
+        return GetInt(TotalWinsKey);
+    }
+
+    public static int GetTotalDeaths()
+    {
+        return GetInt(TotalDeathsKey);
+    }
+
+    public static int GetTotalCoins()
+    {
+        return GetInt(TotalCoinsKey);
+    }
+
+    public static int GetTotalCoinValue()
+    {
+        return GetInt(TotalCoinValueKey);
+    }
+
+    public static int GetNormalCoins()
+    {
+        return GetInt(NormalCoinsKey);
+    }
+
+    public static int GetGoldCoins()
+    {
+        return GetInt(GoldCoinsKey);
+    }
+
+    public static int GetRareCoins()
+    {
+        return GetInt(RareCoinsKey);
+    }
+
+    public static int GetDashUses()
+    {
+        return GetInt(DashUsesKey);
+    }
+
+    public static int GetCloneUses()
+    {
+        return GetInt(CloneUsesKey);
+    }
+
+    public static int GetSlowBuffUses()
+    {
+        return GetInt(SlowBuffUsesKey);
+    }
+
+    public static int GetArmorBuffUses()
+    {
+        return GetInt(ArmorBuffUsesKey);
+    }
+
+    public static int GetArmorKills()
+    {
+        return GetInt(ArmorKillsKey);
+    }
+
+    public static float GetTotalPlayTime()
+    {
+        return GetFloat(TotalPlayTimeKey);
+    }
+
+    public static float GetLevelBestTime(
+        int levelNumber
+    )
+    {
+        if (levelNumber < FirstLevelNumber ||
+            levelNumber > LastLevelNumber)
+        {
+            return -1f;
+        }
+
+        return PlayerPrefs.GetFloat(
+            BestTimeLevelPrefix + levelNumber,
+            -1f
+        );
+    }
+
+    public static float GetDevRoomBestTime()
+    {
+        return PlayerPrefs.GetFloat(
+            BestTimeDevRoomKey,
+            -1f
+        );
     }
 
     public static int GetInt(string key)
@@ -220,11 +305,11 @@ public static class StatsManager
         int amount = 1
     )
     {
-        if (string.IsNullOrWhiteSpace(key))
+        if (string.IsNullOrWhiteSpace(key) ||
+            amount == 0)
+        {
             return;
-
-        if (amount == 0)
-            return;
+        }
 
         int currentValue =
             PlayerPrefs.GetInt(key, 0);
@@ -232,11 +317,12 @@ public static class StatsManager
         long newValue =
             (long)currentValue + amount;
 
-        int safeValue = (int)Mathf.Clamp(
-            newValue,
-            0L,
-            int.MaxValue
-        );
+        int safeValue =
+            (int)Mathf.Clamp(
+                newValue,
+                0L,
+                int.MaxValue
+            );
 
         PlayerPrefs.SetInt(key, safeValue);
         PlayerPrefs.Save();
@@ -284,7 +370,8 @@ public static class StatsManager
     {
         for (int i = 0; i < keys.Length; i++)
         {
-            PlayerPrefs.DeleteKey(keys[i]);
+            if (!string.IsNullOrWhiteSpace(keys[i]))
+                PlayerPrefs.DeleteKey(keys[i]);
         }
     }
 }

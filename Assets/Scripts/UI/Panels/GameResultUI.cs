@@ -5,35 +5,55 @@ using UnityEngine.SceneManagement;
 public class GameResultUI : MonoBehaviour
 {
     [Header("Main")]
-    public GameObject resultPanel;
+    [SerializeField] private GameObject resultPanel;
 
     [Header("UI Groups")]
-    public GameObject winUI;
-    public GameObject loseUI;
+    [SerializeField] private GameObject winUI;
+    [SerializeField] private GameObject loseUI;
 
     [Header("Win Values")]
-    public TextMeshProUGUI winScoreValue;
-    public TextMeshProUGUI winTimeValue;
-    public TextMeshProUGUI winBestTimeValue;
+    [SerializeField] private TextMeshProUGUI winScoreValue;
+    [SerializeField] private TextMeshProUGUI winTimeValue;
+    [SerializeField] private TextMeshProUGUI winBestTimeValue;
 
     [Header("Lose Values")]
-    public TextMeshProUGUI destroyedByText;
-    public TextMeshProUGUI loseScoreValue;
-    public TextMeshProUGUI loseSurvivedValue;
+    [SerializeField] private TextMeshProUGUI destroyedByText;
+    [SerializeField] private TextMeshProUGUI loseScoreValue;
+    [SerializeField] private TextMeshProUGUI loseSurvivedValue;
 
     [Header("Level Mode")]
-    public GameObject nextLevelButton;
-    public LevelConfig[] levels;
-    public string gameSceneName = "a";
+    [SerializeField] private GameObject nextLevelButton;
+    [SerializeField] private LevelConfig[] levels;
+    [SerializeField] private string gameSceneName = "a";
 
     [Header("Buttons")]
-    public GameObject tryAgainButton;
-    public GameObject menuButton;
+    [SerializeField] private GameObject tryAgainButton;
+    [SerializeField] private GameObject menuButton;
+
+    private LevelManager levelManager;
 
     private void Awake()
     {
+        levelManager = FindAnyObjectByType<LevelManager>();
+
         if (resultPanel == null)
-            resultPanel = gameObject;
+        {
+            Debug.LogError(
+                "[GameResultUI] Result Panel atanmamış.",
+                this
+            );
+
+            return;
+        }
+
+        if (resultPanel == gameObject)
+        {
+            Debug.LogWarning(
+                "[GameResultUI] Result Panel, scriptin bulunduğu GameObject ile aynı. " +
+                "Script root objede, Result Panel ise alt objede bulunmalı.",
+                this
+            );
+        }
 
         Hide();
     }
@@ -41,22 +61,23 @@ public class GameResultUI : MonoBehaviour
     public void ShowWin(int score, float time)
     {
         ShowPanel();
+        SetResultState(true);
 
-        if (winUI != null) winUI.SetActive(true);
-        if (loseUI != null) loseUI.SetActive(false);
+        string bestTimeKey = GetBestTimeKey();
 
-        LevelManager levelManager = FindAnyObjectByType<LevelManager>();
-        string bestTimeKey = GetBestTimeKey(levelManager);
-        float bestTime = PlayerPrefs.GetFloat(bestTimeKey, time);
+        float bestTime = PlayerPrefs.GetFloat(
+            bestTimeKey,
+            time
+        );
 
         if (winScoreValue != null)
             winScoreValue.text = score.ToString();
 
         if (winTimeValue != null)
-            winTimeValue.text = time.ToString("F1") + " s";
+            winTimeValue.text = FormatTime(time);
 
         if (winBestTimeValue != null)
-            winBestTimeValue.text = bestTime.ToString("F1") + " s";
+            winBestTimeValue.text = FormatTime(bestTime);
 
         UpdateNextLevelButton();
     }
@@ -64,9 +85,7 @@ public class GameResultUI : MonoBehaviour
     public void ShowLose(int score, float time)
     {
         ShowPanel();
-
-        if (winUI != null) winUI.SetActive(false);
-        if (loseUI != null) loseUI.SetActive(true);
+        SetResultState(false);
 
         if (destroyedByText != null)
             destroyedByText.text = LastDeathInfo.Cause;
@@ -75,16 +94,30 @@ public class GameResultUI : MonoBehaviour
             loseScoreValue.text = score.ToString();
 
         if (loseSurvivedValue != null)
-            loseSurvivedValue.text = time.ToString("F1") + " s";
+            loseSurvivedValue.text = FormatTime(time);
 
         if (nextLevelButton != null)
             nextLevelButton.SetActive(false);
     }
 
-    private string GetBestTimeKey(LevelManager levelManager)
+    private void SetResultState(bool won)
     {
-        if (SelectedLevelData.isLevelMode && levelManager != null && levelManager.currentLevel != null)
-            return "BestTime_Level_" + levelManager.currentLevel.levelNumber;
+        if (winUI != null)
+            winUI.SetActive(won);
+
+        if (loseUI != null)
+            loseUI.SetActive(!won);
+    }
+
+    private string GetBestTimeKey()
+    {
+        if (SelectedLevelData.IsLevelMode &&
+            levelManager != null &&
+            levelManager.currentLevel != null)
+        {
+            return "BestTime_Level_" +
+                   levelManager.currentLevel.levelNumber;
+        }
 
         return "BestTime_DevRoom";
     }
@@ -94,29 +127,38 @@ public class GameResultUI : MonoBehaviour
         if (nextLevelButton == null)
             return;
 
-        LevelConfig currentLevel = FindAnyObjectByType<LevelManager>()?.currentLevel;
+        LevelConfig currentLevel =
+            levelManager != null
+                ? levelManager.currentLevel
+                : null;
 
-        if (!SelectedLevelData.isLevelMode || currentLevel == null)
-        {
-            nextLevelButton.SetActive(false);
-            return;
-        }
+        bool hasNextLevel =
+            SelectedLevelData.IsLevelMode &&
+            currentLevel != null &&
+            GetNextLevel(currentLevel) != null;
 
-        bool hasNextLevel = GetNextLevel(currentLevel) != null;
         nextLevelButton.SetActive(hasNextLevel);
     }
 
     private LevelConfig GetNextLevel(LevelConfig currentLevel)
     {
-        if (currentLevel == null || levels == null)
+        if (currentLevel == null ||
+            levels == null ||
+            levels.Length == 0)
+        {
             return null;
+        }
 
-        int nextLevelNumber = currentLevel.levelNumber + 1;
+        int nextLevelNumber =
+            currentLevel.levelNumber + 1;
 
         foreach (LevelConfig level in levels)
         {
-            if (level != null && level.levelNumber == nextLevelNumber)
+            if (level != null &&
+                level.levelNumber == nextLevelNumber)
+            {
                 return level;
+            }
         }
 
         return null;
@@ -124,11 +166,15 @@ public class GameResultUI : MonoBehaviour
 
     public void NextLevel()
     {
-        Time.timeScale = 1f;
-        RestorePhysics();
+        PrepareForSceneChange();
 
-        LevelConfig currentLevel = FindAnyObjectByType<LevelManager>()?.currentLevel;
-        LevelConfig nextLevel = GetNextLevel(currentLevel);
+        LevelConfig currentLevel =
+            levelManager != null
+                ? levelManager.currentLevel
+                : null;
+
+        LevelConfig nextLevel =
+            GetNextLevel(currentLevel);
 
         if (nextLevel == null)
         {
@@ -137,35 +183,24 @@ public class GameResultUI : MonoBehaviour
         }
 
         SelectedLevelData.SetMission(nextLevel);
-
-        if (SceneTransition.Instance != null)
-            SceneTransition.Instance.LoadSceneWithFade(gameSceneName);
-        else
-            SceneManager.LoadScene(gameSceneName);
+        LoadScene(gameSceneName);
     }
 
     public void TryAgain()
     {
-        Time.timeScale = 1f;
-        RestorePhysics();
+        PrepareForSceneChange();
 
-        if (SceneTransition.Instance != null)
-            SceneTransition.Instance.LoadSceneWithFade(SceneManager.GetActiveScene().name);
-        else
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadScene(
+            SceneManager.GetActiveScene().name
+        );
     }
 
     public void GoMenu()
     {
-        Time.timeScale = 1f;
-        RestorePhysics();
+        PrepareForSceneChange();
 
         SelectedLevelData.Clear();
-
-        if (SceneTransition.Instance != null)
-            SceneTransition.Instance.LoadSceneWithFade("MainMenu");
-        else
-            SceneManager.LoadScene("MainMenu");
+        LoadScene("MainMenu");
     }
 
     public void Hide()
@@ -176,21 +211,20 @@ public class GameResultUI : MonoBehaviour
 
     private void ShowPanel()
     {
-        gameObject.SetActive(true);
+        if (resultPanel == null)
+            return;
 
-        if (resultPanel != null)
+        resultPanel.SetActive(true);
+        resultPanel.transform.SetAsLastSibling();
+
+        CanvasGroup canvasGroup =
+            resultPanel.GetComponent<CanvasGroup>();
+
+        if (canvasGroup != null)
         {
-            resultPanel.SetActive(true);
-            resultPanel.transform.SetAsLastSibling();
-
-            CanvasGroup canvasGroup = resultPanel.GetComponent<CanvasGroup>();
-
-            if (canvasGroup != null)
-            {
-                canvasGroup.alpha = 1f;
-                canvasGroup.interactable = true;
-                canvasGroup.blocksRaycasts = true;
-            }
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
         }
 
         if (tryAgainButton != null)
@@ -200,11 +234,51 @@ public class GameResultUI : MonoBehaviour
             menuButton.SetActive(true);
     }
 
-    private void RestorePhysics()
+    private void PrepareForSceneChange()
     {
-        Rigidbody2D[] bodies = FindObjectsByType<Rigidbody2D>(FindObjectsInactive.Exclude);
+        Time.timeScale = 1f;
+        RestorePhysics();
+    }
 
-        foreach (Rigidbody2D rb in bodies)
-            rb.simulated = true;
+    private void LoadScene(string sceneName)
+    {
+        if (string.IsNullOrWhiteSpace(sceneName))
+        {
+            Debug.LogError(
+                "[GameResultUI] Yüklenecek sahne adı boş.",
+                this
+            );
+
+            return;
+        }
+
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance
+                .LoadSceneWithFade(sceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+    }
+
+    private static string FormatTime(float time)
+    {
+        return Mathf.Max(0f, time).ToString("F1") + " s";
+    }
+
+    private static void RestorePhysics()
+    {
+        Rigidbody2D[] bodies =
+            FindObjectsByType<Rigidbody2D>(
+                FindObjectsInactive.Exclude
+            );
+
+        foreach (Rigidbody2D body in bodies)
+        {
+            if (body != null)
+                body.simulated = true;
+        }
     }
 }

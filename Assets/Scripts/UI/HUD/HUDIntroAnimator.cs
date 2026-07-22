@@ -116,9 +116,17 @@ public class HUDIntroAnimator : MonoBehaviour
         if (target == null)
             yield break;
 
-        target.SetActive(true);
+        Transform targetTransform =
+            target.transform;
 
-        Transform targetTransform = target.transform;
+        /*
+         * UIButtonEffect gibi componentlerin Awake sırasında
+         * scale değerini 0 olarak kaydetmesini engeller.
+         */
+        targetTransform.localScale =
+            Vector3.one * finalScale;
+
+        target.SetActive(true);
 
         if (popDuration <= 0f)
         {
@@ -135,13 +143,16 @@ public class HUDIntroAnimator : MonoBehaviour
 
         while (elapsedTime < popDuration)
         {
-            elapsedTime += Time.unscaledDeltaTime;
+            elapsedTime +=
+                Time.unscaledDeltaTime;
 
-            float normalizedTime = Mathf.Clamp01(
-                elapsedTime / popDuration
-            );
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime / popDuration
+                );
 
-            float scale = EvaluateScale(normalizedTime);
+            float scale =
+                EvaluateScale(normalizedTime);
 
             targetTransform.localScale =
                 Vector3.one * scale;

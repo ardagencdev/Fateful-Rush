@@ -4,6 +4,11 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class GameplayMusicFade : MonoBehaviour
 {
+    [Header("Music Clips")]
+    [Tooltip("Bütün levellardaki tutorial ekranlarında kullanılacak ortak müzik.")]
+    [SerializeField]
+    private AudioClip tutorialMusic;
+
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)]
     private float gameplayMusicBaseVolume = 0.2f;
@@ -15,6 +20,10 @@ public class GameplayMusicFade : MonoBehaviour
     [SerializeField, Min(0f)]
     private float fadeOutDuration = 0.4f;
 
+    [Header("Music Transition")]
+    [SerializeField, Min(0f)]
+    private float clipTransitionDuration = 0.8f;
+
     public float FadeOutDuration => fadeOutDuration;
 
     private AudioSource source;
@@ -25,14 +34,82 @@ public class GameplayMusicFade : MonoBehaviour
         source = GetComponent<AudioSource>();
 
         source.playOnAwake = false;
+        source.loop = true;
         source.volume = 0f;
+    }
+
+    public void PlayTutorialMusic()
+    {
+        if (tutorialMusic == null)
+        {
+            Debug.LogWarning(
+                "GameplayMusicFade: Tutorial Music atanmamış."
+            );
+
+            StopImmediately();
+            return;
+        }
+
+        PlayClipAndFadeIn(tutorialMusic);
+    }
+
+    public void PlayClipAndFadeIn(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            StopImmediately();
+            return;
+        }
+
+        StopCurrentFade();
+
+        source.Stop();
+        source.clip = clip;
+        source.loop = true;
+        source.volume = 0f;
+        source.Play();
+
+        FadeTo(
+            GetTargetVolume(),
+            fadeInDuration
+        );
+    }
+
+    public void TransitionToClip(AudioClip newClip)
+    {
+        if (newClip == null)
+        {
+            FadeOut();
+            return;
+        }
+
+        if (source.isPlaying &&
+            source.clip == newClip)
+        {
+            FadeTo(
+                GetTargetVolume(),
+                fadeInDuration
+            );
+
+            return;
+        }
+
+        StopCurrentFade();
+
+        fadeRoutine = StartCoroutine(
+            TransitionClipRoutine(newClip)
+        );
     }
 
     public void PlayAndFadeIn()
     {
+        if (source.clip == null)
+            return;
+
         StopCurrentFade();
 
         source.Stop();
+        source.loop = true;
         source.volume = 0f;
         source.Play();
 
@@ -44,6 +121,9 @@ public class GameplayMusicFade : MonoBehaviour
 
     public void FadeIn()
     {
+        if (source.clip == null)
+            return;
+
         if (!source.isPlaying)
             source.Play();
 
@@ -70,6 +150,7 @@ public class GameplayMusicFade : MonoBehaviour
         StopCurrentFade();
 
         source.Stop();
+        source.clip = null;
         source.volume = 0f;
     }
 
@@ -84,13 +165,51 @@ public class GameplayMusicFade : MonoBehaviour
         );
     }
 
+    private IEnumerator TransitionClipRoutine(
+        AudioClip newClip
+    )
+    {
+        float halfDuration =
+            Mathf.Max(
+                0.01f,
+                clipTransitionDuration * 0.5f
+            );
+
+        if (source.isPlaying)
+        {
+            yield return FadeVolumeRoutine(
+                0f,
+                halfDuration
+            );
+        }
+
+        source.Stop();
+        source.clip = newClip;
+        source.loop = true;
+        source.volume = 0f;
+        source.Play();
+
+        yield return FadeVolumeRoutine(
+            GetTargetVolume(),
+            halfDuration
+        );
+
+        fadeRoutine = null;
+    }
+
     private float GetTargetVolume()
     {
         bool soundOn =
-            PlayerPrefs.GetInt("SoundOn", 1) == 1;
+            PlayerPrefs.GetInt(
+                "SoundOn",
+                1
+            ) == 1;
 
         bool gameplayMusicOn =
-            PlayerPrefs.GetInt("GameplayMusicOn", 1) == 1;
+            PlayerPrefs.GetInt(
+                "GameplayMusicOn",
+                1
+            ) == 1;
 
         if (!soundOn || !gameplayMusicOn)
             return 0f;
@@ -108,7 +227,8 @@ public class GameplayMusicFade : MonoBehaviour
     private void FadeTo(
         float targetVolume,
         float duration,
-        bool stopAfterFade = false)
+        bool stopAfterFade = false
+    )
     {
         StopCurrentFade();
 
@@ -124,7 +244,27 @@ public class GameplayMusicFade : MonoBehaviour
     private IEnumerator FadeRoutine(
         float targetVolume,
         float duration,
-        bool stopAfterFade)
+        bool stopAfterFade
+    )
+    {
+        yield return FadeVolumeRoutine(
+            targetVolume,
+            duration
+        );
+
+        if (stopAfterFade)
+        {
+            source.Stop();
+            source.volume = 0f;
+        }
+
+        fadeRoutine = null;
+    }
+
+    private IEnumerator FadeVolumeRoutine(
+        float targetVolume,
+        float duration
+    )
     {
         duration = Mathf.Max(
             0.01f,
@@ -158,14 +298,6 @@ public class GameplayMusicFade : MonoBehaviour
         }
 
         source.volume = targetVolume;
-
-        if (stopAfterFade)
-        {
-            source.Stop();
-            source.volume = 0f;
-        }
-
-        fadeRoutine = null;
     }
 
     private void StopCurrentFade()
@@ -194,6 +326,12 @@ public class GameplayMusicFade : MonoBehaviour
             Mathf.Max(
                 0f,
                 fadeOutDuration
+            );
+
+        clipTransitionDuration =
+            Mathf.Max(
+                0f,
+                clipTransitionDuration
             );
 
         gameplayMusicBaseVolume =

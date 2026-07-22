@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 0
   levelName: Test Level
-  showTutorial: 0
+  showTutorial: 1
   tutorialTitle: LEVEL BRIEFING
   tutorialPages:
   - Tutorial text...
+  gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winScore: 100
   showGameTimerHUD: 1
   playerMoveSpeed: 7

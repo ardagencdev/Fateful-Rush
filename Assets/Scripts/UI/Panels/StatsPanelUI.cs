@@ -4,17 +4,17 @@ using UnityEngine;
 public class StatsPanelUI : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject mainMenuPanel;
-    public GameObject statsPanel;
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject statsPanel;
 
     [Header("Fade")]
-    public UIPanelFadeSwitcher fadeSwitcher;
+    [SerializeField] private UIPanelFadeSwitcher fadeSwitcher;
 
     [Header("Texts")]
-    public TextMeshProUGUI generalText;
-    public TextMeshProUGUI gameplayText;
-    public TextMeshProUGUI bestTimesLeftText;
-    public TextMeshProUGUI bestTimesRightText;
+    [SerializeField] private TextMeshProUGUI generalText;
+    [SerializeField] private TextMeshProUGUI gameplayText;
+    [SerializeField] private TextMeshProUGUI bestTimesLeftText;
+    [SerializeField] private TextMeshProUGUI bestTimesRightText;
 
     private void Awake()
     {
@@ -39,85 +39,145 @@ public class StatsPanelUI : MonoBehaviour
         RefreshStats();
     }
 
-    private void Switch(GameObject fromPanel, GameObject toPanel)
+    private void Switch(
+        GameObject fromPanel,
+        GameObject toPanel
+    )
     {
         if (fadeSwitcher != null)
-            fadeSwitcher.SwitchPanel(fromPanel, toPanel);
-        else
         {
-            if (fromPanel != null) fromPanel.SetActive(false);
-            if (toPanel != null) toPanel.SetActive(true);
+            fadeSwitcher.SwitchPanel(
+                fromPanel,
+                toPanel
+            );
+
+            return;
         }
+
+        if (fromPanel != null)
+            fromPanel.SetActive(false);
+
+        if (toPanel != null)
+            toPanel.SetActive(true);
     }
 
     private void RefreshStats()
     {
-        if (generalText == null || gameplayText == null || bestTimesLeftText == null || bestTimesRightText == null)
-            return;
+        int runs =
+            StatsManager.GetTotalRuns();
 
-        int runs = StatsManager.GetInt("Stats_TotalRuns");
-        int wins = StatsManager.GetInt("Stats_TotalWins");
-        int deaths = StatsManager.GetInt("Stats_TotalDeaths");
+        int wins =
+            StatsManager.GetTotalWins();
 
-        float winRate = runs > 0 ? (wins / (float)runs) * 100f : 0f;
-        float playTime = StatsManager.GetFloat("Stats_TotalPlayTime");
+        int deaths =
+            StatsManager.GetTotalDeaths();
 
-        generalText.text =
-            "GENERAL\n" +
-            $"Total Runs: {runs}\n" +
-            $"Total Wins: {wins}\n" +
-            $"Total Deaths: {deaths}\n" +
-            $"Win Rate: {winRate:F1}%\n" +
-            $"Total Play Time:\n{FormatTime(playTime)}";
+        float winRate =
+            runs > 0
+                ? wins / (float)runs * 100f
+                : 0f;
 
-        gameplayText.text =
-    "GAMEPLAY\n" +
-    $"Total Coins: {StatsManager.GetInt("Stats_TotalCoins")}\n" +
-    $"Coins Earned: {StatsManager.GetInt("Stats_TotalCoinValue")}\n" +
-    $"Normal Coins: {StatsManager.GetInt("Stats_NormalCoins")}\n" +
-    $"Gold Coins: {StatsManager.GetInt("Stats_GoldCoins")}\n" +
-    $"Rare Coins: {StatsManager.GetInt("Stats_RareCoins")}\n\n" +
-    $"Dash Uses: {StatsManager.GetInt("Stats_DashUses")}\n" +
-    $"Clone Uses: {StatsManager.GetInt("Stats_CloneUses")}\n\n" +
-    $"Slow Buff Uses: {StatsManager.GetInt("Stats_SlowBuffUses")}\n" +
-    $"Armor Buff Uses: {StatsManager.GetInt("Stats_ArmorBuffUses")}\n" +
-    $"Armor Kills: {StatsManager.GetInt("Stats_ArmorKills")}";
+        if (generalText != null)
+        {
+            generalText.text =
+                "GENERAL\n" +
+                $"Total Runs: {runs}\n" +
+                $"Total Wins: {wins}\n" +
+                $"Total Deaths: {deaths}\n" +
+                $"Win Rate: {winRate:F1}%\n" +
+                $"Total Play Time:\n" +
+                FormatTime(
+                    StatsManager.GetTotalPlayTime()
+                );
+        }
 
-        bestTimesLeftText.text =
-            "BEST TIMES\n" +
-            $"Dev Room: {FormatBestTime("BestTime_DevRoom")}\n" +
-            GetBestTimesText(1, 10);
+        if (gameplayText != null)
+        {
+            gameplayText.text =
+                "GAMEPLAY\n" +
+                $"Total Coins: {StatsManager.GetTotalCoins()}\n" +
+                $"Coins Earned: {StatsManager.GetTotalCoinValue()}\n" +
+                $"Normal Coins: {StatsManager.GetNormalCoins()}\n" +
+                $"Gold Coins: {StatsManager.GetGoldCoins()}\n" +
+                $"Rare Coins: {StatsManager.GetRareCoins()}\n\n" +
+                $"Dash Uses: {StatsManager.GetDashUses()}\n" +
+                $"Clone Uses: {StatsManager.GetCloneUses()}\n\n" +
+                $"Slow Buff Uses: {StatsManager.GetSlowBuffUses()}\n" +
+                $"Armor Buff Uses: {StatsManager.GetArmorBuffUses()}\n" +
+                $"Armor Kills: {StatsManager.GetArmorKills()}";
+        }
 
-        bestTimesRightText.text =
-            "\n\n" +
-            GetBestTimesText(11, 20);
+        if (bestTimesLeftText != null)
+        {
+            bestTimesLeftText.text =
+                "BEST TIMES\n" +
+                $"Dev Room: {FormatBestTime(StatsManager.GetDevRoomBestTime())}\n" +
+                GetBestTimesText(1, 10);
+        }
+
+        if (bestTimesRightText != null)
+        {
+            bestTimesRightText.text =
+                "\n\n" +
+                GetBestTimesText(11, 20);
+        }
     }
 
-    private string GetBestTimesText(int startLevel, int endLevel)
+    private static string GetBestTimesText(
+        int startLevel,
+        int endLevel
+    )
     {
         string result = "";
 
-        for (int i = startLevel; i <= endLevel; i++)
-            result += $"Level {i}: {FormatBestTime("BestTime_Level_" + i)}\n";
+        for (int level = startLevel;
+             level <= endLevel;
+             level++)
+        {
+            float bestTime =
+                StatsManager.GetLevelBestTime(level);
+
+            result +=
+                $"Level {level}: " +
+                FormatBestTime(bestTime) +
+                "\n";
+        }
 
         return result;
     }
 
-    private string FormatBestTime(string key)
+    private static string FormatBestTime(
+        float time
+    )
     {
-        float time = PlayerPrefs.GetFloat(key, -1f);
-        return time < 0f ? "--" : time.ToString("F1") + "s";
+        return time < 0f
+            ? "--"
+            : time.ToString("F1") + " s";
     }
 
-    private string FormatTime(float seconds)
+    private static string FormatTime(
+        float seconds
+    )
     {
-        int totalSeconds = Mathf.FloorToInt(seconds);
-        int hours = totalSeconds / 3600;
-        int minutes = (totalSeconds % 3600) / 60;
-        int secs = totalSeconds % 60;
+        int totalSeconds =
+            Mathf.FloorToInt(
+                Mathf.Max(0f, seconds)
+            );
+
+        int hours =
+            totalSeconds / 3600;
+
+        int minutes =
+            totalSeconds % 3600 / 60;
+
+        int secs =
+            totalSeconds % 60;
 
         if (hours > 0)
-            return $"{hours}h {minutes}m {secs}s";
+        {
+            return
+                $"{hours}h {minutes}m {secs}s";
+        }
 
         return $"{minutes}m {secs}s";
     }

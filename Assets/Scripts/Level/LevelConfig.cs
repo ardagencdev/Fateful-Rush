@@ -40,6 +40,7 @@ public class LevelConfig : ScriptableObject
 
     [Header("TUTORIAL")]
     public bool showTutorial = true;
+
     public string tutorialTitle = "LEVEL BRIEFING";
 
     [TextArea(4, 10)]
@@ -47,6 +48,10 @@ public class LevelConfig : ScriptableObject
     {
         "Tutorial text..."
     };
+
+    [Header("MUSIC")]
+    [Tooltip("Bu level boyunca çalacak gameplay müziği.")]
+    public AudioClip gameplayMusic;
 
     [Header("WIN")]
     [Min(1)]
