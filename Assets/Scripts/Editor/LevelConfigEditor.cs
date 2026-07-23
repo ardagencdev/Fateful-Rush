@@ -130,9 +130,9 @@ public class LevelConfigEditor : Editor
         );
 
         SummaryRow(
-            "Win Score",
-            config.winScore.ToString()
-        );
+            "Win Condition",
+            GetWinConditionSummary(config)
+         );
 
         SummaryRow(
             "Enemies",
@@ -176,6 +176,27 @@ public class LevelConfigEditor : Editor
         );
 
         EditorGUILayout.EndVertical();
+    }
+
+    private string GetWinConditionSummary(
+    LevelConfig config)
+    {
+        switch (config.winCondition)
+        {
+            case WinConditionType.ReachScore:
+                return $"Reach {config.winScore} Score";
+
+            case WinConditionType.SurviveTime:
+                return $"Survive {config.timeLimit:0.##} Seconds";
+
+            case WinConditionType.ReachScoreWithinTime:
+                return
+                    $"Reach {config.winScore} Score " +
+                    $"in {config.timeLimit:0.##} Seconds";
+
+            default:
+                return "Unknown";
+        }
     }
 
     private string GetEnemySummary(LevelConfig config)
@@ -290,29 +311,53 @@ public class LevelConfigEditor : Editor
         if (config == null)
             return;
 
-        if (!config.normalCoinEnabled &&
+        bool requiresScore =
+    config.winCondition ==
+        WinConditionType.ReachScore ||
+    config.winCondition ==
+        WinConditionType.ReachScoreWithinTime;
+
+        if (requiresScore &&
+            !config.normalCoinEnabled &&
             !config.goldCoinEnabled &&
             !config.rareCoinEnabled)
         {
             Warning(
-                "Bütün coin türleri kapalı. " +
-                "Oyuncu skor kazanamayacağı için level tamamlanamayabilir."
+                "Bu win condition skor gerektiriyor fakat bütün coin türleri kapalı. " +
+                "Oyuncu levelı tamamlayamaz."
             );
         }
 
-        if (config.maxCoinCount <= 0)
+        if (requiresScore &&
+            config.maxCoinCount <= 0)
         {
             Warning(
-                "Max Coin Count 0. Coin spawn olmayacak."
+                "Bu win condition skor gerektiriyor fakat Max Coin Count 0. " +
+                "Coin spawn olmayacağı için level tamamlanamaz."
             );
         }
 
-        if (config.bossEnabled &&
-            config.bossSpawnScore >= config.winScore)
+        if (requiresScore &&
+        config.bossEnabled &&
+        config.bossSpawnScore >= config.winScore)
         {
             Warning(
                 "Boss Spawn Score, Win Score değerine eşit veya daha büyük. " +
                 "Oyuncu boss görünmeden levelı bitirebilir."
+            );
+        }
+
+        bool requiresTimeLimit =
+        config.winCondition ==
+        WinConditionType.SurviveTime ||
+        config.winCondition ==
+        WinConditionType.ReachScoreWithinTime;
+
+        if (requiresTimeLimit &&
+            config.timeLimit <= 0f)
+        {
+            Warning(
+                "Bu win condition süre gerektiriyor fakat Time Limit 0 veya daha düşük."
             );
         }
 
@@ -362,7 +407,39 @@ public class LevelConfigEditor : Editor
             {
                 Prop("levelNumber");
                 Prop("levelName");
-                Prop("winScore");
+
+                Space();
+
+                Prop("winCondition");
+
+                switch ((WinConditionType)Enum("winCondition"))
+                {
+                    case WinConditionType.ReachScore:
+                        Prop("winScore");
+
+                        Help(
+                            "Oyuncu belirlenen skora ulaştığında level kazanılır."
+                        );
+                        break;
+
+                    case WinConditionType.SurviveTime:
+                        Prop("timeLimit");
+
+                        Help(
+                            "Oyuncu süre dolana kadar hayatta kalırsa level kazanılır."
+                        );
+                        break;
+
+                    case WinConditionType.ReachScoreWithinTime:
+                        Prop("winScore");
+                        Prop("timeLimit");
+
+                        Help(
+                            "Oyuncu süre dolmadan belirlenen skora ulaşmalıdır. " +
+                            "Süre dolarsa level kaybedilir."
+                        );
+                        break;
+                }
             }
         );
     }

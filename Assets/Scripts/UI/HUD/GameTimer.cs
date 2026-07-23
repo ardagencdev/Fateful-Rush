@@ -11,13 +11,35 @@ public class GameTimer : MonoBehaviour
     [Min(0f)]
     public float uiRefreshInterval = 0.05f;
 
+    private GameStateManager gameStateManager;
+    private LevelConfig levelConfig;
+
     private float elapsedTime;
     private float uiRefreshTimer;
 
     private bool showHUDTimer;
+    private bool useCountdown;
 
     public bool IsTiming { get; private set; }
+
     public float ElapsedTime => elapsedTime;
+
+    public float RemainingTime
+    {
+        get
+        {
+            if (!useCountdown ||
+                levelConfig == null)
+            {
+                return 0f;
+            }
+
+            return Mathf.Max(
+                0f,
+                levelConfig.timeLimit - elapsedTime
+            );
+        }
+    }
 
     private void Awake()
     {
@@ -46,13 +68,13 @@ public class GameTimer : MonoBehaviour
         if (!IsTiming)
             return;
 
-        // Pause sırasında timer ilerlemez.
         if (Time.timeScale <= 0f)
             return;
 
-        // Slow etkisinden bağımsız gerçek oyun süresini sayar.
-        elapsedTime += Time.unscaledDeltaTime;
-        uiRefreshTimer += Time.unscaledDeltaTime;
+        UpdateElapsedTime();
+
+        uiRefreshTimer +=
+            Time.unscaledDeltaTime;
 
         if (uiRefreshInterval <= 0f ||
             uiRefreshTimer >= uiRefreshInterval)
@@ -76,6 +98,8 @@ public class GameTimer : MonoBehaviour
         if (!IsTiming)
             return;
 
+        UpdateElapsedTime();
+
         IsTiming = false;
         UpdateUI();
     }
@@ -93,12 +117,26 @@ public class GameTimer : MonoBehaviour
         IsTiming = false;
     }
 
+    private void UpdateElapsedTime()
+    {
+        if (gameStateManager != null)
+        {
+            elapsedTime =
+                gameStateManager.ElapsedGameTime;
+
+            return;
+        }
+
+        elapsedTime +=
+            Time.unscaledDeltaTime;
+    }
+
     private void ApplyLevelConfig()
     {
         LevelManager levelManager =
             FindAnyObjectByType<LevelManager>();
 
-        LevelConfig levelConfig =
+        levelConfig =
             levelManager != null
                 ? levelManager.currentLevel
                 : null;
@@ -107,14 +145,46 @@ public class GameTimer : MonoBehaviour
             levelConfig != null &&
             levelConfig.showGameTimerHUD;
 
+        useCountdown =
+            levelConfig != null &&
+            (
+                levelConfig.winCondition ==
+                    WinConditionType.SurviveTime ||
+                levelConfig.winCondition ==
+                    WinConditionType.ReachScoreWithinTime
+            );
+
         if (timerText != null)
-            timerText.gameObject.SetActive(showHUDTimer);
+        {
+            timerText.gameObject.SetActive(
+                showHUDTimer
+            );
+        }
     }
 
     private void UpdateUI()
     {
-        if (!showHUDTimer || timerText == null)
+        if (!showHUDTimer ||
+            timerText == null)
+        {
             return;
+        }
+
+        if (useCountdown &&
+            levelConfig != null)
+        {
+            float remainingTime =
+                Mathf.Max(
+                    0f,
+                    levelConfig.timeLimit -
+                    elapsedTime
+                );
+
+            timerText.text =
+                $"Time: {remainingTime:F1}";
+
+            return;
+        }
 
         timerText.text =
             $"Time: {elapsedTime:F1}";
@@ -123,7 +193,16 @@ public class GameTimer : MonoBehaviour
     private void RefreshReferences()
     {
         if (timerText == null)
-            timerText = GetComponent<TextMeshProUGUI>();
+        {
+            timerText =
+                GetComponent<TextMeshProUGUI>();
+        }
+
+        if (gameStateManager == null)
+        {
+            gameStateManager =
+                FindAnyObjectByType<GameStateManager>();
+        }
 
         if (timerText == null)
         {
@@ -132,11 +211,23 @@ public class GameTimer : MonoBehaviour
                 this
             );
         }
+
+        if (gameStateManager == null)
+        {
+            Debug.LogWarning(
+                "GameTimer could not find GameStateManager. " +
+                "Timer will use its internal fallback time.",
+                this
+            );
+        }
     }
 
     private void OnValidate()
     {
         uiRefreshInterval =
-            Mathf.Max(0f, uiRefreshInterval);
+            Mathf.Max(
+                0f,
+                uiRefreshInterval
+            );
     }
 }

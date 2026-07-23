@@ -129,7 +129,7 @@ public class LevelProgressionManager : MonoBehaviour
             this
         );
 
-        SceneManager.LoadScene(gameSceneName);
+        LoadSceneWithTransition(gameSceneName);
     }
 
     private void CompleteLevelMode()
@@ -151,7 +151,26 @@ public class LevelProgressionManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(mainMenuSceneName);
+        LoadSceneWithTransition(mainMenuSceneName);
+    }
+
+    private void LoadSceneWithTransition(string sceneName)
+    {
+        Time.timeScale = 1f;
+
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.LoadSceneWithFade(sceneName);
+            return;
+        }
+
+        Debug.LogWarning(
+            $"[LevelProgressionManager] SceneTransition bulunamadı. " +
+            $"'{sceneName}' sahnesi doğrudan yükleniyor.",
+            this
+        );
+
+        SceneManager.LoadScene(sceneName);
     }
 
     private bool HasValidLevels()

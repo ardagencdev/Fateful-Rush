@@ -7,10 +7,10 @@ public class CameraShake : MonoBehaviour
 
     [Header("Shake Quality")]
     [SerializeField, Min(1f)]
-    private float frequency = 28f;
+    private float frequency = 34f;
 
     [SerializeField, Range(1f, 5f)]
-    private float decayPower = 2f;
+    private float decayPower = 1.35f;
 
     private Coroutine shakeRoutine;
 

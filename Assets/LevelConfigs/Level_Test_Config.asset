@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 0
   levelName: Test Level
-  showTutorial: 1
+  showTutorial: 0
   tutorialTitle: LEVEL BRIEFING
   tutorialPages:
   - Tutorial text...
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
+  winCondition: 0
   winScore: 100
+  timeLimit: 35
   showGameTimerHUD: 1
   playerMoveSpeed: 7
   playerComboSpeedBonus: 1.2
@@ -126,8 +128,8 @@ MonoBehaviour:
   beaconHunterStunMultiplier: 0.8
   armorEnabled: 1
   slowEnabled: 1
-  armorMinSpawnTime: 1
-  armorMaxSpawnTime: 2
+  armorMinSpawnTime: 5
+  armorMaxSpawnTime: 10
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0

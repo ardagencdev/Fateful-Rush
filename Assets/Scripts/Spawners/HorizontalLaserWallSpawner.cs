@@ -131,20 +131,41 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
     {
         while (systemActive)
         {
+            yield return new WaitUntil(
+                () =>
+                    !systemActive ||
+                    GameStateManager.IsGameplayStarted
+            );
+
+            if (!systemActive || IsGameOver())
+                yield break;
+
             float waitTime = Random.Range(
                 minSpawnTime,
                 maxSpawnTime
             );
 
-            Debug.Log(
-                $"[HorizontalLaser] Next warning in {waitTime:F2} seconds.",
-                this
-            );
+            float elapsedTime = 0f;
 
-            yield return new WaitForSeconds(waitTime);
+            while (elapsedTime < waitTime)
+            {
+                if (!systemActive || IsGameOver())
+                    yield break;
 
-            if (!systemActive || IsGameOver())
-                yield break;
+                if (GameStateManager.IsGameplayStarted)
+                {
+                    elapsedTime += Time.deltaTime;
+                }
+
+                yield return null;
+            }
+
+            if (!systemActive ||
+                IsGameOver() ||
+                !GameStateManager.IsGameplayStarted)
+            {
+                continue;
+            }
 
             yield return SpawnHorizontalLaser();
         }
@@ -152,8 +173,13 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
         spawnCoroutine = null;
     }
 
+    
+
     private IEnumerator SpawnHorizontalLaser()
     {
+        if (!GameStateManager.IsGameplayStarted)
+            yield break;
+
         CameraWorldBounds bounds =
             CameraWorldBounds.Instance;
 

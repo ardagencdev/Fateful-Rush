@@ -96,9 +96,6 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyPlayer()
     {
-        if (coinCollector != null)
-            coinCollector.winScore = currentLevel.winScore;
-
         if (playerMovement != null)
         {
             playerMovement.speed =

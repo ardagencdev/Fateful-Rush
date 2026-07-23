@@ -14,10 +14,6 @@ public class PlayerCoinCollector : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI scoreText;
 
-    [Header("Score")]
-    [Min(1)]
-    public int winScore = 15;
-
     [Header("Combo")]
     public bool comboEnabled = true;
 
@@ -49,7 +45,16 @@ public class PlayerCoinCollector : MonoBehaviour
     private void Awake()
     {
         if (playerMovement == null)
-            playerMovement = GetComponent<PlayerMovement>();
+        {
+            playerMovement =
+                GetComponent<PlayerMovement>();
+        }
+
+        if (gameStateManager == null)
+        {
+            gameStateManager =
+                FindAnyObjectByType<GameStateManager>();
+        }
 
         UpdateScoreUI();
 
@@ -73,16 +78,23 @@ public class PlayerCoinCollector : MonoBehaviour
         float normalizedTime =
             1f - (comboTimer / comboTimeLimit);
 
-        normalizedTime = Mathf.Clamp01(normalizedTime);
+        normalizedTime =
+            Mathf.Clamp01(normalizedTime);
 
         if (comboUI != null)
-            comboUI.UpdateTimerBar(normalizedTime, combo);
+        {
+            comboUI.UpdateTimerBar(
+                normalizedTime,
+                combo
+            );
+        }
 
         if (comboTimer >= comboTimeLimit)
             ResetCombo();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(
+        Collider2D other)
     {
         if (IsGameOver())
             return;
@@ -93,31 +105,40 @@ public class PlayerCoinCollector : MonoBehaviour
         CollectCoin(other);
     }
 
-    private void CollectCoin(Collider2D coinCollider)
+    private void CollectCoin(
+        Collider2D coinCollider)
     {
-        if (coinCollider == null || !coinCollider.enabled)
+        if (coinCollider == null ||
+            !coinCollider.enabled)
+        {
             return;
+        }
 
         coinCollider.enabled = false;
 
         Coin coin =
             coinCollider.GetComponentInParent<Coin>();
 
-        VibrationManager.Instance?.VibrateLight();
+        VibrationManager.Instance
+            ?.VibrateLight();
 
-        int currentCombo = UpdateCombo();
+        int currentCombo =
+            UpdateCombo();
 
-        int coinValue = coin != null
-            ? Mathf.Max(1, coin.value)
-            : 1;
+        int coinValue =
+            coin != null
+                ? Mathf.Max(1, coin.value)
+                : 1;
 
-        int gainedScore = coinValue * currentCombo;
+        int gainedScore =
+            coinValue * currentCombo;
 
         score += gainedScore;
 
         if (coin != null)
         {
-            string coinType = GetCoinType(coin.value);
+            string coinType =
+                GetCoinType(coin.value);
 
             StatsManager.AddCoin(
                 gainedScore,
@@ -128,9 +149,12 @@ public class PlayerCoinCollector : MonoBehaviour
         UpdateScoreUI();
 
         if (enemySpawner != null)
+        {
             enemySpawner.TrySpawnBoss(score);
+        }
 
-        if (comboUI != null && comboEnabled)
+        if (comboUI != null &&
+            comboEnabled)
         {
             comboUI.ShowCombo(
                 gainedScore,
@@ -146,8 +170,8 @@ public class PlayerCoinCollector : MonoBehaviour
         if (soundManager != null)
             soundManager.PlayCoinSound();
 
-        if (score >= winScore && gameStateManager != null)
-            gameStateManager.WinGame(score);
+        gameStateManager
+            ?.CheckScoreObjective(score);
     }
 
     private int UpdateCombo()
@@ -164,7 +188,8 @@ public class PlayerCoinCollector : MonoBehaviour
         comboTimer = 0f;
         comboChain++;
 
-        combo = GetComboFromChain();
+        combo =
+            GetComboFromChain();
 
         return combo;
     }
@@ -192,7 +217,8 @@ public class PlayerCoinCollector : MonoBehaviour
                 if (stage.coinsRequired < 1)
                     continue;
 
-                if (comboChain >= stage.coinsRequired)
+                if (comboChain >=
+                    stage.coinsRequired)
                 {
                     result = Mathf.Max(
                         result,
@@ -211,9 +237,13 @@ public class PlayerCoinCollector : MonoBehaviour
         int fallbackResult = 1;
 
         if (comboChain >= coinsForCombo3)
+        {
             fallbackResult = 3;
+        }
         else if (comboChain >= coinsForCombo2)
+        {
             fallbackResult = 2;
+        }
 
         return Mathf.Clamp(
             fallbackResult,
@@ -232,15 +262,20 @@ public class PlayerCoinCollector : MonoBehaviour
             return;
 
         comboUI.ResetCombo();
-        comboUI.UpdateTimerBar(0f, combo);
+
+        comboUI.UpdateTimerBar(
+            0f,
+            combo
+        );
     }
 
     private void PlayCollectEffect(
-        Collider2D coinCollider
-    )
+        Collider2D coinCollider)
     {
         SpawnScaleEffect coinEffect =
-            coinCollider.GetComponentInParent<SpawnScaleEffect>();
+            coinCollider
+                .GetComponentInParent
+                    <SpawnScaleEffect>();
 
         if (coinEffect != null)
         {
@@ -248,10 +283,16 @@ public class PlayerCoinCollector : MonoBehaviour
             return;
         }
 
-        Destroy(coinCollider.transform.root.gameObject);
+        Destroy(
+            coinCollider
+                .transform
+                .root
+                .gameObject
+        );
     }
 
-    private static string GetCoinType(int coinValue)
+    private static string GetCoinType(
+        int coinValue)
     {
         if (coinValue == 5)
             return "Gold";
@@ -271,18 +312,37 @@ public class PlayerCoinCollector : MonoBehaviour
     private void UpdateScoreUI()
     {
         if (scoreText != null)
-            scoreText.text = $"Score: {score}";
+        {
+            scoreText.text =
+                $"Score: {score}";
+        }
     }
 
     private void OnValidate()
     {
-        winScore = Mathf.Max(1, winScore);
-        comboTimeLimit = Mathf.Max(0.01f, comboTimeLimit);
-        maxCombo = Mathf.Max(1, maxCombo);
-        coinsForCombo2 = Mathf.Max(1, coinsForCombo2);
-        coinsForCombo3 = Mathf.Max(
-            coinsForCombo2,
-            coinsForCombo3
-        );
+        comboTimeLimit =
+            Mathf.Max(
+                0.01f,
+                comboTimeLimit
+            );
+
+        maxCombo =
+            Mathf.Max(
+                1,
+                maxCombo
+            );
+
+        coinsForCombo2 =
+            Mathf.Max(
+                1,
+                coinsForCombo2
+            );
+
+        coinsForCombo3 =
+            Mathf.Max(
+                coinsForCombo2,
+                coinsForCombo3
+            );
     }
 }
+

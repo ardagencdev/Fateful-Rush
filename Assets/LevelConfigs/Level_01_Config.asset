@@ -17,18 +17,37 @@ MonoBehaviour:
   showTutorial: 1
   tutorialTitle: LEVEL BRIEFING
   tutorialPages:
-  - 'Welcome to your first mission.
+  - '
+
+    Welcome to the Void.
 
 
+    Let''s start with the basics before things
+    get dangerous.'
+  - '
 
-    Collect coins to reach the target score.
+    Use the joystick to move around.
 
-    Stay
-    alive until you complete the objective.'
+
+    Take a moment to get comfortable
+    with the controls.'
+  - '
+
+    Collect the coin.
+
+
+    Each one gives you 1 Score.
+
+
+    Reach 10 Score
+    to complete your first mission.
+
+
+    Good luck!'
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winScore: 10
   showGameTimerHUD: 0
-  playerMoveSpeed: 6.5
+  playerMoveSpeed: 6
   playerComboSpeedBonus: 1.2
   dashEnabled: 0
   cloneEnabled: 0
@@ -41,7 +60,7 @@ MonoBehaviour:
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
-  comboEnabled: 1
+  comboEnabled: 0
   comboTimeLimit: 2.5
   maxCombo: 5
   comboSpeedStages:
@@ -72,7 +91,7 @@ MonoBehaviour:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
     enabled: 0
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
     enabled: 0
   - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}

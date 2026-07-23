@@ -22,6 +22,9 @@ public class IntroController : MonoBehaviour
     [SerializeField, Min(0f)]
     private float fadeOutDuration = 0.8f;
 
+    [SerializeField, Min(0f)]
+    private float minimumSkipDelay = 0.6f;
+
     [Header("Intro Sound")]
     [SerializeField]
     private AudioSource introAudioSource;
@@ -79,6 +82,9 @@ public class IntroController : MonoBehaviour
     private Coroutine loadingRoutine;
 
     private bool isLoading;
+    private bool canSkip;
+
+    private float introStartTime;
 
     private void Awake()
     {
@@ -91,15 +97,29 @@ public class IntroController : MonoBehaviour
     {
         Time.timeScale = 1f;
 
+        introStartTime = Time.unscaledTime;
+        canSkip = false;
+
         PlayIntroSound();
 
-        introRoutine = StartCoroutine(IntroRoutine());
+        introRoutine =
+            StartCoroutine(IntroRoutine());
     }
 
     private void Update()
     {
         if (isLoading)
             return;
+
+        if (!canSkip)
+        {
+            canSkip =
+                Time.unscaledTime - introStartTime >=
+                minimumSkipDelay;
+
+            if (!canSkip)
+                return;
+        }
 
         if (WasSkipInputPressed())
             SkipIntro();
@@ -140,9 +160,11 @@ public class IntroController : MonoBehaviour
         introAudioSource.clip = introSound;
         introAudioSource.loop = false;
         introAudioSource.ignoreListenerPause = true;
-        introAudioSource.volume = Mathf.Clamp01(
-            SoundManager.SFXVolume
-        );
+
+        introAudioSource.volume =
+            Mathf.Clamp01(
+                SoundManager.SFXVolume
+            );
 
         introAudioSource.Play();
     }
@@ -152,7 +174,11 @@ public class IntroController : MonoBehaviour
         ResetIntroVisuals();
 
         if (startDelay > 0f)
-            yield return new WaitForSecondsRealtime(startDelay);
+        {
+            yield return new WaitForSecondsRealtime(
+                startDelay
+            );
+        }
 
         if (fadeInDuration <= 0f)
         {
@@ -163,8 +189,14 @@ public class IntroController : MonoBehaviour
             yield return FadeInRoutine();
         }
 
+        canSkip = true;
+
         if (holdDuration > 0f)
-            yield return new WaitForSecondsRealtime(holdDuration);
+        {
+            yield return new WaitForSecondsRealtime(
+                holdDuration
+            );
+        }
 
         introRoutine = null;
 
@@ -179,12 +211,16 @@ public class IntroController : MonoBehaviour
         {
             elapsedTime += Time.unscaledDeltaTime;
 
-            float progress = Mathf.Clamp01(
-                elapsedTime / fadeInDuration
-            );
+            float progress =
+                Mathf.Clamp01(
+                    elapsedTime / fadeInDuration
+                );
 
-            float smoothProgress = Smooth01(progress);
-            float cubicProgress = EaseOutCubic(progress);
+            float smoothProgress =
+                Smooth01(progress);
+
+            float cubicProgress =
+                EaseOutCubic(progress);
 
             SetAlpha(
                 logoGroup,
@@ -202,9 +238,10 @@ public class IntroController : MonoBehaviour
 
             if (tapToSkipGroup != null)
             {
-                float skipProgress = Mathf.Clamp01(
-                    (progress - 0.5f) / 0.5f
-                );
+                float skipProgress =
+                    Mathf.Clamp01(
+                        (progress - 0.5f) / 0.5f
+                    );
 
                 SetAlpha(
                     tapToSkipGroup,
@@ -278,6 +315,9 @@ public class IntroController : MonoBehaviour
         if (isLoading)
             return;
 
+        if (!canSkip)
+            return;
+
         if (introRoutine != null)
         {
             StopCoroutine(introRoutine);
@@ -345,9 +385,10 @@ public class IntroController : MonoBehaviour
         {
             elapsedTime += Time.unscaledDeltaTime;
 
-            float progress = Mathf.Clamp01(
-                elapsedTime / fadeOutDuration
-            );
+            float progress =
+                Mathf.Clamp01(
+                    elapsedTime / fadeOutDuration
+                );
 
             float easedProgress =
                 EaseInOut(progress);
@@ -382,11 +423,12 @@ public class IntroController : MonoBehaviour
             if (fadeOutSoundWhenSkipping &&
                 introAudioSource != null)
             {
-                introAudioSource.volume = Mathf.Lerp(
-                    soundStartVolume,
-                    0f,
-                    easedProgress
-                );
+                introAudioSource.volume =
+                    Mathf.Lerp(
+                        soundStartVolume,
+                        0f,
+                        easedProgress
+                    );
             }
 
             if (logoTransform != null)
@@ -394,7 +436,8 @@ public class IntroController : MonoBehaviour
                 logoTransform.localScale =
                     Vector3.LerpUnclamped(
                         logoStartScaleValue,
-                        Vector3.one * logoFadeOutScale,
+                        Vector3.one *
+                        logoFadeOutScale,
                         easedProgress
                     );
             }
@@ -404,7 +447,8 @@ public class IntroController : MonoBehaviour
                 glowTransform.localScale =
                     Vector3.LerpUnclamped(
                         glowStartScaleValue,
-                        Vector3.one * glowFadeOutScale,
+                        Vector3.one *
+                        glowFadeOutScale,
                         easedProgress
                     );
             }
@@ -431,13 +475,42 @@ public class IntroController : MonoBehaviour
         if (string.IsNullOrWhiteSpace(nextSceneName))
         {
             Debug.LogError(
-                "IntroController next scene name is empty.",
+                "[IntroController] Next Scene Name boş.",
                 this
             );
 
             isLoading = false;
             return;
         }
+
+        if (!Application.CanStreamedLevelBeLoaded(
+                nextSceneName))
+        {
+            Debug.LogError(
+                $"[IntroController] Sahne bulunamadı veya " +
+                $"Build Profiles'a eklenmemiş: " +
+                $"'{nextSceneName}'",
+                this
+            );
+
+            isLoading = false;
+            return;
+        }
+
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.LoadSceneWithFade(
+                nextSceneName
+            );
+
+            return;
+        }
+
+        Debug.LogWarning(
+            "[IntroController] SceneTransition bulunamadı. " +
+            "Sahne doğrudan yükleniyor.",
+            this
+        );
 
         SceneManager.LoadScene(nextSceneName);
     }
@@ -502,7 +575,10 @@ public class IntroController : MonoBehaviour
     private void RefreshReferences()
     {
         if (introAudioSource == null)
-            introAudioSource = GetComponent<AudioSource>();
+        {
+            introAudioSource =
+                GetComponent<AudioSource>();
+        }
     }
 
     private void ConfigureCanvasGroups()
@@ -542,7 +618,10 @@ public class IntroController : MonoBehaviour
         float value)
     {
         if (group != null)
-            group.alpha = Mathf.Clamp01(value);
+        {
+            group.alpha =
+                Mathf.Clamp01(value);
+        }
     }
 
     private static float GetAlpha(
@@ -580,9 +659,15 @@ public class IntroController : MonoBehaviour
         value = Mathf.Clamp01(value);
 
         if (value < 0.5f)
-            return 4f * value * value * value;
+        {
+            return 4f *
+                   value *
+                   value *
+                   value;
+        }
 
-        float inverse = -2f * value + 2f;
+        float inverse =
+            -2f * value + 2f;
 
         return 1f -
                inverse *
@@ -592,18 +677,38 @@ public class IntroController : MonoBehaviour
 
     private void OnValidate()
     {
-        startDelay = Mathf.Max(0f, startDelay);
-        fadeInDuration = Mathf.Max(0f, fadeInDuration);
-        holdDuration = Mathf.Max(0f, holdDuration);
-        fadeOutDuration = Mathf.Max(0f, fadeOutDuration);
+        startDelay =
+            Mathf.Max(0f, startDelay);
 
-        startScale = Mathf.Max(0f, startScale);
-        overshootScale = Mathf.Max(0f, overshootScale);
-        endScale = Mathf.Max(0f, endScale);
+        fadeInDuration =
+            Mathf.Max(0f, fadeInDuration);
 
-        glowStartScale = Mathf.Max(0f, glowStartScale);
-        glowEndScale = Mathf.Max(0f, glowEndScale);
-        glowMaxAlpha = Mathf.Clamp01(glowMaxAlpha);
+        holdDuration =
+            Mathf.Max(0f, holdDuration);
+
+        fadeOutDuration =
+            Mathf.Max(0f, fadeOutDuration);
+
+        minimumSkipDelay =
+            Mathf.Max(0f, minimumSkipDelay);
+
+        startScale =
+            Mathf.Max(0f, startScale);
+
+        overshootScale =
+            Mathf.Max(0f, overshootScale);
+
+        endScale =
+            Mathf.Max(0f, endScale);
+
+        glowStartScale =
+            Mathf.Max(0f, glowStartScale);
+
+        glowEndScale =
+            Mathf.Max(0f, glowEndScale);
+
+        glowMaxAlpha =
+            Mathf.Clamp01(glowMaxAlpha);
 
         logoFadeOutScale =
             Mathf.Max(0f, logoFadeOutScale);

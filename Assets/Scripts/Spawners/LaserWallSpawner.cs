@@ -86,20 +86,53 @@ public class LaserWallSpawner : MonoBehaviour
     {
         while (!stopped)
         {
-            yield return new WaitForSeconds(Random.Range(minSpawnTime, maxSpawnTime));
+            yield return new WaitUntil(
+                () =>
+                    stopped ||
+                    GameStateManager.IsGameplayStarted
+            );
 
-            if (IsGameOver())
-            {
-                StopLaserSystem();
+            if (stopped || IsGameOver())
                 yield break;
+
+            float waitTime = Random.Range(
+                minSpawnTime,
+                maxSpawnTime
+            );
+
+            float elapsedTime = 0f;
+
+            while (elapsedTime < waitTime)
+            {
+                if (stopped || IsGameOver())
+                    yield break;
+
+                if (GameStateManager.IsGameplayStarted)
+                {
+                    elapsedTime += Time.deltaTime;
+                }
+
+                yield return null;
+            }
+
+            if (stopped ||
+                IsGameOver() ||
+                !GameStateManager.IsGameplayStarted)
+            {
+                continue;
             }
 
             yield return SpawnVerticalLaser();
         }
+
+        spawnCoroutine = null;
     }
 
     private IEnumerator SpawnVerticalLaser()
     {
+        if (!GameStateManager.IsGameplayStarted)
+            yield break;
+
         CameraWorldBounds bounds = CameraWorldBounds.Instance;
         if (bounds == null) yield break;
 

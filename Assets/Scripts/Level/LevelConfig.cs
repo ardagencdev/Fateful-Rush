@@ -13,6 +13,13 @@ public enum ObstacleSpawnMode
     Random
 }
 
+public enum WinConditionType
+{
+    ReachScore,
+    SurviveTime,
+    ReachScoreWithinTime
+}
+
 [System.Serializable]
 public class ComboSpeedStage
 {
@@ -53,9 +60,15 @@ public class LevelConfig : ScriptableObject
     [Tooltip("Bu level boyunca çalacak gameplay müziği.")]
     public AudioClip gameplayMusic;
 
-    [Header("WIN")]
+    [Header("WIN CONDITION")]
+    public WinConditionType winCondition =
+        WinConditionType.ReachScore;
+
     [Min(1)]
     public int winScore = 15;
+
+    [Min(0.1f)]
+    public float timeLimit = 35f;
 
     [Header("HUD")]
     public bool showGameTimerHUD = false;
@@ -132,7 +145,6 @@ public class LevelConfig : ScriptableObject
     };
 
     [Header("BACKGROUND / NEAR STARS")]
-
     public bool randomizeNearStarsColor = false;
 
     [ColorUsage(false, true)]

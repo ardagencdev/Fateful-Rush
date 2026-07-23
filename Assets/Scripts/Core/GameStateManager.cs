@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-
 public class GameStateManager : MonoBehaviour
 {
     public static bool IsGameplayStarted { get; private set; }
@@ -10,6 +9,7 @@ public class GameStateManager : MonoBehaviour
     [Header("References")]
     public PlayerMovement playerMovement;
     public PlayerDash playerDash;
+    public PlayerCoinCollector playerCoinCollector;
     public SoundManager soundManager;
     public GameResultUI gameResultUI;
 
@@ -40,6 +40,18 @@ public class GameStateManager : MonoBehaviour
     private bool gameFrozen;
     private bool gameEnded;
     private float gameTimer;
+
+    public float ElapsedGameTime => gameTimer;
+
+    private LevelConfig CurrentLevel =>
+        levelManager != null
+            ? levelManager.currentLevel
+            : null;
+
+    private int CurrentScore =>
+        playerCoinCollector != null
+            ? playerCoinCollector.Score
+            : 0;
 
     private void Awake()
     {
@@ -233,6 +245,81 @@ public class GameStateManager : MonoBehaviour
             return;
 
         gameTimer += Time.unscaledDeltaTime;
+
+        CheckTimeObjective();
+    }
+
+    public void CheckScoreObjective(int currentScore)
+    {
+        if (!IsGameplayStarted)
+            return;
+
+        if (gameEnded)
+            return;
+
+        LevelConfig currentLevel = CurrentLevel;
+
+        if (currentLevel == null)
+            return;
+
+        switch (currentLevel.winCondition)
+        {
+            case WinConditionType.ReachScore:
+
+                if (currentScore >=
+                    currentLevel.winScore)
+                {
+                    WinGame(currentScore);
+                }
+
+                break;
+
+            case WinConditionType.ReachScoreWithinTime:
+
+                if (gameTimer >
+                    currentLevel.timeLimit)
+                {
+                    return;
+                }
+
+                if (currentScore >=
+                    currentLevel.winScore)
+                {
+                    WinGame(currentScore);
+                }
+
+                break;
+        }
+    }
+
+    private void CheckTimeObjective()
+    {
+        LevelConfig currentLevel = CurrentLevel;
+
+        if (currentLevel == null)
+            return;
+
+        if (currentLevel.timeLimit <= 0f)
+            return;
+
+        if (gameTimer < currentLevel.timeLimit)
+            return;
+
+        gameTimer = currentLevel.timeLimit;
+
+        switch (currentLevel.winCondition)
+        {
+            case WinConditionType.SurviveTime:
+                WinGame(CurrentScore);
+                break;
+
+            case WinConditionType.ReachScoreWithinTime:
+                GameOver(
+                    CurrentScore,
+                    "TIME EXPIRED"
+                );
+                break;
+        }
     }
 
     public void WinGame(int score)
@@ -258,22 +345,7 @@ public class GameStateManager : MonoBehaviour
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
 
-        string bestTimeKey =
-            GetBestTimeKey();
-
-        float bestTime =
-            PlayerPrefs.GetFloat(
-                bestTimeKey,
-                Mathf.Infinity
-            );
-
-        if (gameTimer < bestTime)
-        {
-            PlayerPrefs.SetFloat(
-                bestTimeKey,
-                gameTimer
-            );
-        }
+        SaveBestTime();
 
         if (levelManager != null &&
             levelManager.currentLevel != null &&
@@ -328,6 +400,16 @@ public class GameStateManager : MonoBehaviour
 
     public void GameOver(int score)
     {
+        GameOver(
+        score,
+        LastDeathInfo.Cause
+    );
+    }
+
+    public void GameOver(
+        int score,
+        string cause)
+    {
         if (gameEnded)
             return;
 
@@ -352,6 +434,11 @@ public class GameStateManager : MonoBehaviour
         if (playerDash != null)
             playerDash.StopDash();
 
+        CameraShake.Instance?.Shake(
+            0.65f,
+            0.42f
+        );
+
         SetHUD(false);
         StopLaserSystems();
 
@@ -359,7 +446,8 @@ public class GameStateManager : MonoBehaviour
         {
             gameResultUI.ShowLose(
                 score,
-                gameTimer
+                gameTimer,
+                cause
             );
         }
 
@@ -372,6 +460,26 @@ public class GameStateManager : MonoBehaviour
             soundManager.PlayLoseSound();
 
         StartCoroutine(FreezeGameRoutine());
+    }
+
+    private void SaveBestTime()
+    {
+        string bestTimeKey =
+            GetBestTimeKey();
+
+        float bestTime =
+            PlayerPrefs.GetFloat(
+                bestTimeKey,
+                Mathf.Infinity
+            );
+
+        if (gameTimer < bestTime)
+        {
+            PlayerPrefs.SetFloat(
+                bestTimeKey,
+                gameTimer
+            );
+        }
     }
 
     private string GetBestTimeKey()
@@ -489,6 +597,12 @@ public class GameStateManager : MonoBehaviour
         {
             playerDash =
                 FindAnyObjectByType<PlayerDash>();
+        }
+
+        if (playerCoinCollector == null)
+        {
+            playerCoinCollector =
+                FindAnyObjectByType<PlayerCoinCollector>();
         }
 
         if (soundManager == null)

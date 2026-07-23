@@ -34,7 +34,8 @@ public class GameResultUI : MonoBehaviour
 
     private void Awake()
     {
-        levelManager = FindAnyObjectByType<LevelManager>();
+        levelManager =
+            FindAnyObjectByType<LevelManager>();
 
         if (resultPanel == null)
         {
@@ -63,41 +64,77 @@ public class GameResultUI : MonoBehaviour
         ShowPanel();
         SetResultState(true);
 
-        string bestTimeKey = GetBestTimeKey();
+        string bestTimeKey =
+            GetBestTimeKey();
 
-        float bestTime = PlayerPrefs.GetFloat(
-            bestTimeKey,
-            time
-        );
+        float bestTime =
+            PlayerPrefs.GetFloat(
+                bestTimeKey,
+                time
+            );
 
         if (winScoreValue != null)
-            winScoreValue.text = score.ToString();
+        {
+            winScoreValue.text =
+                score.ToString();
+        }
 
         if (winTimeValue != null)
-            winTimeValue.text = FormatTime(time);
+        {
+            winTimeValue.text =
+                FormatTime(time);
+        }
 
         if (winBestTimeValue != null)
-            winBestTimeValue.text = FormatTime(bestTime);
+        {
+            winBestTimeValue.text =
+                FormatTime(bestTime);
+        }
 
         UpdateNextLevelButton();
     }
 
     public void ShowLose(int score, float time)
     {
+        ShowLose(
+            score,
+            time,
+            LastDeathInfo.Cause
+        );
+    }
+
+    public void ShowLose(
+        int score,
+        float time,
+        string cause)
+    {
         ShowPanel();
         SetResultState(false);
 
         if (destroyedByText != null)
-            destroyedByText.text = LastDeathInfo.Cause;
+        {
+            destroyedByText.text =
+                string.IsNullOrWhiteSpace(cause)
+                    ? "UNKNOWN"
+                    : cause;
+        }
 
         if (loseScoreValue != null)
-            loseScoreValue.text = score.ToString();
+        {
+            loseScoreValue.text =
+                score.ToString();
+        }
 
         if (loseSurvivedValue != null)
-            loseSurvivedValue.text = FormatTime(time);
+        {
+            loseSurvivedValue.text =
+                FormatTime(time);
+        }
 
         if (nextLevelButton != null)
+        {
             nextLevelButton.SetActive(false);
+        }
     }
 
     private void SetResultState(bool won)
@@ -116,7 +153,9 @@ public class GameResultUI : MonoBehaviour
             levelManager.currentLevel != null)
         {
             return "BestTime_Level_" +
-                   levelManager.currentLevel.levelNumber;
+                   levelManager
+                       .currentLevel
+                       .levelNumber;
         }
 
         return "BestTime_DevRoom";
@@ -137,10 +176,13 @@ public class GameResultUI : MonoBehaviour
             currentLevel != null &&
             GetNextLevel(currentLevel) != null;
 
-        nextLevelButton.SetActive(hasNextLevel);
+        nextLevelButton.SetActive(
+            hasNextLevel
+        );
     }
 
-    private LevelConfig GetNextLevel(LevelConfig currentLevel)
+    private LevelConfig GetNextLevel(
+        LevelConfig currentLevel)
     {
         if (currentLevel == null ||
             levels == null ||
@@ -155,7 +197,8 @@ public class GameResultUI : MonoBehaviour
         foreach (LevelConfig level in levels)
         {
             if (level != null &&
-                level.levelNumber == nextLevelNumber)
+                level.levelNumber ==
+                nextLevelNumber)
             {
                 return level;
             }
@@ -182,7 +225,10 @@ public class GameResultUI : MonoBehaviour
             return;
         }
 
-        SelectedLevelData.SetMission(nextLevel);
+        SelectedLevelData.SetMission(
+            nextLevel
+        );
+
         LoadScene(gameSceneName);
     }
 
@@ -191,7 +237,9 @@ public class GameResultUI : MonoBehaviour
         PrepareForSceneChange();
 
         LoadScene(
-            SceneManager.GetActiveScene().name
+            SceneManager
+                .GetActiveScene()
+                .name
         );
     }
 
@@ -200,13 +248,16 @@ public class GameResultUI : MonoBehaviour
         PrepareForSceneChange();
 
         SelectedLevelData.Clear();
+
         LoadScene("MainMenu");
     }
 
     public void Hide()
     {
         if (resultPanel != null)
+        {
             resultPanel.SetActive(false);
+        }
     }
 
     private void ShowPanel()
@@ -228,10 +279,14 @@ public class GameResultUI : MonoBehaviour
         }
 
         if (tryAgainButton != null)
+        {
             tryAgainButton.SetActive(true);
+        }
 
         if (menuButton != null)
+        {
             menuButton.SetActive(true);
+        }
     }
 
     private void PrepareForSceneChange()
@@ -255,17 +310,24 @@ public class GameResultUI : MonoBehaviour
         if (SceneTransition.Instance != null)
         {
             SceneTransition.Instance
-                .LoadSceneWithFade(sceneName);
+                .LoadSceneWithFade(
+                    sceneName
+                );
         }
         else
         {
-            SceneManager.LoadScene(sceneName);
+            SceneManager.LoadScene(
+                sceneName
+            );
         }
     }
 
     private static string FormatTime(float time)
     {
-        return Mathf.Max(0f, time).ToString("F1") + " s";
+        return
+            Mathf.Max(0f, time)
+                .ToString("F1") +
+            " s";
     }
 
     private static void RestorePhysics()
@@ -278,7 +340,10 @@ public class GameResultUI : MonoBehaviour
         foreach (Rigidbody2D body in bodies)
         {
             if (body != null)
+            {
                 body.simulated = true;
+            }
         }
     }
 }
+
