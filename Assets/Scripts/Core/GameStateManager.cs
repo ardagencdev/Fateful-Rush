@@ -249,10 +249,23 @@ public class GameStateManager : MonoBehaviour
         gameTimer += Time.unscaledDeltaTime;
 
         if (levelManager != null &&
-            levelManager.enemySpawner != null)
+            levelManager.enemySpawner != null &&
+            CurrentLevel != null &&
+            CurrentLevel.UsesTime)
         {
+            /*
+             * LevelConfig içindeki bossSpawnTime kalan süreyi temsil eder.
+             * EnemySpawner ise geride uyumluluk için geçen süre bekliyor.
+             * Bu nedenle burada güvenli şekilde geçen süre eşiğine çeviriyoruz.
+             */
+            float bossElapsedTrigger =
+                CurrentLevel.SafeTimeLimit -
+                CurrentLevel.SafeBossSpawnTime;
+
             levelManager.enemySpawner
-                .TrySpawnBossByTime(gameTimer);
+                .TrySpawnBossByTime(
+                    Mathf.Max(0f, bossElapsedTrigger)
+                );
         }
 
         CheckTimeObjective();
@@ -271,12 +284,15 @@ public class GameStateManager : MonoBehaviour
         if (currentLevel == null)
             return;
 
+        if (!currentLevel.UsesScore)
+            return;
+
         switch (currentLevel.winCondition)
         {
             case WinConditionType.ReachScore:
 
                 if (currentScore >=
-                    currentLevel.winScore)
+                    currentLevel.SafeWinScore)
                 {
                     WinGame(currentScore);
                 }
@@ -286,13 +302,13 @@ public class GameStateManager : MonoBehaviour
             case WinConditionType.ReachScoreWithinTime:
 
                 if (gameTimer >
-                    currentLevel.timeLimit)
+                    currentLevel.SafeTimeLimit)
                 {
                     return;
                 }
 
                 if (currentScore >=
-                    currentLevel.winScore)
+                    currentLevel.SafeWinScore)
                 {
                     WinGame(currentScore);
                 }
@@ -308,13 +324,13 @@ public class GameStateManager : MonoBehaviour
         if (currentLevel == null)
             return;
 
-        if (currentLevel.timeLimit <= 0f)
+        if (!currentLevel.UsesTime)
             return;
 
-        if (gameTimer < currentLevel.timeLimit)
+        if (gameTimer < currentLevel.SafeTimeLimit)
             return;
 
-        gameTimer = currentLevel.timeLimit;
+        gameTimer = currentLevel.SafeTimeLimit;
 
         switch (currentLevel.winCondition)
         {
@@ -354,7 +370,11 @@ public class GameStateManager : MonoBehaviour
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
 
-        SaveBestTime();
+        if (CurrentLevel != null &&
+            CurrentLevel.CanSaveBestTime)
+        {
+            SaveBestTime();
+        }
 
         if (levelManager != null &&
             levelManager.currentLevel != null &&
@@ -546,23 +566,50 @@ public class GameStateManager : MonoBehaviour
 
     private void SetHUD(bool state)
     {
-        if (scoreHUD != null)
-            scoreHUD.SetActive(state);
+        LevelConfig level = CurrentLevel;
 
-        if (timeHUD != null)
-            timeHUD.SetActive(state);
+        if (!state || level == null)
+        {
+            SetHUDObject(scoreHUD, false);
+            SetHUDObject(timeHUD, false);
+            SetHUDObject(joystickHUD, false);
+            SetHUDObject(dashHUD, false);
+            SetHUDObject(cloneHUD, false);
+            SetHUDObject(pauseButtonHUD, false);
+            return;
+        }
 
-        if (joystickHUD != null)
-            joystickHUD.SetActive(state);
+        SetHUDObject(
+            scoreHUD,
+            level.ScoreHUDEnabled
+        );
 
-        if (dashHUD != null)
-            dashHUD.SetActive(state);
+        SetHUDObject(
+            timeHUD,
+            level.TimerHUDEnabled
+        );
 
-        if (cloneHUD != null)
-            cloneHUD.SetActive(state);
+        SetHUDObject(joystickHUD, true);
 
-        if (pauseButtonHUD != null)
-            pauseButtonHUD.SetActive(state);
+        SetHUDObject(
+            dashHUD,
+            level.dashEnabled
+        );
+
+        SetHUDObject(
+            cloneHUD,
+            level.cloneEnabled
+        );
+
+        SetHUDObject(pauseButtonHUD, true);
+    }
+
+    private static void SetHUDObject(
+        GameObject target,
+        bool state)
+    {
+        if (target != null)
+            target.SetActive(state);
     }
 
     private bool ShouldAnimateHUDItem(
@@ -577,22 +624,10 @@ public class GameStateManager : MonoBehaviour
             return false;
 
         if (target == scoreHUD)
-        {
-            return
-                level.winCondition ==
-                    WinConditionType.ReachScore ||
-                level.winCondition ==
-                    WinConditionType.ReachScoreWithinTime;
-        }
+            return level.ScoreHUDEnabled;
 
         if (target == timeHUD)
-        {
-            return
-                level.winCondition ==
-                    WinConditionType.SurviveTime ||
-                level.winCondition ==
-                    WinConditionType.ReachScoreWithinTime;
-        }
+            return level.TimerHUDEnabled;
 
         if (target == dashHUD)
             return level.dashEnabled;

@@ -159,13 +159,8 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyUI()
     {
-        bool usesScore =
-            currentLevel.winCondition !=
-            WinConditionType.SurviveTime;
-
         bool comboActive =
-            usesScore &&
-            currentLevel.comboEnabled;
+            currentLevel.EffectiveComboEnabled;
 
         if (coinCollector != null)
         {
@@ -272,8 +267,7 @@ public class LevelManager : MonoBehaviour
             return;
 
         bool coinsActive =
-            currentLevel.winCondition !=
-            WinConditionType.SurviveTime;
+            currentLevel.CoinsEnabled;
 
         coinManager.enabled = coinsActive;
 
@@ -416,13 +410,13 @@ public class LevelManager : MonoBehaviour
             currentLevel.bossEnabled;
 
         enemySpawner.bossSpawnCondition =
-            currentLevel.bossSpawnCondition;
+            currentLevel.EffectiveBossSpawnCondition;
 
         enemySpawner.bossSpawnScore =
-            currentLevel.bossSpawnScore;
+            currentLevel.SafeBossSpawnScore;
 
         enemySpawner.bossSpawnTime =
-            currentLevel.bossSpawnTime;
+            currentLevel.SafeBossSpawnTime;
 
         enemySpawner.bossSpeed =
             currentLevel.bossSpeed;

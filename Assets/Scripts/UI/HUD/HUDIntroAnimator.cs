@@ -6,7 +6,7 @@ public class HUDIntroAnimator : MonoBehaviour
 {
     public static bool HUDIntroFinished { get; private set; }
 
-    [System.Serializable]
+    [Serializable]
     public class HUDItem
     {
         public GameObject target;
@@ -89,50 +89,51 @@ public class HUDIntroAnimator : MonoBehaviour
 
         foreach (HUDItem item in hudItems)
         {
-            if (item == null || item.target == null)
+            if (!HasValidTarget(item))
                 continue;
 
-            Transform targetTransform = item.target.transform;
-
-            targetTransform.localScale =
-                Vector3.one * finalScale;
-
-            item.target.SetActive(false);
+            ResetItem(item.target, false, finalScale);
         }
     }
 
     private IEnumerator PlayRoutine(
         Func<GameObject, bool> shouldAnimate)
     {
-        PrepareItemsForIntro(shouldAnimate);
+        PrepareItemsForIntro();
 
         if (hudItems == null || hudItems.Length == 0)
         {
-            HUDIntroFinished = true;
-            activeRoutine = null;
+            FinishIntro();
             yield break;
         }
 
         foreach (HUDItem item in hudItems)
         {
-            if (item == null || item.target == null)
+            if (!HasValidTarget(item))
                 continue;
 
-            if (shouldAnimate != null &&
-                !shouldAnimate(item.target))
+            if (!ShouldAnimateItem(item.target, shouldAnimate))
             {
-                item.target.SetActive(false);
+                ResetItem(item.target, false, finalScale);
                 continue;
             }
 
+            /*
+             * Delay yalnızca gerçekten gösterilecek HUD için uygulanır.
+             * Win condition nedeniyle kapalı olan Score, Combo veya Timer HUD
+             * animasyon sırasını yavaşlatmaz.
+             */
             if (item.delay > 0f)
-                yield return new WaitForSecondsRealtime(item.delay);
+            {
+                yield return new WaitForSecondsRealtime(
+                    item.delay
+                );
+            }
 
             yield return PopItem(item.target);
         }
 
-        HUDIntroFinished = true;
-        activeRoutine = null;
+        FinishIntro();
     }
 
     private IEnumerator PopItem(GameObject target)
@@ -140,12 +141,11 @@ public class HUDIntroAnimator : MonoBehaviour
         if (target == null)
             yield break;
 
-        Transform targetTransform =
-            target.transform;
+        Transform targetTransform = target.transform;
 
         /*
-         * UIButtonEffect gibi componentlerin Awake sırasında
-         * scale değerini 0 olarak kaydetmesini engeller.
+         * UIButtonEffect gibi componentlerin Awake sırasında sıfır scale
+         * değerini başlangıç scale'i olarak kaydetmesini engeller.
          */
         targetTransform.localScale =
             Vector3.one * finalScale;
@@ -167,8 +167,7 @@ public class HUDIntroAnimator : MonoBehaviour
 
         while (elapsedTime < popDuration)
         {
-            elapsedTime +=
-                Time.unscaledDeltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
 
             float normalizedTime =
                 Mathf.Clamp01(
@@ -215,28 +214,58 @@ public class HUDIntroAnimator : MonoBehaviour
         );
     }
 
-    private void PrepareItemsForIntro(
-        Func<GameObject, bool> shouldAnimate)
+    private void PrepareItemsForIntro()
     {
         if (hudItems == null)
             return;
 
         foreach (HUDItem item in hudItems)
         {
-            if (item == null || item.target == null)
+            if (!HasValidTarget(item))
                 continue;
 
-            item.target.transform.localScale =
-                Vector3.one * startScale;
-
-            item.target.SetActive(false);
-
-            if (shouldAnimate != null &&
-                !shouldAnimate(item.target))
-            {
-                continue;
-            }
+            ResetItem(
+                item.target,
+                false,
+                startScale
+            );
         }
+    }
+
+    private static bool ShouldAnimateItem(
+        GameObject target,
+        Func<GameObject, bool> shouldAnimate)
+    {
+        if (target == null)
+            return false;
+
+        return shouldAnimate == null ||
+               shouldAnimate(target);
+    }
+
+    private static bool HasValidTarget(HUDItem item)
+    {
+        return item != null && item.target != null;
+    }
+
+    private static void ResetItem(
+        GameObject target,
+        bool active,
+        float scale)
+    {
+        if (target == null)
+            return;
+
+        target.transform.localScale =
+            Vector3.one * scale;
+
+        target.SetActive(active);
+    }
+
+    private void FinishIntro()
+    {
+        HUDIntroFinished = true;
+        activeRoutine = null;
     }
 
     private void StopActiveRoutine()

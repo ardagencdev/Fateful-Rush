@@ -62,6 +62,44 @@ public class LevelConfig : ScriptableObject
         "Tutorial text..."
     };
 
+    [Header("MISSION BRIEFING")]
+    [Tooltip(
+        "Main Menu içindeki mission briefing panelinde gösterilecek başlık. " +
+        "Boş bırakılırsa level adı kullanılır."
+    )]
+    public string briefingTitle = "MISSION BRIEFING";
+
+    [Tooltip(
+        "Bölüm zorluğu. Değer 0.5 adımlarla değerlendirilir ve beş yıldız " +
+        "üzerinden gösterilir."
+    )]
+    [Range(0.5f, 5f)]
+    public float missionDifficulty = 1f;
+
+    [Tooltip(
+        "Oyun modu için özel açıklama. Boş bırakılırsa seçilen win condition'a " +
+        "göre otomatik açıklama oluşturulur."
+    )]
+    [TextArea(2, 5)]
+    public string briefingModeDescription = "";
+
+    [Tooltip(
+        "Kazanma hedefi için özel açıklama. Boş bırakılırsa win score ve time " +
+        "limit değerlerinden otomatik açıklama oluşturulur."
+    )]
+    [TextArea(2, 5)]
+    public string briefingObjectiveDescription = "";
+
+    [Tooltip(
+        "İlk otomatik bilgi sayfasından sonra gösterilecek ek briefing sayfaları. " +
+        "Yeni enemy, trap ve taktik açıklamalarını buraya yazabilirsin."
+    )]
+    [TextArea(4, 10)]
+    public string[] briefingPages =
+    {
+        "Mission information..."
+    };
+
     [Header("MUSIC")]
     [Tooltip("Bu level boyunca çalacak gameplay müziği.")]
     public AudioClip gameplayMusic;
@@ -423,4 +461,180 @@ public class LevelConfig : ScriptableObject
 
     [Min(0)]
     public int maxBombCount = 3;
+
+
+    /*
+     * Runtime sistemleri bu ortak değerleri kullanır. Böylece win condition
+     * kontrolleri farklı scriptlerde birbirinden kopmaz.
+     */
+    public bool UsesScore =>
+        winCondition == WinConditionType.ReachScore ||
+        winCondition == WinConditionType.ReachScoreWithinTime;
+
+    public bool UsesTime =>
+        winCondition == WinConditionType.SurviveTime ||
+        winCondition == WinConditionType.ReachScoreWithinTime;
+
+    public bool IsPureSurvivalMode =>
+        winCondition == WinConditionType.SurviveTime;
+
+    public bool IsTimedScoreMode =>
+        winCondition == WinConditionType.ReachScoreWithinTime;
+
+    public bool CoinsEnabled => UsesScore;
+
+    public bool EffectiveComboEnabled =>
+        UsesScore && comboEnabled;
+
+    public bool ScoreHUDEnabled => UsesScore;
+
+    public bool TimerHUDEnabled => UsesTime;
+
+    public bool CanSaveBestTime => UsesScore;
+
+    public BossSpawnCondition EffectiveBossSpawnCondition
+    {
+        get
+        {
+            switch (winCondition)
+            {
+                case WinConditionType.ReachScore:
+                    return BossSpawnCondition.Score;
+
+                case WinConditionType.SurviveTime:
+                    return BossSpawnCondition.Time;
+
+                case WinConditionType.ReachScoreWithinTime:
+                    return bossSpawnCondition;
+
+                default:
+                    return BossSpawnCondition.Score;
+            }
+        }
+    }
+
+    public int SafeWinScore => Mathf.Max(1, winScore);
+
+    public float SafeTimeLimit => Mathf.Max(0.1f, timeLimit);
+
+    public int SafeBossSpawnScore =>
+        Mathf.Clamp(bossSpawnScore, 0, SafeWinScore);
+
+    public float SafeBossSpawnTime =>
+        Mathf.Clamp(bossSpawnTime, 0f, SafeTimeLimit);
+
+    public float SafeMissionDifficulty
+    {
+        get
+        {
+            float clamped = Mathf.Clamp(missionDifficulty, 0.5f, 5f);
+            return Mathf.Round(clamped * 2f) * 0.5f;
+        }
+    }
+
+    public string EffectiveBriefingTitle
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(briefingTitle))
+                return briefingTitle.Trim();
+
+            if (!string.IsNullOrWhiteSpace(levelName))
+                return levelName.Trim();
+
+            return $"LEVEL {levelNumber}";
+        }
+    }
+
+    public string GetDefaultModeDescription()
+    {
+        switch (winCondition)
+        {
+            case WinConditionType.ReachScore:
+                return "SCORE MISSION";
+
+            case WinConditionType.SurviveTime:
+                return "SURVIVAL MISSION";
+
+            case WinConditionType.ReachScoreWithinTime:
+                return "TIMED SCORE MISSION";
+
+            default:
+                return "MISSION";
+        }
+    }
+
+    public string GetEffectiveModeDescription()
+    {
+        if (!string.IsNullOrWhiteSpace(briefingModeDescription))
+            return briefingModeDescription.Trim();
+
+        return GetDefaultModeDescription();
+    }
+
+    public string GetDefaultObjectiveDescription()
+    {
+        switch (winCondition)
+        {
+            case WinConditionType.ReachScore:
+                return $"Collect {SafeWinScore} points to complete the mission.";
+
+            case WinConditionType.SurviveTime:
+                return $"Stay alive for {FormatSeconds(SafeTimeLimit)}. Coins and combos are disabled in this mission.";
+
+            case WinConditionType.ReachScoreWithinTime:
+                return $"Collect {SafeWinScore} points before the {FormatSeconds(SafeTimeLimit)} countdown reaches zero.";
+
+            default:
+                return "Complete the mission objective.";
+        }
+    }
+
+    public string GetEffectiveObjectiveDescription()
+    {
+        if (!string.IsNullOrWhiteSpace(briefingObjectiveDescription))
+            return briefingObjectiveDescription.Trim();
+
+        return GetDefaultObjectiveDescription();
+    }
+
+    private static string FormatSeconds(float seconds)
+    {
+        float safeSeconds = Mathf.Max(0f, seconds);
+
+        if (Mathf.Approximately(safeSeconds, Mathf.Round(safeSeconds)))
+            return $"{Mathf.RoundToInt(safeSeconds)} seconds";
+
+        return $"{safeSeconds:0.#} seconds";
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        levelNumber = Mathf.Max(0, levelNumber);
+        winScore = Mathf.Max(1, winScore);
+        timeLimit = Mathf.Max(0.1f, timeLimit);
+
+        missionDifficulty = Mathf.Clamp(
+            Mathf.Round(missionDifficulty * 2f) * 0.5f,
+            0.5f,
+            5f
+        );
+
+        bossSpawnScore = Mathf.Max(0, bossSpawnScore);
+        bossSpawnTime = Mathf.Max(0f, bossSpawnTime);
+
+        if (winCondition == WinConditionType.ReachScore)
+        {
+            bossSpawnCondition = BossSpawnCondition.Score;
+        }
+        else if (winCondition == WinConditionType.SurviveTime)
+        {
+            bossSpawnCondition = BossSpawnCondition.Time;
+        }
+
+        // Eski serialized alan tutuluyor fakat artık win condition ile senkron.
+        showGameTimerHUD = UsesTime;
+    }
+#endif
 }
