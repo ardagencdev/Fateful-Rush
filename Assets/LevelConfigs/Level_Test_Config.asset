@@ -19,7 +19,7 @@ MonoBehaviour:
   tutorialPages:
   - Tutorial text...
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
-  winCondition: 0
+  winCondition: 1
   winScore: 100
   timeLimit: 35
   showGameTimerHUD: 1
@@ -106,7 +106,9 @@ MonoBehaviour:
   hunterChargeSpeed: 15
   hunterStunDuration: 1
   bossEnabled: 1
+  bossSpawnCondition: 0
   bossSpawnScore: 75
+  bossSpawnTime: 15
   bossSpeed: 4.5
   bossCanSplit: 1
   bossSplitDelay: 0.8

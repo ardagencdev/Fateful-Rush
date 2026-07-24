@@ -38,6 +38,21 @@ public class LevelConfigEditor : Editor
     private bool IsAdvanced =>
         viewMode == EditorViewMode.Advanced;
 
+    private WinConditionType SelectedWinCondition =>
+        (WinConditionType)Enum("winCondition");
+
+    private bool UsesScore =>
+        SelectedWinCondition ==
+            WinConditionType.ReachScore ||
+        SelectedWinCondition ==
+            WinConditionType.ReachScoreWithinTime;
+
+    private bool UsesTime =>
+        SelectedWinCondition ==
+            WinConditionType.SurviveTime ||
+        SelectedWinCondition ==
+            WinConditionType.ReachScoreWithinTime;
+
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
@@ -52,10 +67,15 @@ public class LevelConfigEditor : Editor
         DrawMusic();
         DrawPlayer();
         DrawAbilities();
-        DrawHUD();
-        DrawCombo();
+
+        if (UsesScore)
+            DrawCombo();
+
         DrawBackground();
-        DrawCoins();
+
+        if (UsesScore)
+            DrawCoins();
+
         DrawObstacles();
         DrawEnemies();
         DrawPowerUps();
@@ -156,9 +176,7 @@ public class LevelConfigEditor : Editor
 
         SummaryRow(
             "Boss",
-            config.bossEnabled
-                ? $"Enabled at {config.bossSpawnScore} Score"
-                : "Disabled"
+            GetBossSummary(config)
         );
 
         SummaryRow(
@@ -196,6 +214,38 @@ public class LevelConfigEditor : Editor
 
             default:
                 return "Unknown";
+        }
+    }
+
+    private string GetBossSummary(LevelConfig config)
+    {
+        if (!config.bossEnabled)
+            return "Disabled";
+
+        bool usesScore =
+            config.winCondition ==
+                WinConditionType.ReachScore ||
+            config.winCondition ==
+                WinConditionType.ReachScoreWithinTime;
+
+        if (!usesScore)
+        {
+            return
+                $"Enabled at {config.bossSpawnTime:0.##} Seconds";
+        }
+
+        switch (config.bossSpawnCondition)
+        {
+            case BossSpawnCondition.Score:
+                return
+                    $"Enabled at {config.bossSpawnScore} Score";
+
+            case BossSpawnCondition.Time:
+                return
+                    $"Enabled at {config.bossSpawnTime:0.##} Seconds";
+
+            default:
+                return "Enabled";
         }
     }
 
@@ -338,12 +388,41 @@ public class LevelConfigEditor : Editor
         }
 
         if (requiresScore &&
-        config.bossEnabled &&
-        config.bossSpawnScore >= config.winScore)
+            config.bossEnabled &&
+            config.bossSpawnCondition ==
+                BossSpawnCondition.Score &&
+            config.bossSpawnScore >= config.winScore)
         {
             Warning(
                 "Boss Spawn Score, Win Score değerine eşit veya daha büyük. " +
                 "Oyuncu boss görünmeden levelı bitirebilir."
+            );
+        }
+
+        bool usesTimeBossSpawn =
+            config.bossEnabled &&
+            config.bossSpawnCondition ==
+                BossSpawnCondition.Time;
+
+        if (usesTimeBossSpawn &&
+            config.bossSpawnTime <= 0f)
+        {
+            Warning(
+                "Boss Spawn Time 0 veya daha düşük. " +
+                "Boss gameplay başlar başlamaz spawn olabilir."
+            );
+        }
+
+        if (usesTimeBossSpawn &&
+            (config.winCondition ==
+                WinConditionType.SurviveTime ||
+             config.winCondition ==
+                WinConditionType.ReachScoreWithinTime) &&
+            config.bossSpawnTime >= config.timeLimit)
+        {
+            Warning(
+                "Boss Spawn Time, levelın Time Limit değerine eşit veya daha büyük. " +
+                "Oyuncu boss görünmeden levelı tamamlayabilir veya süre dolabilir."
             );
         }
 
@@ -386,7 +465,8 @@ public class LevelConfigEditor : Editor
         if (config.rareCoinEnabled)
             enabledCoinChance += config.rareCoinChance;
 
-        if (enabledCoinChance > 0f &&
+        if (requiresScore &&
+            enabledCoinChance > 0f &&
             !Mathf.Approximately(enabledCoinChance, 100f))
         {
             EditorGUILayout.HelpBox(
@@ -529,26 +609,6 @@ public class LevelConfigEditor : Editor
                     Prop("cloneDuration");
                     Prop("cloneCooldown");
                     Prop("cloneUses");
-                }
-            }
-        );
-    }
-
-    private void DrawHUD()
-    {
-        FoldoutBox(
-            "UI / HUD",
-            ref hudExpanded,
-            () =>
-            {
-                Prop("showGameTimerHUD");
-
-                if (IsAdvanced)
-                {
-                    Help(
-                        "Sadece oyun içindeki HUD timer yazısını açar/kapatır. " +
-                        "Result paneldeki survived time ve record sistemine dokunmaz."
-                    );
                 }
             }
         );
@@ -825,7 +885,52 @@ public class LevelConfigEditor : Editor
                 if (!Bool("bossEnabled"))
                     return;
 
-                Prop("bossSpawnScore");
+                if (UsesScore)
+                {
+                    Prop("bossSpawnCondition");
+
+                    switch ((BossSpawnCondition)
+                        Enum("bossSpawnCondition"))
+                    {
+                        case BossSpawnCondition.Score:
+                            Prop("bossSpawnScore");
+
+                            Help(
+                                "Boss, oyuncunun skoru bu değere ulaştığında spawn olur."
+                            );
+                            break;
+
+                        case BossSpawnCondition.Time:
+                            Prop("bossSpawnTime");
+
+                            Help(
+                                "Boss, gameplay başladıktan sonra belirlenen süre dolduğunda spawn olur."
+                            );
+                            break;
+                    }
+                }
+                else
+                {
+                    SerializedProperty spawnCondition =
+                        serializedObject.FindProperty(
+                            "bossSpawnCondition"
+                        );
+
+                    if (spawnCondition != null &&
+                        spawnCondition.enumValueIndex !=
+                            (int)BossSpawnCondition.Time)
+                    {
+                        spawnCondition.enumValueIndex =
+                            (int)BossSpawnCondition.Time;
+                    }
+
+                    Prop("bossSpawnTime");
+
+                    Help(
+                        "Bu win condition skor kullanmadığı için " +
+                        "boss otomatik olarak zamana göre spawn olur."
+                    );
+                }
 
                 if (!IsAdvanced)
                     return;

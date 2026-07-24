@@ -155,7 +155,9 @@ public class GameStateManager : MonoBehaviour
             hudIntroAnimator.HideInstant();
 
             yield return
-                hudIntroAnimator.PlayAndWait();
+                hudIntroAnimator.PlayAndWait(
+                    ShouldAnimateHUDItem
+                );
         }
         else
         {
@@ -245,6 +247,13 @@ public class GameStateManager : MonoBehaviour
             return;
 
         gameTimer += Time.unscaledDeltaTime;
+
+        if (levelManager != null &&
+            levelManager.enemySpawner != null)
+        {
+            levelManager.enemySpawner
+                .TrySpawnBossByTime(gameTimer);
+        }
 
         CheckTimeObjective();
     }
@@ -554,6 +563,44 @@ public class GameStateManager : MonoBehaviour
 
         if (pauseButtonHUD != null)
             pauseButtonHUD.SetActive(state);
+    }
+
+    private bool ShouldAnimateHUDItem(
+        GameObject target)
+    {
+        if (target == null)
+            return false;
+
+        LevelConfig level = CurrentLevel;
+
+        if (level == null)
+            return false;
+
+        if (target == scoreHUD)
+        {
+            return
+                level.winCondition ==
+                    WinConditionType.ReachScore ||
+                level.winCondition ==
+                    WinConditionType.ReachScoreWithinTime;
+        }
+
+        if (target == timeHUD)
+        {
+            return
+                level.winCondition ==
+                    WinConditionType.SurviveTime ||
+                level.winCondition ==
+                    WinConditionType.ReachScoreWithinTime;
+        }
+
+        if (target == dashHUD)
+            return level.dashEnabled;
+
+        if (target == cloneHUD)
+            return level.cloneEnabled;
+
+        return true;
     }
 
     private void StopMusic()

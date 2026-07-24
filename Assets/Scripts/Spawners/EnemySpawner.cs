@@ -83,8 +83,14 @@ public class EnemySpawner : MonoBehaviour
     [Header("Boss Settings")]
     public bool bossEnabled;
 
+    public BossSpawnCondition bossSpawnCondition =
+        BossSpawnCondition.Score;
+
     [Min(0)]
     public int bossSpawnScore = 75;
+
+    [Min(0f)]
+    public float bossSpawnTime = 30f;
 
     [Min(0f)]
     public float bossSpeed = 1.2f;
@@ -567,6 +573,35 @@ public class EnemySpawner : MonoBehaviour
 
     public void TrySpawnBoss(int currentScore)
     {
+        if (bossSpawnCondition !=
+            BossSpawnCondition.Score)
+        {
+            return;
+        }
+
+        if (currentScore < bossSpawnScore)
+            return;
+
+        TrySpawnBossInternal();
+    }
+
+    public void TrySpawnBossByTime(
+        float elapsedTime)
+    {
+        if (bossSpawnCondition !=
+            BossSpawnCondition.Time)
+        {
+            return;
+        }
+
+        if (elapsedTime < bossSpawnTime)
+            return;
+
+        TrySpawnBossInternal();
+    }
+
+    private void TrySpawnBossInternal()
+    {
         if (!GameStateManager.IsGameplayStarted)
             return;
 
@@ -574,9 +609,6 @@ public class EnemySpawner : MonoBehaviour
             return;
 
         if (bossSpawned)
-            return;
-
-        if (currentScore < bossSpawnScore)
             return;
 
         if (bossPrefab == null)
@@ -741,6 +773,9 @@ public class EnemySpawner : MonoBehaviour
 
         bossSpawnScore =
             Mathf.Max(0, bossSpawnScore);
+
+        bossSpawnTime =
+            Mathf.Max(0f, bossSpawnTime);
 
         bossSpeed =
             Mathf.Max(0f, bossSpeed);

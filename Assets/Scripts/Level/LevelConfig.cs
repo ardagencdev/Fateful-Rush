@@ -20,6 +20,12 @@ public enum WinConditionType
     ReachScoreWithinTime
 }
 
+public enum BossSpawnCondition
+{
+    Score,
+    Time
+}
+
 [System.Serializable]
 public class ComboSpeedStage
 {
@@ -281,8 +287,14 @@ public class LevelConfig : ScriptableObject
     [Header("BOSS")]
     public bool bossEnabled = false;
 
+    public BossSpawnCondition bossSpawnCondition =
+        BossSpawnCondition.Score;
+
     [Min(0)]
     public int bossSpawnScore = 75;
+
+    [Min(0f)]
+    public float bossSpawnTime = 30f;
 
     [Min(0f)]
     public float bossSpeed = 1.2f;

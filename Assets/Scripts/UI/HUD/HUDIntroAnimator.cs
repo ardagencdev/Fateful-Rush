@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -46,18 +47,33 @@ public class HUDIntroAnimator : MonoBehaviour
 
     public void Play()
     {
-        StopActiveRoutine();
-
-        HUDIntroFinished = false;
-        activeRoutine = StartCoroutine(PlayRoutine());
+        Play(null);
     }
 
-    public IEnumerator PlayAndWait()
+    public void Play(Func<GameObject, bool> shouldAnimate)
     {
         StopActiveRoutine();
 
         HUDIntroFinished = false;
-        activeRoutine = StartCoroutine(PlayRoutine());
+        activeRoutine = StartCoroutine(
+            PlayRoutine(shouldAnimate)
+        );
+    }
+
+    public IEnumerator PlayAndWait()
+    {
+        yield return PlayAndWait(null);
+    }
+
+    public IEnumerator PlayAndWait(
+        Func<GameObject, bool> shouldAnimate)
+    {
+        StopActiveRoutine();
+
+        HUDIntroFinished = false;
+        activeRoutine = StartCoroutine(
+            PlayRoutine(shouldAnimate)
+        );
 
         yield return activeRoutine;
     }
@@ -85,9 +101,10 @@ public class HUDIntroAnimator : MonoBehaviour
         }
     }
 
-    private IEnumerator PlayRoutine()
+    private IEnumerator PlayRoutine(
+        Func<GameObject, bool> shouldAnimate)
     {
-        PrepareItemsForIntro();
+        PrepareItemsForIntro(shouldAnimate);
 
         if (hudItems == null || hudItems.Length == 0)
         {
@@ -100,6 +117,13 @@ public class HUDIntroAnimator : MonoBehaviour
         {
             if (item == null || item.target == null)
                 continue;
+
+            if (shouldAnimate != null &&
+                !shouldAnimate(item.target))
+            {
+                item.target.SetActive(false);
+                continue;
+            }
 
             if (item.delay > 0f)
                 yield return new WaitForSecondsRealtime(item.delay);
@@ -191,7 +215,8 @@ public class HUDIntroAnimator : MonoBehaviour
         );
     }
 
-    private void PrepareItemsForIntro()
+    private void PrepareItemsForIntro(
+        Func<GameObject, bool> shouldAnimate)
     {
         if (hudItems == null)
             return;
@@ -205,6 +230,12 @@ public class HUDIntroAnimator : MonoBehaviour
                 Vector3.one * startScale;
 
             item.target.SetActive(false);
+
+            if (shouldAnimate != null &&
+                !shouldAnimate(item.target))
+            {
+                continue;
+            }
         }
     }
 

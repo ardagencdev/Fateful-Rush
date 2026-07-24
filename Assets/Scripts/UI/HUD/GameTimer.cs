@@ -17,7 +17,6 @@ public class GameTimer : MonoBehaviour
     private float elapsedTime;
     private float uiRefreshTimer;
 
-    private bool showHUDTimer;
     private bool useCountdown;
 
     public bool IsTiming { get; private set; }
@@ -141,10 +140,6 @@ public class GameTimer : MonoBehaviour
                 ? levelManager.currentLevel
                 : null;
 
-        showHUDTimer =
-            levelConfig != null &&
-            levelConfig.showGameTimerHUD;
-
         useCountdown =
             levelConfig != null &&
             (
@@ -154,18 +149,11 @@ public class GameTimer : MonoBehaviour
                     WinConditionType.ReachScoreWithinTime
             );
 
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(
-                showHUDTimer
-            );
-        }
     }
 
     private void UpdateUI()
     {
-        if (!showHUDTimer ||
-            timerText == null)
+        if (timerText == null)
         {
             return;
         }
@@ -181,13 +169,23 @@ public class GameTimer : MonoBehaviour
                 );
 
             timerText.text =
-                $"Time: {remainingTime:F1}";
+                FormatTime(remainingTime);
 
             return;
         }
 
         timerText.text =
-            $"Time: {elapsedTime:F1}";
+            FormatTime(elapsedTime);
+    }
+
+    private string FormatTime(float time)
+    {
+        time = Mathf.Max(0f, time);
+
+        int minutes = Mathf.FloorToInt(time / 60f);
+        int seconds = Mathf.FloorToInt(time % 60f);
+
+        return $"{minutes:00}:{seconds:00}";
     }
 
     private void RefreshReferences()
