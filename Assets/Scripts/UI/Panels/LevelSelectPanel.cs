@@ -14,6 +14,10 @@ public class LevelSelectPanel : MonoBehaviour
     [SerializeField] private LevelButtonUI levelButtonPrefab;
     [SerializeField] private LevelConfig[] levels;
 
+    [Header("Mission Briefing")]
+    [SerializeField]
+    private MissionBriefingPanelUI missionBriefingPanel;
+
     [Header("Scene")]
     [SerializeField] private string gameSceneName = "a";
 
@@ -41,6 +45,35 @@ public class LevelSelectPanel : MonoBehaviour
             return;
 
         SwitchPanels(levelSelectPanel, mainMenuPanel);
+    }
+
+    public void ShowMissionBriefing(LevelConfig config)
+    {
+        if (config == null)
+        {
+            Debug.LogWarning(
+                "LevelSelectPanel received a null LevelConfig.",
+                this
+            );
+
+            return;
+        }
+
+        if (missionBriefingPanel == null)
+        {
+            Debug.LogError(
+                "LevelSelectPanel missionBriefingPanel is missing.",
+                this
+            );
+
+            return;
+        }
+
+        missionBriefingPanel.Show(
+            config,
+            StartLevel,
+            RefreshButtons
+        );
     }
 
     public void StartLevel(LevelConfig config)

@@ -155,7 +155,7 @@ public class LevelButtonUI : MonoBehaviour,
 
         if (panel != null)
         {
-            panel.StartLevel(config);
+            panel.ShowMissionBriefing(config);
         }
         else
         {

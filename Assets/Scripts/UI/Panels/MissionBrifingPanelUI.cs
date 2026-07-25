@@ -24,8 +24,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     [Header("Difficulty")]
     [Tooltip(
-        "Soldan sağa beş yıldızın dolgu Image bileşenlerini ekle. " +
-        "Image Type değerleri Filled ve Fill Method Horizontal olmalıdır."
+        "Soldan sağa beş yıldızın dolu Image bileşenlerini ekle. " +
+        "Yıldızlar zorluk değerine göre tamamen açılır veya kapanır."
     )]
     [SerializeField] private Image[] difficultyStarFills = new Image[5];
 
@@ -303,10 +303,12 @@ public class MissionBriefingPanelUI : MonoBehaviour
             objectiveText.text = levelConfig.EffectiveBriefingTitle;
     }
 
-    private void RefreshDifficulty(float difficulty)
+    private void RefreshDifficulty(int difficulty)
     {
         if (difficultyStarFills == null)
             return;
+
+        int safeDifficulty = Mathf.Clamp(difficulty, 0, 5);
 
         for (int i = 0; i < difficultyStarFills.Length; i++)
         {
@@ -315,8 +317,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
             if (starFill == null)
                 continue;
 
-            float starValue = Mathf.Clamp01(difficulty - i);
-            starFill.fillAmount = starValue;
+            starFill.gameObject.SetActive(i < safeDifficulty);
         }
     }
 

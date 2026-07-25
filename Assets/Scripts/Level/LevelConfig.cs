@@ -70,11 +70,10 @@ public class LevelConfig : ScriptableObject
     public string briefingTitle = "MISSION BRIEFING";
 
     [Tooltip(
-        "Bölüm zorluğu. Değer 0.5 adımlarla değerlendirilir ve beş yıldız " +
-        "üzerinden gösterilir."
+        "Bölüm zorluğu. 0 ile 5 arasında tam yıldız olarak gösterilir."
     )]
-    [Range(0.5f, 5f)]
-    public float missionDifficulty = 1f;
+    [Range(0, 5)]
+    public int missionDifficulty = 1;
 
     [Tooltip(
         "Oyun modu için özel açıklama. Boş bırakılırsa seçilen win condition'a " +
@@ -523,14 +522,8 @@ public class LevelConfig : ScriptableObject
     public float SafeBossSpawnTime =>
         Mathf.Clamp(bossSpawnTime, 0f, SafeTimeLimit);
 
-    public float SafeMissionDifficulty
-    {
-        get
-        {
-            float clamped = Mathf.Clamp(missionDifficulty, 0.5f, 5f);
-            return Mathf.Round(clamped * 2f) * 0.5f;
-        }
-    }
+    public int SafeMissionDifficulty =>
+        Mathf.Clamp(missionDifficulty, 0, 5);
 
     public string EffectiveBriefingTitle
     {
@@ -616,9 +609,9 @@ public class LevelConfig : ScriptableObject
         timeLimit = Mathf.Max(0.1f, timeLimit);
 
         missionDifficulty = Mathf.Clamp(
-            Mathf.Round(missionDifficulty * 2f) * 0.5f,
-            0.5f,
-            5f
+            missionDifficulty,
+            0,
+            5
         );
 
         bossSpawnScore = Mathf.Max(0, bossSpawnScore);

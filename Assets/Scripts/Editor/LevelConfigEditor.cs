@@ -17,6 +17,7 @@ public class LevelConfigEditor : Editor
 
     private bool coreExpanded = true;
     private bool tutorialExpanded;
+    private bool briefingExpanded = true;
     private bool musicExpanded = true;
     private bool playerExpanded = true;
     private bool abilitiesExpanded;
@@ -63,6 +64,7 @@ public class LevelConfigEditor : Editor
         DrawGlobalWarnings();
 
         DrawCore();
+        DrawMissionBriefing();
         DrawTutorial();
         DrawMusic();
         DrawPlayer();
@@ -148,6 +150,16 @@ public class LevelConfigEditor : Editor
             "Win Condition",
             GetWinConditionSummary(config)
          );
+
+        SummaryRow(
+            "Difficulty",
+            $"{config.SafeMissionDifficulty}/5"
+        );
+
+        SummaryRow(
+            "Briefing Pages",
+            GetBriefingPageCount(config).ToString()
+        );
 
         SummaryRow(
             "Enemies",
@@ -481,6 +493,51 @@ public class LevelConfigEditor : Editor
                         );
                         break;
                 }
+            }
+        );
+    }
+
+    private int GetBriefingPageCount(LevelConfig config)
+    {
+        int pageCount = 1;
+
+        if (config.briefingPages == null)
+            return pageCount;
+
+        foreach (string page in config.briefingPages)
+        {
+            if (!string.IsNullOrWhiteSpace(page))
+                pageCount++;
+        }
+
+        return pageCount;
+    }
+
+    private void DrawMissionBriefing()
+    {
+        FoldoutBox(
+            "MISSION BRIEFING",
+            ref briefingExpanded,
+            () =>
+            {
+                Prop("briefingTitle");
+                Prop("missionDifficulty");
+
+                Help(
+                    "Difficulty uses whole stars only: 0/5, 1/5, 2/5, " +
+                    "3/5, 4/5 or 5/5."
+                );
+
+                Space();
+
+                Prop("briefingModeDescription");
+                Prop("briefingObjectiveDescription");
+                Prop("briefingPages", true);
+
+                Help(
+                    "The first page is generated automatically from the mission objective. " +
+                    "Briefing Pages are added after it in the order shown here."
+                );
             }
         );
     }
