@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class SoundManager : MonoBehaviour
 {
@@ -24,7 +25,11 @@ public class SoundManager : MonoBehaviour
     [Header("UI Sounds")]
     public AudioClip menuButtonSound;
     public AudioClip backButtonSound;
-    public AudioClip tutorialOpenSound;
+    public AudioClip startButtonSound;
+
+    [FormerlySerializedAs("tutorialOpenSound")]
+    public AudioClip missionBriefingOpenSound;
+
     public AudioClip premiumInterfaceSound;
     public AudioClip missionSelectSound;
     public AudioClip optionButtonSound;
@@ -86,7 +91,8 @@ public class SoundManager : MonoBehaviour
     public void PlayDashSound() => PlaySound(dashSound);
     public void PlayVoidCloneSound() => PlaySound(voidCloneSound);
 
-    public void PlayTutorialOpenSound() => PlaySound(tutorialOpenSound);
+    public void PlayMissionBriefingOpenSound() =>
+        PlaySound(missionBriefingOpenSound);
     public void PlayPremiumInterfaceSound() => PlaySound(premiumInterfaceSound);
 
     public void PlayMissionSelectSound() => PlaySound(missionSelectSound);
@@ -104,6 +110,11 @@ public class SoundManager : MonoBehaviour
     public void PlayBeaconDeathSound()
     {
         PlaySound(beaconDeathSound, beaconDeathVolume);
+    }
+
+    public void PlayStartButtonSound()
+    {
+        PlaySound(startButtonSound);
     }
 
     public void PlayMenuButtonSound() => PlaySound(menuButtonSound);

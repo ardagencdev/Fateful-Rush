@@ -13,8 +13,6 @@ public class StatsPanelUI : MonoBehaviour
     [Header("Texts")]
     [SerializeField] private TextMeshProUGUI generalText;
     [SerializeField] private TextMeshProUGUI gameplayText;
-    [SerializeField] private TextMeshProUGUI bestTimesLeftText;
-    [SerializeField] private TextMeshProUGUI bestTimesRightText;
 
     private void Awake()
     {
@@ -106,55 +104,7 @@ public class StatsPanelUI : MonoBehaviour
                 $"Armor Buff Uses: {StatsManager.GetArmorBuffUses()}\n" +
                 $"Armor Kills: {StatsManager.GetArmorKills()}";
         }
-
-        if (bestTimesLeftText != null)
-        {
-            bestTimesLeftText.text =
-                "BEST TIMES\n" +
-                $"Dev Room: {FormatBestTime(StatsManager.GetDevRoomBestTime())}\n" +
-                GetBestTimesText(1, 10);
-        }
-
-        if (bestTimesRightText != null)
-        {
-            bestTimesRightText.text =
-                "\n\n" +
-                GetBestTimesText(11, 20);
-        }
     }
-
-    private static string GetBestTimesText(
-        int startLevel,
-        int endLevel
-    )
-    {
-        string result = "";
-
-        for (int level = startLevel;
-             level <= endLevel;
-             level++)
-        {
-            float bestTime =
-                StatsManager.GetLevelBestTime(level);
-
-            result +=
-                $"Level {level}: " +
-                FormatBestTime(bestTime) +
-                "\n";
-        }
-
-        return result;
-    }
-
-    private static string FormatBestTime(
-        float time
-    )
-    {
-        return time < 0f
-            ? "--"
-            : time.ToString("F1") + " s";
-    }
-
     private static string FormatTime(
         float seconds
     )

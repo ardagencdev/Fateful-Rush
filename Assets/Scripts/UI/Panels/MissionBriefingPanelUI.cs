@@ -18,7 +18,6 @@ public class MissionBriefingPanelUI : MonoBehaviour
     [Header("Mission Information")]
     [SerializeField] private TMP_Text levelTitleText;
     [SerializeField] private TMP_Text modeText;
-    [SerializeField] private TMP_Text objectiveText;
     [SerializeField] private TMP_Text pageDescriptionText;
     [SerializeField] private TMP_Text pageIndicatorText;
 
@@ -151,7 +150,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
         briefingPanel.SetActive(true);
 
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayTutorialOpenSound();
+            SoundManager.Instance.PlayMissionBriefingOpenSound();
 
         if (panelGroup != null)
         {
@@ -265,8 +264,9 @@ public class MissionBriefingPanelUI : MonoBehaviour
     {
         pages.Clear();
 
-        // İlk sayfada ana hedef gösterilir. Başlık, mod, zorluk ve best time
-        // panelin sabit alanlarında ayrıca görünür.
+        // İlk sayfada oyuncuya doğrudan görev hedefi gösterilir.
+        // Başlık, oyun modu, zorluk ve en iyi süre panelin üst kısmında
+        // sabit olarak gösterildiği için burada tekrar edilmez.
         pages.Add(levelConfig.GetEffectiveObjectiveDescription());
 
         if (levelConfig.briefingPages == null)
@@ -294,9 +294,6 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
         if (modeText != null)
             modeText.text = levelConfig.GetEffectiveModeDescription();
-
-        if (objectiveText != null)
-            objectiveText.text = levelConfig.EffectiveBriefingTitle;
     }
 
     private void RefreshDifficulty(int difficulty)

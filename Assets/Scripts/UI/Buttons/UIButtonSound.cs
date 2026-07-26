@@ -8,7 +8,8 @@ public class UIButtonSound : MonoBehaviour
     {
         Menu,
         Back,
-        Option
+        Option,
+        Start
     }
 
     [SerializeField]
@@ -57,6 +58,9 @@ public class UIButtonSound : MonoBehaviour
 
                 case ButtonSoundType.Option:
                     soundManager.PlayOptionButtonSound();
+                    break;
+                case ButtonSoundType.Start:
+                    SoundManager.Instance?.PlayStartButtonSound();
                     break;
             }
         }

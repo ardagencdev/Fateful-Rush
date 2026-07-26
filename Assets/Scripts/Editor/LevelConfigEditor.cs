@@ -228,7 +228,7 @@ public class LevelConfigEditor : Editor
 
             case BossSpawnCondition.Time:
                 return
-                    $"Enabled when {config.bossSpawnTime:0.##} Seconds remain";
+                    $"Enabled after {config.bossSpawnTime:0.##} Seconds";
 
             default:
                 return "Enabled";
@@ -385,14 +385,14 @@ public class LevelConfigEditor : Editor
             if (config.bossSpawnTime <= 0f)
             {
                 Warning(
-                    "Boss Remaining Time is 0. The boss will spawn only when the timer expires."
+                    "Boss Spawn Time is 0. The boss will appear immediately when gameplay starts."
                 );
             }
             else if (config.bossSpawnTime >= config.timeLimit)
             {
                 Warning(
-                    "Boss Remaining Time is equal to or greater than the level Time Limit. " +
-                    "The boss will spawn immediately when gameplay starts."
+                    "Boss Spawn Time is equal to or greater than the Time Limit. " +
+                    "The boss would spawn after the level has already ended."
                 );
             }
         }
@@ -940,11 +940,10 @@ public class LevelConfigEditor : Editor
                         Prop("bossSpawnTime");
 
                         Help(
-                            "This level uses Survive Time, so the boss automatically spawns " +
-                            "when the countdown reaches this remaining-time value. " +
-                            "Example: with a 40-second limit and a value of 27, " +
-                            "the boss appears after 13 seconds of gameplay."
-                        );
+    "This level uses Survive Time. Boss Spawn Time defines how many seconds " +
+    "after gameplay begins the boss will appear. " +
+    "Example: with a value of 15, the boss spawns 15 seconds after the level starts."
+);
                         break;
 
                     case WinConditionType.ReachScoreWithinTime:
@@ -965,9 +964,8 @@ public class LevelConfigEditor : Editor
                                 Prop("bossSpawnTime");
 
                                 Help(
-                                    "The boss spawns when the countdown reaches this " +
-                                    "remaining-time value. Example: with a 40-second limit " +
-                                    "and a value of 27, the boss appears after 13 seconds."
+                                    "Boss Spawn Time defines how many seconds after gameplay begins " +
+    "the boss will appear."
                                 );
                                 break;
                         }
@@ -1062,20 +1060,21 @@ public class LevelConfigEditor : Editor
             return;
         }
 
-        float remainingTime = spawnTimeProperty.floatValue;
+        float spawnTime =
+    spawnTimeProperty.floatValue;
         float timeLimit = timeLimitProperty.floatValue;
 
-        if (remainingTime <= 0f)
+        if (spawnTime <= 0f)
         {
             Warning(
-                "A remaining-time value of 0 makes the boss spawn only when the timer expires."
+                "A value of 0 makes the boss spawn immediately when gameplay starts."
             );
         }
-        else if (remainingTime >= timeLimit)
+        else if (spawnTime >= timeLimit)
         {
             Warning(
-                "Boss Remaining Time must be lower than Time Limit for a delayed spawn. " +
-                "With the current value, the boss will appear immediately."
+                "Boss Spawn Time must be lower than the Time Limit. " +
+"Otherwise the level will finish before the boss can spawn."
             );
         }
     }

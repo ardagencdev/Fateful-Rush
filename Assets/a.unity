@@ -8302,7 +8302,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -300, y: 0}
+  m_AnchoredPosition: {x: -150, y: 0}
   m_SizeDelta: {x: 250, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &427754824
@@ -12028,7 +12028,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 150, y: 0}
   m_SizeDelta: {x: 250, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &919869633
@@ -17374,7 +17374,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -300, y: 45}
+  m_AnchoredPosition: {x: -150, y: 45}
   m_SizeDelta: {x: 180, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &993933793
@@ -18310,7 +18310,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dfd484ccd018524798ace7a05c6e171, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayMusicFade
-  tutorialMusic: {fileID: 8300000, guid: 21d85f17d7ba5c44ea49f210928b3794, type: 3}
   gameplayMusicBaseVolume: 0.2
   fadeInDuration: 0.6
   fadeOutDuration: 0.4
@@ -19318,7 +19317,7 @@ MonoBehaviour:
   voidCloneSound: {fileID: 8300000, guid: a0906e582b7cdec46999f741f89c700f, type: 3}
   menuButtonSound: {fileID: 8300000, guid: 9e0c7c3ef0b54b844ac299ea1a788a6e, type: 3}
   backButtonSound: {fileID: 8300000, guid: 29dd4eaf3192530458c01a0a734c411d, type: 3}
-  tutorialOpenSound: {fileID: 8300000, guid: 448bc40aacf79294cb50396a76e6aa48, type: 3}
+  missionBriefingOpenSound: {fileID: 8300000, guid: 448bc40aacf79294cb50396a76e6aa48, type: 3}
   premiumInterfaceSound: {fileID: 8300000, guid: 3923863614aaf94458c1590fce43976d, type: 3}
   missionSelectSound: {fileID: 0}
   optionButtonSound: {fileID: 8300000, guid: 6b40e451120119846b3ac88f53276239, type: 3}
@@ -24543,7 +24542,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 45}
+  m_AnchoredPosition: {x: 150, y: 45}
   m_SizeDelta: {x: 180, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2014673595

@@ -47,8 +47,6 @@ public class LevelManager : MonoBehaviour
         if (initialized)
             return;
 
-        initialized = true;
-
         CacheStarDefaults();
         ResolveSpawnerReferences();
         ResolveSelectedLevel();
@@ -62,6 +60,8 @@ public class LevelManager : MonoBehaviour
 
             return;
         }
+
+        initialized = true;
 
         Debug.Log(
             $"[LevelManager] Loaded Config: {currentLevel.name} | " +
