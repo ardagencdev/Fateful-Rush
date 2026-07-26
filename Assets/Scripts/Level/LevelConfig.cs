@@ -51,17 +51,6 @@ public class LevelConfig : ScriptableObject
 
     public string levelName = "Level 1";
 
-    [Header("TUTORIAL")]
-    public bool showTutorial = true;
-
-    public string tutorialTitle = "LEVEL BRIEFING";
-
-    [TextArea(4, 10)]
-    public string[] tutorialPages =
-    {
-        "Tutorial text..."
-    };
-
     [Header("MISSION BRIEFING")]
     [Tooltip(
         "Main Menu içindeki mission briefing panelinde gösterilecek başlık. " +

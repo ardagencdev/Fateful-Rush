@@ -18,10 +18,16 @@ MonoBehaviour:
   tutorialTitle: LEVEL BRIEFING
   tutorialPages:
   - Tutorial text...
+  briefingTitle: MISSION BRIEFING
+  missionDifficulty: 1
+  briefingModeDescription: 
+  briefingObjectiveDescription: 
+  briefingPages:
+  - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 1
   winScore: 100
-  timeLimit: 35
+  timeLimit: 10
   showGameTimerHUD: 1
   playerMoveSpeed: 7
   playerComboSpeedBonus: 1.2
@@ -105,10 +111,10 @@ MonoBehaviour:
   hunterWarningDuration: 1
   hunterChargeSpeed: 15
   hunterStunDuration: 1
-  bossEnabled: 1
-  bossSpawnCondition: 0
+  bossEnabled: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
-  bossSpawnTime: 15
+  bossSpawnTime: 30
   bossSpeed: 4.5
   bossCanSplit: 1
   bossSplitDelay: 0.8

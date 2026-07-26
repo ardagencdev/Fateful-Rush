@@ -35,11 +35,6 @@ public class SceneTransition : MonoBehaviour
             new GameObject("SceneTransition");
 
         transitionObject.AddComponent<SceneTransition>();
-
-        Debug.LogWarning(
-            "[SceneTransition] Sahnede SceneTransition bulunamadığı " +
-            "için otomatik olarak oluşturuldu."
-        );
     }
 
     private void Awake()

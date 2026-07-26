@@ -288,12 +288,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
     {
         if (levelTitleText != null)
         {
-            string levelName = string.IsNullOrWhiteSpace(levelConfig.levelName)
-                ? $"LEVEL {levelConfig.levelNumber}"
-                : levelConfig.levelName.Trim();
-
             levelTitleText.text =
-                $"LEVEL {levelConfig.levelNumber}  •  {levelName}";
+                $"LEVEL {levelConfig.levelNumber}";
         }
 
         if (modeText != null)

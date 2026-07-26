@@ -17,9 +17,6 @@ public class GameStateManager : MonoBehaviour
     public HorizontalLaserWallSpawner horizontalLaserWallSpawner;
     public ObstacleSpawner obstacleSpawner;
 
-    [Header("Tutorial")]
-    public TutorialPanelUI tutorialPanelUI;
-
     [Header("Gameplay Music")]
     [SerializeField]
     private GameplayMusicFade gameplayMusic;
@@ -92,59 +89,11 @@ public class GameStateManager : MonoBehaviour
             currentLevel = levelManager.currentLevel;
         }
 
-        bool levelAlreadyCompleted = false;
-
-        if (currentLevel != null &&
-            SelectedLevelData.isLevelMode)
-        {
-            string completedKey =
-                "CompletedLevel_" +
-                currentLevel.levelNumber;
-
-            levelAlreadyCompleted =
-                PlayerPrefs.GetInt(
-                    completedKey,
-                    0
-                ) == 1;
-        }
-
-        bool shouldShowTutorial =
-            currentLevel != null &&
-            currentLevel.showTutorial &&
-            tutorialPanelUI != null &&
-            !levelAlreadyCompleted;
-
-        if (shouldShowTutorial)
-        {
-            gameplayMusic?.PlayTutorialMusic();
-
-            yield return
-                new WaitForSecondsRealtime(0.25f);
-
-            bool tutorialClosed = false;
-
-            tutorialPanelUI.ShowTutorial(
-                currentLevel.tutorialTitle,
-                currentLevel.tutorialPages,
-                () => tutorialClosed = true
-            );
-
-            yield return new WaitUntil(
-                () => tutorialClosed
-            );
-
-            gameplayMusic?.TransitionToClip(
-                currentLevel.gameplayMusic
-            );
-        }
-        else
-        {
-            gameplayMusic?.PlayClipAndFadeIn(
-                currentLevel != null
-                    ? currentLevel.gameplayMusic
-                    : null
-            );
-        }
+        gameplayMusic?.PlayClipAndFadeIn(
+            currentLevel != null
+                ? currentLevel.gameplayMusic
+                : null
+        );
 
         yield return null;
 
@@ -254,18 +203,11 @@ public class GameStateManager : MonoBehaviour
             CurrentLevel.UsesTime)
         {
             /*
-             * LevelConfig içindeki bossSpawnTime kalan süreyi temsil eder.
-             * EnemySpawner ise geride uyumluluk için geçen süre bekliyor.
-             * Bu nedenle burada güvenli şekilde geçen süre eşiğine çeviriyoruz.
+             * bossSpawnTime, gameplay başladıktan sonra geçmesi gereken süreyi
+             * temsil eder. EnemySpawner da doğrudan geçen oyun süresini bekler.
              */
-            float bossElapsedTrigger =
-                CurrentLevel.SafeTimeLimit -
-                CurrentLevel.SafeBossSpawnTime;
-
             levelManager.enemySpawner
-                .TrySpawnBossByTime(
-                    Mathf.Max(0f, bossElapsedTrigger)
-                );
+                .TrySpawnBossByTime(gameTimer);
         }
 
         CheckTimeObjective();
@@ -716,12 +658,6 @@ public class GameStateManager : MonoBehaviour
         {
             obstacleSpawner =
                 FindAnyObjectByType<ObstacleSpawner>();
-        }
-
-        if (tutorialPanelUI == null)
-        {
-            tutorialPanelUI =
-                FindAnyObjectByType<TutorialPanelUI>();
         }
 
         if (gameplayMusic == null)

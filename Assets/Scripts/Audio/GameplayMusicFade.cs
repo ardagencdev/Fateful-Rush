@@ -3,12 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 public class GameplayMusicFade : MonoBehaviour
-{
-    [Header("Music Clips")]
-    [Tooltip("Bütün levellardaki tutorial ekranlarında kullanılacak ortak müzik.")]
-    [SerializeField]
-    private AudioClip tutorialMusic;
-
+{ 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)]
     private float gameplayMusicBaseVolume = 0.2f;
@@ -36,21 +31,6 @@ public class GameplayMusicFade : MonoBehaviour
         source.playOnAwake = false;
         source.loop = true;
         source.volume = 0f;
-    }
-
-    public void PlayTutorialMusic()
-    {
-        if (tutorialMusic == null)
-        {
-            Debug.LogWarning(
-                "GameplayMusicFade: Tutorial Music atanmamış."
-            );
-
-            StopImmediately();
-            return;
-        }
-
-        PlayClipAndFadeIn(tutorialMusic);
     }
 
     public void PlayClipAndFadeIn(AudioClip clip)

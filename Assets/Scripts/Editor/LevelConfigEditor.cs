@@ -16,7 +16,6 @@ public class LevelConfigEditor : Editor
     private EditorViewMode viewMode = EditorViewMode.Basic;
 
     private bool coreExpanded = true;
-    private bool tutorialExpanded;
     private bool briefingExpanded = true;
     private bool musicExpanded = true;
     private bool playerExpanded = true;
@@ -65,7 +64,6 @@ public class LevelConfigEditor : Editor
 
         DrawCore();
         DrawMissionBriefing();
-        DrawTutorial();
         DrawMusic();
         DrawPlayer();
         DrawAbilities();
@@ -184,13 +182,6 @@ public class LevelConfigEditor : Editor
         SummaryRow(
             "Boss",
             GetBossSummary(config)
-        );
-
-        SummaryRow(
-            "Tutorial",
-            config.showTutorial
-                ? "Enabled"
-                : "Disabled"
         );
 
         SummaryRow(
@@ -537,29 +528,6 @@ public class LevelConfigEditor : Editor
                 Help(
                     "The first page is generated automatically from the mission objective. " +
                     "Briefing Pages are added after it in the order shown here."
-                );
-            }
-        );
-    }
-
-    private void DrawTutorial()
-    {
-        FoldoutBox(
-            "TUTORIAL",
-            ref tutorialExpanded,
-            () =>
-            {
-                Prop("showTutorial");
-
-                if (!Bool("showTutorial"))
-                    return;
-
-                Prop("tutorialTitle");
-                Prop("tutorialPages", true);
-
-                Help(
-                    "Tutorial Music yalnızca tutorial panel açıkken çalar. " +
-                    "START'a basılınca levelın Gameplay Music parçasına geçilir."
                 );
             }
         );

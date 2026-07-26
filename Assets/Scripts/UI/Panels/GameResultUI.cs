@@ -14,13 +14,6 @@ public class GameResultUI : MonoBehaviour
     [Header("Win Values")]
     [SerializeField] private TextMeshProUGUI winScoreValue;
     [SerializeField] private TextMeshProUGUI winTimeValue;
-    [SerializeField] private TextMeshProUGUI winBestTimeValue;
-
-    [Tooltip(
-        "Best Time başlığı ve değerini birlikte taşıyan obje. " +
-        "Boş bırakılırsa yalnızca Win Best Time Value objesi gizlenir."
-    )]
-    [SerializeField] private GameObject winBestTimeGroup;
 
     [Header("Lose Values")]
     [SerializeField] private TextMeshProUGUI destroyedByText;
@@ -70,31 +63,6 @@ public class GameResultUI : MonoBehaviour
         ShowPanel();
         SetResultState(true);
 
-        LevelConfig currentLevel =
-            GetCurrentLevel();
-
-        bool canShowBestTime =
-            currentLevel == null ||
-            currentLevel.CanSaveBestTime;
-
-        SetBestTimeVisibility(
-            canShowBestTime
-        );
-
-        float bestTime = time;
-
-        if (canShowBestTime)
-        {
-            string bestTimeKey =
-                GetBestTimeKey();
-
-            bestTime =
-                PlayerPrefs.GetFloat(
-                    bestTimeKey,
-                    time
-                );
-        }
-
         if (winScoreValue != null)
         {
             winScoreValue.text =
@@ -105,13 +73,6 @@ public class GameResultUI : MonoBehaviour
         {
             winTimeValue.text =
                 FormatTime(time);
-        }
-
-        if (canShowBestTime &&
-            winBestTimeValue != null)
-        {
-            winBestTimeValue.text =
-                FormatTime(bestTime);
         }
 
         UpdateNextLevelButton();
@@ -174,41 +135,6 @@ public class GameResultUI : MonoBehaviour
         return levelManager != null
             ? levelManager.currentLevel
             : null;
-    }
-
-    private void SetBestTimeVisibility(
-        bool visible)
-    {
-        if (winBestTimeGroup != null)
-        {
-            winBestTimeGroup.SetActive(
-                visible
-            );
-
-            return;
-        }
-
-        if (winBestTimeValue != null)
-        {
-            winBestTimeValue.gameObject.SetActive(
-                visible
-            );
-        }
-    }
-
-    private string GetBestTimeKey()
-    {
-        if (SelectedLevelData.IsLevelMode &&
-            levelManager != null &&
-            levelManager.currentLevel != null)
-        {
-            return "BestTime_Level_" +
-                   levelManager
-                       .currentLevel
-                       .levelNumber;
-        }
-
-        return "BestTime_DevRoom";
     }
 
     private void UpdateNextLevelButton()
