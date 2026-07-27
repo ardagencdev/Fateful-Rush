@@ -10,7 +10,7 @@ The project has been developed with a strong emphasis on clean architecture, mod
 
 #  Gameplay
 
-Players control a spacecraft using a custom-built virtual joystick optimized specifically for mobile devices.
+Players control a spaceman using a custom-built virtual joystick optimized specifically for mobile devices.
 
 During each mission, the player must:
 
@@ -48,7 +48,7 @@ The game contains multiple enemy archetypes with unique behaviors.
 - Stalker
 - Hunter
 - Blaster
-- Beacon Enemy
+- Beacon
 - Boss
 - Mini Boss
 - Laser Walls
