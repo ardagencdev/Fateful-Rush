@@ -26,6 +26,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip menuButtonSound;
     public AudioClip backButtonSound;
     public AudioClip startButtonSound;
+    public AudioClip lockedLevelSound;
 
     [FormerlySerializedAs("tutorialOpenSound")]
     public AudioClip missionBriefingOpenSound;
@@ -115,6 +116,11 @@ public class SoundManager : MonoBehaviour
     public void PlayStartButtonSound()
     {
         PlaySound(startButtonSound);
+    }
+
+    public void PlayLockedLevelSound()
+    {
+        PlaySound(lockedLevelSound);
     }
 
     public void PlayMenuButtonSound() => PlaySound(menuButtonSound);

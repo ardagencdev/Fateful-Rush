@@ -19,7 +19,7 @@ public class LevelSelectPanel : MonoBehaviour
     [SerializeField] private LevelConfig[] levels;
 
     [Header("Pagination")]
-    [SerializeField, Min(1)] private int levelsPerPage = 10;
+    [SerializeField, Min(1)] private int levelsPerPage = 5;
     [SerializeField] private TMP_Text pageIndicatorText;
     [SerializeField] private Button previousPageButton;
     [SerializeField] private Button nextPageButton;
@@ -30,10 +30,11 @@ public class LevelSelectPanel : MonoBehaviour
     [Header("Page Animation")]
     [SerializeField, Min(0f)] private float pageSlideDistance = 700f;
     [SerializeField, Min(0.01f)] private float pageAnimDuration = 0.25f;
+    [SerializeField, Min(0.01f)] private float navigationAnimDuration = 0.18f;
+    [SerializeField, Range(0.5f, 1f)] private float hiddenNavigationScale = 0.85f;
 
     [Header("Mission Briefing")]
-    [SerializeField]
-    private MissionBriefingPanelUI missionBriefingPanel;
+    [SerializeField] private MissionBriefingPanelUI missionBriefingPanel;
 
     [Header("Scene")]
     [SerializeField] private string gameSceneName = "a";
@@ -50,17 +51,47 @@ public class LevelSelectPanel : MonoBehaviour
     private bool isDragging;
     private bool isLoadingLevel;
 
-    private Coroutine pageRoutine;
     private CanvasGroup containerGroup;
+    private CanvasGroup previousPageGroup;
+    private CanvasGroup nextPageGroup;
+
+    private Vector3 previousPageBaseScale = Vector3.one;
+    private Vector3 nextPageBaseScale = Vector3.one;
+
+    private Coroutine pageRoutine;
+    private Coroutine previousButtonRoutine;
+    private Coroutine nextButtonRoutine;
 
     private void Awake()
     {
         PrepareContainer();
         PreparePageButtons();
+
+        // Panel başlangıçta kapalı olabileceği için burada coroutine çalıştırmıyoruz.
+        SetNavigationButtonInstant(
+            previousPageButton,
+            previousPageGroup,
+            false,
+            previousPageBaseScale
+        );
+
+        SetNavigationButtonInstant(
+            nextPageButton,
+            nextPageGroup,
+            true,
+            nextPageBaseScale
+        );
+    }
+
+    private void OnEnable()
+    {
+        isLoadingLevel = false;
     }
 
     private void OnDestroy()
     {
+        StopAllAnimations();
+
         if (previousPageButton != null)
             previousPageButton.onClick.RemoveListener(PreviousPage);
 
@@ -95,13 +126,19 @@ public class LevelSelectPanel : MonoBehaviour
         if (!ValidatePanelReferences())
             return;
 
+        StopAllAnimations();
+
         CalculatePageCount();
         OpenLatestUnlockedPage();
         CreateCurrentPageButtons();
-        RefreshPageUI();
+
+        // LevelSelectPanel henüz aktif değilken coroutine başlatmamak için
+        // navigation durumunu ilk açılışta anında doğru hale getiriyoruz.
+        RefreshPageUI(false);
+        SetPageButtonsInteractable(true);
 
         MainMenuStarColorRandomizer.Instance?
-              .ShowLevelSelectionColor();
+            .ShowLevelSelectionColor();
 
         SwitchPanels(
             mainMenuPanel,
@@ -114,7 +151,8 @@ public class LevelSelectPanel : MonoBehaviour
         if (!ValidatePanelReferences())
             return;
 
-        StopPageAnimation();
+        StopAllAnimations();
+        ResetContainerVisuals();
 
         MainMenuStarColorRandomizer.Instance?
             .ShowMainMenuColor();
@@ -125,9 +163,7 @@ public class LevelSelectPanel : MonoBehaviour
         );
     }
 
-    public void ShowMissionBriefing(
-        LevelConfig config
-    )
+    public void ShowMissionBriefing(LevelConfig config)
     {
         if (config == null)
         {
@@ -135,7 +171,6 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel received a null LevelConfig.",
                 this
             );
-
             return;
         }
 
@@ -145,7 +180,6 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel missionBriefingPanel is missing.",
                 this
             );
-
             return;
         }
 
@@ -158,9 +192,7 @@ public class LevelSelectPanel : MonoBehaviour
         );
     }
 
-    public void StartLevel(
-        LevelConfig config
-    )
+    public void StartLevel(LevelConfig config)
     {
         if (isLoadingLevel)
             return;
@@ -171,7 +203,6 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel received a null LevelConfig.",
                 this
             );
-
             return;
         }
 
@@ -181,7 +212,6 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel game scene name is empty.",
                 this
             );
-
             return;
         }
 
@@ -192,12 +222,10 @@ public class LevelSelectPanel : MonoBehaviour
                 "Make sure it exists in Build Profiles.",
                 this
             );
-
             return;
         }
 
         isLoadingLevel = true;
-
         SelectedLevelData.SetMission(config);
 
         if (SceneTransition.Instance != null)
@@ -277,10 +305,12 @@ public class LevelSelectPanel : MonoBehaviour
             previousPageButton.onClick.RemoveListener(
                 PreviousPage
             );
-
             previousPageButton.onClick.AddListener(
                 PreviousPage
             );
+
+            previousPageBaseScale =
+                previousPageButton.transform.localScale;
         }
 
         if (nextPageButton != null)
@@ -288,11 +318,38 @@ public class LevelSelectPanel : MonoBehaviour
             nextPageButton.onClick.RemoveListener(
                 NextPage
             );
-
             nextPageButton.onClick.AddListener(
                 NextPage
             );
+
+            nextPageBaseScale =
+                nextPageButton.transform.localScale;
         }
+
+        previousPageGroup =
+            GetOrAddCanvasGroup(previousPageButton);
+
+        nextPageGroup =
+            GetOrAddCanvasGroup(nextPageButton);
+    }
+
+    private static CanvasGroup GetOrAddCanvasGroup(
+        Button button
+    )
+    {
+        if (button == null)
+            return null;
+
+        CanvasGroup group =
+            button.GetComponent<CanvasGroup>();
+
+        if (group == null)
+        {
+            group =
+                button.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        return group;
     }
 
     private void CalculatePageCount()
@@ -315,6 +372,28 @@ public class LevelSelectPanel : MonoBehaviour
                 (float)levelsPerPage
             )
         );
+
+        currentPageIndex = Mathf.Clamp(
+            currentPageIndex,
+            0,
+            totalPageCount - 1
+        );
+    }
+
+    private void OpenLatestUnlockedPage()
+    {
+        int unlockedLevel =
+            PlayerPrefs.GetInt(
+                "UnlockedLevel",
+                1
+            );
+
+        int safeUnlockedLevel =
+            Mathf.Max(1, unlockedLevel);
+
+        currentPageIndex =
+            (safeUnlockedLevel - 1) /
+            levelsPerPage;
 
         currentPageIndex = Mathf.Clamp(
             currentPageIndex,
@@ -387,6 +466,9 @@ public class LevelSelectPanel : MonoBehaviour
         int direction
     )
     {
+        if (!gameObject.activeInHierarchy)
+            return;
+
         pageRoutine = StartCoroutine(
             PageTransitionRoutine(
                 newPageIndex,
@@ -400,6 +482,7 @@ public class LevelSelectPanel : MonoBehaviour
         int direction
     )
     {
+        isDragging = false;
         SetPageButtonsInteractable(false);
 
         float timer = 0f;
@@ -433,7 +516,9 @@ public class LevelSelectPanel : MonoBehaviour
         currentPageIndex = newPageIndex;
 
         CreateCurrentPageButtons();
-        RefreshPageUI();
+
+        // Panel aktifken sayfa sınırına göre okları smooth değiştir.
+        RefreshPageUI(true);
 
         if (levelButtonsContainer != null)
         {
@@ -475,21 +560,15 @@ public class LevelSelectPanel : MonoBehaviour
             yield return null;
         }
 
-        if (levelButtonsContainer != null)
-        {
-            levelButtonsContainer.anchoredPosition =
-                containerStartPosition;
-        }
-
-        if (containerGroup != null)
-            containerGroup.alpha = 1f;
-
-        SetPageButtonsInteractable(true);
+        ResetContainerVisuals();
 
         pageRoutine = null;
+        SetPageButtonsInteractable(true);
     }
 
-    private void RefreshPageUI()
+    private void RefreshPageUI(
+        bool animateNavigation
+    )
     {
         if (pageIndicatorText != null)
         {
@@ -497,11 +576,178 @@ public class LevelSelectPanel : MonoBehaviour
                 $"{currentPageIndex + 1} / {totalPageCount}";
         }
 
-        RefreshNavigationButtons();
-        SetPageButtonsInteractable(true);
+        bool canGoPrevious =
+            currentPageIndex > 0;
+
+        bool canGoNext =
+            currentPageIndex < totalPageCount - 1;
+
+        RefreshNavigationButton(
+            previousPageButton,
+            previousPageGroup,
+            canGoPrevious,
+            previousPageBaseScale,
+            true,
+            animateNavigation
+        );
+
+        RefreshNavigationButton(
+            nextPageButton,
+            nextPageGroup,
+            canGoNext,
+            nextPageBaseScale,
+            false,
+            animateNavigation
+        );
     }
 
-    private void RefreshNavigationButtons()
+    private void RefreshNavigationButton(
+        Button button,
+        CanvasGroup group,
+        bool show,
+        Vector3 baseScale,
+        bool isPrevious,
+        bool animate
+    )
+    {
+        if (button == null || group == null)
+            return;
+
+        StopNavigationRoutine(isPrevious);
+
+        if (!animate ||
+            !gameObject.activeInHierarchy ||
+            levelSelectPanel == null ||
+            !levelSelectPanel.activeSelf)
+        {
+            SetNavigationButtonInstant(
+                button,
+                group,
+                show,
+                baseScale
+            );
+            return;
+        }
+
+        Coroutine routine = StartCoroutine(
+            NavigationButtonRoutine(
+                button,
+                group,
+                show,
+                baseScale,
+                isPrevious
+            )
+        );
+
+        if (isPrevious)
+            previousButtonRoutine = routine;
+        else
+            nextButtonRoutine = routine;
+    }
+
+    private IEnumerator NavigationButtonRoutine(
+        Button button,
+        CanvasGroup group,
+        bool show,
+        Vector3 baseScale,
+        bool isPrevious
+    )
+    {
+        if (show && !button.gameObject.activeSelf)
+        {
+            group.alpha = 0f;
+            button.transform.localScale =
+                baseScale * hiddenNavigationScale;
+
+            button.gameObject.SetActive(true);
+        }
+
+        button.interactable = false;
+        group.interactable = false;
+        group.blocksRaycasts = false;
+
+        float startAlpha = group.alpha;
+        float targetAlpha = show ? 1f : 0f;
+
+        Vector3 startScale =
+            button.transform.localScale;
+
+        Vector3 targetScale =
+            show
+                ? baseScale
+                : baseScale * hiddenNavigationScale;
+
+        float timer = 0f;
+
+        while (timer < navigationAnimDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                timer / navigationAnimDuration
+            );
+
+            float eased =
+                EaseOutCubic(progress);
+
+            group.alpha = Mathf.Lerp(
+                startAlpha,
+                targetAlpha,
+                eased
+            );
+
+            button.transform.localScale =
+                Vector3.Lerp(
+                    startScale,
+                    targetScale,
+                    eased
+                );
+
+            yield return null;
+        }
+
+        group.alpha = targetAlpha;
+        button.transform.localScale =
+            targetScale;
+
+        button.interactable = show;
+        group.interactable = show;
+        group.blocksRaycasts = show;
+
+        if (!show)
+            button.gameObject.SetActive(false);
+
+        if (isPrevious)
+            previousButtonRoutine = null;
+        else
+            nextButtonRoutine = null;
+    }
+
+    private void SetNavigationButtonInstant(
+        Button button,
+        CanvasGroup group,
+        bool show,
+        Vector3 baseScale
+    )
+    {
+        if (button == null || group == null)
+            return;
+
+        button.gameObject.SetActive(show);
+        group.alpha = show ? 1f : 0f;
+        group.interactable = show;
+        group.blocksRaycasts = show;
+        button.interactable = show;
+
+        button.transform.localScale =
+            show
+                ? baseScale
+                : baseScale * hiddenNavigationScale;
+    }
+
+    private void SetPageButtonsInteractable(
+        bool interactable
+    )
     {
         bool canGoPrevious =
             currentPageIndex > 0;
@@ -509,37 +755,42 @@ public class LevelSelectPanel : MonoBehaviour
         bool canGoNext =
             currentPageIndex < totalPageCount - 1;
 
-        if (previousPageButton != null)
-        {
-            previousPageButton.gameObject.SetActive(
-                canGoPrevious
-            );
-        }
-
-        if (nextPageButton != null)
-        {
-            nextPageButton.gameObject.SetActive(
-                canGoNext
-            );
-        }
-    }
-
-    private void SetPageButtonsInteractable(
-    bool interactable
-)
-    {
         if (previousPageButton != null &&
             previousPageButton.gameObject.activeSelf)
         {
             previousPageButton.interactable =
-                interactable;
+                interactable &&
+                canGoPrevious;
+        }
+
+        if (previousPageGroup != null)
+        {
+            previousPageGroup.interactable =
+                interactable &&
+                canGoPrevious;
+
+            previousPageGroup.blocksRaycasts =
+                interactable &&
+                canGoPrevious;
         }
 
         if (nextPageButton != null &&
             nextPageButton.gameObject.activeSelf)
         {
             nextPageButton.interactable =
-                interactable;
+                interactable &&
+                canGoNext;
+        }
+
+        if (nextPageGroup != null)
+        {
+            nextPageGroup.interactable =
+                interactable &&
+                canGoNext;
+
+            nextPageGroup.blocksRaycasts =
+                interactable &&
+                canGoNext;
         }
 
         if (containerGroup != null)
@@ -572,7 +823,6 @@ public class LevelSelectPanel : MonoBehaviour
                 Mouse.current.position.ReadValue();
 
             isDragging = false;
-
             TrySwipe(dragEndPosition);
         }
     }
@@ -600,7 +850,6 @@ public class LevelSelectPanel : MonoBehaviour
                 touch.position.ReadValue();
 
             isDragging = false;
-
             TrySwipe(dragEndPosition);
         }
     }
@@ -661,25 +910,17 @@ public class LevelSelectPanel : MonoBehaviour
 
     private void CleanupButtonList()
     {
-        for (
-            int i = createdButtons.Count - 1;
-            i >= 0;
-            i--
-        )
+        for (int i = createdButtons.Count - 1;
+             i >= 0;
+             i--)
         {
             if (createdButtons[i] == null)
                 createdButtons.RemoveAt(i);
         }
     }
 
-    private void StopPageAnimation()
+    private void ResetContainerVisuals()
     {
-        if (pageRoutine == null)
-            return;
-
-        StopCoroutine(pageRoutine);
-        pageRoutine = null;
-
         if (levelButtonsContainer != null)
         {
             levelButtonsContainer.anchoredPosition =
@@ -688,6 +929,40 @@ public class LevelSelectPanel : MonoBehaviour
 
         if (containerGroup != null)
             containerGroup.alpha = 1f;
+    }
+
+    private void StopAllAnimations()
+    {
+        if (pageRoutine != null)
+        {
+            StopCoroutine(pageRoutine);
+            pageRoutine = null;
+        }
+
+        StopNavigationRoutine(true);
+        StopNavigationRoutine(false);
+
+        isDragging = false;
+    }
+
+    private void StopNavigationRoutine(
+        bool isPrevious
+    )
+    {
+        Coroutine routine =
+            isPrevious
+                ? previousButtonRoutine
+                : nextButtonRoutine;
+
+        if (routine == null)
+            return;
+
+        StopCoroutine(routine);
+
+        if (isPrevious)
+            previousButtonRoutine = null;
+        else
+            nextButtonRoutine = null;
     }
 
     private void SwitchPanels(
@@ -701,7 +976,6 @@ public class LevelSelectPanel : MonoBehaviour
                 panelToHide,
                 panelToShow
             );
-
             return;
         }
 
@@ -721,7 +995,6 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel panel references are missing.",
                 this
             );
-
             return false;
         }
 
@@ -736,7 +1009,6 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel levelButtonsContainer is missing.",
                 this
             );
-
             return false;
         }
 
@@ -746,22 +1018,29 @@ public class LevelSelectPanel : MonoBehaviour
                 "LevelSelectPanel levelButtonPrefab is missing.",
                 this
             );
-
             return false;
         }
 
         return true;
     }
 
-    private void OnEnable()
-    {
-        isLoadingLevel = false;
-    }
-
     private void OnValidate()
     {
         levelsPerPage =
             Mathf.Max(1, levelsPerPage);
+
+        pageAnimDuration =
+            Mathf.Max(0.01f, pageAnimDuration);
+
+        navigationAnimDuration =
+            Mathf.Max(0.01f, navigationAnimDuration);
+
+        hiddenNavigationScale =
+            Mathf.Clamp(
+                hiddenNavigationScale,
+                0.5f,
+                1f
+            );
 
         if (levels == null)
             return;
@@ -771,7 +1050,9 @@ public class LevelSelectPanel : MonoBehaviour
             if (levels[i] == null)
                 continue;
 
-            for (int j = i + 1; j < levels.Length; j++)
+            for (int j = i + 1;
+                 j < levels.Length;
+                 j++)
             {
                 if (levels[j] == null)
                     continue;
@@ -801,28 +1082,5 @@ public class LevelSelectPanel : MonoBehaviour
             inverse *
             inverse *
             inverse;
-    }
-
-    private void OpenLatestUnlockedPage()
-    {
-        int unlockedLevel = PlayerPrefs.GetInt(
-            "UnlockedLevel",
-            1
-        );
-
-        int safeUnlockedLevel = Mathf.Max(
-            1,
-            unlockedLevel
-        );
-
-        currentPageIndex =
-            (safeUnlockedLevel - 1) /
-            levelsPerPage;
-
-        currentPageIndex = Mathf.Clamp(
-            currentPageIndex,
-            0,
-            totalPageCount - 1
-        );
     }
 }

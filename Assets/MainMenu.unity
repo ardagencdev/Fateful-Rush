@@ -13193,6 +13193,7 @@ MonoBehaviour:
   menuButtonSound: {fileID: 8300000, guid: 9e0c7c3ef0b54b844ac299ea1a788a6e, type: 3}
   backButtonSound: {fileID: 8300000, guid: 29dd4eaf3192530458c01a0a734c411d, type: 3}
   startButtonSound: {fileID: 8300000, guid: df9dfe86f849b01419acf1947178cd4e, type: 3}
+  lockedLevelSound: {fileID: 8300000, guid: a0ea0a88f635e9441bc924d7bd4bbeba, type: 3}
   missionBriefingOpenSound: {fileID: 0}
   premiumInterfaceSound: {fileID: 0}
   missionSelectSound: {fileID: 8300000, guid: 1ee0968ef9e974a4f85fa9981f91773d, type: 3}
@@ -13392,7 +13393,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 1
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -15664,7 +15665,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0.000002861023}
+  m_AnchoredPosition: {x: 50, y: 0}
   m_SizeDelta: {x: 499.97998, y: 612}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &625429114
@@ -16296,8 +16297,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -22448,7 +22449,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0.000002861023}
+  m_AnchoredPosition: {x: -50, y: 0}
   m_SizeDelta: {x: 520.521, y: 612}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1420805480
@@ -24280,8 +24281,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -25116,7 +25117,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 10}
-  m_SizeDelta: {x: 1516.923, y: 603.004}
+  m_SizeDelta: {x: 1685.7, y: 603.004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1775333464
 GameObject:
@@ -25398,6 +25399,8 @@ MonoBehaviour:
   minSwipeDistance: 80
   pageSlideDistance: 700
   pageAnimDuration: 0.25
+  navigationAnimDuration: 0.18
+  hiddenNavigationScale: 0.85
   missionBriefingPanel: {fileID: 1728042650}
   gameSceneName: a
 --- !u!114 &1781728137
@@ -25944,7 +25947,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000048279762, y: 0.000002861023}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 550.96, y: 612}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1839751017
@@ -26076,8 +26079,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -26829,8 +26832,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1

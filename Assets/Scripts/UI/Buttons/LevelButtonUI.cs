@@ -135,7 +135,7 @@ public class LevelButtonUI : MonoBehaviour,
         ) == 1;
 
         if (button != null)
-            button.interactable = unlocked;
+            button.interactable = true;
 
         ApplyCurrentSprite();
         RefreshLevelText();
@@ -144,14 +144,17 @@ public class LevelButtonUI : MonoBehaviour,
 
     private void PlayLevel()
     {
-        if (!unlocked || config == null)
+        if (config == null)
             return;
 
-        if (SoundManager.Instance != null)
+        if (!unlocked)
         {
-            SoundManager.Instance
-                .PlayMissionSelectSound();
+            SoundManager.Instance?.PlayLockedLevelSound();
+            VibrationManager.Instance?.VibrateLight();
+            return;
         }
+
+        SoundManager.Instance?.PlayMissionSelectSound();
 
         if (panel != null)
         {
