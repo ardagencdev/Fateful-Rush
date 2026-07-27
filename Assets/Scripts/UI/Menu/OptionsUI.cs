@@ -74,15 +74,24 @@ public class OptionsUI : MonoBehaviour
 
     public void OpenOptions()
     {
-        RefreshReferences();
+        MainMenuStarColorRandomizer.Instance?
+            .ShowOptionsColor();
 
-        SwitchPanels(mainMenuPanel, optionsPanel);
-        LoadSettingsToUI();
+        SwitchPanels(
+            mainMenuPanel,
+            optionsPanel
+        );
     }
 
     public void CloseOptions()
     {
-        SwitchPanels(optionsPanel, mainMenuPanel);
+        MainMenuStarColorRandomizer.Instance?
+            .ShowMainMenuColor();
+
+        SwitchPanels(
+            optionsPanel,
+            mainMenuPanel
+        );
     }
 
     public void SoundOn()

@@ -60,7 +60,7 @@ public class UIButtonSound : MonoBehaviour
                     soundManager.PlayOptionButtonSound();
                     break;
                 case ButtonSoundType.Start:
-                    SoundManager.Instance?.PlayStartButtonSound();
+                    soundManager.PlayStartButtonSound();
                     break;
             }
         }

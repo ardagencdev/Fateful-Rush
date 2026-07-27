@@ -14,38 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 1
   levelName: Level 1
-  showTutorial: 1
-  tutorialTitle: LEVEL BRIEFING
-  tutorialPages:
-  - '
-
-    Welcome to the Void.
-
-
-    Let''s start with the basics before things
-    get dangerous.'
-  - '
-
-    Use the joystick to move around.
-
-
-    Take a moment to get comfortable
-    with the controls.'
-  - '
-
-    Collect the coin.
-
-
-    Each one gives you 1 Score.
-
-
-    Reach 10 Score
-    to complete your first mission.
-
-
-    Good luck!'
+  briefingTitle: MISSION BRIEFING
+  missionDifficulty: 0
+  briefingModeDescription: 
+  briefingObjectiveDescription: 
+  briefingPages:
+  - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
+  winCondition: 0
   winScore: 10
+  timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6
   playerComboSpeedBonus: 1.2
@@ -130,7 +108,9 @@ MonoBehaviour:
   hunterChargeSpeed: 15
   hunterStunDuration: 1
   bossEnabled: 0
+  bossSpawnCondition: 0
   bossSpawnScore: 75
+  bossSpawnTime: 30
   bossSpeed: 1.2
   bossCanSplit: 1
   bossSplitDelay: 0.8

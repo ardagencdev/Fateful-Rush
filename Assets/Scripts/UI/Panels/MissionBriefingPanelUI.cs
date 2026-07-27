@@ -147,6 +147,9 @@ public class MissionBriefingPanelUI : MonoBehaviour
         RefreshDifficulty(levelConfig.SafeMissionDifficulty);
         RefreshBestTime(levelConfig);
 
+        MainMenuStarColorRandomizer.Instance?
+            .ShowMissionBriefingColor();
+
         briefingPanel.SetActive(true);
 
         if (SoundManager.Instance != null)
@@ -172,10 +175,15 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     public void Close()
     {
-        Action closeCallback = onClosed;
+        if (briefingPanel == null ||
+            !briefingPanel.activeSelf ||
+            panelRoutine != null)
+        {
+            return;
+        }
 
-        HideInstant();
-        closeCallback?.Invoke();
+        SetPanelInteractive(false);
+        panelRoutine = StartCoroutine(PlayPanelOutro());
     }
 
     public void HideInstant()
@@ -622,6 +630,66 @@ public class MissionBriefingPanelUI : MonoBehaviour
         panelRoutine = null;
     }
 
+    private IEnumerator PlayPanelOutro()
+    {
+        float startAlpha =
+            panelGroup != null
+                ? panelGroup.alpha
+                : 1f;
+
+        Vector3 startScale =
+            panelRect != null
+                ? panelRect.localScale
+                : Vector3.one;
+
+        float timer = 0f;
+
+        while (timer < panelFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    timer / panelFadeDuration
+                );
+
+            float eased = EaseOutCubic(progress);
+
+            if (panelGroup != null)
+            {
+                panelGroup.alpha =
+                    Mathf.Lerp(
+                        startAlpha,
+                        0f,
+                        eased
+                    );
+            }
+
+            if (panelRect != null)
+            {
+                panelRect.localScale =
+                    Vector3.Lerp(
+                        startScale,
+                        Vector3.one * panelStartScale,
+                        eased
+                    );
+            }
+
+            yield return null;
+        }
+
+        Action closeCallback = onClosed;
+
+        panelRoutine = null;
+
+        MainMenuStarColorRandomizer.Instance?
+             .ShowLevelSelectionColor();
+
+        HideInstant();
+
+        closeCallback?.Invoke();
+    }
+
     private void StartSelectedMission()
     {
         if (selectedLevel == null)
@@ -630,16 +698,83 @@ public class MissionBriefingPanelUI : MonoBehaviour
                 "[MissionBriefingPanelUI] Başlatılacak level bulunamadı.",
                 this
             );
+
             return;
         }
 
         if (currentPageIndex != pages.Count - 1)
             return;
 
+        if (panelRoutine != null)
+            return;
+
         LevelConfig levelToStart = selectedLevel;
         Action<LevelConfig> callback = onStartRequested;
 
         SetPanelInteractive(false);
+
+        panelRoutine = StartCoroutine(
+            StartMissionRoutine(
+                levelToStart,
+                callback
+            )
+        );
+    }
+
+    private IEnumerator StartMissionRoutine(
+    LevelConfig levelToStart,
+    Action<LevelConfig> callback)
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayStartButtonSound();
+
+        float startAlpha =
+            panelGroup != null
+                ? panelGroup.alpha
+                : 1f;
+
+        Vector3 startScale =
+            panelRect != null
+                ? panelRect.localScale
+                : Vector3.one;
+
+        float timer = 0f;
+
+        while (timer < panelFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                timer / panelFadeDuration
+            );
+
+            float eased = EaseOutCubic(progress);
+
+            if (panelGroup != null)
+            {
+                panelGroup.alpha = Mathf.Lerp(
+                    startAlpha,
+                    0f,
+                    eased
+                );
+            }
+
+            if (panelRect != null)
+            {
+                panelRect.localScale = Vector3.Lerp(
+                    startScale,
+                    Vector3.one * panelStartScale,
+                    eased
+                );
+            }
+
+            yield return null;
+        }
+
+        panelRoutine = null;
+
+        HideInstant();
+
         callback?.Invoke(levelToStart);
     }
 
