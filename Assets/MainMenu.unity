@@ -13928,8 +13928,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 30, y: 180}
-  m_SizeDelta: {x: 450, y: 50}
+  m_AnchoredPosition: {x: 0, y: 180}
+  m_SizeDelta: {x: 700, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &444545048
 MonoBehaviour:
@@ -13951,7 +13951,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Prepare for the Void
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c70ac34a3185bf440bcc321f23ad52c7, type: 2}
   m_sharedMaterial: {fileID: 8731101314057958530, guid: c70ac34a3185bf440bcc321f23ad52c7, type: 2}
@@ -13985,8 +13985,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -14068,14 +14068,27 @@ MonoBehaviour:
   pulseColor: {r: 1, g: 0, b: 1, a: 1}
   colorPulseSpeed: 2
   typewriter: 1
-  typewriterMessage: Prepare for the Void
+  cycleMessages: 1
+  typewriterMessage: 
+  typewriterMessages:
+  - Prepare for the Void
+  - The Void Is Watching
+  - Your Signal Is Fading
+  - Something Moves Beyond
+  - The Dark Remembers
+  - The Silence Is Alive
+  - You Were Never Alone
+  - The Stars Won't Answer
+  - There Is No Way Back
+  - Survival Only Delays It
   typeSpeed: 0.06
-  showCursor: 1
+  showCursor: 0
   cursor: _
-  eraseAfterType: 0
-  eraseSpeed: 0.04
-  loopTypewriter: 0
-  waitAfterType: 1.5
+  eraseAfterType: 1
+  eraseSpeed: 0.035
+  loopTypewriter: 1
+  randomMessageOrder: 1
+  waitAfterType: 10
   waitAfterErase: 0.5
   glitch: 1
   glitchIntervalMin: 7
@@ -15873,13 +15886,26 @@ MonoBehaviour:
   pulseColor: {r: 1, g: 0.1764706, b: 0.33333334, a: 1}
   colorPulseSpeed: 3
   typewriter: 0
+  cycleMessages: 0
   typewriterMessage: 
+  typewriterMessages:
+  - Prepare for the Void
+  - The Void Is Watching
+  - Your Signal Is Fading
+  - Something Moves Beyond
+  - The Dark Remembers
+  - The Silence Is Alive
+  - You Were Never Alone
+  - The Stars Won't Answer
+  - There Is No Way Back
+  - Survival Only Delays It
   typeSpeed: 0.04
   showCursor: 1
   cursor: _
   eraseAfterType: 0
   eraseSpeed: 0.04
   loopTypewriter: 0
+  randomMessageOrder: 0
   waitAfterType: 1.5
   waitAfterErase: 0.5
   glitch: 1
@@ -21308,7 +21334,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -8}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -250, y: 200}
+  m_AnchoredPosition: {x: -370, y: 350}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1284432203
@@ -21348,13 +21374,26 @@ MonoBehaviour:
   pulseColor: {r: 0.84705883, g: 0.84705883, b: 0.84705883, a: 1}
   colorPulseSpeed: 1
   typewriter: 0
+  cycleMessages: 0
   typewriterMessage: 
+  typewriterMessages:
+  - Prepare for the Void
+  - The Void Is Watching
+  - Your Signal Is Fading
+  - Something Moves Beyond
+  - The Dark Remembers
+  - The Silence Is Alive
+  - You Were Never Alone
+  - The Stars Won't Answer
+  - There Is No Way Back
+  - Survival Only Delays It
   typeSpeed: 0.04
   showCursor: 1
   cursor: _
   eraseAfterType: 0
   eraseSpeed: 0.04
   loopTypewriter: 0
+  randomMessageOrder: 0
   waitAfterType: 1.5
   waitAfterErase: 0.5
   glitch: 0
@@ -25516,13 +25555,26 @@ MonoBehaviour:
   pulseColor: {r: 1, g: 0, b: 1, a: 1}
   colorPulseSpeed: 2
   typewriter: 0
+  cycleMessages: 0
   typewriterMessage: 
+  typewriterMessages:
+  - Prepare for the Void
+  - The Void Is Watching
+  - Your Signal Is Fading
+  - Something Moves Beyond
+  - The Dark Remembers
+  - The Silence Is Alive
+  - You Were Never Alone
+  - The Stars Won't Answer
+  - There Is No Way Back
+  - Survival Only Delays It
   typeSpeed: 0.04
   showCursor: 1
   cursor: _
   eraseAfterType: 0
   eraseSpeed: 0.04
   loopTypewriter: 0
+  randomMessageOrder: 0
   waitAfterType: 1.5
   waitAfterErase: 0.5
   glitch: 1
@@ -26407,13 +26459,26 @@ MonoBehaviour:
   pulseColor: {r: 1, g: 0, b: 1, a: 1}
   colorPulseSpeed: 2
   typewriter: 0
+  cycleMessages: 0
   typewriterMessage: 
+  typewriterMessages:
+  - Prepare for the Void
+  - The Void Is Watching
+  - Your Signal Is Fading
+  - Something Moves Beyond
+  - The Dark Remembers
+  - The Silence Is Alive
+  - You Were Never Alone
+  - The Stars Won't Answer
+  - There Is No Way Back
+  - Survival Only Delays It
   typeSpeed: 0.04
   showCursor: 1
   cursor: _
   eraseAfterType: 0
   eraseSpeed: 0.04
   loopTypewriter: 0
+  randomMessageOrder: 0
   waitAfterType: 1.5
   waitAfterErase: 0.5
   glitch: 0

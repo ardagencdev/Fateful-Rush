@@ -1,0 +1,398 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f13a4a551a64a82b9489d643739912d, type: 3}
+  m_Name: Default_Danger_Balance
+  m_EditorClassIdentifier: Assembly-CSharp::DangerBalanceProfile
+  profileVersion: 1
+  normalEnemyLevels:
+  - minStartSpeed: 1.2
+    maxStartSpeed: 1.8
+    maxSpeed: 5.5
+    speedIncreaseRate: 0.07
+    predictionEnabled: 0
+    predictionDistanceThreshold: 2
+    predictionTime: 0.18
+    maxPredictionDistance: 0.8
+    separationEnabled: 1
+    separationRadius: 0.7
+    separationStrength: 0.55
+  - minStartSpeed: 1.5
+    maxStartSpeed: 2.5
+    maxSpeed: 7
+    speedIncreaseRate: 0.1
+    predictionEnabled: 1
+    predictionDistanceThreshold: 2.5
+    predictionTime: 0.25
+    maxPredictionDistance: 1.5
+    separationEnabled: 1
+    separationRadius: 0.75
+    separationStrength: 0.65
+  - minStartSpeed: 1.9
+    maxStartSpeed: 2.9
+    maxSpeed: 8.25
+    speedIncreaseRate: 0.13
+    predictionEnabled: 1
+    predictionDistanceThreshold: 3
+    predictionTime: 0.32
+    maxPredictionDistance: 2.1
+    separationEnabled: 1
+    separationRadius: 0.8
+    separationStrength: 0.72
+  - minStartSpeed: 2.3
+    maxStartSpeed: 3.3
+    maxSpeed: 9.5
+    speedIncreaseRate: 0.17
+    predictionEnabled: 1
+    predictionDistanceThreshold: 3.5
+    predictionTime: 0.4
+    maxPredictionDistance: 2.8
+    separationEnabled: 1
+    separationRadius: 0.85
+    separationStrength: 0.8
+  - minStartSpeed: 2.7
+    maxStartSpeed: 3.8
+    maxSpeed: 11
+    speedIncreaseRate: 0.22
+    predictionEnabled: 1
+    predictionDistanceThreshold: 4
+    predictionTime: 0.48
+    maxPredictionDistance: 3.5
+    separationEnabled: 1
+    separationRadius: 0.9
+    separationStrength: 0.9
+  projectileEnemyLevels:
+  - moveSpeed: 2.4
+    stoppingDistance: 7.5
+    retreatDistance: 4.2
+    fireRate: 2.2
+    projectileSpeed: 5
+    strafeEnabled: 1
+    strafeSpeedMultiplier: 0.45
+    strafeDirectionChangeMinTime: 2
+    strafeDirectionChangeMaxTime: 3.5
+    strafeDistanceTolerance: 0.6
+    predictiveAimEnabled: 0
+    predictionTime: 0.2
+    maxPredictionDistance: 1
+    predictionDistanceThreshold: 2
+    separationEnabled: 1
+    separationRadius: 0.9
+    separationStrength: 0.4
+  - moveSpeed: 3
+    stoppingDistance: 7
+    retreatDistance: 4
+    fireRate: 1.5
+    projectileSpeed: 6
+    strafeEnabled: 1
+    strafeSpeedMultiplier: 0.65
+    strafeDirectionChangeMinTime: 1.5
+    strafeDirectionChangeMaxTime: 3
+    strafeDistanceTolerance: 0.6
+    predictiveAimEnabled: 1
+    predictionTime: 0.25
+    maxPredictionDistance: 1.5
+    predictionDistanceThreshold: 2.5
+    separationEnabled: 1
+    separationRadius: 0.9
+    separationStrength: 0.45
+  - moveSpeed: 3.4
+    stoppingDistance: 6.7
+    retreatDistance: 3.8
+    fireRate: 1.25
+    projectileSpeed: 7.2
+    strafeEnabled: 1
+    strafeSpeedMultiplier: 0.75
+    strafeDirectionChangeMinTime: 1.2
+    strafeDirectionChangeMaxTime: 2.5
+    strafeDistanceTolerance: 0.6
+    predictiveAimEnabled: 1
+    predictionTime: 0.36
+    maxPredictionDistance: 2.5
+    predictionDistanceThreshold: 3
+    separationEnabled: 1
+    separationRadius: 0.95
+    separationStrength: 0.58
+  - moveSpeed: 3.8
+    stoppingDistance: 6.4
+    retreatDistance: 3.6
+    fireRate: 1
+    projectileSpeed: 8.5
+    strafeEnabled: 1
+    strafeSpeedMultiplier: 0.85
+    strafeDirectionChangeMinTime: 0.95
+    strafeDirectionChangeMaxTime: 2
+    strafeDistanceTolerance: 0.6
+    predictiveAimEnabled: 1
+    predictionTime: 0.42
+    maxPredictionDistance: 3.2
+    predictionDistanceThreshold: 3.5
+    separationEnabled: 1
+    separationRadius: 1
+    separationStrength: 0.65
+  - moveSpeed: 4.3
+    stoppingDistance: 6
+    retreatDistance: 3.4
+    fireRate: 0.8
+    projectileSpeed: 10
+    strafeEnabled: 1
+    strafeSpeedMultiplier: 1
+    strafeDirectionChangeMinTime: 0.7
+    strafeDirectionChangeMaxTime: 1.5
+    strafeDistanceTolerance: 0.6
+    predictiveAimEnabled: 1
+    predictionTime: 0.5
+    maxPredictionDistance: 4
+    predictionDistanceThreshold: 4
+    separationEnabled: 1
+    separationRadius: 1.05
+    separationStrength: 0.75
+  hunterEnemyLevels:
+  - prepareDistance: 6.5
+    repositionTime: 1.5
+    recoveryTime: 1.5
+    warningDuration: 1.4
+    chargeSpeed: 12
+    maxChargeTime: 0.5
+    stunDuration: 1.4
+  - prepareDistance: 6
+    repositionTime: 1.2
+    recoveryTime: 1.2
+    warningDuration: 1
+    chargeSpeed: 15
+    maxChargeTime: 0.65
+    stunDuration: 1
+  - prepareDistance: 5.8
+    repositionTime: 1
+    recoveryTime: 0.9
+    warningDuration: 0.85
+    chargeSpeed: 17
+    maxChargeTime: 0.75
+    stunDuration: 0.8
+  - prepareDistance: 5.5
+    repositionTime: 0.8
+    recoveryTime: 0.7
+    warningDuration: 0.7
+    chargeSpeed: 19
+    maxChargeTime: 0.85
+    stunDuration: 0.65
+  - prepareDistance: 5.2
+    repositionTime: 0.65
+    recoveryTime: 0.5
+    warningDuration: 0.55
+    chargeSpeed: 22
+    maxChargeTime: 1
+    stunDuration: 0.5
+  bossLevels:
+  - speed: 0.9
+    directionSmoothness: 6
+    canSplit: 1
+    splitDelay: 1.2
+    splitDistance: 1
+    miniBossSpeed: 2
+  - speed: 1.2
+    directionSmoothness: 7
+    canSplit: 1
+    splitDelay: 0.8
+    splitDistance: 1.2
+    miniBossSpeed: 2.5
+  - speed: 1.5
+    directionSmoothness: 8
+    canSplit: 1
+    splitDelay: 0.65
+    splitDistance: 1.4
+    miniBossSpeed: 3.2
+  - speed: 1.85
+    directionSmoothness: 9
+    canSplit: 1
+    splitDelay: 0.5
+    splitDistance: 1.6
+    miniBossSpeed: 4
+  - speed: 2.2
+    directionSmoothness: 10
+    canSplit: 1
+    splitDelay: 0.35
+    splitDistance: 1.8
+    miniBossSpeed: 4.8
+  beaconEnemyLevels:
+  - activationDelay: 4
+    pulseInterval: 2.6
+    retargetInterval: 0.7
+    targetStopDistance: 1.8
+    buffDuration: 10
+    buffSizeMultiplier: 1.15
+    normalSpeedMultiplier: 1.15
+    normalMaxSpeedMultiplier: 1.1
+    projectileMoveMultiplier: 1.1
+    projectileShotMultiplier: 1.1
+    projectileFireMultiplier: 1.1
+    hunterRepositionMultiplier: 0.92
+    hunterWarningMultiplier: 0.92
+    hunterChargeMultiplier: 1.1
+    hunterStunMultiplier: 0.92
+    moveSpeed: 2.4
+    safeDistanceFromPlayer: 6
+    wanderStrength: 0.45
+  - activationDelay: 3
+    pulseInterval: 2
+    retargetInterval: 0.5
+    targetStopDistance: 1.5
+    buffDuration: 15
+    buffSizeMultiplier: 1.25
+    normalSpeedMultiplier: 1.35
+    normalMaxSpeedMultiplier: 1.25
+    projectileMoveMultiplier: 1.2
+    projectileShotMultiplier: 1.25
+    projectileFireMultiplier: 1.25
+    hunterRepositionMultiplier: 0.8
+    hunterWarningMultiplier: 0.8
+    hunterChargeMultiplier: 1.25
+    hunterStunMultiplier: 0.8
+    moveSpeed: 3
+    safeDistanceFromPlayer: 5
+    wanderStrength: 0.6
+  - activationDelay: 2.5
+    pulseInterval: 1.5
+    retargetInterval: 0.4
+    targetStopDistance: 1.4
+    buffDuration: 16
+    buffSizeMultiplier: 1.3
+    normalSpeedMultiplier: 1.45
+    normalMaxSpeedMultiplier: 1.32
+    projectileMoveMultiplier: 1.28
+    projectileShotMultiplier: 1.35
+    projectileFireMultiplier: 1.35
+    hunterRepositionMultiplier: 0.74
+    hunterWarningMultiplier: 0.74
+    hunterChargeMultiplier: 1.35
+    hunterStunMultiplier: 0.74
+    moveSpeed: 3.3
+    safeDistanceFromPlayer: 5.2
+    wanderStrength: 0.7
+  - activationDelay: 2
+    pulseInterval: 1.15
+    retargetInterval: 0.3
+    targetStopDistance: 1.3
+    buffDuration: 18
+    buffSizeMultiplier: 1.35
+    normalSpeedMultiplier: 1.55
+    normalMaxSpeedMultiplier: 1.4
+    projectileMoveMultiplier: 1.35
+    projectileShotMultiplier: 1.45
+    projectileFireMultiplier: 1.45
+    hunterRepositionMultiplier: 0.68
+    hunterWarningMultiplier: 0.68
+    hunterChargeMultiplier: 1.45
+    hunterStunMultiplier: 0.68
+    moveSpeed: 3.6
+    safeDistanceFromPlayer: 5.4
+    wanderStrength: 0.8
+  - activationDelay: 1.5
+    pulseInterval: 0.85
+    retargetInterval: 0.25
+    targetStopDistance: 1.2
+    buffDuration: 20
+    buffSizeMultiplier: 1.4
+    normalSpeedMultiplier: 1.7
+    normalMaxSpeedMultiplier: 1.5
+    projectileMoveMultiplier: 1.45
+    projectileShotMultiplier: 1.6
+    projectileFireMultiplier: 1.6
+    hunterRepositionMultiplier: 0.6
+    hunterWarningMultiplier: 0.6
+    hunterChargeMultiplier: 1.6
+    hunterStunMultiplier: 0.6
+    moveSpeed: 4
+    safeDistanceFromPlayer: 5.6
+    wanderStrength: 0.9
+  verticalLaserLevels:
+  - minSpawnTime: 14
+    maxSpawnTime: 24
+    warningDuration: 2.6
+    lifeTime: 1.2
+    width: 0.4
+    sizeExtra: 1
+  - minSpawnTime: 8
+    maxSpawnTime: 25
+    warningDuration: 2
+    lifeTime: 1.5
+    width: 0.5
+    sizeExtra: 1
+  - minSpawnTime: 7
+    maxSpawnTime: 16
+    warningDuration: 1.6
+    lifeTime: 1.7
+    width: 0.6
+    sizeExtra: 1.1
+  - minSpawnTime: 5.5
+    maxSpawnTime: 12
+    warningDuration: 1.25
+    lifeTime: 1.9
+    width: 0.7
+    sizeExtra: 1.2
+  - minSpawnTime: 4
+    maxSpawnTime: 9
+    warningDuration: 1
+    lifeTime: 2.1
+    width: 0.8
+    sizeExtra: 1.3
+  horizontalLaserLevels:
+  - minSpawnTime: 14
+    maxSpawnTime: 24
+    warningDuration: 2.6
+    lifeTime: 1.2
+    width: 0.4
+    sizeExtra: 1
+  - minSpawnTime: 8
+    maxSpawnTime: 25
+    warningDuration: 2
+    lifeTime: 1.5
+    width: 0.5
+    sizeExtra: 1
+  - minSpawnTime: 7
+    maxSpawnTime: 16
+    warningDuration: 1.6
+    lifeTime: 1.7
+    width: 0.6
+    sizeExtra: 1.1
+  - minSpawnTime: 5.5
+    maxSpawnTime: 12
+    warningDuration: 1.25
+    lifeTime: 1.9
+    width: 0.7
+    sizeExtra: 1.2
+  - minSpawnTime: 4
+    maxSpawnTime: 9
+    warningDuration: 1
+    lifeTime: 2.1
+    width: 0.8
+    sizeExtra: 1.3
+  bombLevels:
+  - minSpawnTime: 10
+    maxSpawnTime: 18
+    maxBombCount: 2
+    spawnSafeTime: 0.55
+  - minSpawnTime: 6
+    maxSpawnTime: 14
+    maxBombCount: 3
+    spawnSafeTime: 0.35
+  - minSpawnTime: 5
+    maxSpawnTime: 11
+    maxBombCount: 4
+    spawnSafeTime: 0.3
+  - minSpawnTime: 4
+    maxSpawnTime: 9
+    maxBombCount: 5
+    spawnSafeTime: 0.25
+  - minSpawnTime: 3
+    maxSpawnTime: 7
+    maxBombCount: 6
+    spawnSafeTime: 0.2

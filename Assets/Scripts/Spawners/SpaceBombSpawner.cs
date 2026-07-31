@@ -21,6 +21,9 @@ public class SpaceBombSpawner : MonoBehaviour
     public int maxBombCount = 3;
 
     [Min(0f)]
+    public float bombSpawnSafeTime = 0.35f;
+
+    [Min(0f)]
     public float spawnPadding = 1.5f;
 
     [Min(0f)]
@@ -100,6 +103,22 @@ public class SpaceBombSpawner : MonoBehaviour
         }
     }
 
+    public void ApplyDangerSettings(
+        BombDangerSettings settings)
+    {
+        if (settings == null)
+            return;
+
+        settings.Sanitize();
+
+        minSpawnTime = settings.minSpawnTime;
+        maxSpawnTime = settings.maxSpawnTime;
+        maxBombCount = settings.maxBombCount;
+        bombSpawnSafeTime = settings.spawnSafeTime;
+
+        ResetSpawner();
+    }
+
     public void ApplyLevelSettings(
         float minTime,
         float maxTime,
@@ -142,6 +161,15 @@ public class SpaceBombSpawner : MonoBehaviour
 
         if (bomb == null)
             return false;
+
+        SpaceBomb spaceBomb =
+            bomb.GetComponent<SpaceBomb>();
+
+        if (spaceBomb != null)
+        {
+            spaceBomb.spawnSafeTime =
+                bombSpawnSafeTime;
+        }
 
         activeBombs.Add(bomb);
 
@@ -329,6 +357,9 @@ public class SpaceBombSpawner : MonoBehaviour
 
         maxBombCount =
             Mathf.Max(0, maxBombCount);
+
+        bombSpawnSafeTime =
+            Mathf.Max(0f, bombSpawnSafeTime);
 
         spawnPadding =
             Mathf.Max(0f, spawnPadding);

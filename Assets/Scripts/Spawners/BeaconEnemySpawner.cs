@@ -51,6 +51,28 @@ public class BeaconEnemySpawner : MonoBehaviour
     [Min(0.1f)]
     public float hunterStunMultiplier = 0.8f;
 
+    [Header("Beacon Behaviour")]
+    [Min(0f)]
+    public float activationDelay = 3f;
+
+    [Min(0.05f)]
+    public float pulseInterval = 2f;
+
+    [Min(0.05f)]
+    public float retargetInterval = 0.5f;
+
+    [Min(0f)]
+    public float targetStopDistance = 1.5f;
+
+    [Min(0f)]
+    public float moveSpeed = 3f;
+
+    [Min(0f)]
+    public float safeDistanceFromPlayer = 5f;
+
+    [Min(0f)]
+    public float wanderStrength = 0.6f;
+
     [Header("Spawn Rules")]
     [Min(0f)]
     public float spawnPadding = 1f;
@@ -170,6 +192,34 @@ public class BeaconEnemySpawner : MonoBehaviour
         );
 
         InitializeSpawner();
+    }
+
+    public void ApplyDangerSettings(
+        BeaconEnemyDangerSettings settings)
+    {
+        if (settings == null)
+            return;
+
+        settings.Sanitize();
+
+        activationDelay = settings.activationDelay;
+        pulseInterval = settings.pulseInterval;
+        retargetInterval = settings.retargetInterval;
+        targetStopDistance = settings.targetStopDistance;
+        buffDuration = settings.buffDuration;
+        buffSizeMultiplier = settings.buffSizeMultiplier;
+        normalSpeedMultiplier = settings.normalSpeedMultiplier;
+        normalMaxSpeedMultiplier = settings.normalMaxSpeedMultiplier;
+        projectileMoveMultiplier = settings.projectileMoveMultiplier;
+        projectileShotMultiplier = settings.projectileShotMultiplier;
+        projectileFireMultiplier = settings.projectileFireMultiplier;
+        hunterRepositionMultiplier = settings.hunterRepositionMultiplier;
+        hunterWarningMultiplier = settings.hunterWarningMultiplier;
+        hunterChargeMultiplier = settings.hunterChargeMultiplier;
+        hunterStunMultiplier = settings.hunterStunMultiplier;
+        moveSpeed = settings.moveSpeed;
+        safeDistanceFromPlayer = settings.safeDistanceFromPlayer;
+        wanderStrength = settings.wanderStrength;
     }
 
     public void ApplyBuffSettings(
@@ -315,6 +365,27 @@ public class BeaconEnemySpawner : MonoBehaviour
     {
         beaconEnemy.player = player;
         beaconEnemy.playerMovement = playerMovement;
+
+        beaconEnemy.activationDelay =
+            activationDelay;
+
+        beaconEnemy.pulseInterval =
+            pulseInterval;
+
+        beaconEnemy.retargetInterval =
+            retargetInterval;
+
+        beaconEnemy.targetStopDistance =
+            targetStopDistance;
+
+        beaconEnemy.moveSpeed =
+            moveSpeed;
+
+        beaconEnemy.safeDistanceFromPlayer =
+            safeDistanceFromPlayer;
+
+        beaconEnemy.wanderStrength =
+            wanderStrength;
 
         beaconEnemy.buffDuration =
             buffDuration;
@@ -532,6 +603,14 @@ public class BeaconEnemySpawner : MonoBehaviour
                 0.1f,
                 hunterStunMultiplier
             );
+
+        activationDelay = Mathf.Max(0f, activationDelay);
+        pulseInterval = Mathf.Max(0.05f, pulseInterval);
+        retargetInterval = Mathf.Max(0.05f, retargetInterval);
+        targetStopDistance = Mathf.Max(0f, targetStopDistance);
+        moveSpeed = Mathf.Max(0f, moveSpeed);
+        safeDistanceFromPlayer = Mathf.Max(0f, safeDistanceFromPlayer);
+        wanderStrength = Mathf.Max(0f, wanderStrength);
 
         spawnPadding =
             Mathf.Max(0f, spawnPadding);

@@ -230,6 +230,13 @@ public class LevelConfig : ScriptableObject
     [Min(0)]
     public int randomObstacleCount = 5;
 
+    [Header("DANGER BALANCE")]
+    [Tooltip(
+        "Enemy ve trap danger seviyelerinin gerçek değerlerini tutan ortak profil. " +
+        "Profil atanmazsa eski LevelConfig değerleri güvenli fallback olarak kullanılır."
+    )]
+    public DangerBalanceProfile dangerBalanceProfile;
+
     [Header("NORMAL ENEMY")]
     [Min(0)]
     public int normalEnemyCount = 0;
@@ -237,37 +244,13 @@ public class LevelConfig : ScriptableObject
     [Min(0.01f)]
     public float normalEnemySpawnInterval = 2.5f;
 
-    [Min(0f)]
-    public float normalMinStartSpeed = 1.5f;
+    public DangerLevel normalEnemyDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float normalMaxStartSpeed = 2.5f;
+    public bool normalEnemyCustomOverride;
 
-    [Min(0f)]
-    public float normalMaxSpeed = 7f;
-
-    [Min(0f)]
-    public float normalSpeedIncreaseRate = 0.1f;
-
-    [Header("NORMAL ENEMY AI")]
-    public bool normalPredictionEnabled = true;
-
-    [Min(0f)]
-    public float normalPredictionDistanceThreshold = 2.5f;
-
-    [Min(0f)]
-    public float normalPredictionTime = 0.25f;
-
-    [Min(0f)]
-    public float normalMaxPredictionDistance = 1.5f;
-
-    public bool normalSeparationEnabled = true;
-
-    [Min(0f)]
-    public float normalSeparationRadius = 0.75f;
-
-    [Min(0f)]
-    public float normalSeparationStrength = 0.65f;
+    public NormalEnemyDangerSettings normalEnemyOverride =
+        new NormalEnemyDangerSettings();
 
     [Header("PROJECTILE ENEMY")]
     [Min(0)]
@@ -276,20 +259,13 @@ public class LevelConfig : ScriptableObject
     [Min(0.01f)]
     public float projectileEnemySpawnInterval = 5f;
 
-    [Min(0f)]
-    public float projectileMoveSpeed = 3f;
+    public DangerLevel projectileEnemyDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float projectileStoppingDistance = 7f;
+    public bool projectileEnemyCustomOverride;
 
-    [Min(0f)]
-    public float projectileRetreatDistance = 4f;
-
-    [Min(0.01f)]
-    public float projectileFireRate = 1.5f;
-
-    [Min(0f)]
-    public float projectileSpeed = 6f;
+    public ProjectileEnemyDangerSettings projectileEnemyOverride =
+        new ProjectileEnemyDangerSettings();
 
     [Header("HUNTER ENEMY")]
     [Min(0)]
@@ -298,17 +274,13 @@ public class LevelConfig : ScriptableObject
     [Min(0.01f)]
     public float hunterEnemySpawnInterval = 8f;
 
-    [Min(0f)]
-    public float hunterRepositionTime = 1.2f;
+    public DangerLevel hunterEnemyDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float hunterWarningDuration = 1f;
+    public bool hunterEnemyCustomOverride;
 
-    [Min(0f)]
-    public float hunterChargeSpeed = 15f;
-
-    [Min(0f)]
-    public float hunterStunDuration = 1f;
+    public HunterEnemyDangerSettings hunterEnemyOverride =
+        new HunterEnemyDangerSettings();
 
     [Header("BOSS")]
     public bool bossEnabled = false;
@@ -322,19 +294,13 @@ public class LevelConfig : ScriptableObject
     [Min(0f)]
     public float bossSpawnTime = 30f;
 
-    [Min(0f)]
-    public float bossSpeed = 1.2f;
+    public DangerLevel bossDanger =
+        DangerLevel.Danger2;
 
-    public bool bossCanSplit = true;
+    public bool bossCustomOverride;
 
-    [Min(0f)]
-    public float bossSplitDelay = 0.8f;
-
-    [Min(0f)]
-    public float bossSplitDistance = 1.2f;
-
-    [Min(0f)]
-    public float miniBossSpeed = 2.5f;
+    public BossDangerSettings bossOverride =
+        new BossDangerSettings();
 
     [Header("BEACON ENEMY")]
     [Min(0)]
@@ -346,39 +312,123 @@ public class LevelConfig : ScriptableObject
     [Min(0f)]
     public float beaconMaxSpawnTime = 20f;
 
-    [Header("BEACON BUFF")]
-    [Min(0.01f)]
-    public float beaconBuffDuration = 15f;
+    public DangerLevel beaconEnemyDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float beaconBuffSizeMultiplier = 1.25f;
+    public bool beaconEnemyCustomOverride;
 
-    [Min(0f)]
-    public float beaconNormalSpeedMultiplier = 1.35f;
+    public BeaconEnemyDangerSettings beaconEnemyOverride =
+        new BeaconEnemyDangerSettings();
 
-    [Min(0f)]
-    public float beaconNormalMaxSpeedMultiplier = 1.25f;
+    // Eski LevelConfig assetlerinin davranışını koruyan gizli fallback alanları.
+    // Yeni LevelConfigEditor bunları göstermez; yalnızca profil eksikse kullanılırlar.
+    [SerializeField, HideInInspector]
+    private float normalMinStartSpeed = 1.5f;
 
-    [Min(0f)]
-    public float beaconProjectileMoveMultiplier = 1.2f;
+    [SerializeField, HideInInspector]
+    private float normalMaxStartSpeed = 2.5f;
 
-    [Min(0f)]
-    public float beaconProjectileShotMultiplier = 1.25f;
+    [SerializeField, HideInInspector]
+    private float normalMaxSpeed = 7f;
 
-    [Min(0f)]
-    public float beaconProjectileFireMultiplier = 1.25f;
+    [SerializeField, HideInInspector]
+    private float normalSpeedIncreaseRate = 0.1f;
 
-    [Min(0f)]
-    public float beaconHunterRepositionMultiplier = 0.8f;
+    [SerializeField, HideInInspector]
+    private bool normalPredictionEnabled = true;
 
-    [Min(0f)]
-    public float beaconHunterWarningMultiplier = 0.8f;
+    [SerializeField, HideInInspector]
+    private float normalPredictionDistanceThreshold = 2.5f;
 
-    [Min(0f)]
-    public float beaconHunterChargeMultiplier = 1.25f;
+    [SerializeField, HideInInspector]
+    private float normalPredictionTime = 0.25f;
 
-    [Min(0f)]
-    public float beaconHunterStunMultiplier = 0.8f;
+    [SerializeField, HideInInspector]
+    private float normalMaxPredictionDistance = 1.5f;
+
+    [SerializeField, HideInInspector]
+    private bool normalSeparationEnabled = true;
+
+    [SerializeField, HideInInspector]
+    private float normalSeparationRadius = 0.75f;
+
+    [SerializeField, HideInInspector]
+    private float normalSeparationStrength = 0.65f;
+
+    [SerializeField, HideInInspector]
+    private float projectileMoveSpeed = 3f;
+
+    [SerializeField, HideInInspector]
+    private float projectileStoppingDistance = 7f;
+
+    [SerializeField, HideInInspector]
+    private float projectileRetreatDistance = 4f;
+
+    [SerializeField, HideInInspector]
+    private float projectileFireRate = 1.5f;
+
+    [SerializeField, HideInInspector]
+    private float projectileSpeed = 6f;
+
+    [SerializeField, HideInInspector]
+    private float hunterRepositionTime = 1.2f;
+
+    [SerializeField, HideInInspector]
+    private float hunterWarningDuration = 1f;
+
+    [SerializeField, HideInInspector]
+    private float hunterChargeSpeed = 15f;
+
+    [SerializeField, HideInInspector]
+    private float hunterStunDuration = 1f;
+
+    [SerializeField, HideInInspector]
+    private float bossSpeed = 1.2f;
+
+    [SerializeField, HideInInspector]
+    private bool bossCanSplit = true;
+
+    [SerializeField, HideInInspector]
+    private float bossSplitDelay = 0.8f;
+
+    [SerializeField, HideInInspector]
+    private float bossSplitDistance = 1.2f;
+
+    [SerializeField, HideInInspector]
+    private float miniBossSpeed = 2.5f;
+
+    [SerializeField, HideInInspector]
+    private float beaconBuffDuration = 15f;
+
+    [SerializeField, HideInInspector]
+    private float beaconBuffSizeMultiplier = 1.25f;
+
+    [SerializeField, HideInInspector]
+    private float beaconNormalSpeedMultiplier = 1.35f;
+
+    [SerializeField, HideInInspector]
+    private float beaconNormalMaxSpeedMultiplier = 1.25f;
+
+    [SerializeField, HideInInspector]
+    private float beaconProjectileMoveMultiplier = 1.2f;
+
+    [SerializeField, HideInInspector]
+    private float beaconProjectileShotMultiplier = 1.25f;
+
+    [SerializeField, HideInInspector]
+    private float beaconProjectileFireMultiplier = 1.25f;
+
+    [SerializeField, HideInInspector]
+    private float beaconHunterRepositionMultiplier = 0.8f;
+
+    [SerializeField, HideInInspector]
+    private float beaconHunterWarningMultiplier = 0.8f;
+
+    [SerializeField, HideInInspector]
+    private float beaconHunterChargeMultiplier = 1.25f;
+
+    [SerializeField, HideInInspector]
+    private float beaconHunterStunMultiplier = 0.8f;
 
     [Header("POWER UPS")]
     public bool armorEnabled = false;
@@ -399,57 +449,369 @@ public class LevelConfig : ScriptableObject
     [Header("VERTICAL LASER")]
     public bool verticalLaserEnabled = false;
 
-    [Min(0f)]
-    public float verticalLaserMinSpawnTime = 8f;
+    public DangerLevel verticalLaserDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float verticalLaserMaxSpawnTime = 25f;
+    public bool verticalLaserCustomOverride;
 
-    [Min(0f)]
-    public float verticalLaserWarningDuration = 2f;
-
-    [Min(0f)]
-    public float verticalLaserLifeTime = 1.5f;
-
-    [Min(0f)]
-    public float verticalLaserWidth = 0.5f;
-
-    [Min(0f)]
-    public float verticalLaserHeightExtra = 1f;
+    public LaserDangerSettings verticalLaserOverride =
+        new LaserDangerSettings();
 
     [Header("HORIZONTAL LASER")]
     public bool horizontalLaserEnabled = false;
 
-    [Min(0f)]
-    public float horizontalLaserMinSpawnTime = 8f;
+    public DangerLevel horizontalLaserDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float horizontalLaserMaxSpawnTime = 25f;
+    public bool horizontalLaserCustomOverride;
 
-    [Min(0f)]
-    public float horizontalLaserWarningDuration = 2f;
-
-    [Min(0f)]
-    public float horizontalLaserLifeTime = 1.5f;
-
-    [Min(0f)]
-    public float horizontalLaserWidth = 0.5f;
-
-    [Min(0f)]
-    public float horizontalLaserWidthExtra = 1f;
+    public LaserDangerSettings horizontalLaserOverride =
+        new LaserDangerSettings();
 
     [Header("BOMBS")]
     public bool bombTrapEnabled = false;
 
-    [Min(0f)]
-    public float bombMinSpawnTime = 6f;
+    public DangerLevel bombDanger =
+        DangerLevel.Danger2;
 
-    [Min(0f)]
-    public float bombMaxSpawnTime = 14f;
+    public bool bombCustomOverride;
 
-    [Min(0)]
-    public int maxBombCount = 3;
+    public BombDangerSettings bombOverride =
+        new BombDangerSettings();
 
+    [SerializeField, HideInInspector]
+    private float verticalLaserMinSpawnTime = 8f;
+
+    [SerializeField, HideInInspector]
+    private float verticalLaserMaxSpawnTime = 25f;
+
+    [SerializeField, HideInInspector]
+    private float verticalLaserWarningDuration = 2f;
+
+    [SerializeField, HideInInspector]
+    private float verticalLaserLifeTime = 1.5f;
+
+    [SerializeField, HideInInspector]
+    private float verticalLaserWidth = 0.5f;
+
+    [SerializeField, HideInInspector]
+    private float verticalLaserHeightExtra = 1f;
+
+    [SerializeField, HideInInspector]
+    private float horizontalLaserMinSpawnTime = 8f;
+
+    [SerializeField, HideInInspector]
+    private float horizontalLaserMaxSpawnTime = 25f;
+
+    [SerializeField, HideInInspector]
+    private float horizontalLaserWarningDuration = 2f;
+
+    [SerializeField, HideInInspector]
+    private float horizontalLaserLifeTime = 1.5f;
+
+    [SerializeField, HideInInspector]
+    private float horizontalLaserWidth = 0.5f;
+
+    [SerializeField, HideInInspector]
+    private float horizontalLaserWidthExtra = 1f;
+
+    [SerializeField, HideInInspector]
+    private float bombMinSpawnTime = 6f;
+
+    [SerializeField, HideInInspector]
+    private float bombMaxSpawnTime = 14f;
+
+    [SerializeField, HideInInspector]
+    private int maxBombCount = 3;
+
+
+
+    public bool HasDangerProfile =>
+        dangerBalanceProfile != null;
+
+    public NormalEnemyDangerSettings ResolveNormalEnemyDanger()
+    {
+        NormalEnemyDangerSettings result;
+
+        if (normalEnemyCustomOverride && normalEnemyOverride != null)
+        {
+            result = normalEnemyOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetNormalEnemy(normalEnemyDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new NormalEnemyDangerSettings
+            {
+                minStartSpeed = normalMinStartSpeed,
+                maxStartSpeed = normalMaxStartSpeed,
+                maxSpeed = normalMaxSpeed,
+                speedIncreaseRate = normalSpeedIncreaseRate,
+                predictionEnabled = normalPredictionEnabled,
+                predictionDistanceThreshold = normalPredictionDistanceThreshold,
+                predictionTime = normalPredictionTime,
+                maxPredictionDistance = normalMaxPredictionDistance,
+                separationEnabled = normalSeparationEnabled,
+                separationRadius = normalSeparationRadius,
+                separationStrength = normalSeparationStrength
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public ProjectileEnemyDangerSettings ResolveProjectileEnemyDanger()
+    {
+        ProjectileEnemyDangerSettings result;
+
+        if (projectileEnemyCustomOverride && projectileEnemyOverride != null)
+        {
+            result = projectileEnemyOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetProjectileEnemy(projectileEnemyDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new ProjectileEnemyDangerSettings
+            {
+                moveSpeed = projectileMoveSpeed,
+                stoppingDistance = projectileStoppingDistance,
+                retreatDistance = projectileRetreatDistance,
+                fireRate = projectileFireRate,
+                projectileSpeed = projectileSpeed
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public HunterEnemyDangerSettings ResolveHunterEnemyDanger()
+    {
+        HunterEnemyDangerSettings result;
+
+        if (hunterEnemyCustomOverride && hunterEnemyOverride != null)
+        {
+            result = hunterEnemyOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetHunterEnemy(hunterEnemyDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new HunterEnemyDangerSettings
+            {
+                repositionTime = hunterRepositionTime,
+                warningDuration = hunterWarningDuration,
+                chargeSpeed = hunterChargeSpeed,
+                stunDuration = hunterStunDuration
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public BossDangerSettings ResolveBossDanger()
+    {
+        BossDangerSettings result;
+
+        if (bossCustomOverride && bossOverride != null)
+        {
+            result = bossOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetBoss(bossDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new BossDangerSettings
+            {
+                speed = bossSpeed,
+                canSplit = bossCanSplit,
+                splitDelay = bossSplitDelay,
+                splitDistance = bossSplitDistance,
+                miniBossSpeed = miniBossSpeed
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public BeaconEnemyDangerSettings ResolveBeaconEnemyDanger()
+    {
+        BeaconEnemyDangerSettings result;
+
+        if (beaconEnemyCustomOverride && beaconEnemyOverride != null)
+        {
+            result = beaconEnemyOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetBeaconEnemy(beaconEnemyDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new BeaconEnemyDangerSettings
+            {
+                buffDuration = beaconBuffDuration,
+                buffSizeMultiplier = beaconBuffSizeMultiplier,
+                normalSpeedMultiplier = beaconNormalSpeedMultiplier,
+                normalMaxSpeedMultiplier = beaconNormalMaxSpeedMultiplier,
+                projectileMoveMultiplier = beaconProjectileMoveMultiplier,
+                projectileShotMultiplier = beaconProjectileShotMultiplier,
+                projectileFireMultiplier = beaconProjectileFireMultiplier,
+                hunterRepositionMultiplier = beaconHunterRepositionMultiplier,
+                hunterWarningMultiplier = beaconHunterWarningMultiplier,
+                hunterChargeMultiplier = beaconHunterChargeMultiplier,
+                hunterStunMultiplier = beaconHunterStunMultiplier
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public LaserDangerSettings ResolveVerticalLaserDanger()
+    {
+        LaserDangerSettings result;
+
+        if (verticalLaserCustomOverride && verticalLaserOverride != null)
+        {
+            result = verticalLaserOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetVerticalLaser(verticalLaserDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new LaserDangerSettings
+            {
+                minSpawnTime = verticalLaserMinSpawnTime,
+                maxSpawnTime = verticalLaserMaxSpawnTime,
+                warningDuration = verticalLaserWarningDuration,
+                lifeTime = verticalLaserLifeTime,
+                width = verticalLaserWidth,
+                sizeExtra = verticalLaserHeightExtra
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public LaserDangerSettings ResolveHorizontalLaserDanger()
+    {
+        LaserDangerSettings result;
+
+        if (horizontalLaserCustomOverride && horizontalLaserOverride != null)
+        {
+            result = horizontalLaserOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetHorizontalLaser(horizontalLaserDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new LaserDangerSettings
+            {
+                minSpawnTime = horizontalLaserMinSpawnTime,
+                maxSpawnTime = horizontalLaserMaxSpawnTime,
+                warningDuration = horizontalLaserWarningDuration,
+                lifeTime = horizontalLaserLifeTime,
+                width = horizontalLaserWidth,
+                sizeExtra = horizontalLaserWidthExtra
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public BombDangerSettings ResolveBombDanger()
+    {
+        BombDangerSettings result;
+
+        if (bombCustomOverride && bombOverride != null)
+        {
+            result = bombOverride.Clone();
+        }
+        else if (dangerBalanceProfile != null)
+        {
+            result = dangerBalanceProfile
+                .GetBomb(bombDanger)
+                .Clone();
+        }
+        else
+        {
+            result = new BombDangerSettings
+            {
+                minSpawnTime = bombMinSpawnTime,
+                maxSpawnTime = bombMaxSpawnTime,
+                maxBombCount = maxBombCount,
+                spawnSafeTime = 0.35f
+            };
+        }
+
+        result.Sanitize();
+        return result;
+    }
+
+    public float GetActiveDangerAverage()
+    {
+        int total = 0;
+        int count = 0;
+
+        AddDanger(normalEnemyCount > 0, normalEnemyDanger, ref total, ref count);
+        AddDanger(projectileEnemyCount > 0, projectileEnemyDanger, ref total, ref count);
+        AddDanger(hunterEnemyCount > 0, hunterEnemyDanger, ref total, ref count);
+        AddDanger(beaconEnemyCount > 0, beaconEnemyDanger, ref total, ref count);
+        AddDanger(bossEnabled, bossDanger, ref total, ref count);
+        AddDanger(verticalLaserEnabled, verticalLaserDanger, ref total, ref count);
+        AddDanger(horizontalLaserEnabled, horizontalLaserDanger, ref total, ref count);
+        AddDanger(bombTrapEnabled, bombDanger, ref total, ref count);
+
+        return count > 0
+            ? (float)total / count
+            : 0f;
+    }
+
+    private static void AddDanger(
+        bool active,
+        DangerLevel level,
+        ref int total,
+        ref int count)
+    {
+        if (!active)
+            return;
+
+        total += (int)DangerLevelUtility.Sanitize(level);
+        count++;
+    }
 
     /*
      * Runtime sistemleri bu ortak değerleri kullanır. Böylece win condition
@@ -614,6 +976,47 @@ public class LevelConfig : ScriptableObject
         {
             bossSpawnCondition = BossSpawnCondition.Time;
         }
+
+        normalEnemyDanger = DangerLevelUtility.Sanitize(normalEnemyDanger);
+        projectileEnemyDanger = DangerLevelUtility.Sanitize(projectileEnemyDanger);
+        hunterEnemyDanger = DangerLevelUtility.Sanitize(hunterEnemyDanger);
+        bossDanger = DangerLevelUtility.Sanitize(bossDanger);
+        beaconEnemyDanger = DangerLevelUtility.Sanitize(beaconEnemyDanger);
+        verticalLaserDanger = DangerLevelUtility.Sanitize(verticalLaserDanger);
+        horizontalLaserDanger = DangerLevelUtility.Sanitize(horizontalLaserDanger);
+        bombDanger = DangerLevelUtility.Sanitize(bombDanger);
+
+        if (normalEnemyOverride == null)
+            normalEnemyOverride = new NormalEnemyDangerSettings();
+        if (projectileEnemyOverride == null)
+            projectileEnemyOverride = new ProjectileEnemyDangerSettings();
+        if (hunterEnemyOverride == null)
+            hunterEnemyOverride = new HunterEnemyDangerSettings();
+        if (bossOverride == null)
+            bossOverride = new BossDangerSettings();
+        if (beaconEnemyOverride == null)
+            beaconEnemyOverride = new BeaconEnemyDangerSettings();
+        if (verticalLaserOverride == null)
+            verticalLaserOverride = new LaserDangerSettings();
+        if (horizontalLaserOverride == null)
+            horizontalLaserOverride = new LaserDangerSettings();
+        if (bombOverride == null)
+            bombOverride = new BombDangerSettings();
+
+        normalEnemyOverride.Sanitize();
+        projectileEnemyOverride.Sanitize();
+        hunterEnemyOverride.Sanitize();
+        bossOverride.Sanitize();
+        beaconEnemyOverride.Sanitize();
+        verticalLaserOverride.Sanitize();
+        horizontalLaserOverride.Sanitize();
+        bombOverride.Sanitize();
+
+        normalEnemySpawnInterval = Mathf.Max(0.01f, normalEnemySpawnInterval);
+        projectileEnemySpawnInterval = Mathf.Max(0.01f, projectileEnemySpawnInterval);
+        hunterEnemySpawnInterval = Mathf.Max(0.01f, hunterEnemySpawnInterval);
+        beaconMinSpawnTime = Mathf.Max(0f, beaconMinSpawnTime);
+        beaconMaxSpawnTime = Mathf.Max(beaconMinSpawnTime, beaconMaxSpawnTime);
 
         // Eski serialized alan tutuluyor fakat artık win condition ile senkron.
         showGameTimerHUD = UsesTime;

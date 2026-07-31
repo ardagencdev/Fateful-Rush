@@ -69,6 +69,15 @@ public class LevelManager : MonoBehaviour
             this
         );
 
+        if (!currentLevel.HasDangerProfile)
+        {
+            Debug.LogWarning(
+                "[LevelManager] Danger Balance Profile atanmadı. " +
+                "Eski LevelConfig değerleri fallback olarak kullanılacak.",
+                currentLevel
+            );
+        }
+
         ApplyLevelConfig();
     }
 
@@ -346,17 +355,9 @@ public class LevelManager : MonoBehaviour
         enemySpawner.normalEnemySpawnInterval =
             currentLevel.normalEnemySpawnInterval;
 
-        enemySpawner.normalMinStartSpeed =
-            currentLevel.normalMinStartSpeed;
-
-        enemySpawner.normalMaxStartSpeed =
-            currentLevel.normalMaxStartSpeed;
-
-        enemySpawner.normalMaxSpeed =
-            currentLevel.normalMaxSpeed;
-
-        enemySpawner.normalSpeedIncreaseRate =
-            currentLevel.normalSpeedIncreaseRate;
+        enemySpawner.ApplyNormalDanger(
+            currentLevel.ResolveNormalEnemyDanger()
+        );
     }
 
     private void ApplyProjectileEnemySettings()
@@ -367,20 +368,9 @@ public class LevelManager : MonoBehaviour
         enemySpawner.projectileEnemySpawnInterval =
             currentLevel.projectileEnemySpawnInterval;
 
-        enemySpawner.projectileMoveSpeed =
-            currentLevel.projectileMoveSpeed;
-
-        enemySpawner.projectileStoppingDistance =
-            currentLevel.projectileStoppingDistance;
-
-        enemySpawner.projectileRetreatDistance =
-            currentLevel.projectileRetreatDistance;
-
-        enemySpawner.projectileFireRate =
-            currentLevel.projectileFireRate;
-
-        enemySpawner.projectileSpeed =
-            currentLevel.projectileSpeed;
+        enemySpawner.ApplyProjectileDanger(
+            currentLevel.ResolveProjectileEnemyDanger()
+        );
     }
 
     private void ApplyHunterEnemySettings()
@@ -391,17 +381,9 @@ public class LevelManager : MonoBehaviour
         enemySpawner.hunterEnemySpawnInterval =
             currentLevel.hunterEnemySpawnInterval;
 
-        enemySpawner.hunterRepositionTime =
-            currentLevel.hunterRepositionTime;
-
-        enemySpawner.hunterWarningDuration =
-            currentLevel.hunterWarningDuration;
-
-        enemySpawner.hunterChargeSpeed =
-            currentLevel.hunterChargeSpeed;
-
-        enemySpawner.hunterStunDuration =
-            currentLevel.hunterStunDuration;
+        enemySpawner.ApplyHunterDanger(
+            currentLevel.ResolveHunterEnemyDanger()
+        );
     }
 
     private void ApplyBossSettings()
@@ -418,20 +400,9 @@ public class LevelManager : MonoBehaviour
         enemySpawner.bossSpawnTime =
             currentLevel.SafeBossSpawnTime;
 
-        enemySpawner.bossSpeed =
-            currentLevel.bossSpeed;
-
-        enemySpawner.bossCanSplit =
-            currentLevel.bossCanSplit;
-
-        enemySpawner.bossSplitDelay =
-            currentLevel.bossSplitDelay;
-
-        enemySpawner.bossSplitDistance =
-            currentLevel.bossSplitDistance;
-
-        enemySpawner.miniBossSpeed =
-            currentLevel.miniBossSpeed;
+        enemySpawner.ApplyBossDanger(
+            currentLevel.ResolveBossDanger()
+        );
     }
 
     private void ApplyBeaconEnemy()
@@ -456,18 +427,8 @@ public class LevelManager : MonoBehaviour
             currentLevel.beaconMaxSpawnTime
         );
 
-        beaconEnemySpawner.ApplyBuffSettings(
-            currentLevel.beaconBuffDuration,
-            currentLevel.beaconBuffSizeMultiplier,
-            currentLevel.beaconNormalSpeedMultiplier,
-            currentLevel.beaconNormalMaxSpeedMultiplier,
-            currentLevel.beaconProjectileMoveMultiplier,
-            currentLevel.beaconProjectileShotMultiplier,
-            currentLevel.beaconProjectileFireMultiplier,
-            currentLevel.beaconHunterRepositionMultiplier,
-            currentLevel.beaconHunterWarningMultiplier,
-            currentLevel.beaconHunterChargeMultiplier,
-            currentLevel.beaconHunterStunMultiplier
+        beaconEnemySpawner.ApplyDangerSettings(
+            currentLevel.ResolveBeaconEnemyDanger()
         );
     }
 
@@ -530,13 +491,16 @@ public class LevelManager : MonoBehaviour
         if (!currentLevel.verticalLaserEnabled)
             return;
 
+        LaserDangerSettings settings =
+            currentLevel.ResolveVerticalLaserDanger();
+
         verticalLaserSpawner.ApplyLevelSettings(
-            currentLevel.verticalLaserMinSpawnTime,
-            currentLevel.verticalLaserMaxSpawnTime,
-            currentLevel.verticalLaserWarningDuration,
-            currentLevel.verticalLaserLifeTime,
-            currentLevel.verticalLaserWidth,
-            currentLevel.verticalLaserHeightExtra
+            settings.minSpawnTime,
+            settings.maxSpawnTime,
+            settings.warningDuration,
+            settings.lifeTime,
+            settings.width,
+            settings.sizeExtra
         );
     }
 
@@ -565,13 +529,16 @@ public class LevelManager : MonoBehaviour
 
         horizontalLaserSpawner.gameObject.SetActive(true);
 
+        LaserDangerSettings settings =
+            currentLevel.ResolveHorizontalLaserDanger();
+
         horizontalLaserSpawner.ApplyLevelSettings(
-            currentLevel.horizontalLaserMinSpawnTime,
-            currentLevel.horizontalLaserMaxSpawnTime,
-            currentLevel.horizontalLaserWarningDuration,
-            currentLevel.horizontalLaserLifeTime,
-            currentLevel.horizontalLaserWidth,
-            currentLevel.horizontalLaserWidthExtra
+            settings.minSpawnTime,
+            settings.maxSpawnTime,
+            settings.warningDuration,
+            settings.lifeTime,
+            settings.width,
+            settings.sizeExtra
         );
     }
 
@@ -598,10 +565,8 @@ public class LevelManager : MonoBehaviour
         if (!currentLevel.bombTrapEnabled)
             return;
 
-        bombTrapSpawner.ApplyLevelSettings(
-            currentLevel.bombMinSpawnTime,
-            currentLevel.bombMaxSpawnTime,
-            currentLevel.maxBombCount
+        bombTrapSpawner.ApplyDangerSettings(
+            currentLevel.ResolveBombDanger()
         );
     }
 

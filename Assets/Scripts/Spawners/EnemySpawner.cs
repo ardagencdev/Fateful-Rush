@@ -51,6 +51,26 @@ public class EnemySpawner : MonoBehaviour
     [Min(0f)]
     public float normalSpeedIncreaseRate = 0.1f;
 
+    [Header("Normal Enemy AI")]
+    public bool normalPredictionEnabled = true;
+
+    [Min(0f)]
+    public float normalPredictionDistanceThreshold = 2.5f;
+
+    [Min(0f)]
+    public float normalPredictionTime = 0.25f;
+
+    [Min(0f)]
+    public float normalMaxPredictionDistance = 1.5f;
+
+    public bool normalSeparationEnabled = true;
+
+    [Min(0f)]
+    public float normalSeparationRadius = 0.75f;
+
+    [Min(0f)]
+    public float normalSeparationStrength = 0.65f;
+
     [Header("Projectile Enemy Settings")]
     [Min(0f)]
     public float projectileMoveSpeed = 3f;
@@ -67,15 +87,58 @@ public class EnemySpawner : MonoBehaviour
     [Min(0f)]
     public float projectileSpeed = 6f;
 
+    [Header("Projectile Enemy AI")]
+    public bool projectileStrafeEnabled = true;
+
+    [Min(0f)]
+    public float projectileStrafeSpeedMultiplier = 0.65f;
+
+    [Min(0f)]
+    public float projectileStrafeDirectionChangeMinTime = 1.5f;
+
+    [Min(0f)]
+    public float projectileStrafeDirectionChangeMaxTime = 3f;
+
+    [Min(0f)]
+    public float projectileStrafeDistanceTolerance = 0.6f;
+
+    public bool projectilePredictiveAimEnabled = true;
+
+    [Min(0f)]
+    public float projectilePredictionTime = 0.25f;
+
+    [Min(0f)]
+    public float projectileMaxPredictionDistance = 1.5f;
+
+    [Min(0f)]
+    public float projectilePredictionDistanceThreshold = 2.5f;
+
+    public bool projectileSeparationEnabled = true;
+
+    [Min(0f)]
+    public float projectileSeparationRadius = 0.9f;
+
+    [Min(0f)]
+    public float projectileSeparationStrength = 0.45f;
+
     [Header("Hunter Enemy Settings")]
     [Min(0f)]
+    public float hunterPrepareDistance = 6f;
+
+    [Min(0f)]
     public float hunterRepositionTime = 1.2f;
+
+    [Min(0f)]
+    public float hunterRecoveryTime = 1.2f;
 
     [Min(0f)]
     public float hunterWarningDuration = 1f;
 
     [Min(0f)]
     public float hunterChargeSpeed = 15f;
+
+    [Min(0.01f)]
+    public float hunterMaxChargeTime = 0.65f;
 
     [Min(0f)]
     public float hunterStunDuration = 1f;
@@ -94,6 +157,9 @@ public class EnemySpawner : MonoBehaviour
 
     [Min(0f)]
     public float bossSpeed = 1.2f;
+
+    [Min(0f)]
+    public float bossDirectionSmoothness = 7f;
 
     public bool bossCanSplit = true;
 
@@ -165,6 +231,86 @@ public class EnemySpawner : MonoBehaviour
         HandleNormalEnemySpawn();
         HandleProjectileEnemySpawn();
         HandleHunterEnemySpawn();
+    }
+
+    public void ApplyNormalDanger(
+        NormalEnemyDangerSettings settings)
+    {
+        if (settings == null)
+            return;
+
+        settings.Sanitize();
+
+        normalMinStartSpeed = settings.minStartSpeed;
+        normalMaxStartSpeed = settings.maxStartSpeed;
+        normalMaxSpeed = settings.maxSpeed;
+        normalSpeedIncreaseRate = settings.speedIncreaseRate;
+        normalPredictionEnabled = settings.predictionEnabled;
+        normalPredictionDistanceThreshold = settings.predictionDistanceThreshold;
+        normalPredictionTime = settings.predictionTime;
+        normalMaxPredictionDistance = settings.maxPredictionDistance;
+        normalSeparationEnabled = settings.separationEnabled;
+        normalSeparationRadius = settings.separationRadius;
+        normalSeparationStrength = settings.separationStrength;
+    }
+
+    public void ApplyProjectileDanger(
+        ProjectileEnemyDangerSettings settings)
+    {
+        if (settings == null)
+            return;
+
+        settings.Sanitize();
+
+        projectileMoveSpeed = settings.moveSpeed;
+        projectileStoppingDistance = settings.stoppingDistance;
+        projectileRetreatDistance = settings.retreatDistance;
+        projectileFireRate = settings.fireRate;
+        projectileSpeed = settings.projectileSpeed;
+        projectileStrafeEnabled = settings.strafeEnabled;
+        projectileStrafeSpeedMultiplier = settings.strafeSpeedMultiplier;
+        projectileStrafeDirectionChangeMinTime = settings.strafeDirectionChangeMinTime;
+        projectileStrafeDirectionChangeMaxTime = settings.strafeDirectionChangeMaxTime;
+        projectileStrafeDistanceTolerance = settings.strafeDistanceTolerance;
+        projectilePredictiveAimEnabled = settings.predictiveAimEnabled;
+        projectilePredictionTime = settings.predictionTime;
+        projectileMaxPredictionDistance = settings.maxPredictionDistance;
+        projectilePredictionDistanceThreshold = settings.predictionDistanceThreshold;
+        projectileSeparationEnabled = settings.separationEnabled;
+        projectileSeparationRadius = settings.separationRadius;
+        projectileSeparationStrength = settings.separationStrength;
+    }
+
+    public void ApplyHunterDanger(
+        HunterEnemyDangerSettings settings)
+    {
+        if (settings == null)
+            return;
+
+        settings.Sanitize();
+
+        hunterPrepareDistance = settings.prepareDistance;
+        hunterRepositionTime = settings.repositionTime;
+        hunterRecoveryTime = settings.recoveryTime;
+        hunterWarningDuration = settings.warningDuration;
+        hunterChargeSpeed = settings.chargeSpeed;
+        hunterMaxChargeTime = settings.maxChargeTime;
+        hunterStunDuration = settings.stunDuration;
+    }
+
+    public void ApplyBossDanger(BossDangerSettings settings)
+    {
+        if (settings == null)
+            return;
+
+        settings.Sanitize();
+
+        bossSpeed = settings.speed;
+        bossDirectionSmoothness = settings.directionSmoothness;
+        bossCanSplit = settings.canSplit;
+        bossSplitDelay = settings.splitDelay;
+        bossSplitDistance = settings.splitDistance;
+        miniBossSpeed = settings.miniBossSpeed;
     }
 
     public void ResetSpawner()
@@ -371,6 +517,27 @@ public class EnemySpawner : MonoBehaviour
 
             normal.speedIncreaseRate =
                 normalSpeedIncreaseRate;
+
+            normal.predictionEnabled =
+                normalPredictionEnabled;
+
+            normal.predictionDistanceThreshold =
+                normalPredictionDistanceThreshold;
+
+            normal.predictionTime =
+                normalPredictionTime;
+
+            normal.maxPredictionDistance =
+                normalMaxPredictionDistance;
+
+            normal.separationEnabled =
+                normalSeparationEnabled;
+
+            normal.separationRadius =
+                normalSeparationRadius;
+
+            normal.separationStrength =
+                normalSeparationStrength;
         }
 
         ProjectileEnemyFollow projectile =
@@ -392,6 +559,42 @@ public class EnemySpawner : MonoBehaviour
 
             projectile.projectileSpeed =
                 projectileSpeed;
+
+            projectile.strafeEnabled =
+                projectileStrafeEnabled;
+
+            projectile.strafeSpeedMultiplier =
+                projectileStrafeSpeedMultiplier;
+
+            projectile.strafeDirectionChangeMinTime =
+                projectileStrafeDirectionChangeMinTime;
+
+            projectile.strafeDirectionChangeMaxTime =
+                projectileStrafeDirectionChangeMaxTime;
+
+            projectile.strafeDistanceTolerance =
+                projectileStrafeDistanceTolerance;
+
+            projectile.predictiveAimEnabled =
+                projectilePredictiveAimEnabled;
+
+            projectile.predictionTime =
+                projectilePredictionTime;
+
+            projectile.maxPredictionDistance =
+                projectileMaxPredictionDistance;
+
+            projectile.predictionDistanceThreshold =
+                projectilePredictionDistanceThreshold;
+
+            projectile.separationEnabled =
+                projectileSeparationEnabled;
+
+            projectile.separationRadius =
+                projectileSeparationRadius;
+
+            projectile.separationStrength =
+                projectileSeparationStrength;
         }
 
         HunterEnemyFollow hunter =
@@ -399,14 +602,23 @@ public class EnemySpawner : MonoBehaviour
 
         if (hunter != null)
         {
+            hunter.prepareDistance =
+                hunterPrepareDistance;
+
             hunter.repositionTime =
                 hunterRepositionTime;
+
+            hunter.recoveryTime =
+                hunterRecoveryTime;
 
             hunter.warningDuration =
                 hunterWarningDuration;
 
             hunter.chargeSpeed =
                 hunterChargeSpeed;
+
+            hunter.maxChargeTime =
+                hunterMaxChargeTime;
 
             hunter.stunDuration =
                 hunterStunDuration;
@@ -419,6 +631,9 @@ public class EnemySpawner : MonoBehaviour
         {
             boss.speed =
                 bossSpeed;
+
+            boss.directionSmoothness =
+                bossDirectionSmoothness;
 
             boss.canSplit =
                 bossCanSplit;
@@ -738,6 +953,21 @@ public class EnemySpawner : MonoBehaviour
                 normalSpeedIncreaseRate
             );
 
+        normalPredictionDistanceThreshold =
+            Mathf.Max(0f, normalPredictionDistanceThreshold);
+
+        normalPredictionTime =
+            Mathf.Max(0f, normalPredictionTime);
+
+        normalMaxPredictionDistance =
+            Mathf.Max(0f, normalMaxPredictionDistance);
+
+        normalSeparationRadius =
+            Mathf.Max(0f, normalSeparationRadius);
+
+        normalSeparationStrength =
+            Mathf.Max(0f, normalSeparationStrength);
+
         projectileMoveSpeed =
             Mathf.Max(0f, projectileMoveSpeed);
 
@@ -759,14 +989,53 @@ public class EnemySpawner : MonoBehaviour
         projectileSpeed =
             Mathf.Max(0f, projectileSpeed);
 
+        projectileStrafeSpeedMultiplier =
+            Mathf.Max(0f, projectileStrafeSpeedMultiplier);
+
+        projectileStrafeDirectionChangeMinTime =
+            Mathf.Max(0f, projectileStrafeDirectionChangeMinTime);
+
+        projectileStrafeDirectionChangeMaxTime =
+            Mathf.Max(
+                projectileStrafeDirectionChangeMinTime,
+                projectileStrafeDirectionChangeMaxTime
+            );
+
+        projectileStrafeDistanceTolerance =
+            Mathf.Max(0f, projectileStrafeDistanceTolerance);
+
+        projectilePredictionTime =
+            Mathf.Max(0f, projectilePredictionTime);
+
+        projectileMaxPredictionDistance =
+            Mathf.Max(0f, projectileMaxPredictionDistance);
+
+        projectilePredictionDistanceThreshold =
+            Mathf.Max(0f, projectilePredictionDistanceThreshold);
+
+        projectileSeparationRadius =
+            Mathf.Max(0f, projectileSeparationRadius);
+
+        projectileSeparationStrength =
+            Mathf.Max(0f, projectileSeparationStrength);
+
+        hunterPrepareDistance =
+            Mathf.Max(0f, hunterPrepareDistance);
+
         hunterRepositionTime =
             Mathf.Max(0f, hunterRepositionTime);
+
+        hunterRecoveryTime =
+            Mathf.Max(0f, hunterRecoveryTime);
 
         hunterWarningDuration =
             Mathf.Max(0f, hunterWarningDuration);
 
         hunterChargeSpeed =
             Mathf.Max(0f, hunterChargeSpeed);
+
+        hunterMaxChargeTime =
+            Mathf.Max(0.01f, hunterMaxChargeTime);
 
         hunterStunDuration =
             Mathf.Max(0f, hunterStunDuration);
@@ -779,6 +1048,9 @@ public class EnemySpawner : MonoBehaviour
 
         bossSpeed =
             Mathf.Max(0f, bossSpeed);
+
+        bossDirectionSmoothness =
+            Mathf.Max(0f, bossDirectionSmoothness);
 
         bossSplitDelay =
             Mathf.Max(0f, bossSplitDelay);

@@ -77,6 +77,23 @@ MonoBehaviour:
   - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
     enabled: 0
   randomObstacleCount: 5
+  dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
+  normalEnemyDanger: 2
+  normalEnemyCustomOverride: 0
+  projectileEnemyDanger: 2
+  projectileEnemyCustomOverride: 0
+  hunterEnemyDanger: 2
+  hunterEnemyCustomOverride: 0
+  bossDanger: 2
+  bossCustomOverride: 0
+  beaconEnemyDanger: 2
+  beaconEnemyCustomOverride: 0
+  verticalLaserDanger: 2
+  verticalLaserCustomOverride: 0
+  horizontalLaserDanger: 2
+  horizontalLaserCustomOverride: 0
+  bombDanger: 2
+  bombCustomOverride: 0
   normalEnemyCount: 1
   normalEnemySpawnInterval: 2.5
   normalMinStartSpeed: 1.5
