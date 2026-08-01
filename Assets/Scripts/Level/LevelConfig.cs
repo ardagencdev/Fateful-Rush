@@ -26,6 +26,84 @@ public enum BossSpawnCondition
     Time
 }
 
+
+public enum MechanicProgressionStatus
+{
+    AlreadyKnown,
+    IntroducedHere,
+    FinalChallenge
+}
+
+[System.Serializable]
+public class LevelMechanicProgression
+{
+    [Header("MISSION MODES")]
+    public MechanicProgressionStatus reachScoreMode =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus surviveTimeMode =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus timedScoreMode =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    [Header("PLAYER")]
+    public MechanicProgressionStatus dash =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus clone =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus combo =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    [Header("COINS / ARENA")]
+    public MechanicProgressionStatus normalCoin =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus goldCoin =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus rareCoin =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus staticObstacles =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    [Header("ENEMIES")]
+    public MechanicProgressionStatus normalEnemy =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus projectileEnemy =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus hunterEnemy =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus boss =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus beaconEnemy =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    [Header("POWER UPS")]
+    public MechanicProgressionStatus armor =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus slow =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    [Header("TRAPS")]
+    public MechanicProgressionStatus verticalLaser =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus horizontalLaser =
+        MechanicProgressionStatus.AlreadyKnown;
+
+    public MechanicProgressionStatus spaceBomb =
+        MechanicProgressionStatus.AlreadyKnown;
+}
+
 [System.Serializable]
 public class ComboSpeedStage
 {
@@ -50,6 +128,14 @@ public class LevelConfig : ScriptableObject
     public int levelNumber = 1;
 
     public string levelName = "Level 1";
+
+    [Header("LEVEL DESIGN METADATA")]
+    [Tooltip(
+        "Editor-only progression notes used to track when mechanics are introduced, " +
+        "reused or tested as final challenges. Runtime gameplay does not depend on these values."
+    )]
+    public LevelMechanicProgression mechanicProgression =
+        new LevelMechanicProgression();
 
     [Header("MISSION BRIEFING")]
     [Tooltip(
@@ -955,6 +1041,9 @@ public class LevelConfig : ScriptableObject
 #if UNITY_EDITOR
     private void OnValidate()
     {
+        if (mechanicProgression == null)
+            mechanicProgression = new LevelMechanicProgression();
+
         levelNumber = Mathf.Max(0, levelNumber);
         winScore = Mathf.Max(1, winScore);
         timeLimit = Mathf.Max(0.1f, timeLimit);

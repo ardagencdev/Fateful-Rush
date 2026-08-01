@@ -14,6 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 1
   levelName: Level 1
+  mechanicProgression:
+    reachScoreMode: 0
+    surviveTimeMode: 0
+    timedScoreMode: 0
+    dash: 0
+    clone: 0
+    combo: 0
+    normalCoin: 0
+    goldCoin: 0
+    rareCoin: 0
+    staticObstacles: 0
+    normalEnemy: 0
+    projectileEnemy: 0
+    hunterEnemy: 0
+    boss: 0
+    beaconEnemy: 0
+    armor: 0
+    slow: 0
+    verticalLaser: 0
+    horizontalLaser: 0
+    spaceBomb: 0
   briefingTitle: MISSION BRIEFING
   missionDifficulty: 0
   briefingModeDescription: 
@@ -22,7 +43,7 @@ MonoBehaviour:
   - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
-  winScore: 10
+  winScore: 30
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6
@@ -38,7 +59,7 @@ MonoBehaviour:
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
-  comboEnabled: 0
+  comboEnabled: 1
   comboTimeLimit: 2.5
   maxCombo: 5
   comboSpeedStages:
