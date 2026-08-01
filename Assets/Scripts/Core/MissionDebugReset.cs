@@ -5,8 +5,8 @@ public class MissionDebugReset : MonoBehaviour
 {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 
-    [SerializeField]
-    private int missionCount = 20;
+    [SerializeField, Min(1)]
+    private int missionCount = 40;
 
     private void Update()
     {
@@ -23,16 +23,25 @@ public class MissionDebugReset : MonoBehaviour
     {
         for (int i = 1; i <= missionCount; i++)
         {
-            PlayerPrefs.DeleteKey($"CompletedLevel_{i}");
-            PlayerPrefs.DeleteKey($"BestTime_Level_{i}");
+            PlayerPrefs.DeleteKey(
+                $"CompletedLevel_{i}"
+            );
+
+            PlayerPrefs.DeleteKey(
+                $"BestTime_Level_{i}"
+            );
         }
 
-        PlayerPrefs.SetInt("UnlockedLevel", 1);
+        PlayerPrefs.SetInt(
+            "UnlockedLevel",
+            1
+        );
 
         PlayerPrefs.Save();
 
         Debug.Log(
-            "<color=yellow>[DEBUG]</color> Mission progress reset."
+            "<color=yellow>[DEBUG]</color> " +
+            $"Progress for {missionCount} missions was reset."
         );
     }
 

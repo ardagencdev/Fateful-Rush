@@ -7341,6 +7341,7 @@ MonoBehaviour:
   minSpawnTime: 6
   maxSpawnTime: 14
   maxBombCount: 3
+  bombSpawnSafeTime: 0.35
   spawnPadding: 1.5
   checkRadius: 1
   maxAttempts: 200
@@ -19030,6 +19031,26 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0809794c38452e74fb9287c593396546, type: 2}
   - {fileID: 11400000, guid: 8838553fbdf3bc24eb159ad6c5ab1a40, type: 2}
   - {fileID: 11400000, guid: 655ad385006f74741b9c2e551f2d973c, type: 2}
+  - {fileID: 11400000, guid: 9cfcbd6956da3f441b84226e14f003dd, type: 2}
+  - {fileID: 11400000, guid: 2dd41bb98c2fd9141b1511bbb9425661, type: 2}
+  - {fileID: 11400000, guid: 0b6b20703f6f97a45b3a542a55bc0af6, type: 2}
+  - {fileID: 11400000, guid: 9e427f63b4a9ddf4b947070cf78843e6, type: 2}
+  - {fileID: 11400000, guid: 8f86818cd81724141b36b688010fe599, type: 2}
+  - {fileID: 11400000, guid: a9b8d36157d5ad4478026df6a472cea7, type: 2}
+  - {fileID: 11400000, guid: 8ea50bafc6a4b154981b323cc2688184, type: 2}
+  - {fileID: 11400000, guid: 21abbc8bb2f1bc144ad8b85610d9fc15, type: 2}
+  - {fileID: 11400000, guid: 5633b9fa65142444ea4a4faad8c0a6c6, type: 2}
+  - {fileID: 11400000, guid: f51510caa9b9c994cb11c7494b5b2358, type: 2}
+  - {fileID: 11400000, guid: 62022e629137245428fc2a7ba87987ce, type: 2}
+  - {fileID: 11400000, guid: 85020866b4acead42bf3260b7a375f36, type: 2}
+  - {fileID: 11400000, guid: 5500e810c9f8fc5459b3e9547f006570, type: 2}
+  - {fileID: 11400000, guid: 08c8955adb6fa974285a7259e97d7d7d, type: 2}
+  - {fileID: 11400000, guid: 0dedae6fda2c8f24cbf4857d9effc93c, type: 2}
+  - {fileID: 11400000, guid: 6865987462e0cfc4db4dba2526bc217e, type: 2}
+  - {fileID: 11400000, guid: 2cbcacc83eec0e944a675b4317bc9950, type: 2}
+  - {fileID: 11400000, guid: e34e1c5fc4c9f684c96bf82605ac313e, type: 2}
+  - {fileID: 11400000, guid: 1b3d57da053d5144585258a34abb432d, type: 2}
+  - {fileID: 11400000, guid: d9001b5a1ae740c4ca6b2f5063576cae, type: 2}
   gameSceneName: a
   tryAgainButton: {fileID: 2011239673}
   menuButton: {fileID: 1672707847}
@@ -19317,6 +19338,8 @@ MonoBehaviour:
   voidCloneSound: {fileID: 8300000, guid: a0906e582b7cdec46999f741f89c700f, type: 3}
   menuButtonSound: {fileID: 8300000, guid: 9e0c7c3ef0b54b844ac299ea1a788a6e, type: 3}
   backButtonSound: {fileID: 8300000, guid: 29dd4eaf3192530458c01a0a734c411d, type: 3}
+  startButtonSound: {fileID: 0}
+  lockedLevelSound: {fileID: 0}
   missionBriefingOpenSound: {fileID: 8300000, guid: 448bc40aacf79294cb50396a76e6aa48, type: 3}
   premiumInterfaceSound: {fileID: 8300000, guid: 3923863614aaf94458c1590fce43976d, type: 3}
   missionSelectSound: {fileID: 0}
@@ -21660,6 +21683,13 @@ MonoBehaviour:
   hunterWarningMultiplier: 0.8
   hunterChargeMultiplier: 1.25
   hunterStunMultiplier: 0.8
+  activationDelay: 3
+  pulseInterval: 2
+  retargetInterval: 0.5
+  targetStopDistance: 1.5
+  moveSpeed: 3
+  safeDistanceFromPlayer: 5
+  wanderStrength: 0.6
   spawnPadding: 1
   checkRadius: 0.8
   minDistanceFromPlayer: 4

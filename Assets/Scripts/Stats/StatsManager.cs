@@ -3,7 +3,7 @@ using UnityEngine;
 public static class StatsManager
 {
     private const int FirstLevelNumber = 1;
-    private const int LastLevelNumber = 20;
+    private const int LastLevelNumber = 40;
 
     private const string NormalCoinType = "Normal";
     private const string GoldCoinType = "Gold";
