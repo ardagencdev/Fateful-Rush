@@ -53,15 +53,15 @@ public static class DangerLevelUtility
         switch (Sanitize(level))
         {
             case DangerLevel.Danger1:
-                return "Introduces the mechanic with generous reaction time.";
+                return "Readable first-use tuning that still creates a real threat.";
             case DangerLevel.Danger2:
-                return "The original balanced gameplay baseline.";
+                return "Reliable baseline pressure for early and mid-game encounters.";
             case DangerLevel.Danger3:
-                return "Creates sustained pressure without becoming unfair.";
+                return "Sustained pressure for mechanics the player already understands.";
             case DangerLevel.Danger4:
-                return "High-intensity tuning for late-game combinations.";
+                return "Severe late-game tuning with shorter reaction windows.";
             case DangerLevel.Danger5:
-                return "Extreme endgame tuning. Use with low counts and careful testing.";
+                return "Extreme endgame tuning for low counts and final challenges.";
             default:
                 return string.Empty;
         }
@@ -315,7 +315,7 @@ public class BombDangerSettings
 public class DangerBalanceProfile : ScriptableObject
 {
     [SerializeField, Min(1)]
-    private int profileVersion = 1;
+    private int profileVersion = 2;
 
     [SerializeField]
     private NormalEnemyDangerSettings[] normalEnemyLevels;
@@ -385,7 +385,7 @@ public class DangerBalanceProfile : ScriptableObject
 
     public void ResetToBalancedDefaults()
     {
-        profileVersion = 1;
+        profileVersion = 2;
         normalEnemyLevels = CreateDefaultNormalEnemyLevels();
         projectileEnemyLevels = CreateDefaultProjectileEnemyLevels();
         hunterEnemyLevels = CreateDefaultHunterEnemyLevels();
@@ -504,53 +504,73 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new NormalEnemyDangerSettings
             {
-                minStartSpeed = 1.2f,
-                maxStartSpeed = 1.8f,
-                maxSpeed = 5.5f,
-                speedIncreaseRate = 0.07f,
-                predictionEnabled = false,
-                predictionDistanceThreshold = 2f,
-                predictionTime = 0.18f,
-                maxPredictionDistance = 0.8f,
-                separationRadius = 0.7f,
-                separationStrength = 0.55f
-            },
-            new NormalEnemyDangerSettings(),
-            new NormalEnemyDangerSettings
-            {
-                minStartSpeed = 1.9f,
-                maxStartSpeed = 2.9f,
-                maxSpeed = 8.25f,
-                speedIncreaseRate = 0.13f,
-                predictionDistanceThreshold = 3f,
-                predictionTime = 0.32f,
-                maxPredictionDistance = 2.1f,
-                separationRadius = 0.8f,
-                separationStrength = 0.72f
-            },
-            new NormalEnemyDangerSettings
-            {
                 minStartSpeed = 2.3f,
                 maxStartSpeed = 3.3f,
                 maxSpeed = 9.5f,
                 speedIncreaseRate = 0.17f,
+                predictionEnabled = true,
                 predictionDistanceThreshold = 3.5f,
-                predictionTime = 0.4f,
+                predictionTime = 0.40f,
                 maxPredictionDistance = 2.8f,
+                separationEnabled = true,
                 separationRadius = 0.85f,
-                separationStrength = 0.8f
+                separationStrength = 0.80f
             },
             new NormalEnemyDangerSettings
             {
                 minStartSpeed = 2.7f,
                 maxStartSpeed = 3.8f,
-                maxSpeed = 11f,
-                speedIncreaseRate = 0.22f,
-                predictionDistanceThreshold = 4f,
+                maxSpeed = 10.3f,
+                speedIncreaseRate = 0.20f,
+                predictionEnabled = true,
+                predictionDistanceThreshold = 3.8f,
+                predictionTime = 0.44f,
+                maxPredictionDistance = 3.2f,
+                separationEnabled = true,
+                separationRadius = 0.90f,
+                separationStrength = 0.86f
+            },
+            new NormalEnemyDangerSettings
+            {
+                minStartSpeed = 3.1f,
+                maxStartSpeed = 4.2f,
+                maxSpeed = 11.1f,
+                speedIncreaseRate = 0.24f,
+                predictionEnabled = true,
+                predictionDistanceThreshold = 4.1f,
                 predictionTime = 0.48f,
-                maxPredictionDistance = 3.5f,
-                separationRadius = 0.9f,
-                separationStrength = 0.9f
+                maxPredictionDistance = 3.6f,
+                separationEnabled = true,
+                separationRadius = 0.95f,
+                separationStrength = 0.92f
+            },
+            new NormalEnemyDangerSettings
+            {
+                minStartSpeed = 3.5f,
+                maxStartSpeed = 4.7f,
+                maxSpeed = 12.0f,
+                speedIncreaseRate = 0.28f,
+                predictionEnabled = true,
+                predictionDistanceThreshold = 4.4f,
+                predictionTime = 0.53f,
+                maxPredictionDistance = 4.1f,
+                separationEnabled = true,
+                separationRadius = 1.00f,
+                separationStrength = 1.00f
+            },
+            new NormalEnemyDangerSettings
+            {
+                minStartSpeed = 4.0f,
+                maxStartSpeed = 5.2f,
+                maxSpeed = 13.0f,
+                speedIncreaseRate = 0.33f,
+                predictionEnabled = true,
+                predictionDistanceThreshold = 4.8f,
+                predictionTime = 0.60f,
+                maxPredictionDistance = 4.7f,
+                separationEnabled = true,
+                separationRadius = 1.05f,
+                separationStrength = 1.08f
             }
         };
     }
@@ -561,68 +581,103 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new ProjectileEnemyDangerSettings
             {
-                moveSpeed = 2.4f,
-                stoppingDistance = 7.5f,
-                retreatDistance = 4.2f,
-                fireRate = 2.2f,
-                projectileSpeed = 5f,
-                strafeSpeedMultiplier = 0.45f,
-                strafeDirectionChangeMinTime = 2f,
-                strafeDirectionChangeMaxTime = 3.5f,
+                moveSpeed = 3.0f,
+                stoppingDistance = 7.0f,
+                retreatDistance = 4.0f,
+                fireRate = 1.65f,
+                projectileSpeed = 6.2f,
+                strafeEnabled = true,
+                strafeSpeedMultiplier = 0.60f,
+                strafeDirectionChangeMinTime = 1.6f,
+                strafeDirectionChangeMaxTime = 2.8f,
+                strafeDistanceTolerance = 0.60f,
                 predictiveAimEnabled = false,
-                predictionTime = 0.2f,
-                maxPredictionDistance = 1f,
-                predictionDistanceThreshold = 2f,
-                separationStrength = 0.4f
+                predictionTime = 0.22f,
+                maxPredictionDistance = 1.3f,
+                predictionDistanceThreshold = 2.5f,
+                separationEnabled = true,
+                separationRadius = 0.90f,
+                separationStrength = 0.45f
             },
-            new ProjectileEnemyDangerSettings(),
             new ProjectileEnemyDangerSettings
             {
-                moveSpeed = 3.4f,
-                stoppingDistance = 6.7f,
-                retreatDistance = 3.8f,
-                fireRate = 1.25f,
-                projectileSpeed = 7.2f,
-                strafeSpeedMultiplier = 0.75f,
-                strafeDirectionChangeMinTime = 1.2f,
-                strafeDirectionChangeMaxTime = 2.5f,
-                predictionTime = 0.36f,
-                maxPredictionDistance = 2.5f,
-                predictionDistanceThreshold = 3f,
+                moveSpeed = 3.3f,
+                stoppingDistance = 6.8f,
+                retreatDistance = 3.9f,
+                fireRate = 1.42f,
+                projectileSpeed = 6.9f,
+                strafeEnabled = true,
+                strafeSpeedMultiplier = 0.70f,
+                strafeDirectionChangeMinTime = 1.3f,
+                strafeDirectionChangeMaxTime = 2.4f,
+                strafeDistanceTolerance = 0.60f,
+                predictiveAimEnabled = true,
+                predictionTime = 0.28f,
+                maxPredictionDistance = 1.9f,
+                predictionDistanceThreshold = 2.8f,
+                separationEnabled = true,
                 separationRadius = 0.95f,
-                separationStrength = 0.58f
+                separationStrength = 0.52f
             },
             new ProjectileEnemyDangerSettings
             {
-                moveSpeed = 3.8f,
-                stoppingDistance = 6.4f,
+                moveSpeed = 3.6f,
+                stoppingDistance = 6.6f,
+                retreatDistance = 3.8f,
+                fireRate = 1.20f,
+                projectileSpeed = 7.7f,
+                strafeEnabled = true,
+                strafeSpeedMultiplier = 0.80f,
+                strafeDirectionChangeMinTime = 1.0f,
+                strafeDirectionChangeMaxTime = 2.0f,
+                strafeDistanceTolerance = 0.55f,
+                predictiveAimEnabled = true,
+                predictionTime = 0.35f,
+                maxPredictionDistance = 2.6f,
+                predictionDistanceThreshold = 3.2f,
+                separationEnabled = true,
+                separationRadius = 1.00f,
+                separationStrength = 0.60f
+            },
+            new ProjectileEnemyDangerSettings
+            {
+                moveSpeed = 4.0f,
+                stoppingDistance = 6.3f,
                 retreatDistance = 3.6f,
-                fireRate = 1f,
-                projectileSpeed = 8.5f,
-                strafeSpeedMultiplier = 0.85f,
-                strafeDirectionChangeMinTime = 0.95f,
-                strafeDirectionChangeMaxTime = 2f,
+                fireRate = 0.98f,
+                projectileSpeed = 8.7f,
+                strafeEnabled = true,
+                strafeSpeedMultiplier = 0.90f,
+                strafeDirectionChangeMinTime = 0.8f,
+                strafeDirectionChangeMaxTime = 1.6f,
+                strafeDistanceTolerance = 0.50f,
+                predictiveAimEnabled = true,
                 predictionTime = 0.42f,
-                maxPredictionDistance = 3.2f,
-                predictionDistanceThreshold = 3.5f,
-                separationRadius = 1f,
-                separationStrength = 0.65f
+                maxPredictionDistance = 3.3f,
+                predictionDistanceThreshold = 3.6f,
+                separationEnabled = true,
+                separationRadius = 1.05f,
+                separationStrength = 0.68f
             },
             new ProjectileEnemyDangerSettings
             {
-                moveSpeed = 4.3f,
-                stoppingDistance = 6f,
+                moveSpeed = 4.4f,
+                stoppingDistance = 6.0f,
                 retreatDistance = 3.4f,
-                fireRate = 0.8f,
-                projectileSpeed = 10f,
-                strafeSpeedMultiplier = 1f,
-                strafeDirectionChangeMinTime = 0.7f,
-                strafeDirectionChangeMaxTime = 1.5f,
-                predictionTime = 0.5f,
-                maxPredictionDistance = 4f,
-                predictionDistanceThreshold = 4f,
-                separationRadius = 1.05f,
-                separationStrength = 0.75f
+                fireRate = 0.82f,
+                projectileSpeed = 9.8f,
+                strafeEnabled = true,
+                strafeSpeedMultiplier = 1.00f,
+                strafeDirectionChangeMinTime = 0.65f,
+                strafeDirectionChangeMaxTime = 1.3f,
+                strafeDistanceTolerance = 0.45f,
+                predictiveAimEnabled = true,
+                predictionTime = 0.50f,
+                maxPredictionDistance = 4.0f,
+                predictionDistanceThreshold = 4.0f,
+                separationEnabled = true,
+                separationRadius = 1.10f,
+                separationStrength = 0.78f
             }
         };
     }
@@ -633,44 +688,53 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new HunterEnemyDangerSettings
             {
-                prepareDistance = 6.5f,
-                repositionTime = 1.5f,
-                recoveryTime = 1.5f,
-                warningDuration = 1.4f,
-                chargeSpeed = 12f,
-                maxChargeTime = 0.5f,
-                stunDuration = 1.4f
+                prepareDistance = 6.0f,
+                repositionTime = 1.20f,
+                recoveryTime = 1.20f,
+                warningDuration = 1.10f,
+                chargeSpeed = 15.0f,
+                maxChargeTime = 0.65f,
+                stunDuration = 1.10f
             },
-            new HunterEnemyDangerSettings(),
             new HunterEnemyDangerSettings
             {
-                prepareDistance = 5.8f,
-                repositionTime = 1f,
-                recoveryTime = 0.9f,
-                warningDuration = 0.85f,
-                chargeSpeed = 17f,
-                maxChargeTime = 0.75f,
-                stunDuration = 0.8f
+                prepareDistance = 5.9f,
+                repositionTime = 1.05f,
+                recoveryTime = 1.00f,
+                warningDuration = 0.95f,
+                chargeSpeed = 16.5f,
+                maxChargeTime = 0.72f,
+                stunDuration = 0.95f
+            },
+            new HunterEnemyDangerSettings
+            {
+                prepareDistance = 5.7f,
+                repositionTime = 0.90f,
+                recoveryTime = 0.82f,
+                warningDuration = 0.82f,
+                chargeSpeed = 18.0f,
+                maxChargeTime = 0.80f,
+                stunDuration = 0.80f
             },
             new HunterEnemyDangerSettings
             {
                 prepareDistance = 5.5f,
-                repositionTime = 0.8f,
-                recoveryTime = 0.7f,
-                warningDuration = 0.7f,
-                chargeSpeed = 19f,
-                maxChargeTime = 0.85f,
+                repositionTime = 0.75f,
+                recoveryTime = 0.67f,
+                warningDuration = 0.70f,
+                chargeSpeed = 20.0f,
+                maxChargeTime = 0.90f,
                 stunDuration = 0.65f
             },
             new HunterEnemyDangerSettings
             {
-                prepareDistance = 5.2f,
-                repositionTime = 0.65f,
-                recoveryTime = 0.5f,
-                warningDuration = 0.55f,
-                chargeSpeed = 22f,
-                maxChargeTime = 1f,
-                stunDuration = 0.5f
+                prepareDistance = 5.3f,
+                repositionTime = 0.62f,
+                recoveryTime = 0.52f,
+                warningDuration = 0.58f,
+                chargeSpeed = 22.0f,
+                maxChargeTime = 0.98f,
+                stunDuration = 0.52f
             }
         };
     }
@@ -681,36 +745,48 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new BossDangerSettings
             {
-                speed = 0.9f,
-                directionSmoothness = 6f,
-                splitDelay = 1.2f,
-                splitDistance = 1f,
-                miniBossSpeed = 2f
-            },
-            new BossDangerSettings(),
-            new BossDangerSettings
-            {
-                speed = 1.5f,
-                directionSmoothness = 8f,
-                splitDelay = 0.65f,
-                splitDistance = 1.4f,
-                miniBossSpeed = 3.2f
+                speed = 1.20f,
+                directionSmoothness = 7.0f,
+                canSplit = true,
+                splitDelay = 0.90f,
+                splitDistance = 1.20f,
+                miniBossSpeed = 2.70f
             },
             new BossDangerSettings
             {
-                speed = 1.85f,
-                directionSmoothness = 9f,
-                splitDelay = 0.5f,
-                splitDistance = 1.6f,
-                miniBossSpeed = 4f
+                speed = 1.40f,
+                directionSmoothness = 8.0f,
+                canSplit = true,
+                splitDelay = 0.75f,
+                splitDistance = 1.35f,
+                miniBossSpeed = 3.10f
             },
             new BossDangerSettings
             {
-                speed = 2.2f,
-                directionSmoothness = 10f,
-                splitDelay = 0.35f,
-                splitDistance = 1.8f,
-                miniBossSpeed = 4.8f
+                speed = 1.65f,
+                directionSmoothness = 9.0f,
+                canSplit = true,
+                splitDelay = 0.62f,
+                splitDistance = 1.50f,
+                miniBossSpeed = 3.60f
+            },
+            new BossDangerSettings
+            {
+                speed = 1.90f,
+                directionSmoothness = 10.0f,
+                canSplit = true,
+                splitDelay = 0.50f,
+                splitDistance = 1.65f,
+                miniBossSpeed = 4.20f
+            },
+            new BossDangerSettings
+            {
+                speed = 2.20f,
+                directionSmoothness = 11.0f,
+                canSplit = true,
+                splitDelay = 0.38f,
+                splitDistance = 1.80f,
+                miniBossSpeed = 4.90f
             }
         };
     }
@@ -721,88 +797,108 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new BeaconEnemyDangerSettings
             {
-                activationDelay = 4f,
-                pulseInterval = 2.6f,
-                retargetInterval = 0.7f,
-                targetStopDistance = 1.8f,
-                buffDuration = 10f,
-                buffSizeMultiplier = 1.15f,
-                normalSpeedMultiplier = 1.15f,
-                normalMaxSpeedMultiplier = 1.1f,
-                projectileMoveMultiplier = 1.1f,
-                projectileShotMultiplier = 1.1f,
-                projectileFireMultiplier = 1.1f,
+                activationDelay = 3.5f,
+                pulseInterval = 2.4f,
+                retargetInterval = 0.65f,
+                targetStopDistance = 1.7f,
+                buffDuration = 10.0f,
+                buffSizeMultiplier = 1.10f,
+                normalSpeedMultiplier = 1.10f,
+                normalMaxSpeedMultiplier = 1.08f,
+                projectileMoveMultiplier = 1.08f,
+                projectileShotMultiplier = 1.10f,
+                projectileFireMultiplier = 1.10f,
                 hunterRepositionMultiplier = 0.92f,
                 hunterWarningMultiplier = 0.92f,
-                hunterChargeMultiplier = 1.1f,
+                hunterChargeMultiplier = 1.10f,
                 hunterStunMultiplier = 0.92f,
-                moveSpeed = 2.4f,
-                safeDistanceFromPlayer = 6f,
-                wanderStrength = 0.45f
+                moveSpeed = 2.7f,
+                safeDistanceFromPlayer = 6.0f,
+                wanderStrength = 0.50f
             },
-            new BeaconEnemyDangerSettings(),
+            new BeaconEnemyDangerSettings
+            {
+                activationDelay = 3.0f,
+                pulseInterval = 2.0f,
+                retargetInterval = 0.55f,
+                targetStopDistance = 1.6f,
+                buffDuration = 12.0f,
+                buffSizeMultiplier = 1.15f,
+                normalSpeedMultiplier = 1.15f,
+                normalMaxSpeedMultiplier = 1.12f,
+                projectileMoveMultiplier = 1.12f,
+                projectileShotMultiplier = 1.15f,
+                projectileFireMultiplier = 1.15f,
+                hunterRepositionMultiplier = 0.88f,
+                hunterWarningMultiplier = 0.88f,
+                hunterChargeMultiplier = 1.15f,
+                hunterStunMultiplier = 0.88f,
+                moveSpeed = 3.0f,
+                safeDistanceFromPlayer = 5.8f,
+                wanderStrength = 0.60f
+            },
             new BeaconEnemyDangerSettings
             {
                 activationDelay = 2.5f,
-                pulseInterval = 1.5f,
-                retargetInterval = 0.4f,
-                targetStopDistance = 1.4f,
-                buffDuration = 16f,
-                buffSizeMultiplier = 1.3f,
-                normalSpeedMultiplier = 1.45f,
-                normalMaxSpeedMultiplier = 1.32f,
-                projectileMoveMultiplier = 1.28f,
-                projectileShotMultiplier = 1.35f,
-                projectileFireMultiplier = 1.35f,
-                hunterRepositionMultiplier = 0.74f,
-                hunterWarningMultiplier = 0.74f,
-                hunterChargeMultiplier = 1.35f,
-                hunterStunMultiplier = 0.74f,
+                pulseInterval = 1.6f,
+                retargetInterval = 0.45f,
+                targetStopDistance = 1.5f,
+                buffDuration = 14.0f,
+                buffSizeMultiplier = 1.20f,
+                normalSpeedMultiplier = 1.20f,
+                normalMaxSpeedMultiplier = 1.16f,
+                projectileMoveMultiplier = 1.16f,
+                projectileShotMultiplier = 1.22f,
+                projectileFireMultiplier = 1.22f,
+                hunterRepositionMultiplier = 0.82f,
+                hunterWarningMultiplier = 0.82f,
+                hunterChargeMultiplier = 1.22f,
+                hunterStunMultiplier = 0.82f,
                 moveSpeed = 3.3f,
-                safeDistanceFromPlayer = 5.2f,
-                wanderStrength = 0.7f
+                safeDistanceFromPlayer = 5.6f,
+                wanderStrength = 0.70f
             },
             new BeaconEnemyDangerSettings
             {
-                activationDelay = 2f,
-                pulseInterval = 1.15f,
-                retargetInterval = 0.3f,
-                targetStopDistance = 1.3f,
-                buffDuration = 18f,
-                buffSizeMultiplier = 1.35f,
-                normalSpeedMultiplier = 1.55f,
-                normalMaxSpeedMultiplier = 1.4f,
-                projectileMoveMultiplier = 1.35f,
-                projectileShotMultiplier = 1.45f,
-                projectileFireMultiplier = 1.45f,
-                hunterRepositionMultiplier = 0.68f,
-                hunterWarningMultiplier = 0.68f,
-                hunterChargeMultiplier = 1.45f,
-                hunterStunMultiplier = 0.68f,
+                activationDelay = 2.0f,
+                pulseInterval = 1.25f,
+                retargetInterval = 0.35f,
+                targetStopDistance = 1.4f,
+                buffDuration = 16.0f,
+                buffSizeMultiplier = 1.25f,
+                normalSpeedMultiplier = 1.27f,
+                normalMaxSpeedMultiplier = 1.21f,
+                projectileMoveMultiplier = 1.22f,
+                projectileShotMultiplier = 1.30f,
+                projectileFireMultiplier = 1.30f,
+                hunterRepositionMultiplier = 0.76f,
+                hunterWarningMultiplier = 0.76f,
+                hunterChargeMultiplier = 1.30f,
+                hunterStunMultiplier = 0.76f,
                 moveSpeed = 3.6f,
                 safeDistanceFromPlayer = 5.4f,
-                wanderStrength = 0.8f
+                wanderStrength = 0.80f
             },
             new BeaconEnemyDangerSettings
             {
                 activationDelay = 1.5f,
-                pulseInterval = 0.85f,
-                retargetInterval = 0.25f,
-                targetStopDistance = 1.2f,
-                buffDuration = 20f,
-                buffSizeMultiplier = 1.4f,
-                normalSpeedMultiplier = 1.7f,
-                normalMaxSpeedMultiplier = 1.5f,
-                projectileMoveMultiplier = 1.45f,
-                projectileShotMultiplier = 1.6f,
-                projectileFireMultiplier = 1.6f,
-                hunterRepositionMultiplier = 0.6f,
-                hunterWarningMultiplier = 0.6f,
-                hunterChargeMultiplier = 1.6f,
-                hunterStunMultiplier = 0.6f,
-                moveSpeed = 4f,
-                safeDistanceFromPlayer = 5.6f,
-                wanderStrength = 0.9f
+                pulseInterval = 0.95f,
+                retargetInterval = 0.28f,
+                targetStopDistance = 1.3f,
+                buffDuration = 18.0f,
+                buffSizeMultiplier = 1.30f,
+                normalSpeedMultiplier = 1.35f,
+                normalMaxSpeedMultiplier = 1.27f,
+                projectileMoveMultiplier = 1.30f,
+                projectileShotMultiplier = 1.40f,
+                projectileFireMultiplier = 1.40f,
+                hunterRepositionMultiplier = 0.68f,
+                hunterWarningMultiplier = 0.68f,
+                hunterChargeMultiplier = 1.40f,
+                hunterStunMultiplier = 0.68f,
+                moveSpeed = 4.0f,
+                safeDistanceFromPlayer = 5.2f,
+                wanderStrength = 0.90f
             }
         };
     }
@@ -823,40 +919,48 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new LaserDangerSettings
             {
-                minSpawnTime = 14f,
-                maxSpawnTime = 24f,
-                warningDuration = 2.6f,
-                lifeTime = 1.2f,
-                width = 0.4f,
-                sizeExtra = 1f
-            },
-            new LaserDangerSettings(),
-            new LaserDangerSettings
-            {
-                minSpawnTime = 7f,
-                maxSpawnTime = 16f,
-                warningDuration = 1.6f,
-                lifeTime = 1.7f,
-                width = 0.6f,
-                sizeExtra = 1.1f
+                minSpawnTime = 10.0f,
+                maxSpawnTime = 18.0f,
+                warningDuration = 2.20f,
+                lifeTime = 1.40f,
+                width = 0.50f,
+                sizeExtra = 1.00f
             },
             new LaserDangerSettings
             {
-                minSpawnTime = 5.5f,
-                maxSpawnTime = 12f,
-                warningDuration = 1.25f,
-                lifeTime = 1.9f,
-                width = 0.7f,
-                sizeExtra = 1.2f
+                minSpawnTime = 8.0f,
+                maxSpawnTime = 15.0f,
+                warningDuration = 1.85f,
+                lifeTime = 1.55f,
+                width = 0.56f,
+                sizeExtra = 1.05f
             },
             new LaserDangerSettings
             {
-                minSpawnTime = 4f,
-                maxSpawnTime = 9f,
-                warningDuration = 1f,
-                lifeTime = 2.1f,
-                width = 0.8f,
-                sizeExtra = 1.3f
+                minSpawnTime = 6.5f,
+                maxSpawnTime = 12.0f,
+                warningDuration = 1.55f,
+                lifeTime = 1.70f,
+                width = 0.62f,
+                sizeExtra = 1.10f
+            },
+            new LaserDangerSettings
+            {
+                minSpawnTime = 5.0f,
+                maxSpawnTime = 9.5f,
+                warningDuration = 1.30f,
+                lifeTime = 1.90f,
+                width = 0.70f,
+                sizeExtra = 1.18f
+            },
+            new LaserDangerSettings
+            {
+                minSpawnTime = 4.0f,
+                maxSpawnTime = 7.5f,
+                warningDuration = 1.05f,
+                lifeTime = 2.10f,
+                width = 0.78f,
+                sizeExtra = 1.25f
             }
         };
     }
@@ -867,32 +971,38 @@ public class DangerBalanceProfile : ScriptableObject
         {
             new BombDangerSettings
             {
-                minSpawnTime = 10f,
-                maxSpawnTime = 18f,
+                minSpawnTime = 8.0f,
+                maxSpawnTime = 14.0f,
                 maxBombCount = 2,
-                spawnSafeTime = 0.55f
+                spawnSafeTime = 0.50f
             },
-            new BombDangerSettings(),
             new BombDangerSettings
             {
-                minSpawnTime = 5f,
-                maxSpawnTime = 11f,
+                minSpawnTime = 6.5f,
+                maxSpawnTime = 11.5f,
+                maxBombCount = 3,
+                spawnSafeTime = 0.42f
+            },
+            new BombDangerSettings
+            {
+                minSpawnTime = 5.0f,
+                maxSpawnTime = 9.0f,
                 maxBombCount = 4,
-                spawnSafeTime = 0.3f
+                spawnSafeTime = 0.34f
             },
             new BombDangerSettings
             {
-                minSpawnTime = 4f,
-                maxSpawnTime = 9f,
+                minSpawnTime = 4.0f,
+                maxSpawnTime = 7.5f,
                 maxBombCount = 5,
-                spawnSafeTime = 0.25f
+                spawnSafeTime = 0.28f
             },
             new BombDangerSettings
             {
-                minSpawnTime = 3f,
-                maxSpawnTime = 7f,
+                minSpawnTime = 3.2f,
+                maxSpawnTime = 6.0f,
                 maxBombCount = 6,
-                spawnSafeTime = 0.2f
+                spawnSafeTime = 0.22f
             }
         };
     }

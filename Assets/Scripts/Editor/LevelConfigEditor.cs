@@ -4,7 +4,6 @@ using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(LevelConfig))]
-[CanEditMultipleObjects]
 public class LevelConfigEditor : Editor
 {
     private enum EditorViewMode
@@ -306,8 +305,7 @@ public class LevelConfigEditor : Editor
     private bool bossExpanded = true;
     private bool beaconExpanded = true;
 
-    private bool IsAdvanced =>
-        viewMode == EditorViewMode.Advanced;
+    private bool IsAdvanced => true;
 
     private WinConditionType SelectedWinCondition =>
         (WinConditionType)EnumValue("winCondition");
@@ -327,7 +325,6 @@ public class LevelConfigEditor : Editor
         serializedObject.Update();
 
         DrawMainHeader();
-        DrawViewModeToolbar();
         DrawSummary();
 
         // Core gameplay composition comes first.
@@ -338,7 +335,6 @@ public class LevelConfigEditor : Editor
         DrawBackground();
         DrawCoins();
         DrawObstacles();
-        DrawDangerBalance();
         DrawEnemies();
         DrawTraps();
         DrawPowerUps();
@@ -370,9 +366,9 @@ public class LevelConfigEditor : Editor
         );
 
         EditorGUILayout.LabelField(
-            "Composition in LevelConfig • Behaviour in Danger Balance Profile",
-            EditorStyles.centeredGreyMiniLabel
-        );
+            "Complete level composition and behaviour settings",
+             EditorStyles.centeredGreyMiniLabel
+);
 
         EditorGUILayout.Space(4);
     }
@@ -418,9 +414,6 @@ public class LevelConfigEditor : Editor
                 SummaryRow("Level", $"{config.levelNumber} — {config.levelName}");
                 SummaryRow("Objective", GetWinConditionSummary(config));
                 SummaryRow("Mission Stars", $"{config.SafeMissionDifficulty}/5");
-                SummaryRow("Danger Profile", config.dangerBalanceProfile != null
-                    ? config.dangerBalanceProfile.name
-                    : "LEGACY FALLBACK");
 
                 float dangerAverage = config.GetActiveDangerAverage();
                 SummaryRow(
@@ -960,11 +953,40 @@ public class LevelConfigEditor : Editor
             () =>
             {
                 Prop("obstacleSpawnMode");
+                Space();
 
-                if (EnumValue("obstacleSpawnMode") == (int)ObstacleSpawnMode.Random)
+                if (EnumValue("obstacleSpawnMode") ==
+                    (int)ObstacleSpawnMode.Random)
+                {
                     Prop("randomObstacleCount");
-                else
+
+                    Space();
+
+                    EditorGUILayout.LabelField(
+                        "RANDOM OBSTACLE POOL",
+                        EditorStyles.boldLabel
+                    );
+
                     Prop("levelObstacles", true);
+
+                    Help(
+                        "Random mode randomly selects unique prefabs from this pool. " +
+                        "Only entries with Enabled turned on and a valid prefab assigned can spawn."
+                    );
+                }
+                else
+                {
+                    EditorGUILayout.LabelField(
+                        "FIXED OBSTACLES",
+                        EditorStyles.boldLabel
+                    );
+
+                    Prop("levelObstacles", true);
+
+                    Help(
+                        "Every enabled prefab in this list spawns once."
+                    );
+                }
             }
         );
     }
@@ -4095,20 +4117,76 @@ public class LevelConfigEditor : Editor
             : "None";
     }
 
+    private string GetFoldoutPrefsKey(
+        string foldoutType,
+        string title)
+    {
+        LevelConfig config = target as LevelConfig;
+
+        string assetId = "GLOBAL";
+
+        if (config != null)
+        {
+            string assetPath =
+                AssetDatabase.GetAssetPath(config);
+
+            if (!string.IsNullOrEmpty(assetPath))
+            {
+                string guid =
+                    AssetDatabase.AssetPathToGUID(assetPath);
+
+                if (!string.IsNullOrEmpty(guid))
+                    assetId = guid;
+            }
+            else
+            {
+                assetId =
+                    config.GetEntityId().ToString();
+            }
+        }
+
+        return
+            $"VoidRush.LevelConfigEditor." +
+            $"{assetId}.{foldoutType}.{title}";
+    }
+
     private void FoldoutBox(
         string title,
         ref bool expanded,
         Action content)
     {
-        EditorGUILayout.Space(6);
-        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        string prefsKey =
+            GetFoldoutPrefsKey("Main", title);
 
-        expanded = EditorGUILayout.Foldout(
-            expanded,
-            title,
-            true,
-            EditorStyles.foldoutHeader
+        expanded = EditorPrefs.GetBool(
+            prefsKey,
+            expanded
         );
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.BeginVertical(
+            EditorStyles.helpBox
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        bool newExpanded =
+            EditorGUILayout.Foldout(
+                expanded,
+                title,
+                true,
+                EditorStyles.foldoutHeader
+            );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorPrefs.SetBool(
+                prefsKey,
+                newExpanded
+            );
+        }
+
+        expanded = newExpanded;
 
         if (expanded)
         {
@@ -4124,13 +4202,34 @@ public class LevelConfigEditor : Editor
         ref bool expanded,
         Action content)
     {
+        string prefsKey =
+            GetFoldoutPrefsKey("Nested", title);
+
+        expanded = EditorPrefs.GetBool(
+            prefsKey,
+            expanded
+        );
+
         EditorGUILayout.Space(4);
 
-        expanded = EditorGUILayout.Foldout(
-            expanded,
-            title,
-            true
-        );
+        EditorGUI.BeginChangeCheck();
+
+        bool newExpanded =
+            EditorGUILayout.Foldout(
+                expanded,
+                title,
+                true
+            );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorPrefs.SetBool(
+                prefsKey,
+                newExpanded
+            );
+        }
+
+        expanded = newExpanded;
 
         if (!expanded)
             return;

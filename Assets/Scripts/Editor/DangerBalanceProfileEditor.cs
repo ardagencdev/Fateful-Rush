@@ -48,7 +48,7 @@ public class DangerBalanceProfileEditor : Editor
         );
 
         EditorGUILayout.HelpBox(
-            "D1 introduces a mechanic, D2 preserves the original baseline, D3 adds pressure, D4 is severe and D5 is reserved for carefully tested endgame encounters.",
+            "D1 is a readable but real threat. D2 is the standard baseline, D3 adds sustained pressure, D4 is severe and D5 is reserved for low-count endgame encounters.",
             MessageType.Info
         );
     }
@@ -63,12 +63,12 @@ public class DangerBalanceProfileEditor : Editor
         if (version != null)
             EditorGUILayout.PropertyField(version);
 
-        if (GUILayout.Button("RESET ALL TIERS TO BALANCED DEFAULTS"))
+        if (GUILayout.Button("APPLY V2 BALANCED DEFAULTS"))
         {
             bool confirmed = EditorUtility.DisplayDialog(
-                "Reset Danger Balance",
-                "This will replace every danger tier in this profile with the balanced default values.",
-                "Reset",
+                "Apply V2 Danger Balance",
+                "This will replace every danger tier in this profile with the new V2 balanced values.",
+                "Apply",
                 "Cancel"
             );
 

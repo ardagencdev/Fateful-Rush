@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Level_01_Config
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 1
-  levelName: Level 1
+  levelName: First Signal
   mechanicProgression:
-    reachScoreMode: 0
+    reachScoreMode: 1
     surviveTimeMode: 0
     timedScoreMode: 0
     dash: 0
     clone: 0
     combo: 0
-    normalCoin: 0
+    normalCoin: 1
     goldCoin: 0
     rareCoin: 0
     staticObstacles: 0
@@ -35,18 +35,21 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 0
-  briefingTitle: MISSION BRIEFING
+  briefingTitle: "MISSION 01 \u2014 FIRST SIGNAL"
   missionDifficulty: 0
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Mission information...
+  - Collect standard coins and learn the arena boundaries. This mission has no enemies,
+    traps or movement abilities.
+  - Prioritize smooth turns over sharp corrections. Clean movement will matter once
+    the arena becomes crowded.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
-  winScore: 30
+  winScore: 15
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 6
+  playerMoveSpeed: 6.4
   playerComboSpeedBonus: 1.2
   dashEnabled: 0
   cloneEnabled: 0
@@ -59,7 +62,7 @@ MonoBehaviour:
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
-  comboEnabled: 1
+  comboEnabled: 0
   comboTimeLimit: 2.5
   maxCombo: 5
   comboSpeedStages:
@@ -70,12 +73,12 @@ MonoBehaviour:
     coinsRequired: 5
     playerSpeedMultiplier: 1.5
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1
-  nearStarsSizeMultiplier: 1
-  nearStarsEmissionRate: 30
-  coinSpawnInterval: 0.9
-  maxCoinCount: 8
+  nearStarsColor: {r: 0.5568628, g: 0.9372549, b: 0.9607843, a: 1}
+  nearStarsSpeedMultiplier: 0.85
+  nearStarsSizeMultiplier: 0.9
+  nearStarsEmissionRate: 22
+  coinSpawnInterval: 0.95
+  maxCoinCount: 7
   normalCoinChance: 100
   goldCoinChance: 25
   rareCoinChance: 5

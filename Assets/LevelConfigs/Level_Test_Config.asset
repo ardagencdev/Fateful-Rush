@@ -14,6 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 0
   levelName: Test Level
+  mechanicProgression:
+    reachScoreMode: 0
+    surviveTimeMode: 0
+    timedScoreMode: 0
+    dash: 0
+    clone: 0
+    combo: 0
+    normalCoin: 0
+    goldCoin: 0
+    rareCoin: 0
+    staticObstacles: 0
+    normalEnemy: 0
+    projectileEnemy: 0
+    hunterEnemy: 0
+    boss: 0
+    beaconEnemy: 0
+    armor: 0
+    slow: 0
+    verticalLaser: 0
+    horizontalLaser: 0
+    spaceBomb: 0
   briefingTitle: MISSION BRIEFING
   missionDifficulty: 1
   briefingModeDescription: 
@@ -21,11 +42,11 @@ MonoBehaviour:
   briefingPages:
   - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
-  winCondition: 1
+  winCondition: 0
   winScore: 100
   timeLimit: 10
-  showGameTimerHUD: 1
-  playerMoveSpeed: 8
+  showGameTimerHUD: 0
+  playerMoveSpeed: 6.4
   playerComboSpeedBonus: 1.2
   dashEnabled: 1
   cloneEnabled: 1
@@ -69,9 +90,9 @@ MonoBehaviour:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
     enabled: 0
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}
     enabled: 0
   - prefab: {fileID: 4509020153673322666, guid: ee42b4b96eb85ff48878f26ebcb46f55, type: 3}
@@ -98,7 +119,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 1
+  projectileEnemyCount: 0
   projectileEnemySpawnInterval: 3
   projectileEnemyDanger: 5
   projectileEnemyCustomOverride: 0
@@ -133,7 +154,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 1
+  bossSpawnCondition: 0
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 2
@@ -212,8 +233,8 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
-  verticalLaserDanger: 2
-  verticalLaserCustomOverride: 1
+  verticalLaserDanger: 5
+  verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
     maxSpawnTime: 25
@@ -222,7 +243,7 @@ MonoBehaviour:
     width: 5.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 2
+  horizontalLaserDanger: 5
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 5

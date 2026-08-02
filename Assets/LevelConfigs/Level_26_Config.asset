@@ -46,7 +46,7 @@ MonoBehaviour:
   winScore: 15
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 7
+  playerMoveSpeed: 6.4
   playerComboSpeedBonus: 1.2
   dashEnabled: 0
   cloneEnabled: 0

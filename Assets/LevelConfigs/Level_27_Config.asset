@@ -14,6 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 27
   levelName: Level 27
+  mechanicProgression:
+    reachScoreMode: 0
+    surviveTimeMode: 0
+    timedScoreMode: 0
+    dash: 0
+    clone: 0
+    combo: 0
+    normalCoin: 0
+    goldCoin: 0
+    rareCoin: 0
+    staticObstacles: 0
+    normalEnemy: 0
+    projectileEnemy: 0
+    hunterEnemy: 0
+    boss: 0
+    beaconEnemy: 0
+    armor: 0
+    slow: 0
+    verticalLaser: 0
+    horizontalLaser: 0
+    spaceBomb: 0
   briefingTitle: MISSION BRIEFING
   missionDifficulty: 1
   briefingModeDescription: 
@@ -25,7 +46,7 @@ MonoBehaviour:
   winScore: 15
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 7
+  playerMoveSpeed: 6.4
   playerComboSpeedBonus: 1.2
   dashEnabled: 0
   cloneEnabled: 0

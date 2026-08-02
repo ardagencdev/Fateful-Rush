@@ -87,16 +87,26 @@ public class ObstacleSpawner : MonoBehaviour
 
         foreach (LevelObstacleOption obstacle in levelObstacles)
         {
-            if (obstacle == null) continue;
-            if (obstacle.prefab == null) continue;
+            if (obstacle == null)
+                continue;
+
+            if (!obstacle.enabled)
+                continue;
+
+            if (obstacle.prefab == null)
+                continue;
 
             if (!randomPool.Contains(obstacle.prefab))
                 randomPool.Add(obstacle.prefab);
         }
 
+        if (randomPool.Count == 0)
+            return;
+
         Shuffle(randomPool);
 
-        int spawnCount = Mathf.Min(randomObstacleCount, randomPool.Count);
+        int spawnCount =
+            Mathf.Min(randomObstacleCount, randomPool.Count);
 
         for (int i = 0; i < spawnCount; i++)
             SpawnObstaclePrefab(randomPool[i]);

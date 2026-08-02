@@ -111,7 +111,7 @@ public class LevelManager : MonoBehaviour
                 currentLevel.playerMoveSpeed;
 
             playerMovement.comboSpeedBonus =
-                currentLevel.playerComboSpeedBonus;
+                PlayerMovement.FixedComboSpeedBonus;
 
             playerMovement.comboSpeedStages =
                 currentLevel.comboSpeedStages;
@@ -178,9 +178,6 @@ public class LevelManager : MonoBehaviour
 
             coinCollector.comboTimeLimit =
                 currentLevel.comboTimeLimit;
-
-            coinCollector.maxCombo =
-                currentLevel.maxCombo;
 
             coinCollector.comboSpeedStages =
                 currentLevel.comboSpeedStages;

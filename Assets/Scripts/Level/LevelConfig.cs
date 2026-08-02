@@ -195,9 +195,6 @@ public class LevelConfig : ScriptableObject
     [Min(0f)]
     public float playerMoveSpeed = 7f;
 
-    [Min(1f)]
-    public float playerComboSpeedBonus = 1.2f;
-
     [Header("PLAYER ABILITIES")]
     public bool dashEnabled = true;
     public bool cloneEnabled = false;

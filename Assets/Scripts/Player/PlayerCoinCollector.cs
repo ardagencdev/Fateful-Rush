@@ -21,9 +21,6 @@ public class PlayerCoinCollector : MonoBehaviour
     public float comboTimeLimit = 1.5f;
 
     [Min(1)]
-    public int maxCombo = 3;
-
-    [Min(1)]
     public int coinsForCombo2 = 2;
 
     [Min(1)]
@@ -227,11 +224,7 @@ public class PlayerCoinCollector : MonoBehaviour
                 }
             }
 
-            return Mathf.Clamp(
-                result,
-                1,
-                maxCombo
-            );
+            return Mathf.Max(1, result);
         }
 
         int fallbackResult = 1;
@@ -245,11 +238,7 @@ public class PlayerCoinCollector : MonoBehaviour
             fallbackResult = 2;
         }
 
-        return Mathf.Clamp(
-            fallbackResult,
-            1,
-            maxCombo
-        );
+        return Mathf.Max(1, fallbackResult);
     }
 
     private void ResetCombo()
@@ -324,12 +313,6 @@ public class PlayerCoinCollector : MonoBehaviour
             Mathf.Max(
                 0.01f,
                 comboTimeLimit
-            );
-
-        maxCombo =
-            Mathf.Max(
-                1,
-                maxCombo
             );
 
         coinsForCombo2 =

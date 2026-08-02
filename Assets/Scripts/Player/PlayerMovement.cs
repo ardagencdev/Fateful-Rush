@@ -12,8 +12,10 @@ public class PlayerMovement : MonoBehaviour
     [Min(0f)]
     public float speed = 7f;
 
-    [Min(0f)]
-    public float comboSpeedBonus = 1.2f;
+    public const float FixedComboSpeedBonus = 1.15f;
+
+    [HideInInspector]
+    public float comboSpeedBonus = FixedComboSpeedBonus;
 
     [Tooltip(
         "LevelConfig'den gelir. Boşsa eski comboSpeedBonus sistemi kullanılır."
@@ -412,8 +414,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnValidate()
     {
         speed = Mathf.Max(0f, speed);
-        comboSpeedBonus =
-            Mathf.Max(0f, comboSpeedBonus);
+        comboSpeedBonus = FixedComboSpeedBonus;
 
         acceleration =
             Mathf.Max(0f, acceleration);
