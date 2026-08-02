@@ -711,23 +711,11 @@ public class LevelConfigEditor : Editor
                     return;
 
                 Prop("comboTimeLimit");
-                Prop("maxCombo");
 
                 if (IsAdvanced)
                 {
                     Space();
                     MiniTitle("COMBO SPEED SETTINGS");
-                    Help(
-                        "Player Combo Speed Bonus is the fallback speed multiplier used when no custom stage matches. " +
-                        "The stage list below lets each combo level unlock after a specific coin chain and apply its own movement-speed multiplier."
-                    );
-
-                    PropWithLabel(
-                        "playerComboSpeedBonus",
-                        "Fallback Speed Multiplier",
-                        "Used only when the active combo does not have a matching custom speed stage."
-                    );
-
                     DrawComboSpeedStages();
                 }
             }

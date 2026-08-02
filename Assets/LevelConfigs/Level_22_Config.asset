@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_22_Config
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 22
-  levelName: Level 22
+  levelName: Risk Circuit
   mechanicProgression:
     reachScoreMode: 0
     surviveTimeMode: 0
@@ -40,58 +40,74 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Mission information...
+  - Random obstacles change the routing on every attempt. Read the opening layout
+    before committing to a combo path.
+  - 'Use the outer arena when the center is blocked, but avoid getting pinned against
+    the boundary.
+
+'
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
-  winScore: 15
+  winScore: 130
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
-  dashEnabled: 0
-  cloneEnabled: 0
+  dashEnabled: 1
+  cloneEnabled: 1
   dashDistance: 2.5
   dashDuration: 0.12
-  dashCooldown: 2
+  dashCooldown: 1.95
   cloneDuration: 3
-  cloneCooldown: 8
+  cloneCooldown: 7.5
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
-  comboEnabled: 0
-  comboTimeLimit: 2
-  maxCombo: 3
+  comboEnabled: 1
+  comboTimeLimit: 2.35
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.25
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.16
   - comboMultiplier: 3
-    coinsRequired: 5
-    playerSpeedMultiplier: 1.5
+    coinsRequired: 7
+    playerSpeedMultiplier: 1.19
+  - comboMultiplier: 4
+    coinsRequired: 12
+    playerSpeedMultiplier: 1.22
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1
-  nearStarsSizeMultiplier: 1
-  nearStarsEmissionRate: 30
-  coinSpawnInterval: 1
-  maxCoinCount: 8
-  normalCoinChance: 70
-  goldCoinChance: 25
-  rareCoinChance: 5
+  nearStarsColor: {r: 1, g: 0.7019608, b: 0.41960785, a: 1}
+  nearStarsSpeedMultiplier: 1.375
+  nearStarsSizeMultiplier: 1.09
+  nearStarsEmissionRate: 44
+  coinSpawnInterval: 0.8
+  maxCoinCount: 9
+  normalCoinChance: 56
+  goldCoinChance: 30
+  rareCoinChance: 14
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
   normalCoinEnabled: 1
   goldCoinEnabled: 1
   rareCoinEnabled: 1
-  obstacleSpawnMode: 0
-  levelObstacles: []
-  randomObstacleCount: 5
+  obstacleSpawnMode: 1
+  levelObstacles:
+  - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
+    enabled: 1
+  - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
+    enabled: 1
+  - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}
+    enabled: 1
+  randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 0
-  normalEnemySpawnInterval: 2.5
-  normalEnemyDanger: 2
+  normalEnemyCount: 4
+  normalEnemySpawnInterval: 3.5
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -105,8 +121,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 5
+  projectileEnemyCount: 2
+  projectileEnemySpawnInterval: 8
   projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -127,8 +143,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
+  hunterEnemyCount: 1
+  hunterEnemySpawnInterval: 14
   hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:

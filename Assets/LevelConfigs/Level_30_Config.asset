@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_30_Config
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 30
-  levelName: Level 30
+  levelName: Breaking Point
   mechanicProgression:
     reachScoreMode: 0
     surviveTimeMode: 0
@@ -35,50 +35,57 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 0
-  briefingTitle: MISSION BRIEFING
-  missionDifficulty: 1
+  briefingTitle: "MISSION 30 \u2014 BREAKING POINT"
+  missionDifficulty: 5
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Mission information...
+  - The Boss and Beacon can overlap during a timed-score mission. This is the midpoint
+    systems exam.
+  - Reach most of the target before the Boss trigger, then use both power-ups and
+    Clone to finish safely.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
-  winCondition: 0
-  winScore: 15
-  timeLimit: 35
-  showGameTimerHUD: 0
+  winCondition: 2
+  winScore: 145
+  timeLimit: 60
+  showGameTimerHUD: 1
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
-  dashEnabled: 0
-  cloneEnabled: 0
+  dashEnabled: 1
+  cloneEnabled: 1
   dashDistance: 2.5
   dashDuration: 0.12
-  dashCooldown: 2
+  dashCooldown: 1.95
   cloneDuration: 3
-  cloneCooldown: 8
-  cloneUses: 1
-  armorImmuneDuration: 0.8
-  slowMultiplier: 0.4
-  slowDuration: 5
-  comboEnabled: 0
-  comboTimeLimit: 2
-  maxCombo: 3
+  cloneCooldown: 7.5
+  cloneUses: 2
+  armorImmuneDuration: 1
+  slowMultiplier: 0.42
+  slowDuration: 5.5
+  comboEnabled: 1
+  comboTimeLimit: 2.3
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.25
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.21
   - comboMultiplier: 3
-    coinsRequired: 5
-    playerSpeedMultiplier: 1.5
+    coinsRequired: 7
+    playerSpeedMultiplier: 1.24
+  - comboMultiplier: 4
+    coinsRequired: 12
+    playerSpeedMultiplier: 1.27
+  - comboMultiplier: 5
+    coinsRequired: 18
+    playerSpeedMultiplier: 1.3
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1
-  nearStarsSizeMultiplier: 1
-  nearStarsEmissionRate: 30
-  coinSpawnInterval: 1
-  maxCoinCount: 8
-  normalCoinChance: 70
-  goldCoinChance: 25
-  rareCoinChance: 5
+  nearStarsColor: {r: 1, g: 0.44705883, b: 0.4862745, a: 1}
+  nearStarsSpeedMultiplier: 1.55
+  nearStarsSizeMultiplier: 1.14
+  nearStarsEmissionRate: 54
+  coinSpawnInterval: 0.74
+  maxCoinCount: 10
+  normalCoinChance: 52
+  goldCoinChance: 32
+  rareCoinChance: 16
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -86,12 +93,18 @@ MonoBehaviour:
   goldCoinEnabled: 1
   rareCoinEnabled: 1
   obstacleSpawnMode: 0
-  levelObstacles: []
+  levelObstacles:
+  - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
+    enabled: 1
+  - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
+    enabled: 1
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 0
-  normalEnemySpawnInterval: 2.5
-  normalEnemyDanger: 2
+  normalEnemyCount: 4
+  normalEnemySpawnInterval: 4
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -105,9 +118,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 5
-  projectileEnemyDanger: 2
+  projectileEnemyCount: 2
+  projectileEnemySpawnInterval: 8
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -127,9 +140,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemyCount: 1
+  hunterEnemySpawnInterval: 14
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -139,11 +152,11 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 0
+  bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 75
+  bossSpawnScore: 95
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -152,9 +165,9 @@ MonoBehaviour:
     splitDelay: 0.8
     splitDistance: 1.2
     miniBossSpeed: 2.5
-  beaconEnemyCount: 0
-  beaconMinSpawnTime: 10
-  beaconMaxSpawnTime: 20
+  beaconEnemyCount: 1
+  beaconMinSpawnTime: 20
+  beaconMaxSpawnTime: 25
   beaconEnemyDanger: 2
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
@@ -212,12 +225,12 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
-  armorEnabled: 0
-  slowEnabled: 0
-  armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
-  slowMinSpawnTime: 8
-  slowMaxSpawnTime: 20
+  armorEnabled: 1
+  slowEnabled: 1
+  armorMinSpawnTime: 17
+  armorMaxSpawnTime: 24
+  slowMinSpawnTime: 30
+  slowMaxSpawnTime: 38
   verticalLaserEnabled: 0
   verticalLaserDanger: 2
   verticalLaserCustomOverride: 0

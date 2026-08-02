@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_38_Config
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 38
-  levelName: Level 38
+  levelName: Perfect Chain
   mechanicProgression:
     reachScoreMode: 0
     surviveTimeMode: 0
@@ -35,63 +35,84 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 0
-  briefingTitle: MISSION BRIEFING
-  missionDifficulty: 1
+  briefingTitle: "MISSION 38 \u2014 PERFECT CHAIN"
+  missionDifficulty: 5
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Mission information...
+  - Build and preserve the full chain under late-game pressure. At 5x combo, the
+    1.34 multiplier raises movement speed to 8.58.
+  - Route through gold and rare coins without forcing the chain. Armor protects one
+    mistake, not a failed plan.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
-  winScore: 15
+  winScore: 210
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
-  dashEnabled: 0
-  cloneEnabled: 0
-  dashDistance: 2.5
+  dashEnabled: 1
+  cloneEnabled: 1
+  dashDistance: 2.6
   dashDuration: 0.12
-  dashCooldown: 2
-  cloneDuration: 3
-  cloneCooldown: 8
-  cloneUses: 1
-  armorImmuneDuration: 0.8
+  dashCooldown: 1.8
+  cloneDuration: 3.2
+  cloneCooldown: 7
+  cloneUses: 3
+  armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5
-  comboEnabled: 0
-  comboTimeLimit: 2
-  maxCombo: 3
+  comboEnabled: 1
+  comboTimeLimit: 2.2
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2
     playerSpeedMultiplier: 1.25
   - comboMultiplier: 3
     coinsRequired: 5
-    playerSpeedMultiplier: 1.5
+    playerSpeedMultiplier: 1.28
+  - comboMultiplier: 4
+    coinsRequired: 9
+    playerSpeedMultiplier: 1.31
+  - comboMultiplier: 5
+    coinsRequired: 14
+    playerSpeedMultiplier: 1.34
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1
-  nearStarsSizeMultiplier: 1
-  nearStarsEmissionRate: 30
-  coinSpawnInterval: 1
-  maxCoinCount: 8
-  normalCoinChance: 70
-  goldCoinChance: 25
-  rareCoinChance: 5
+  nearStarsColor: {r: 1, g: 0.8392157, b: 0.627451, a: 1}
+  nearStarsSpeedMultiplier: 1.7
+  nearStarsSizeMultiplier: 1.18
+  nearStarsEmissionRate: 60
+  coinSpawnInterval: 0.7
+  maxCoinCount: 10
+  normalCoinChance: 45
+  goldCoinChance: 35
+  rareCoinChance: 20
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
   normalCoinEnabled: 1
   goldCoinEnabled: 1
   rareCoinEnabled: 1
-  obstacleSpawnMode: 0
-  levelObstacles: []
+  obstacleSpawnMode: 1
+  levelObstacles:
+  - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
+    enabled: 1
+  - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4509020153673322666, guid: ee42b4b96eb85ff48878f26ebcb46f55, type: 3}
+    enabled: 1
+  - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
+    enabled: 1
+  - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
+    enabled: 1
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 0
-  normalEnemySpawnInterval: 2.5
-  normalEnemyDanger: 2
+  normalEnemyCount: 4
+  normalEnemySpawnInterval: 3
+  normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -105,9 +126,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 5
-  projectileEnemyDanger: 2
+  projectileEnemyCount: 2
+  projectileEnemySpawnInterval: 7
+  projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -127,9 +148,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemyCount: 1
+  hunterEnemySpawnInterval: 13
+  hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -152,10 +173,10 @@ MonoBehaviour:
     splitDelay: 0.8
     splitDistance: 1.2
     miniBossSpeed: 2.5
-  beaconEnemyCount: 0
-  beaconMinSpawnTime: 10
-  beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyCount: 1
+  beaconMinSpawnTime: 18
+  beaconMaxSpawnTime: 22
+  beaconEnemyDanger: 4
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -212,10 +233,10 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
-  armorEnabled: 0
+  armorEnabled: 1
   slowEnabled: 0
-  armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
+  armorMinSpawnTime: 16
+  armorMaxSpawnTime: 23
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0

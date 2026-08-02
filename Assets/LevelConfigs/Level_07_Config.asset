@@ -50,7 +50,6 @@ MonoBehaviour:
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.15
   dashEnabled: 1
   cloneEnabled: 0
   dashDistance: 2.5
@@ -64,14 +63,13 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 1
   comboTimeLimit: 2.5
-  maxCombo: 3
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2
     playerSpeedMultiplier: 1.1
   - comboMultiplier: 3
     coinsRequired: 5
-    playerSpeedMultiplier: 1.18
+    playerSpeedMultiplier: 1.13
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.47058824, g: 0.7019608, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1.075

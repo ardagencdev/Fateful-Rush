@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_29_Config
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 29
-  levelName: Level 29
+  levelName: Overcharged
   mechanicProgression:
     reachScoreMode: 0
     surviveTimeMode: 0
@@ -35,33 +35,32 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 0
-  briefingTitle: MISSION BRIEFING
-  missionDifficulty: 1
+  briefingTitle: "MISSION 29 \u2014 OVERCHARGED"
+  missionDifficulty: 5
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Mission information...
+  - A stronger Beacon and recurring bombs create shifting pockets of danger.
+  - Use Slow after the Beacon appears, then rotate away from the buffed enemy cluster.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
-  winCondition: 0
+  winCondition: 1
   winScore: 15
-  timeLimit: 35
-  showGameTimerHUD: 0
+  timeLimit: 65
+  showGameTimerHUD: 1
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
-  dashEnabled: 0
-  cloneEnabled: 0
+  dashEnabled: 1
+  cloneEnabled: 1
   dashDistance: 2.5
   dashDuration: 0.12
-  dashCooldown: 2
+  dashCooldown: 1.95
   cloneDuration: 3
-  cloneCooldown: 8
-  cloneUses: 1
+  cloneCooldown: 7.5
+  cloneUses: 2
   armorImmuneDuration: 0.8
-  slowMultiplier: 0.4
-  slowDuration: 5
+  slowMultiplier: 0.42
+  slowDuration: 5.5
   comboEnabled: 0
   comboTimeLimit: 2
-  maxCombo: 3
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2
@@ -70,10 +69,10 @@ MonoBehaviour:
     coinsRequired: 5
     playerSpeedMultiplier: 1.5
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1
-  nearStarsSizeMultiplier: 1
-  nearStarsEmissionRate: 30
+  nearStarsColor: {r: 1, g: 0.44705883, b: 0.4862745, a: 1}
+  nearStarsSpeedMultiplier: 1.525
+  nearStarsSizeMultiplier: 1.13
+  nearStarsEmissionRate: 52
   coinSpawnInterval: 1
   maxCoinCount: 8
   normalCoinChance: 70
@@ -85,12 +84,24 @@ MonoBehaviour:
   normalCoinEnabled: 1
   goldCoinEnabled: 1
   rareCoinEnabled: 1
-  obstacleSpawnMode: 0
-  levelObstacles: []
-  randomObstacleCount: 5
+  obstacleSpawnMode: 1
+  levelObstacles:
+  - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
+    enabled: 1
+  - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
+    enabled: 1
+  - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
+    enabled: 1
+  - prefab: {fileID: 4509020153673322666, guid: d23829af5521ab941a37283f497b4699, type: 3}
+    enabled: 1
+  - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
+    enabled: 1
+  randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 0
-  normalEnemySpawnInterval: 2.5
+  normalEnemyCount: 4
+  normalEnemySpawnInterval: 5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -105,8 +116,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 5
+  projectileEnemyCount: 2
+  projectileEnemySpawnInterval: 9.5
   projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -127,9 +138,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemyCount: 1
+  hunterEnemySpawnInterval: 15
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -140,7 +151,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 2
@@ -152,10 +163,10 @@ MonoBehaviour:
     splitDelay: 0.8
     splitDistance: 1.2
     miniBossSpeed: 2.5
-  beaconEnemyCount: 0
-  beaconMinSpawnTime: 10
-  beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyCount: 1
+  beaconMinSpawnTime: 14
+  beaconMaxSpawnTime: 18
+  beaconEnemyDanger: 3
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -213,11 +224,11 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   armorEnabled: 0
-  slowEnabled: 0
+  slowEnabled: 1
   armorMinSpawnTime: 15
   armorMaxSpawnTime: 30
-  slowMinSpawnTime: 8
-  slowMaxSpawnTime: 20
+  slowMinSpawnTime: 20
+  slowMaxSpawnTime: 28
   verticalLaserEnabled: 0
   verticalLaserDanger: 2
   verticalLaserCustomOverride: 0
@@ -238,8 +249,8 @@ MonoBehaviour:
     lifeTime: 1.5
     width: 0.5
     sizeExtra: 1
-  bombTrapEnabled: 0
-  bombDanger: 2
+  bombTrapEnabled: 1
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

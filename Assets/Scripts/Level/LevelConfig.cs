@@ -236,9 +236,6 @@ public class LevelConfig : ScriptableObject
     [Min(0.01f)]
     public float comboTimeLimit = 2f;
 
-    [Min(1)]
-    public int maxCombo = 3;
-
     [Tooltip(
         "Combo level, kaç coin chain ile açılacağı ve player speed çarpanı. " +
         "Boş bırakırsan eski 2x/3x sistemi çalışır."
