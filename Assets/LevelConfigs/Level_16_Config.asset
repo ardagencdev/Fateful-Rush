@@ -55,7 +55,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3
+  cloneDuration: 4
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8

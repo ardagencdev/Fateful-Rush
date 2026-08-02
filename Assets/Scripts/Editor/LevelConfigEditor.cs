@@ -143,7 +143,7 @@ public class LevelConfigEditor : Editor
             "Clone",
             "mechanicProgression.clone",
             config => config.cloneEnabled,
-            "Deploy the clone to redirect enemy attention. Its uses are limited, so choose the timing carefully."
+            "Deploy the clone to redirect enemy attention. After use, it becomes available again when its cooldown ends."
         ),
         new MechanicDescriptor(
             MechanicId.Combo,
@@ -678,15 +678,10 @@ public class LevelConfigEditor : Editor
                 Space();
                 Prop("cloneEnabled");
 
-                if (BoolValue("cloneEnabled"))
+                if (BoolValue("cloneEnabled") && IsAdvanced)
                 {
-                    Prop("cloneUses");
-
-                    if (IsAdvanced)
-                    {
-                        Prop("cloneDuration");
-                        Prop("cloneCooldown");
-                    }
+                    Prop("cloneDuration");
+                    Prop("cloneCooldown");
                 }
             }
         );

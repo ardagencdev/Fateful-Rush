@@ -44,7 +44,7 @@ MonoBehaviour:
     available.
   - Use the first Clone to control the pre-Boss crowd and preserve the second for
     the split phase.
-  gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
   winScore: 145
   timeLimit: 35
@@ -55,10 +55,10 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 1.95
-  cloneDuration: 3
+  cloneDuration: 4
   cloneCooldown: 7.5
   cloneUses: 1
-  armorImmuneDuration: 0.8
+  armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1

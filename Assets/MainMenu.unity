@@ -10594,10 +10594,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuStarColorRandomizer
   nearStars: {fileID: 71869156}
   mainMenuColor: {r: 0.63529414, g: 0.21960784, b: 1, a: 0.9}
-  levelSelectionColor: {r: 0.24705882, g: 0.4862745, b: 1, a: 0.9}
   missionBriefingColor: {r: 1, g: 0.5411765, b: 0.16862746, a: 0.9}
   optionsColor: {r: 0.1254902, g: 0.8509804, b: 0.8235294, a: 0.9}
   statsColor: {r: 1, g: 0.76862746, b: 0.23921569, a: 0.9}
+  firstLevelPageColor: {r: 1, g: 1, b: 1, a: 0.9}
+  lastLevelPageColor: {r: 1, g: 0.08, b: 0.08, a: 0.9}
+  firstPageEmissionRate: 12
+  lastPageEmissionRate: 32
+  firstPageMaxParticles: 80
+  lastPageMaxParticles: 200
+  firstPageFlowMultiplier: 0.7
+  lastPageFlowMultiplier: 1.75
   transitionDuration: 0.45
 --- !u!4 &123242077
 Transform:
@@ -13584,6 +13591,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 274e69fa41f262c4dbeec35f987b9774, type: 3}
   - {fileID: 8300000, guid: 81fc50e29709f3744b904f43f065b406, type: 3}
   - {fileID: 8300000, guid: d2862a49eacd2dd4fae4d97fff05b6db, type: 3}
+  - {fileID: 8300000, guid: 21d85f17d7ba5c44ea49f210928b3794, type: 3}
   firstTrackIndex: 0
   menuMusicBaseVolume: 0.2
   fadeInDuration: 1.5
@@ -15118,6 +15126,8 @@ MonoBehaviour:
   fadeSwitcher: {fileID: 658595660}
   mainMenuPanel: {fileID: 558379304}
   devRoomConfig: {fileID: 11400000, guid: 7bc9b7110624ec840b86ec026053196c, type: 2}
+  devRoomButton: {fileID: 0}
+  devRoomRevealKey: 101
   fallbackQuitDelay: 0.35
 --- !u!1 &571473934
 GameObject:
@@ -17888,6 +17898,8 @@ MonoBehaviour:
   fadeSwitcher: {fileID: 0}
   mainMenuPanel: {fileID: 0}
   devRoomConfig: {fileID: 0}
+  devRoomButton: {fileID: 0}
+  devRoomRevealKey: 101
   fallbackQuitDelay: 0.35
 --- !u!1 &790159917
 GameObject:
@@ -19751,7 +19763,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: c70ac34a3185bf440bcc321f23ad52c7, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f479d5d5c987ba244a7c3b5a41836cfe, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -19784,7 +19796,7 @@ MonoBehaviour:
   m_fontSizeMax: 26
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1

@@ -19,10 +19,6 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         new Color(0.65f, 0.2f, 1f, 0.9f);
 
     [SerializeField]
-    private Color levelSelectionColor =
-        new Color(0.2f, 0.6f, 1f, 0.9f);
-
-    [SerializeField]
     private Color missionBriefingColor =
         new Color(1f, 0.2f, 0.55f, 0.9f);
 
@@ -34,14 +30,50 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     private Color statsColor =
         new Color(1f, 0.75f, 0.2f, 0.9f);
 
+    [Header("Level Page Progression")]
+    [SerializeField]
+    private Color firstLevelPageColor =
+        new Color(1f, 1f, 1f, 0.9f);
+
+    [SerializeField]
+    private Color lastLevelPageColor =
+        new Color(1f, 0.08f, 0.08f, 0.9f);
+
+    [SerializeField, Min(0f)]
+    private float firstPageEmissionRate = 12f;
+
+    [SerializeField, Min(0f)]
+    private float lastPageEmissionRate = 32f;
+
+    [SerializeField, Min(1)]
+    private int firstPageMaxParticles = 80;
+
+    [SerializeField, Min(1)]
+    private int lastPageMaxParticles = 200;
+
+    [SerializeField, Min(0f)]
+    private float firstPageFlowMultiplier = 0.7f;
+
+    [SerializeField, Min(0f)]
+    private float lastPageFlowMultiplier = 1.75f;
+
     [Header("Transition")]
     [SerializeField, Min(0.01f)]
     private float transitionDuration = 0.45f;
 
     private ParticleSystem.Particle[] particles;
-    private Coroutine colorRoutine;
+    private Coroutine transitionRoutine;
 
     private Color currentColor;
+    private float currentEmissionRate;
+    private float currentMaxParticles;
+    private float currentFlowMultiplier = 1f;
+
+    private float originalEmissionRate;
+    private int originalMaxParticles;
+    private float originalVelocityXMultiplier;
+    private float originalVelocityYMultiplier;
+    private float originalVelocityZMultiplier;
 
     private void Awake()
     {
@@ -57,8 +89,19 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         if (nearStars == null)
             nearStars = GetComponent<ParticleSystem>();
 
+        CacheOriginalParticleSettings();
+
         currentColor = mainMenuColor;
-        ApplyColorInstant(currentColor);
+        currentEmissionRate = originalEmissionRate;
+        currentMaxParticles = originalMaxParticles;
+        currentFlowMultiplier = 1f;
+
+        ApplyStateInstant(
+            currentColor,
+            currentEmissionRate,
+            Mathf.RoundToInt(currentMaxParticles),
+            currentFlowMultiplier
+        );
     }
 
     private void OnDestroy()
@@ -69,47 +112,143 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
     public void ShowMainMenuColor()
     {
-        ChangeColor(mainMenuColor);
+        ChangeState(
+            mainMenuColor,
+            originalEmissionRate,
+            originalMaxParticles,
+            1f
+        );
     }
 
     public void ShowLevelSelectionColor()
     {
-        ChangeColor(levelSelectionColor);
+        ShowLevelSelectionPage(0, 1);
+    }
+
+    public void ShowLevelSelectionPage(
+        int pageIndex,
+        int totalPageCount
+    )
+    {
+        int safePageCount =
+            Mathf.Max(1, totalPageCount);
+
+        int safePageIndex =
+            Mathf.Clamp(
+                pageIndex,
+                0,
+                safePageCount - 1
+            );
+
+        float progress =
+            safePageCount <= 1
+                ? 0f
+                : safePageIndex /
+                  (float)(safePageCount - 1);
+
+        Color targetColor =
+            Color.Lerp(
+                firstLevelPageColor,
+                lastLevelPageColor,
+                progress
+            );
+
+        float targetEmissionRate =
+            Mathf.Lerp(
+                firstPageEmissionRate,
+                lastPageEmissionRate,
+                progress
+            );
+
+        int targetMaxParticles =
+            Mathf.RoundToInt(
+                Mathf.Lerp(
+                    firstPageMaxParticles,
+                    lastPageMaxParticles,
+                    progress
+                )
+            );
+
+        float targetFlowMultiplier =
+            Mathf.Lerp(
+                firstPageFlowMultiplier,
+                lastPageFlowMultiplier,
+                progress
+            );
+
+        ChangeState(
+            targetColor,
+            targetEmissionRate,
+            targetMaxParticles,
+            targetFlowMultiplier
+        );
     }
 
     public void ShowMissionBriefingColor()
     {
-        ChangeColor(missionBriefingColor);
+        ChangeState(
+            missionBriefingColor,
+            originalEmissionRate,
+            originalMaxParticles,
+            1f
+        );
     }
 
     public void ShowOptionsColor()
     {
-        ChangeColor(optionsColor);
+        ChangeState(
+            optionsColor,
+            originalEmissionRate,
+            originalMaxParticles,
+            1f
+        );
     }
 
     public void ShowStatsColor()
     {
-        ChangeColor(statsColor);
+        ChangeState(
+            statsColor,
+            originalEmissionRate,
+            originalMaxParticles,
+            1f
+        );
     }
 
-    private void ChangeColor(Color targetColor)
+    private void ChangeState(
+        Color targetColor,
+        float targetEmissionRate,
+        int targetMaxParticles,
+        float targetFlowMultiplier
+    )
     {
         if (nearStars == null)
             return;
 
-        if (colorRoutine != null)
-            StopCoroutine(colorRoutine);
+        if (transitionRoutine != null)
+            StopCoroutine(transitionRoutine);
 
-        colorRoutine = StartCoroutine(
-            ColorTransitionRoutine(targetColor)
+        transitionRoutine = StartCoroutine(
+            StateTransitionRoutine(
+                targetColor,
+                Mathf.Max(0f, targetEmissionRate),
+                Mathf.Max(1, targetMaxParticles),
+                Mathf.Max(0f, targetFlowMultiplier)
+            )
         );
     }
 
-    private IEnumerator ColorTransitionRoutine(
-        Color targetColor
+    private IEnumerator StateTransitionRoutine(
+        Color targetColor,
+        float targetEmissionRate,
+        int targetMaxParticles,
+        float targetFlowMultiplier
     )
     {
         Color startColor = currentColor;
+        float startEmissionRate = currentEmissionRate;
+        float startMaxParticles = currentMaxParticles;
+        float startFlowMultiplier = currentFlowMultiplier;
+
         float timer = 0f;
 
         while (timer < transitionDuration)
@@ -129,18 +268,55 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
                 easedProgress
             );
 
-            ApplyColorInstant(currentColor);
+            currentEmissionRate = Mathf.Lerp(
+                startEmissionRate,
+                targetEmissionRate,
+                easedProgress
+            );
+
+            currentMaxParticles = Mathf.Lerp(
+                startMaxParticles,
+                targetMaxParticles,
+                easedProgress
+            );
+
+            currentFlowMultiplier = Mathf.Lerp(
+                startFlowMultiplier,
+                targetFlowMultiplier,
+                easedProgress
+            );
+
+            ApplyStateInstant(
+                currentColor,
+                currentEmissionRate,
+                Mathf.RoundToInt(currentMaxParticles),
+                currentFlowMultiplier
+            );
 
             yield return null;
         }
 
         currentColor = targetColor;
-        ApplyColorInstant(currentColor);
+        currentEmissionRate = targetEmissionRate;
+        currentMaxParticles = targetMaxParticles;
+        currentFlowMultiplier = targetFlowMultiplier;
 
-        colorRoutine = null;
+        ApplyStateInstant(
+            currentColor,
+            currentEmissionRate,
+            targetMaxParticles,
+            currentFlowMultiplier
+        );
+
+        transitionRoutine = null;
     }
 
-    private void ApplyColorInstant(Color color)
+    private void ApplyStateInstant(
+        Color color,
+        float emissionRate,
+        int maxParticles,
+        float flowMultiplier
+    )
     {
         if (nearStars == null)
             return;
@@ -151,8 +327,45 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         main.startColor =
             new ParticleSystem.MinMaxGradient(color);
 
-        int requiredSize =
-            Mathf.Max(1, main.maxParticles);
+        main.maxParticles =
+            Mathf.Max(1, maxParticles);
+
+        ParticleSystem.EmissionModule emission =
+            nearStars.emission;
+
+        emission.rateOverTime =
+            Mathf.Max(0f, emissionRate);
+
+        ParticleSystem.VelocityOverLifetimeModule velocity =
+            nearStars.velocityOverLifetime;
+
+        velocity.xMultiplier =
+            originalVelocityXMultiplier * flowMultiplier;
+
+        velocity.yMultiplier =
+            originalVelocityYMultiplier * flowMultiplier;
+
+        velocity.zMultiplier =
+            originalVelocityZMultiplier * flowMultiplier;
+
+        ApplyColorToLivingParticles(
+            color,
+            main.maxParticles
+        );
+    }
+
+    private void ApplyColorToLivingParticles(
+        Color color,
+        int maxParticles
+    )
+    {
+        int requiredSize = Mathf.Max(
+            1,
+            Mathf.Max(
+                maxParticles,
+                nearStars.particleCount
+            )
+        );
 
         if (particles == null ||
             particles.Length < requiredSize)
@@ -165,6 +378,11 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
         int particleCount =
             nearStars.GetParticles(particles);
+
+        particleCount = Mathf.Min(
+            particleCount,
+            maxParticles
+        );
 
         for (int i = 0;
              i < particleCount;
@@ -179,6 +397,36 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         );
     }
 
+    private void CacheOriginalParticleSettings()
+    {
+        if (nearStars == null)
+            return;
+
+        ParticleSystem.MainModule main =
+            nearStars.main;
+
+        ParticleSystem.EmissionModule emission =
+            nearStars.emission;
+
+        ParticleSystem.VelocityOverLifetimeModule velocity =
+            nearStars.velocityOverLifetime;
+
+        originalEmissionRate =
+            emission.rateOverTime.constant;
+
+        originalMaxParticles =
+            Mathf.Max(1, main.maxParticles);
+
+        originalVelocityXMultiplier =
+            velocity.xMultiplier;
+
+        originalVelocityYMultiplier =
+            velocity.yMultiplier;
+
+        originalVelocityZMultiplier =
+            velocity.zMultiplier;
+    }
+
     private void OnValidate()
     {
         if (nearStars == null)
@@ -186,6 +434,33 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
         transitionDuration =
             Mathf.Max(0.01f, transitionDuration);
+
+        firstPageEmissionRate =
+            Mathf.Max(0f, firstPageEmissionRate);
+
+        lastPageEmissionRate =
+            Mathf.Max(
+                firstPageEmissionRate,
+                lastPageEmissionRate
+            );
+
+        firstPageMaxParticles =
+            Mathf.Max(1, firstPageMaxParticles);
+
+        lastPageMaxParticles =
+            Mathf.Max(
+                firstPageMaxParticles,
+                lastPageMaxParticles
+            );
+
+        firstPageFlowMultiplier =
+            Mathf.Max(0f, firstPageFlowMultiplier);
+
+        lastPageFlowMultiplier =
+            Mathf.Max(
+                firstPageFlowMultiplier,
+                lastPageFlowMultiplier
+            );
     }
 
     private static float EaseInOutCubic(

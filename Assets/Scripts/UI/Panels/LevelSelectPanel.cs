@@ -137,8 +137,7 @@ public class LevelSelectPanel : MonoBehaviour
         RefreshPageUI(false);
         SetPageButtonsInteractable(true);
 
-        MainMenuStarColorRandomizer.Instance?
-            .ShowLevelSelectionColor();
+        ApplyCurrentPageStarProgression();
 
         SwitchPanels(
             mainMenuPanel,
@@ -188,7 +187,7 @@ public class LevelSelectPanel : MonoBehaviour
         missionBriefingPanel.Show(
             config,
             StartLevel,
-            RefreshButtons
+            OnMissionBriefingClosed
         );
     }
 
@@ -249,6 +248,21 @@ public class LevelSelectPanel : MonoBehaviour
             if (button != null)
                 button.Refresh();
         }
+    }
+
+    private void OnMissionBriefingClosed()
+    {
+        RefreshButtons();
+        ApplyCurrentPageStarProgression();
+    }
+
+    private void ApplyCurrentPageStarProgression()
+    {
+        MainMenuStarColorRandomizer.Instance?
+            .ShowLevelSelectionPage(
+                currentPageIndex,
+                totalPageCount
+            );
     }
 
     public void NextPage()
@@ -515,6 +529,7 @@ public class LevelSelectPanel : MonoBehaviour
 
         currentPageIndex = newPageIndex;
 
+        ApplyCurrentPageStarProgression();
         CreateCurrentPageButtons();
 
         // Panel aktifken sayfa sınırına göre okları smooth değiştir.

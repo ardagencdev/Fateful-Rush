@@ -9,7 +9,6 @@ public class EnemySpawner : MonoBehaviour
     public Transform player;
     public PlayerMovement playerMovement;
     public BossScreenEffect bossScreenEffect;
-    public ParticleSystem nearStars;
 
     [Header("Prefabs")]
     public GameObject normalEnemyPrefab;
@@ -852,26 +851,6 @@ public class EnemySpawner : MonoBehaviour
         if (bossScreenEffect != null)
             bossScreenEffect.StartEffect();
 
-        ApplyBossStarEffect();
-    }
-
-    private void ApplyBossStarEffect()
-    {
-        if (nearStars == null)
-            return;
-
-        ParticleSystem.MainModule main =
-            nearStars.main;
-
-        main.startColor =
-            new ParticleSystem.MinMaxGradient(
-                new Color(
-                    1f,
-                    0.1f,
-                    0.1f,
-                    0.9f
-                )
-            );
     }
 
     private void RefreshPlayerReferences()

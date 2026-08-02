@@ -43,7 +43,7 @@ MonoBehaviour:
   - Enemies, both laser orientations and bombs build sustained survival pressure.
   - Do not chase temporary safe zones. Keep rotating toward the largest remaining
     open area.
-  gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
   timeLimit: 70
@@ -54,9 +54,9 @@ MonoBehaviour:
   dashDistance: 2.6
   dashDuration: 0.12
   dashCooldown: 1.8
-  cloneDuration: 3.2
+  cloneDuration: 4
   cloneCooldown: 7
-  cloneUses: 2
+  cloneUses: 1
   armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5

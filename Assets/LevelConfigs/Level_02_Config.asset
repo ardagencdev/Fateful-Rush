@@ -46,7 +46,7 @@ MonoBehaviour:
     at a time.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
-  winScore: 40
+  winScore: 30
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -63,7 +63,6 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 1
   comboTimeLimit: 2.8
-  maxCombo: 2
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2

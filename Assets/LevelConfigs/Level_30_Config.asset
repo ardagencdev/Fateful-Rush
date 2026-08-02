@@ -44,7 +44,7 @@ MonoBehaviour:
     systems exam.
   - Reach most of the target before the Boss trigger, then use both power-ups and
     Clone to finish safely.
-  gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
   winScore: 145
   timeLimit: 60
@@ -55,9 +55,9 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 1.95
-  cloneDuration: 3
+  cloneDuration: 4
   cloneCooldown: 7.5
-  cloneUses: 2
+  cloneUses: 1
   armorImmuneDuration: 1
   slowMultiplier: 0.42
   slowDuration: 5.5

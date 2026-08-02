@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
@@ -13,6 +14,8 @@ public class MainMenu : MonoBehaviour
 
     [Header("Dev Room")]
     [SerializeField] private LevelConfig devRoomConfig;
+    [SerializeField] private GameObject devRoomButton;
+    [SerializeField] private Key devRoomRevealKey = Key.F8;
 
     [Header("Quit")]
     [SerializeField, Min(0f)]
@@ -21,10 +24,18 @@ public class MainMenu : MonoBehaviour
     private Coroutine quitRoutine;
     private bool isStartingGame;
     private bool isQuitting;
+    private bool isDevRoomButtonVisible;
+    private bool isDesktopDevRoomAllowed;
 
     private void Awake()
     {
         Time.timeScale = 1f;
+
+        isDesktopDevRoomAllowed =
+            IsDesktopPlatform();
+
+        FindDevRoomButtonIfNeeded();
+        SetDevRoomButtonVisible(false);
     }
 
     private void OnEnable()
@@ -38,8 +49,29 @@ public class MainMenu : MonoBehaviour
         StopQuitRoutine();
     }
 
+    private void Update()
+    {
+        if (!isDesktopDevRoomAllowed)
+            return;
+
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard == null)
+            return;
+
+        if (!keyboard[devRoomRevealKey].wasPressedThisFrame)
+            return;
+
+        SetDevRoomButtonVisible(
+            !isDevRoomButtonVisible
+        );
+    }
+
     public void StartGame()
     {
+        if (!isDesktopDevRoomAllowed)
+            return;
+
         if (isStartingGame || isQuitting)
             return;
 
@@ -113,6 +145,63 @@ public class MainMenu : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    private void FindDevRoomButtonIfNeeded()
+    {
+        if (devRoomButton != null)
+            return;
+
+        Transform[] sceneTransforms =
+            Resources.FindObjectsOfTypeAll<Transform>();
+
+        foreach (Transform sceneTransform in sceneTransforms)
+        {
+            if (sceneTransform == null)
+                continue;
+
+            GameObject candidate =
+                sceneTransform.gameObject;
+
+            if (!candidate.scene.IsValid())
+                continue;
+
+            if (candidate.name != "DevRoomButton")
+                continue;
+
+            devRoomButton = candidate;
+            return;
+        }
+
+        Debug.LogWarning(
+            "MainMenu could not find DevRoomButton. " +
+            "Assign it in the Inspector or keep its name as DevRoomButton.",
+            this
+        );
+    }
+
+    private void SetDevRoomButtonVisible(
+        bool visible
+    )
+    {
+        bool shouldShow =
+            isDesktopDevRoomAllowed && visible;
+
+        isDevRoomButtonVisible = shouldShow;
+
+        if (devRoomButton != null)
+            devRoomButton.SetActive(shouldShow);
+    }
+
+    private static bool IsDesktopPlatform()
+    {
+        if (Application.isEditor)
+            return true;
+
+        return
+            Application.platform == RuntimePlatform.WindowsPlayer ||
+            Application.platform == RuntimePlatform.LinuxPlayer ||
+            Application.platform == RuntimePlatform.OSXPlayer;
     }
 
     private bool CanLoadGameScene()

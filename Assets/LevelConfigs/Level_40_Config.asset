@@ -44,7 +44,7 @@ MonoBehaviour:
     at 50 seconds.
   - 'Treat the mission as three phases: build space, manage the Beacon and traps,
     then survive the Boss finale.'
-  gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
   timeLimit: 80
@@ -55,9 +55,9 @@ MonoBehaviour:
   dashDistance: 2.6
   dashDuration: 0.12
   dashCooldown: 1.8
-  cloneDuration: 3.2
+  cloneDuration: 4
   cloneCooldown: 7
-  cloneUses: 3
+  cloneUses: 1
   armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5.5

@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class MissionBriefingPanelUI : MonoBehaviour
 {
+    private const string CompletedLevelKeyPrefix = "CompletedLevel_";
+
     public static MissionBriefingPanelUI Instance { get; private set; }
 
     [Header("Panel")]
@@ -143,6 +145,10 @@ public class MissionBriefingPanelUI : MonoBehaviour
         isDragging = false;
 
         BuildPages(levelConfig);
+
+        if (WasLevelCompleted(levelConfig))
+            currentPageIndex = Mathf.Max(0, pages.Count - 1);
+
         RefreshMissionInformation(levelConfig);
         RefreshDifficulty(levelConfig.SafeMissionDifficulty);
         RefreshBestTime(levelConfig);
@@ -682,9 +688,6 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
         panelRoutine = null;
 
-        MainMenuStarColorRandomizer.Instance?
-             .ShowLevelSelectionColor();
-
         HideInstant();
 
         closeCallback?.Invoke();
@@ -806,6 +809,21 @@ public class MissionBriefingPanelUI : MonoBehaviour
             StopCoroutine(panelRoutine);
             panelRoutine = null;
         }
+    }
+
+    private static bool WasLevelCompleted(
+        LevelConfig levelConfig)
+    {
+        if (levelConfig == null ||
+            levelConfig.levelNumber <= 0)
+        {
+            return false;
+        }
+
+        return PlayerPrefs.GetInt(
+            CompletedLevelKeyPrefix + levelConfig.levelNumber,
+            0
+        ) == 1;
     }
 
     private static string FormatTime(float seconds)

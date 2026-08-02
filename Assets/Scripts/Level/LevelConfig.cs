@@ -216,7 +216,9 @@ public class LevelConfig : ScriptableObject
     [Min(0f)]
     public float cloneCooldown = 8f;
 
-    [Min(0)]
+    // Legacy compatibility only. Clone is cooldown-based, so this value is ignored.
+    // Kept hidden to avoid breaking existing serialized LevelConfig assets or old callers.
+    [HideInInspector]
     public int cloneUses = 1;
 
     [Header("ARMOR")]

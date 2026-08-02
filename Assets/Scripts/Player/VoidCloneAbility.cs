@@ -109,8 +109,8 @@ public class VoidCloneAbility : MonoBehaviour
 
     public void SetCloneUses(int uses)
     {
-        // Eski LevelManager çağrıları hata vermesin diye duruyor.
-        ResetCloneState();
+        // Legacy compatibility only.
+        // Clone is cooldown-based, so the old use-count value is intentionally ignored.
     }
 
     public void UseClone()

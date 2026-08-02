@@ -43,25 +43,23 @@ MonoBehaviour:
   - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
-  winScore: 100
-  timeLimit: 10
+  winScore: 150
+  timeLimit: 30
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
   dashEnabled: 1
   cloneEnabled: 1
   dashDistance: 2.5
   dashDuration: 0.12
-  dashCooldown: 2
-  cloneDuration: 7
-  cloneCooldown: 8
-  cloneUses: 1
+  dashCooldown: 1.8
+  cloneDuration: 3
+  cloneCooldown: 7
+  cloneUses: 3
   armorImmuneDuration: 2
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
   comboTimeLimit: 1.5
-  maxCombo: 3
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2

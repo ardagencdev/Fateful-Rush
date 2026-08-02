@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_04_Config
   m_EditorClassIdentifier: Assembly-CSharp::LevelConfig
   levelNumber: 4
-  levelName: BROKEN ORBIT
+  levelName: Broken Orbit
   mechanicProgression:
     reachScoreMode: 0
     surviveTimeMode: 0
@@ -62,7 +62,6 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 1
   comboTimeLimit: 2.65
-  maxCombo: 3
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2

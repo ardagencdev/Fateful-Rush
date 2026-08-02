@@ -50,7 +50,6 @@ MonoBehaviour:
   timeLimit: 45
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
   dashEnabled: 1
   cloneEnabled: 0
   dashDistance: 2.5
@@ -59,12 +58,11 @@ MonoBehaviour:
   cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
-  armorImmuneDuration: 0.8
+  armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 2
-  maxCombo: 3
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2

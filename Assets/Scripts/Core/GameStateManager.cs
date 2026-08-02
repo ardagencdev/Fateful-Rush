@@ -21,6 +21,19 @@ public class GameStateManager : MonoBehaviour
     [SerializeField]
     private GameplayMusicFade gameplayMusic;
 
+    [Header("Win Condition Intro")]
+    [SerializeField]
+    private bool showWinConditionIntro = true;
+
+    [SerializeField, Min(0.5f)]
+    private float winConditionIntroDuration = 2.5f;
+
+    [SerializeField, Min(0f)]
+    private float winConditionIntroFadeDuration = 0.3f;
+
+    [SerializeField]
+    private bool allowWinConditionIntroSkip = true;
+
     [Header("HUD")]
     public GameObject scoreHUD;
     public GameObject timeHUD;
@@ -33,6 +46,7 @@ public class GameStateManager : MonoBehaviour
     private LevelManager levelManager;
     private GameTimer gameTimerComponent;
     private BossScreenEffect bossScreenEffect;
+    private WinConditionIntroUI winConditionIntroUI;
 
     private bool gameFrozen;
     private bool gameEnded;
@@ -98,6 +112,9 @@ public class GameStateManager : MonoBehaviour
         yield return null;
 
         SetHUD(false);
+
+        Coroutine winConditionRoutine =
+            StartWinConditionIntro(currentLevel);
 
         if (hudIntroAnimator != null)
         {
@@ -172,10 +189,45 @@ public class GameStateManager : MonoBehaviour
                 playerTargetScale;
         }
 
+        if (winConditionRoutine != null)
+            yield return winConditionRoutine;
+
         yield return
             new WaitForSecondsRealtime(0.05f);
 
         IsGameplayStarted = true;
+    }
+
+    private Coroutine StartWinConditionIntro(
+        LevelConfig currentLevel)
+    {
+        if (!showWinConditionIntro ||
+            currentLevel == null)
+        {
+            return null;
+        }
+
+        if (winConditionIntroUI == null)
+        {
+            winConditionIntroUI =
+                GetComponent<WinConditionIntroUI>();
+        }
+
+        if (winConditionIntroUI == null)
+        {
+            winConditionIntroUI =
+                gameObject.AddComponent
+                    <WinConditionIntroUI>();
+        }
+
+        return StartCoroutine(
+            winConditionIntroUI.PlayAndWait(
+                currentLevel,
+                winConditionIntroDuration,
+                winConditionIntroFadeDuration,
+                allowWinConditionIntroSkip
+            )
+        );
     }
 
     private void Update()
@@ -674,6 +726,24 @@ public class GameStateManager : MonoBehaviour
 
         bossScreenEffect =
             FindAnyObjectByType<BossScreenEffect>();
+
+        winConditionIntroUI =
+            GetComponent<WinConditionIntroUI>();
+    }
+
+    private void OnValidate()
+    {
+        winConditionIntroDuration =
+            Mathf.Max(
+                0.5f,
+                winConditionIntroDuration
+            );
+
+        winConditionIntroFadeDuration =
+            Mathf.Max(
+                0f,
+                winConditionIntroFadeDuration
+            );
     }
 
     private void OnDestroy()

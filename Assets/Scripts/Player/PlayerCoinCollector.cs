@@ -105,16 +105,24 @@ public class PlayerCoinCollector : MonoBehaviour
     private void CollectCoin(
         Collider2D coinCollider)
     {
-        if (coinCollider == null ||
-            !coinCollider.enabled)
-        {
+        if (coinCollider == null)
             return;
-        }
-
-        coinCollider.enabled = false;
 
         Coin coin =
             coinCollider.GetComponentInParent<Coin>();
+
+        if (coin != null)
+        {
+            if (!coin.TryBeginCollection())
+                return;
+        }
+        else
+        {
+            if (!coinCollider.enabled)
+                return;
+
+            DisableFallbackCoinPhysics(coinCollider);
+        }
 
         VibrationManager.Instance
             ?.VibrateLight();
@@ -162,7 +170,7 @@ public class PlayerCoinCollector : MonoBehaviour
         if (scoreUIEffect != null)
             scoreUIEffect.PlayPop();
 
-        PlayCollectEffect(coinCollider);
+        PlayCollectEffect(coin, coinCollider);
 
         if (soundManager != null)
             soundManager.PlayCoinSound();
@@ -259,12 +267,23 @@ public class PlayerCoinCollector : MonoBehaviour
     }
 
     private void PlayCollectEffect(
+        Coin coin,
         Collider2D coinCollider)
     {
-        SpawnScaleEffect coinEffect =
-            coinCollider
-                .GetComponentInParent
-                    <SpawnScaleEffect>();
+        SpawnScaleEffect coinEffect = null;
+
+        if (coin != null)
+        {
+            // Efekt coin prefabındaki Visual child objesinde bulunuyor.
+            coinEffect =
+                coin.GetComponentInChildren<SpawnScaleEffect>(true);
+        }
+
+        if (coinEffect == null && coinCollider != null)
+        {
+            coinEffect =
+                coinCollider.GetComponentInChildren<SpawnScaleEffect>(true);
+        }
 
         if (coinEffect != null)
         {
@@ -272,12 +291,38 @@ public class PlayerCoinCollector : MonoBehaviour
             return;
         }
 
-        Destroy(
-            coinCollider
-                .transform
-                .root
-                .gameObject
-        );
+        GameObject coinObject =
+            coin != null
+                ? coin.gameObject
+                : coinCollider.transform.root.gameObject;
+
+        Destroy(coinObject);
+    }
+
+    private static void DisableFallbackCoinPhysics(
+        Collider2D coinCollider)
+    {
+        Transform root = coinCollider.transform.root;
+
+        Collider2D[] colliders =
+            root.GetComponentsInChildren<Collider2D>(true);
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i] != null)
+                colliders[i].enabled = false;
+        }
+
+        Rigidbody2D[] rigidbodies =
+            root.GetComponentsInChildren<Rigidbody2D>(true);
+
+        for (int i = 0; i < rigidbodies.Length; i++)
+        {
+            Rigidbody2D body = rigidbodies[i];
+
+            if (body != null)
+                body.simulated = false;
+        }
     }
 
     private static string GetCoinType(
