@@ -36,7 +36,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6181474848875714697
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -93,6 +93,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &2377731757498341298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,7 +169,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7497433958581034973
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -225,6 +226,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!50 &5981836921814858518
 Rigidbody2D:
   serializedVersion: 5
@@ -458,10 +460,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDash
   playerMovement: {fileID: 1058027815251072158}
   soundManager: {fileID: 0}
+  rb: {fileID: 0}
   dashDistance: 2.5
   dashDuration: 0.15
   dashCooldown: 3
   boundsPadding: 0.4
+  dashMovementCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  clearTrailOnDash: 1
   trail: {fileID: 3778888758809930922}
   cooldownFill: {fileID: 0}
   cooldownText: {fileID: 0}
@@ -478,10 +506,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerArmor
   soundManager: {fileID: 0}
-  cameraZoomPulse: {fileID: 0}
+  playerSpriteRenderer: {fileID: 0}
   shieldVisual: {fileID: 6074685825724596311}
   breakScaleDuration: 0.18
   immuneDuration: 1
+  immuneMinimumAlpha: 0.3
+  immuneBlinkSpeed: 12
 --- !u!114 &6375762531014090414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -512,10 +542,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8105aab8d196ef4d9ed3c441d5c6007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  speed: 7
-  comboSpeedBonus: 1.2
   coinCollector: {fileID: 1852625697302958029}
+  playerDash: {fileID: 0}
   gameStateManager: {fileID: 0}
+  speed: 7
+  comboSpeedBonus: 1.15
+  comboSpeedStages: []
+  acceleration: 55
+  deceleration: 75
+  turnAcceleration: 90
+  lowInputAccelerationMultiplier: 0.65
+  highInputAccelerationMultiplier: 1.15
+  sharpTurnBoost: 1.25
+  minInputToMove: 0.03
 --- !u!114 &4065927315343198356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -532,6 +571,18 @@ MonoBehaviour:
   joystickBG: {fileID: 0}
   joystickHandle: {fileID: 0}
   joystickRange: 120
+  deadZone: 0.08
+  inputCurve: 0.85
+  inputSmoothTime: 0.035
+  handleReturnSpeed: 22
+  handleFollowSpeed: 28
+  finalInputCurve: 1.1
+  predictionStrength: 0.12
+  inputBufferTime: 0.035
+  dynamicRangeExtra: 25
+  enableDynamicJoystick: 1
+  dynamicCenterFollowSpeed: 18
+  dynamicMaxCenterOffset: 45
 --- !u!114 &1852625697302958029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -549,12 +600,13 @@ MonoBehaviour:
   soundManager: {fileID: 0}
   scoreUIEffect: {fileID: 0}
   comboUI: {fileID: 0}
+  gameStateManager: {fileID: 0}
   scoreText: {fileID: 0}
-  winScore: 100
+  comboEnabled: 1
   comboTimeLimit: 1.5
   coinsForCombo2: 2
   coinsForCombo3: 5
-  gameStateManager: {fileID: 0}
+  comboSpeedStages: []
 --- !u!114 &6748629743838577591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -583,7 +635,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 402df05ed7d9d784e91041b257469198, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerVisualEffects
-  deathFadeDuration: 0.3
+  fadeDuration: 0.45
+  destroyAfterFade: 1
 --- !u!1 &8773397028378653072
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,7 +672,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &66808903290035563
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -676,6 +729,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &7409226456832436476
 MonoBehaviour:
   m_ObjectHideFlags: 0

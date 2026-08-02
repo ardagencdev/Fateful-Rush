@@ -143,14 +143,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f67f7ed9c16670448aea193deb155fbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleIdleAnimation
+  preset: 9
+  lastAppliedPreset: 9
+  animationTarget: {fileID: 5057482355741734441}
+  spriteRenderer: {fileID: 2215814012315390449}
+  timeSource: 0
+  randomizePhase: 1
+  randomSeed: 0
+  blendInDuration: 0.2
   rotate: 1
-  rotateSpeed: 80
-  pulseScale: 0
-  pulseAmount: 0.08
-  pulseSpeed: 2
-  pulseColor: 0
+  rotationMotion: 0
+  rotateSpeed: 20
+  randomizeRotateDirection: 1
+  rotateSpeedVariation: 0.12
+  swayAngle: 5
+  swaySpeed: 1
+  hover: 0
+  hoverAmount: {x: 0.03, y: 0.05}
+  hoverSpeed: 1
+  horizontalFrequencyMultiplier: 0.73
+  drift: 0
+  driftAmount: 0.02
+  driftSpeed: 0.35
+  pulseScale: 1
+  pulseAmount: 0.055
+  pulseSpeed: 1.8
+  pulseAxis: {x: 1, y: 1}
+  pulseColor: 1
+  useOriginalColorAsColor1: 1
   color1: {r: 1, g: 1, b: 1, a: 1}
-  color2: {r: 0, g: 1, b: 1, a: 1}
+  color2: {r: 0.72, g: 0.18, b: 1, a: 1}
+  colorPulseSpeed: 1.7
+  preserveOriginalAlpha: 1
   shake: 0
   shakeAmount: 0.05
   shakeSpeed: 20

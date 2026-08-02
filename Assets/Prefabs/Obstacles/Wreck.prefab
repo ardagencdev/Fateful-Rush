@@ -37,7 +37,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 70}
 --- !u!212 &8325654239847795378
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -94,6 +94,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &6067474102838857696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,14 +107,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f67f7ed9c16670448aea193deb155fbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleIdleAnimation
+  preset: 6
+  lastAppliedPreset: 6
+  animationTarget: {fileID: 6418841575614248041}
+  spriteRenderer: {fileID: 8325654239847795378}
+  timeSource: 0
+  randomizePhase: 1
+  randomSeed: 0
+  blendInDuration: 0.2
   rotate: 1
-  rotateSpeed: 5
+  rotationMotion: 0
+  rotateSpeed: 8
+  randomizeRotateDirection: 1
+  rotateSpeedVariation: 0.45
+  swayAngle: 5
+  swaySpeed: 1
+  hover: 1
+  hoverAmount: {x: 0.03, y: 0.04}
+  hoverSpeed: 0.6
+  horizontalFrequencyMultiplier: 0.73
+  drift: 1
+  driftAmount: 0.02
+  driftSpeed: 0.38
   pulseScale: 0
   pulseAmount: 0.08
   pulseSpeed: 2
+  pulseAxis: {x: 1, y: 1}
   pulseColor: 0
+  useOriginalColorAsColor1: 1
   color1: {r: 1, g: 1, b: 1, a: 1}
   color2: {r: 0, g: 1, b: 1, a: 1}
+  colorPulseSpeed: 2
+  preserveOriginalAlpha: 1
   shake: 0
   shakeAmount: 0.05
   shakeSpeed: 20
@@ -131,6 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnPopEffect
   spawnDuration: 0.25
   overshoot: 1.12
+  playOnStart: 0
 --- !u!70 &6560000553850345843
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
