@@ -6,14 +6,29 @@ public class UIButtonSound : MonoBehaviour
 {
     public enum ButtonSoundType
     {
-        Menu,
-        Back,
-        Option,
-        Start
+        Menu = 0,
+        Back = 1,
+        Option = 2,
+        Start = 3,
+        Locked = 4,
+        Next = 5,
+        Previous = 6,
+
+        // Eski Inspector seçimlerini bozmamak için değer korunuyor.
+        // Equip sesi PlayerSkinPanelUI tarafından yönetiliyor.
+        SkinEquip = 7,
+
+        Custom = 8,
+        Exit = 9
     }
 
     [SerializeField]
     private ButtonSoundType soundType = ButtonSoundType.Menu;
+
+    [Header("Custom Sound")]
+    [Tooltip("Yalnızca Sound Type = Custom olduğunda kullanılır.")]
+    [SerializeField]
+    private AudioClip customSound;
 
     private Button button;
 
@@ -39,30 +54,59 @@ public class UIButtonSound : MonoBehaviour
 
     private void PlayClickSound()
     {
+        // Equip butonunun kilit/açık sesini PlayerSkinPanelUI yönetiyor.
+        // Burada tekrar çalınırsa çift ses oluşur.
+        if (soundType == ButtonSoundType.SkinEquip)
+            return;
+
         SoundManager soundManager = SoundManager.Instance;
 
         if (soundManager == null)
             soundManager = FindAnyObjectByType<SoundManager>();
 
-        if (soundManager != null)
+        if (soundManager == null)
         {
-            switch (soundType)
-            {
-                case ButtonSoundType.Menu:
-                    soundManager.PlayMenuButtonSound();
-                    break;
+            Debug.LogWarning("UIButtonSound: Sahnedeki SoundManager bulunamadı.", this);
+            return;
+        }
 
-                case ButtonSoundType.Back:
-                    soundManager.PlayBackButtonSound();
-                    break;
+        switch (soundType)
+        {
+            case ButtonSoundType.Menu:
+                soundManager.PlayMenuButtonSound();
+                break;
 
-                case ButtonSoundType.Option:
-                    soundManager.PlayOptionButtonSound();
-                    break;
-                case ButtonSoundType.Start:
-                    soundManager.PlayStartButtonSound();
-                    break;
-            }
+            case ButtonSoundType.Back:
+                soundManager.PlayBackButtonSound();
+                break;
+
+            case ButtonSoundType.Option:
+                soundManager.PlayOptionButtonSound();
+                break;
+
+            case ButtonSoundType.Start:
+                soundManager.PlayStartButtonSound();
+                break;
+
+            case ButtonSoundType.Locked:
+                soundManager.PlayLockedLevelSound();
+                break;
+
+            case ButtonSoundType.Next:
+                soundManager.PlayNextButtonSound();
+                break;
+
+            case ButtonSoundType.Previous:
+                soundManager.PlayPreviousButtonSound();
+                break;
+
+            case ButtonSoundType.Exit:
+                soundManager.PlayExitButtonSound();
+                break;
+
+            case ButtonSoundType.Custom:
+                soundManager.PlayCustomSound(customSound);
+                break;
         }
 
         VibrationManager.Instance?.VibrateLight();

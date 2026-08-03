@@ -35,6 +35,10 @@ public class SoundManager : MonoBehaviour
     public AudioClip missionSelectSound;
     public AudioClip optionButtonSound;
 
+    public AudioClip nextButtonSound;
+    public AudioClip previousButtonSound;
+    public AudioClip exitButtonSound;
+
     [Header("Beacon Enemy Sounds")]
     public AudioClip beaconActivationWaveSound;
     public AudioClip beaconLoopWaveSound;
@@ -94,9 +98,12 @@ public class SoundManager : MonoBehaviour
 
     public void PlayMissionBriefingOpenSound() =>
         PlaySound(missionBriefingOpenSound);
-    public void PlayPremiumInterfaceSound() => PlaySound(premiumInterfaceSound);
 
-    public void PlayMissionSelectSound() => PlaySound(missionSelectSound);
+    public void PlayPremiumInterfaceSound() =>
+        PlaySound(premiumInterfaceSound);
+
+    public void PlayMissionSelectSound() =>
+        PlaySound(missionSelectSound);
 
     public void PlayBeaconActivationWaveSound()
     {
@@ -113,21 +120,38 @@ public class SoundManager : MonoBehaviour
         PlaySound(beaconDeathSound, beaconDeathVolume);
     }
 
-    public void PlayStartButtonSound()
-    {
+    public void PlayStartButtonSound() =>
         PlaySound(startButtonSound);
-    }
 
-    public void PlayLockedLevelSound()
-    {
+    public void PlayLockedLevelSound() =>
         PlaySound(lockedLevelSound);
+
+    public void PlayMenuButtonSound() =>
+        PlaySound(menuButtonSound);
+
+    public void PlayBackButtonSound() =>
+        PlaySound(backButtonSound);
+
+    public void PlayOptionButtonSound() =>
+        PlaySound(optionButtonSound);
+
+    public void PlayNextButtonSound() =>
+        PlaySound(nextButtonSound);
+
+    public void PlayPreviousButtonSound() =>
+        PlaySound(previousButtonSound);
+
+    public void PlayExitButtonSound() =>
+        PlaySound(exitButtonSound);
+
+    /// <summary>
+    /// Inspector üzerinden bir butona özel atanmış UI sesini çalar.
+    /// Ses seviyesi ve SoundOn ayarı SoundManager üzerinden uygulanır.
+    /// </summary>
+    public void PlayCustomSound(AudioClip customClip)
+    {
+        PlaySound(customClip);
     }
-
-    public void PlayMenuButtonSound() => PlaySound(menuButtonSound);
-
-    public void PlayBackButtonSound() => PlaySound(backButtonSound);
-
-    public void PlayOptionButtonSound() => PlaySound(optionButtonSound);
 
     private void PlaySound(AudioClip clip)
     {

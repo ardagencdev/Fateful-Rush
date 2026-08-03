@@ -5188,6 +5188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 1
+  customSound: {fileID: 0}
 --- !u!114 &57724733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10248,7 +10249,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 5
+  customSound: {fileID: 0}
 --- !u!114 &72041388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10949,6 +10951,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 1
+  customSound: {fileID: 0}
 --- !u!114 &169187909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11241,6 +11244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &176593739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11545,6 +11549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &201356013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11986,6 +11991,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &222511715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12677,6 +12683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &278642105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13361,6 +13368,9 @@ MonoBehaviour:
   premiumInterfaceSound: {fileID: 0}
   missionSelectSound: {fileID: 8300000, guid: 1ee0968ef9e974a4f85fa9981f91773d, type: 3}
   optionButtonSound: {fileID: 8300000, guid: 6b40e451120119846b3ac88f53276239, type: 3}
+  nextButtonSound: {fileID: 8300000, guid: 632a22724f09eb744b03690171714d39, type: 3}
+  previousButtonSound: {fileID: 8300000, guid: 848068eb24092a54c8724b09624c1c27, type: 3}
+  exitButtonSound: {fileID: 8300000, guid: 64c044781b48c554c86570048863430b, type: 3}
   beaconActivationWaveSound: {fileID: 0}
   beaconLoopWaveSound: {fileID: 0}
   beaconDeathSound: {fileID: 0}
@@ -13943,7 +13953,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 1
+  soundType: 6
+  customSound: {fileID: 0}
 --- !u!114 &413655022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14762,6 +14773,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 1
+  customSound: {fileID: 0}
 --- !u!114 &516307475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15179,6 +15191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 0
+  customSound: {fileID: 0}
 --- !u!1 &551086501
 GameObject:
   m_ObjectHideFlags: 0
@@ -15494,6 +15507,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &571473937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15748,6 +15762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &624749658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16644,7 +16659,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 0
+  soundType: 5
+  customSound: {fileID: 0}
 --- !u!114 &672581267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16937,6 +16953,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &681308492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17354,6 +17371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 1
+  customSound: {fileID: 0}
 --- !u!1 &737094100
 GameObject:
   m_ObjectHideFlags: 0
@@ -17408,6 +17426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 1
+  customSound: {fileID: 0}
 --- !u!114 &737094103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18025,6 +18044,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 0
+  customSound: {fileID: 0}
 --- !u!114 &784139688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18422,6 +18442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 3
+  customSound: {fileID: 0}
 --- !u!114 &790159920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19209,6 +19230,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &854373738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19659,6 +19681,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 0
+  customSound: {fileID: 0}
 --- !u!114 &897481939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20093,7 +20116,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 1
+  soundType: 6
+  customSound: {fileID: 0}
 --- !u!114 &939330147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23111,6 +23135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &1322227957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23948,6 +23973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 3
+  customSound: {fileID: 0}
 --- !u!1 &1434163665
 GameObject:
   m_ObjectHideFlags: 0
@@ -24644,7 +24670,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 1
+  soundType: 9
+  customSound: {fileID: 0}
 --- !u!1 &1507692534
 GameObject:
   m_ObjectHideFlags: 0
@@ -25030,6 +25057,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &1555422790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26876,6 +26904,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &1775333467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28263,7 +28292,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 1
+  soundType: 8
+  customSound: {fileID: 0}
 --- !u!114 &1868972866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28459,6 +28489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 2
+  customSound: {fileID: 0}
 --- !u!114 &1879665407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28834,7 +28865,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 2
+  soundType: 7
+  customSound: {fileID: 0}
 --- !u!114 &1927902361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29748,6 +29780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
   soundType: 1
+  customSound: {fileID: 0}
 --- !u!114 &2073389450
 MonoBehaviour:
   m_ObjectHideFlags: 0
