@@ -70,7 +70,7 @@ MonoBehaviour:
     coinsRequired: 5
     playerSpeedMultiplier: 1.13
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 0.47058824, g: 0.7019608, b: 1, a: 1}
+  nearStarsColor: {r: 0.37944, g: 0.71552, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1.1
   nearStarsSizeMultiplier: 1
   nearStarsEmissionRate: 34
@@ -87,8 +87,32 @@ MonoBehaviour:
   rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
+  - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
+    enabled: 0
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
     enabled: 1
+  - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: e92d44d4f2069ce47ad1f793030e40d8, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: b0b17e18d59613249b04b704bf589e04, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: aa4e8dc2beb3cdb4da72ef8675f7c575, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: e51d565c6e170ff46b9180c55a5bdc67, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: b45512429b7a5764788d7dfd1ea74531, type: 3}
+    enabled: 0
+  - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: 9ebcaeaa04c505648a171fde806a61c0, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: 847a7b13c1a308048b25dc05595b68cc, type: 3}
+    enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: 44cf2912484bee54c95a93af81028b6e, type: 3}
+    enabled: 0
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3

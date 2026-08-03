@@ -1556,7 +1556,7 @@ public class LevelConfigEditor : Editor
 
                 EditorGUILayout.Space(3);
                 EditorGUILayout.LabelField(
-                    "Markers = repeated spawns or triggers    Bars = random spawn windows",
+                    "Bars = first random window    Markers = repeated/expected spawns through mission end",
                     EditorStyles.centeredGreyMiniLabel
                 );
             }
@@ -1781,12 +1781,16 @@ public class LevelConfigEditor : Editor
                 config.ResolveVerticalLaserDanger();
 
             rows.Add(
-                CreateWindowRow(
+                CreateRepeatingRandomSpawnRow(
                     "Vertical Laser",
                     settings.minSpawnTime,
                     settings.maxSpawnTime,
+                    duration,
+                    settings.warningDuration,
                     hazardColor,
-                    $"First spawn window. Warning: {settings.warningDuration:0.##}s."
+                    $"First spawn occurs between {settings.minSpawnTime:0.##}-{settings.maxSpawnTime:0.##}s. " +
+                    $"It then repeats with the same random delay until the mission ends. " +
+                    $"Warning: {settings.warningDuration:0.##}s."
                 )
             );
         }
@@ -1797,12 +1801,16 @@ public class LevelConfigEditor : Editor
                 config.ResolveHorizontalLaserDanger();
 
             rows.Add(
-                CreateWindowRow(
+                CreateRepeatingRandomSpawnRow(
                     "Horizontal Laser",
                     settings.minSpawnTime,
                     settings.maxSpawnTime,
+                    duration,
+                    settings.warningDuration,
                     hazardColor,
-                    $"First spawn window. Warning: {settings.warningDuration:0.##}s."
+                    $"First spawn occurs between {settings.minSpawnTime:0.##}-{settings.maxSpawnTime:0.##}s. " +
+                    $"It then repeats with the same random delay until the mission ends. " +
+                    $"Warning: {settings.warningDuration:0.##}s."
                 )
             );
         }
@@ -1813,12 +1821,16 @@ public class LevelConfigEditor : Editor
                 config.ResolveBombDanger();
 
             rows.Add(
-                CreateWindowRow(
+                CreateRepeatingRandomSpawnRow(
                     "Space Bomb",
                     settings.minSpawnTime,
                     settings.maxSpawnTime,
+                    duration,
+                    0f,
                     hazardColor,
-                    $"First spawn window. Maximum active bombs: {settings.maxBombCount}."
+                    $"First spawn occurs between {settings.minSpawnTime:0.##}-{settings.maxSpawnTime:0.##}s. " +
+                    $"It keeps attempting spawns until the mission ends while below the active-bomb limit. " +
+                    $"Maximum active bombs: {settings.maxBombCount}."
                 )
             );
         }
@@ -1869,6 +1881,45 @@ public class LevelConfigEditor : Editor
             windowStart = Mathf.Max(0f, start),
             windowEnd = Mathf.Max(start, end)
         };
+    }
+
+    private static TimelineRow CreateRepeatingRandomSpawnRow(
+        string label,
+        float minimumDelay,
+        float maximumDelay,
+        float duration,
+        float cycleExtraTime,
+        Color color,
+        string tooltip)
+    {
+        float safeMinimum = Mathf.Max(0f, minimumDelay);
+        float safeMaximum = Mathf.Max(safeMinimum, maximumDelay);
+
+        TimelineRow row = CreateWindowRow(
+            label,
+            safeMinimum,
+            safeMaximum,
+            color,
+            tooltip
+        );
+
+        float averageDelay =
+            Mathf.Max(0.01f, (safeMinimum + safeMaximum) * 0.5f);
+
+        float repeatInterval =
+            averageDelay + Mathf.Max(0f, cycleExtraTime);
+
+        float expectedSpawnTime = averageDelay;
+        int markerCount = 0;
+
+        while (expectedSpawnTime <= duration && markerCount < 24)
+        {
+            row.markers.Add(expectedSpawnTime);
+            expectedSpawnTime += repeatInterval;
+            markerCount++;
+        }
+
+        return row;
     }
 
     private static void AddRepeatedMarkers(

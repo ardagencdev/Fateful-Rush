@@ -68,7 +68,7 @@ MonoBehaviour:
     coinsRequired: 2
     playerSpeedMultiplier: 1.1
   randomizeNearStarsColor: 0
-  nearStarsColor: {r: 0.5568628, g: 0.9372549, b: 0.9607843, a: 1}
+  nearStarsColor: {r: 0.4981271, g: 0.8889412, b: 0.9745882, a: 1}
   nearStarsSpeedMultiplier: 0.9
   nearStarsSizeMultiplier: 0.92
   nearStarsEmissionRate: 26
