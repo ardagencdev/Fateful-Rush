@@ -49,8 +49,7 @@ MonoBehaviour:
   winScore: 15
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 6.4
-  playerComboSpeedBonus: 1.2
+  playerMoveSpeed: 6.5
   dashEnabled: 0
   cloneEnabled: 0
   dashDistance: 2.5
@@ -64,7 +63,6 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 2.5
-  maxCombo: 5
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 2

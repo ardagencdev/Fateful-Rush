@@ -48,7 +48,7 @@ MonoBehaviour:
   winScore: 15
   timeLimit: 75
   showGameTimerHUD: 1
-  playerMoveSpeed: 6.4
+  playerMoveSpeed: 6.8
   dashEnabled: 1
   cloneEnabled: 1
   dashDistance: 2.6

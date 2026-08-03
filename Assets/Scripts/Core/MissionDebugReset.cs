@@ -13,29 +13,29 @@ public class MissionDebugReset : MonoBehaviour
         if (Keyboard.current == null)
             return;
 
-        if (!Keyboard.current.rKey.wasPressedThisFrame)
+        // R: Bütün ilerlemeyi sıfırla
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            ResetMissionProgress();
             return;
+        }
 
-        ResetMissionProgress();
+        // U: Bütün levelları aç
+        if (Keyboard.current.uKey.wasPressedThisFrame)
+        {
+            UnlockAllMissions();
+        }
     }
 
     private void ResetMissionProgress()
     {
         for (int i = 1; i <= missionCount; i++)
         {
-            PlayerPrefs.DeleteKey(
-                $"CompletedLevel_{i}"
-            );
-
-            PlayerPrefs.DeleteKey(
-                $"BestTime_Level_{i}"
-            );
+            PlayerPrefs.DeleteKey($"CompletedLevel_{i}");
+            PlayerPrefs.DeleteKey($"BestTime_Level_{i}");
         }
 
-        PlayerPrefs.SetInt(
-            "UnlockedLevel",
-            1
-        );
+        PlayerPrefs.SetInt("UnlockedLevel", 1);
 
         PlayerSkinCatalog.ClearSavedSelection();
 
@@ -44,6 +44,17 @@ public class MissionDebugReset : MonoBehaviour
         Debug.Log(
             "<color=yellow>[DEBUG]</color> " +
             $"Progress for {missionCount} missions was reset."
+        );
+    }
+
+    private void UnlockAllMissions()
+    {
+        PlayerPrefs.SetInt("UnlockedLevel", missionCount);
+        PlayerPrefs.Save();
+
+        Debug.Log(
+            "<color=lime>[DEBUG]</color> " +
+            $"All {missionCount} missions were unlocked."
         );
     }
 

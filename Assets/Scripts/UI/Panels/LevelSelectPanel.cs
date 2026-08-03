@@ -86,6 +86,11 @@ public class LevelSelectPanel : MonoBehaviour
     private void OnEnable()
     {
         isLoadingLevel = false;
+
+        // Obje aktif olduğu anda son hesaplanan sayfaya göre
+        // navigation butonlarını kesin olarak düzelt.
+        RefreshPageUI(false);
+        SetPageButtonsInteractable(true);
     }
 
     private void OnDestroy()
@@ -131,11 +136,6 @@ public class LevelSelectPanel : MonoBehaviour
         CalculatePageCount();
         OpenLatestUnlockedPage();
         CreateCurrentPageButtons();
-
-        // LevelSelectPanel henüz aktif değilken coroutine başlatmamak için
-        // navigation durumunu ilk açılışta anında doğru hale getiriyoruz.
-        RefreshPageUI(false);
-        SetPageButtonsInteractable(true);
 
         ApplyCurrentPageStarProgression();
 
