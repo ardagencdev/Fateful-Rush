@@ -361,6 +361,9 @@ public class GameStateManager : MonoBehaviour
         StatsManager.AddWin();
         StatsManager.AddPlayTime(gameTimer);
 
+        int completedLevelNumber = 0;
+        bool isFirstCompletion = false;
+
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
 
@@ -376,6 +379,16 @@ public class GameStateManager : MonoBehaviour
         {
             int levelNumber =
                 levelManager.currentLevel.levelNumber;
+
+            completedLevelNumber =
+                levelNumber;
+
+            isFirstCompletion =
+                PlayerPrefs.GetInt(
+                    "CompletedLevel_" +
+                    levelNumber,
+                    0
+                ) == 0;
 
             int unlockedLevel =
                 PlayerPrefs.GetInt(
@@ -406,7 +419,9 @@ public class GameStateManager : MonoBehaviour
         {
             gameResultUI.ShowWin(
                 score,
-                gameTimer
+                gameTimer,
+                completedLevelNumber,
+                isFirstCompletion
             );
         }
 

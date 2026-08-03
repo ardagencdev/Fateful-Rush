@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -29,6 +30,23 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private GameObject tryAgainButton;
     [SerializeField] private GameObject menuButton;
 
+    [Header("Skin Unlock Reward")]
+    [SerializeField] private PlayerSkinCatalog playerSkinCatalog;
+    [SerializeField] private GameObject skinUnlockUI;
+    [SerializeField] private TextMeshProUGUI skinUnlockedTitleText;
+    [SerializeField] private TextMeshProUGUI unlockedSkinNameText;
+    [SerializeField] private CanvasGroup skinUnlockCanvasGroup;
+    [SerializeField] private RectTransform skinUnlockRect;
+
+    [Header("Skin Unlock Animation")]
+    [SerializeField, Min(0f)] private float skinUnlockDelay = 0.25f;
+    [SerializeField, Min(0.05f)] private float skinUnlockAnimationDuration = 0.42f;
+    [SerializeField, Min(0f)] private float skinUnlockSlideDistance = 180f;
+
+    private Coroutine skinUnlockRoutine;
+    private Vector2 skinUnlockRestPosition;
+    private bool skinUnlockPositionCached;
+
     private LevelManager levelManager;
 
     private void Awake()
@@ -55,10 +73,26 @@ public class GameResultUI : MonoBehaviour
             );
         }
 
+        PrepareSkinUnlockUI();
+        HideSkinUnlockImmediate();
         Hide();
     }
 
     public void ShowWin(int score, float time)
+    {
+        ShowWin(
+            score,
+            time,
+            0,
+            false
+        );
+    }
+
+    public void ShowWin(
+        int score,
+        float time,
+        int completedLevelNumber,
+        bool isFirstCompletion)
     {
         ShowPanel();
         SetResultState(true);
@@ -76,6 +110,11 @@ public class GameResultUI : MonoBehaviour
         }
 
         UpdateNextLevelButton();
+
+        UpdateSkinUnlockReward(
+            completedLevelNumber,
+            isFirstCompletion
+        );
     }
 
     public void ShowLose(int score, float time)
@@ -119,6 +158,8 @@ public class GameResultUI : MonoBehaviour
         {
             nextLevelButton.SetActive(false);
         }
+
+        HideSkinUnlockImmediate();
     }
 
     private void SetResultState(bool won)
@@ -228,6 +269,8 @@ public class GameResultUI : MonoBehaviour
 
     public void Hide()
     {
+        HideSkinUnlockImmediate();
+
         if (resultPanel != null)
         {
             resultPanel.SetActive(false);
@@ -261,6 +304,306 @@ public class GameResultUI : MonoBehaviour
         {
             menuButton.SetActive(true);
         }
+    }
+
+    private void PrepareSkinUnlockUI()
+    {
+        if (skinUnlockUI == null)
+            return;
+
+        if (skinUnlockRect == null)
+        {
+            skinUnlockRect =
+                skinUnlockUI.GetComponent<RectTransform>();
+        }
+
+        if (skinUnlockCanvasGroup == null)
+        {
+            skinUnlockCanvasGroup =
+                skinUnlockUI.GetComponent<CanvasGroup>();
+
+            if (skinUnlockCanvasGroup == null)
+            {
+                skinUnlockCanvasGroup =
+                    skinUnlockUI.AddComponent<CanvasGroup>();
+            }
+        }
+
+        CacheSkinUnlockRestPosition();
+    }
+
+    private void CacheSkinUnlockRestPosition()
+    {
+        if (skinUnlockRect == null)
+            return;
+
+        skinUnlockRestPosition =
+            skinUnlockRect.anchoredPosition;
+
+        skinUnlockPositionCached = true;
+    }
+
+    private void UpdateSkinUnlockReward(
+        int completedLevelNumber,
+        bool isFirstCompletion)
+    {
+        HideSkinUnlockImmediate();
+
+        if (!isFirstCompletion ||
+            completedLevelNumber <= 0 ||
+            playerSkinCatalog == null ||
+            skinUnlockUI == null)
+        {
+            return;
+        }
+
+        PlayerSkinCatalog.SkinEntry unlockedSkin =
+            FindSkinUnlockedByLevel(
+                completedLevelNumber
+            );
+
+        if (unlockedSkin == null)
+            return;
+
+        if (skinUnlockedTitleText != null)
+        {
+            skinUnlockedTitleText.text =
+                "NEW SKIN UNLOCKED";
+        }
+
+        if (unlockedSkinNameText != null)
+        {
+            string displayName =
+                string.IsNullOrWhiteSpace(
+                    unlockedSkin.displayName)
+                    ? unlockedSkin.id
+                    : unlockedSkin.displayName;
+
+            unlockedSkinNameText.text =
+                string.IsNullOrWhiteSpace(displayName)
+                    ? "NEW SKIN"
+                    : displayName.ToUpperInvariant();
+
+            unlockedSkinNameText.color =
+                GetReadableRewardColor(
+                    unlockedSkin.dashTrailColor
+                );
+        }
+
+        PrepareSkinUnlockUI();
+        skinUnlockUI.SetActive(true);
+
+        skinUnlockRoutine =
+            StartCoroutine(
+                AnimateSkinUnlock()
+            );
+    }
+
+    private PlayerSkinCatalog.SkinEntry
+        FindSkinUnlockedByLevel(
+            int completedLevelNumber)
+    {
+        if (playerSkinCatalog == null ||
+            playerSkinCatalog.Skins == null)
+        {
+            return null;
+        }
+
+        for (int i = 0;
+             i < playerSkinCatalog.Skins.Count;
+             i++)
+        {
+            PlayerSkinCatalog.SkinEntry skin =
+                playerSkinCatalog.Skins[i];
+
+            if (skin != null &&
+                skin.requiredCompletedLevel ==
+                completedLevelNumber)
+            {
+                return skin;
+            }
+        }
+
+        return null;
+    }
+
+    private IEnumerator AnimateSkinUnlock()
+    {
+        if (skinUnlockUI == null)
+            yield break;
+
+        PrepareSkinUnlockUI();
+
+        if (skinUnlockDelay > 0f)
+        {
+            yield return
+                new WaitForSecondsRealtime(
+                    skinUnlockDelay
+                );
+        }
+
+        if (skinUnlockUI == null)
+            yield break;
+
+        if (!skinUnlockPositionCached)
+            CacheSkinUnlockRestPosition();
+
+        Vector2 startPosition =
+            skinUnlockRestPosition +
+            Vector2.right *
+            skinUnlockSlideDistance;
+
+        Vector3 startScale =
+            Vector3.one * 0.92f;
+
+        if (skinUnlockRect != null)
+        {
+            skinUnlockRect.anchoredPosition =
+                startPosition;
+
+            skinUnlockRect.localScale =
+                startScale;
+        }
+
+        if (skinUnlockCanvasGroup != null)
+        {
+            skinUnlockCanvasGroup.alpha = 0f;
+            skinUnlockCanvasGroup.interactable = false;
+            skinUnlockCanvasGroup.blocksRaycasts = false;
+        }
+
+        float duration =
+            Mathf.Max(
+                0.05f,
+                skinUnlockAnimationDuration
+            );
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+            float eased =
+                EaseOutBack(progress);
+
+            if (skinUnlockRect != null)
+            {
+                skinUnlockRect.anchoredPosition =
+                    Vector2.LerpUnclamped(
+                        startPosition,
+                        skinUnlockRestPosition,
+                        eased
+                    );
+
+                skinUnlockRect.localScale =
+                    Vector3.LerpUnclamped(
+                        startScale,
+                        Vector3.one,
+                        eased
+                    );
+            }
+
+            if (skinUnlockCanvasGroup != null)
+            {
+                skinUnlockCanvasGroup.alpha =
+                    Mathf.Clamp01(
+                        progress / 0.65f
+                    );
+            }
+
+            yield return null;
+        }
+
+        if (skinUnlockRect != null)
+        {
+            skinUnlockRect.anchoredPosition =
+                skinUnlockRestPosition;
+
+            skinUnlockRect.localScale =
+                Vector3.one;
+        }
+
+        if (skinUnlockCanvasGroup != null)
+        {
+            skinUnlockCanvasGroup.alpha = 1f;
+        }
+
+        skinUnlockRoutine = null;
+    }
+
+    private void HideSkinUnlockImmediate()
+    {
+        if (skinUnlockRoutine != null)
+        {
+            StopCoroutine(skinUnlockRoutine);
+            skinUnlockRoutine = null;
+        }
+
+        if (skinUnlockRect != null &&
+            skinUnlockPositionCached)
+        {
+            skinUnlockRect.anchoredPosition =
+                skinUnlockRestPosition;
+
+            skinUnlockRect.localScale =
+                Vector3.one;
+        }
+
+        if (skinUnlockCanvasGroup != null)
+        {
+            skinUnlockCanvasGroup.alpha = 0f;
+            skinUnlockCanvasGroup.interactable = false;
+            skinUnlockCanvasGroup.blocksRaycasts = false;
+        }
+
+        if (skinUnlockUI != null)
+        {
+            skinUnlockUI.SetActive(false);
+        }
+    }
+
+    private static Color GetReadableRewardColor(
+        Color source)
+    {
+        Color result = source;
+        result.a = 1f;
+
+        float brightness =
+            result.r * 0.2126f +
+            result.g * 0.7152f +
+            result.b * 0.0722f;
+
+        if (brightness < 0.28f)
+        {
+            result = Color.Lerp(
+                result,
+                Color.white,
+                0.5f
+            );
+        }
+
+        return result;
+    }
+
+    private static float EaseOutBack(float value)
+    {
+        const float overshoot = 1.18f;
+        float shifted = value - 1f;
+
+        return 1f +
+               (overshoot + 1f) *
+               shifted *
+               shifted *
+               shifted +
+               overshoot *
+               shifted *
+               shifted;
     }
 
     private void PrepareForSceneChange()
@@ -318,5 +661,10 @@ public class GameResultUI : MonoBehaviour
                 body.simulated = true;
             }
         }
+    }
+
+    private void OnDisable()
+    {
+        HideSkinUnlockImmediate();
     }
 }

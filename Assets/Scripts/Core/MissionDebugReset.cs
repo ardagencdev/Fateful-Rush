@@ -37,6 +37,8 @@ public class MissionDebugReset : MonoBehaviour
             1
         );
 
+        PlayerSkinCatalog.ClearSavedSelection();
+
         PlayerPrefs.Save();
 
         Debug.Log(

@@ -116,35 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: OrangePlayer_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 8
-        height: 1024
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 903b6c4aad8e1cd50800000000000000
-      internalID: 6755936941797454601
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: OrangePlayer_1
       rect:
         serializedVersion: 2
-        x: 276
-        y: 265
-        width: 477
-        height: 559
+        x: 8
+        y: 0
+        width: 1016
+        height: 1024
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -164,7 +142,7 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 31f75e9959a992049818e25f2dad0499
-    internalID: 0
+    internalID: -561856763
     vertices: []
     indices: 
     edges: []

@@ -105,6 +105,22 @@ public class VoidClone : MonoBehaviour
         collisionFilter.SetLayerMask(solidLayers);
     }
 
+
+    public void SetSkin(Sprite skinSprite)
+    {
+        if (spriteRenderer == null)
+        {
+            spriteRenderer =
+                GetComponentInChildren<SpriteRenderer>(true);
+        }
+
+        if (spriteRenderer != null &&
+            skinSprite != null)
+        {
+            spriteRenderer.sprite = skinSprite;
+        }
+    }
+
     public void StartClone(float duration, PlayerMovement playerMovement)
     {
         StopAllCoroutines();

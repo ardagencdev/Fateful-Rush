@@ -29,6 +29,7 @@ public class VoidCloneAbility : MonoBehaviour
     [Header("References")]
     public PlayerMovement playerMovement;
     public SoundManager soundManager;
+    public PlayerSkinApplier playerSkinApplier;
 
     private bool canUseClone = true;
     private bool cloneActive;
@@ -46,6 +47,9 @@ public class VoidCloneAbility : MonoBehaviour
     {
         if (playerMovement == null)
             playerMovement = GetComponent<PlayerMovement>();
+
+        if (playerSkinApplier == null)
+            playerSkinApplier = GetComponent<PlayerSkinApplier>();
 
         ResetCloneState();
     }
@@ -168,6 +172,10 @@ public class VoidCloneAbility : MonoBehaviour
 
         if (cloneScript != null)
         {
+            cloneScript.SetSkin(
+                GetCurrentPlayerSprite()
+            );
+
             cloneScript.StartClone(
                 cloneDuration,
                 playerMovement
@@ -181,6 +189,23 @@ public class VoidCloneAbility : MonoBehaviour
         cloneRoutine = null;
 
         UpdateUI();
+    }
+
+
+    private Sprite GetCurrentPlayerSprite()
+    {
+        if (playerSkinApplier != null &&
+            playerSkinApplier.CurrentSprite != null)
+        {
+            return playerSkinApplier.CurrentSprite;
+        }
+
+        SpriteRenderer playerRenderer =
+            GetComponentInChildren<SpriteRenderer>(true);
+
+        return playerRenderer != null
+            ? playerRenderer.sprite
+            : null;
     }
 
     private void ClearActiveClone()

@@ -11,6 +11,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
     private Canvas overlayCanvas;
     private CanvasGroup overlayGroup;
     private RectTransform contentTransform;
+    private TextMeshProUGUI levelText;
     private TextMeshProUGUI objectiveText;
     private TextMeshProUGUI inputHintText;
 
@@ -25,6 +26,9 @@ public sealed class WinConditionIntroUI : MonoBehaviour
 
         DestroyOverlay();
         CreateOverlay();
+
+        levelText.text =
+            BuildLevelText(level);
 
         objectiveText.text =
             BuildObjectiveText(level);
@@ -274,10 +278,27 @@ public sealed class WinConditionIntroUI : MonoBehaviour
             Vector2.zero;
 
         contentTransform.sizeDelta =
-            new Vector2(1500f, 420f);
+            new Vector2(1500f, 500f);
 
         TMP_FontAsset sceneFont =
             FindSceneFont();
+
+        levelText =
+            CreateText(
+                "Level",
+                contentTransform,
+                sceneFont,
+                string.Empty,
+                25f,
+                new Vector2(0f, 150f),
+                new Vector2(1450f, 55f)
+            );
+
+        levelText.color =
+            new Color(0.78f, 0.72f, 1f, 0.82f);
+
+        levelText.characterSpacing = 4.5f;
+        levelText.fontStyle = FontStyles.Bold;
 
         TextMeshProUGUI titleText =
             CreateText(
@@ -302,7 +323,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 sceneFont,
                 string.Empty,
                 68f,
-                Vector2.zero,
+                new Vector2(0f, -8f),
                 new Vector2(1500f, 190f)
             );
 
@@ -318,7 +339,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 sceneFont,
                 string.Empty,
                 23f,
-                new Vector2(0f, -112f),
+                new Vector2(0f, -132f),
                 new Vector2(1450f, 60f)
             );
 
@@ -438,6 +459,21 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static string BuildLevelText(
+        LevelConfig level)
+    {
+        if (level == null)
+            return string.Empty;
+
+        if (level.levelNumber > 0)
+            return $"LEVEL {level.levelNumber}";
+
+        if (!string.IsNullOrWhiteSpace(level.levelName))
+            return level.levelName.ToUpperInvariant();
+
+        return "MISSION";
     }
 
     private static string BuildObjectiveText(
@@ -563,6 +599,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         overlayCanvas = null;
         overlayGroup = null;
         contentTransform = null;
+        levelText = null;
         objectiveText = null;
         inputHintText = null;
     }

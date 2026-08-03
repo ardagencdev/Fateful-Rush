@@ -50,6 +50,10 @@ public class PlayerDash : MonoBehaviour
     private float cooldownTimer;
     private float textRefreshTimer;
 
+    private float trailStartAlpha = 1f;
+    private float trailEndAlpha;
+    private bool trailAlphaCached;
+
     public bool IsDashing => isDashing;
     public bool CanDash => canDash && !isDashing;
 
@@ -64,6 +68,7 @@ public class PlayerDash : MonoBehaviour
         if (soundManager == null)
             soundManager = FindAnyObjectByType<SoundManager>();
 
+        CacheTrailAlpha();
         SetTrail(false);
         HideCooldownUI();
     }
@@ -342,6 +347,34 @@ public class PlayerDash : MonoBehaviour
     {
         if (trail != null)
             trail.emitting = state;
+    }
+
+
+    public void ApplyTrailColor(Color color)
+    {
+        if (trail == null)
+            return;
+
+        CacheTrailAlpha();
+
+        Color startColor = color;
+        startColor.a = trailStartAlpha;
+
+        Color endColor = color;
+        endColor.a = trailEndAlpha;
+
+        trail.startColor = startColor;
+        trail.endColor = endColor;
+    }
+
+    private void CacheTrailAlpha()
+    {
+        if (trail == null || trailAlphaCached)
+            return;
+
+        trailStartAlpha = trail.startColor.a;
+        trailEndAlpha = trail.endColor.a;
+        trailAlphaCached = true;
     }
 
     private void HideCooldownUI()
