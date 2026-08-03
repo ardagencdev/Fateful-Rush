@@ -18,29 +18,41 @@ public class PlayerMovement : MonoBehaviour
     public float comboSpeedBonus = FixedComboSpeedBonus;
 
     [Tooltip(
-        "LevelConfig'den gelir. Boşsa eski comboSpeedBonus sistemi kullanılır."
+        "LevelConfig'den gelir. Bos ise eski " +
+        "comboSpeedBonus sistemi kullanilir."
     )]
     public ComboSpeedStage[] comboSpeedStages;
 
     [Header("Movement Feel")]
     [Min(0f)]
-    public float acceleration = 55f;
+    public float acceleration = 70f;
 
     [Min(0f)]
-    public float deceleration = 75f;
+    public float deceleration = 100f;
 
+    [Tooltip(
+        "Kucuk yon duzeltmelerinin ne kadar hizli " +
+        "donecegini belirler. Void Clone da bu degeri kullanir."
+    )]
     [Min(0f)]
-    public float turnAcceleration = 90f;
+    public float turnAcceleration = 240f;
 
-    [Header("Advanced Movement Feel")]
+    [Header("Responsive Turning")]
+    [Tooltip(
+        "Bu acinin ustundeki sert donusler gecikmesiz uygulanir."
+    )]
+    [Range(0f, 180f)]
+    public float instantSharpTurnAngle = 60f;
+
+    [Range(1f, 2f)]
+    public float sharpTurnBoost = 1.5f;
+
+    [Header("Analog Input")]
     [Range(0.3f, 1f)]
-    public float lowInputAccelerationMultiplier = 0.65f;
+    public float lowInputAccelerationMultiplier = 0.75f;
 
     [Range(1f, 2f)]
     public float highInputAccelerationMultiplier = 1.15f;
-
-    [Range(0.5f, 2f)]
-    public float sharpTurnBoost = 1.25f;
 
     [Range(0f, 0.5f)]
     public float minInputToMove = 0.03f;
@@ -75,8 +87,10 @@ public class PlayerMovement : MonoBehaviour
             playerDash = GetComponent<PlayerDash>();
 
         if (gameStateManager == null)
+        {
             gameStateManager =
                 FindAnyObjectByType<GameStateManager>();
+        }
 
         originalScale = transform.localScale;
 
@@ -101,11 +115,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        /*
-         * Dash sırasında PlayerDash, Rigidbody2D pozisyonunu
-         * kendisi yönetir. İki scriptin aynı anda hareket
-         * uygulamasını engelliyoruz.
-         */
+        // PlayerDash moves the Rigidbody2D itself.
         if (playerDash != null &&
             playerDash.IsDashing)
         {
@@ -114,24 +124,16 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        float currentSpeed = GetCurrentSpeed();
-
-        Vector2 targetVelocity =
-            moveInput * currentSpeed;
-
-        float accelerationRate =
-            GetAdaptiveAccelerationRate();
-
-        currentVelocity = Vector2.MoveTowards(
-            currentVelocity,
-            targetVelocity,
-            accelerationRate * deltaTime
+        currentVelocity = CalculateNextVelocity(
+            GetCurrentSpeed(),
+            deltaTime
         );
+
+        rb.linearVelocity = Vector2.zero;
 
         if (currentVelocity.sqrMagnitude <= 0.0001f)
         {
             currentVelocity = Vector2.zero;
-            rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -141,55 +143,156 @@ public class PlayerMovement : MonoBehaviour
         );
     }
 
-    private float GetAdaptiveAccelerationRate()
+    private Vector2 CalculateNextVelocity(
+        float maximumSpeed,
+        float deltaTime
+    )
     {
         float inputMagnitude = moveInput.magnitude;
+        float currentMagnitude = currentVelocity.magnitude;
 
         if (inputMagnitude <= 0.001f)
-            return deceleration;
-
-        float adaptiveAcceleration =
-            acceleration *
-            Mathf.Lerp(
-                lowInputAccelerationMultiplier,
-                highInputAccelerationMultiplier,
-                inputMagnitude
+        {
+            float stoppedMagnitude = Mathf.MoveTowards(
+                currentMagnitude,
+                0f,
+                deceleration * deltaTime
             );
 
-        if (currentVelocity.sqrMagnitude <= 0.0001f)
-            return adaptiveAcceleration;
+            if (stoppedMagnitude <= 0.001f ||
+                currentMagnitude <= 0.001f)
+            {
+                return Vector2.zero;
+            }
+
+            return currentVelocity.normalized *
+                   stoppedMagnitude;
+        }
+
+        Vector2 desiredDirection =
+            moveInput / inputMagnitude;
+
+        float targetMagnitude =
+            maximumSpeed * inputMagnitude;
+
+        float speedChangeRate =
+            targetMagnitude >= currentMagnitude
+                ? GetAdaptiveAccelerationRate(
+                    inputMagnitude
+                )
+                : deceleration;
+
+        float newMagnitude = Mathf.MoveTowards(
+            currentMagnitude,
+            targetMagnitude,
+            speedChangeRate * deltaTime
+        );
+
+        Vector2 newDirection =
+            GetResponsiveDirection(
+                desiredDirection,
+                currentMagnitude,
+                deltaTime
+            );
+
+        return newDirection * newMagnitude;
+    }
+
+    private float GetAdaptiveAccelerationRate(
+        float inputMagnitude
+    )
+    {
+        return acceleration * Mathf.Lerp(
+            lowInputAccelerationMultiplier,
+            highInputAccelerationMultiplier,
+            inputMagnitude
+        );
+    }
+
+    private Vector2 GetResponsiveDirection(
+        Vector2 desiredDirection,
+        float currentMagnitude,
+        float deltaTime
+    )
+    {
+        if (currentMagnitude <= 0.001f ||
+            currentVelocity.sqrMagnitude <= 0.0001f)
+        {
+            return desiredDirection;
+        }
 
         Vector2 currentDirection =
             currentVelocity.normalized;
 
-        Vector2 targetDirection =
-            moveInput.normalized;
-
-        float directionDot = Vector2.Dot(
+        float turnAngle = Vector2.Angle(
             currentDirection,
-            targetDirection
+            desiredDirection
         );
 
-        if (directionDot >= 0.75f)
-            return adaptiveAcceleration;
+        if (turnAngle <= 0.01f)
+            return desiredDirection;
+
+        if (instantSharpTurnAngle <= 0f ||
+            turnAngle >= instantSharpTurnAngle)
+        {
+            return desiredDirection;
+        }
 
         float turnAmount = Mathf.InverseLerp(
-            0.75f,
-            -1f,
-            directionDot
+            0f,
+            Mathf.Max(1f, instantSharpTurnAngle),
+            turnAngle
         );
 
-        float boostedTurnAcceleration =
-            turnAcceleration *
-            Mathf.Lerp(
+        float responsiveTurnAcceleration =
+            turnAcceleration * Mathf.Lerp(
                 1f,
                 sharpTurnBoost,
                 turnAmount
             );
 
-        return Mathf.Max(
-            adaptiveAcceleration,
-            boostedTurnAcceleration
+        // Converts lateral acceleration into a stable angular speed.
+        float maximumDegreesDelta =
+            responsiveTurnAcceleration /
+            Mathf.Max(0.5f, currentMagnitude) *
+            Mathf.Rad2Deg *
+            deltaTime;
+
+        return RotateDirectionTowards(
+            currentDirection,
+            desiredDirection,
+            maximumDegreesDelta
+        );
+    }
+
+    private static Vector2 RotateDirectionTowards(
+        Vector2 currentDirection,
+        Vector2 targetDirection,
+        float maximumDegreesDelta
+    )
+    {
+        float currentAngle = Mathf.Atan2(
+            currentDirection.y,
+            currentDirection.x
+        ) * Mathf.Rad2Deg;
+
+        float targetAngle = Mathf.Atan2(
+            targetDirection.y,
+            targetDirection.x
+        ) * Mathf.Rad2Deg;
+
+        float newAngle = Mathf.MoveTowardsAngle(
+            currentAngle,
+            targetAngle,
+            maximumDegreesDelta
+        );
+
+        float angleInRadians =
+            newAngle * Mathf.Deg2Rad;
+
+        return new Vector2(
+            Mathf.Cos(angleInRadians),
+            Mathf.Sin(angleInRadians)
         );
     }
 
@@ -216,10 +319,7 @@ public class PlayerMovement : MonoBehaviour
                 : currentSpeed;
         }
 
-        /*
-         * Eski sistem yalnızca comboSpeedStages boşsa
-         * fallback olarak kullanılır.
-         */
+        // Legacy fallback when no combo stages are configured.
         if (coinCollector.Combo >= 3)
             currentSpeed += comboSpeedBonus;
 
@@ -253,14 +353,10 @@ public class PlayerMovement : MonoBehaviour
             if (stage.comboMultiplier <= bestCombo)
                 continue;
 
-            if (currentCombo <
-                stage.comboMultiplier)
-            {
+            if (currentCombo < stage.comboMultiplier)
                 continue;
-            }
 
-            bestCombo =
-                stage.comboMultiplier;
+            bestCombo = stage.comboMultiplier;
 
             bestMultiplier = Mathf.Max(
                 1f,
@@ -281,10 +377,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        input = Vector2.ClampMagnitude(
-            input,
-            1f
-        );
+        input = Vector2.ClampMagnitude(input, 1f);
 
         if (input.magnitude < minInputToMove)
         {
@@ -293,9 +386,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveInput = input;
-
-        LastMoveDirection =
-            moveInput.normalized;
+        LastMoveDirection = moveInput.normalized;
 
         UpdateFacing(moveInput.x);
     }
@@ -304,14 +395,21 @@ public class PlayerMovement : MonoBehaviour
     {
         moveInput = Vector2.zero;
 
-        currentVelocity = Vector2.MoveTowards(
-            currentVelocity,
-            Vector2.zero,
+        float currentMagnitude =
+            currentVelocity.magnitude;
+
+        float stoppedMagnitude = Mathf.MoveTowards(
+            currentMagnitude,
+            0f,
             deceleration * deltaTime
         );
 
-        if (currentVelocity.sqrMagnitude <= 0.0001f)
-            currentVelocity = Vector2.zero;
+        currentVelocity =
+            stoppedMagnitude > 0.001f &&
+            currentMagnitude > 0.001f
+                ? currentVelocity.normalized *
+                  stoppedMagnitude
+                : Vector2.zero;
 
         rb.linearVelocity = Vector2.zero;
     }
@@ -366,11 +464,6 @@ public class PlayerMovement : MonoBehaviour
         if (IsGameOver)
             return;
 
-        /*
-         * State'i hemen kapatıyoruz. Böylece aynı frame
-         * içerisinde ikinci bir çarpışma tekrar GameOver
-         * başlatamaz.
-         */
         IsGameOver = true;
         StopMovement();
 
@@ -400,10 +493,7 @@ public class PlayerMovement : MonoBehaviour
 
     private float GetPlayerDeltaTime()
     {
-        /*
-         * Global slow sırasında player'ın hızının
-         * yavaşlamamasını sağlar.
-         */
+        // Keeps player speed unchanged during global slow motion.
         if (Time.timeScale <= 0f)
             return Time.fixedDeltaTime;
 
@@ -416,12 +506,8 @@ public class PlayerMovement : MonoBehaviour
         speed = Mathf.Max(0f, speed);
         comboSpeedBonus = FixedComboSpeedBonus;
 
-        acceleration =
-            Mathf.Max(0f, acceleration);
-
-        deceleration =
-            Mathf.Max(0f, deceleration);
-
+        acceleration = Mathf.Max(0f, acceleration);
+        deceleration = Mathf.Max(0f, deceleration);
         turnAcceleration =
             Mathf.Max(0f, turnAcceleration);
     }

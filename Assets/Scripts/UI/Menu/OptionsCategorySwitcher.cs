@@ -28,6 +28,11 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
     [SerializeField] private string audioButtonLabel = "AUDIO";
     [SerializeField] private string gameButtonLabel = "GAME";
 
+    [Header("Page Indicator")]
+    [SerializeField] private TMP_Text pageIndicatorText;
+    [SerializeField] private string audioPageIndicator = "1 / 2";
+    [SerializeField] private string gamePageIndicator = "2 / 2";
+
     [Header("Swipe")]
     [SerializeField] private bool swipeEnabled = true;
     [SerializeField, Min(1f)] private float minSwipeDistance = 90f;
@@ -106,12 +111,12 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
     public void ShowAudio()
     {
-        SwitchToCategory(OptionsCategory.Audio, false);
+        SwitchToCategory(OptionsCategory.Audio);
     }
 
     public void ShowGame()
     {
-        SwitchToCategory(OptionsCategory.Game, false);
+        SwitchToCategory(OptionsCategory.Game);
     }
 
     public void ToggleCategory()
@@ -126,7 +131,7 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
                 ? OptionsCategory.Game
                 : OptionsCategory.Audio;
 
-        SwitchToCategory(targetCategory, false);
+        SwitchToCategory(targetCategory);
     }
 
     private bool HandleTouchSwipe()
@@ -221,24 +226,17 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         if (swipeDelta.x < 0f &&
             currentCategory == OptionsCategory.Audio)
         {
-            SwitchToCategory(
-                OptionsCategory.Game,
-                true
-            );
+            SwitchToCategory(OptionsCategory.Game);
         }
         else if (swipeDelta.x > 0f &&
                  currentCategory == OptionsCategory.Game)
         {
-            SwitchToCategory(
-                OptionsCategory.Audio,
-                true
-            );
+            SwitchToCategory(OptionsCategory.Audio);
         }
     }
 
     private void SwitchToCategory(
-        OptionsCategory targetCategory,
-        bool playSwipeSound)
+        OptionsCategory targetCategory)
     {
         if (transitionRoutine != null ||
             targetCategory == currentCategory)
@@ -252,9 +250,7 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         currentCategory = targetCategory;
         SaveCurrentCategory();
         UpdateSwitchButtonText();
-
-        if (playSwipeSound)
-            SoundManager.Instance?.PlayOptionButtonSound();
+        UpdatePageIndicator();
 
         int direction =
             targetCategory == OptionsCategory.Game
@@ -376,6 +372,7 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         );
 
         UpdateSwitchButtonText();
+        UpdatePageIndicator();
     }
 
     private static void ApplyPageInstant(
@@ -405,6 +402,17 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
             currentCategory == OptionsCategory.Audio
                 ? gameButtonLabel
                 : audioButtonLabel;
+    }
+
+    private void UpdatePageIndicator()
+    {
+        if (pageIndicatorText == null)
+            return;
+
+        pageIndicatorText.text =
+            currentCategory == OptionsCategory.Audio
+                ? audioPageIndicator
+                : gamePageIndicator;
     }
 
     private OptionsCategory LoadSavedCategory()
