@@ -1,6 +1,6 @@
-# Void Rush
+# Fateful Rush
 
-Void Rush is a fast-paced 2D arcade survival game built with Unity, focused on responsive controls, satisfying gameplay, and progressively challenging combat.
+Fateful Rush is a fast-paced 2D arcade survival game built with Unity, focused on responsive controls, satisfying gameplay, and progressively challenging combat.
 
 The player must survive increasingly dangerous enemy waves while collecting coins, maintaining combo chains, activating temporary power-ups, and adapting to new gameplay mechanics introduced throughout the game's progression.
 
@@ -92,7 +92,6 @@ The game features handcrafted mission progression.
 
 ### Including:
 
-- Tutorial system
 - Mission configurations
 - Gradually introduced mechanics
 - Difficulty balancing
@@ -162,7 +161,7 @@ The project is built with maintainability and scalability in mind.
 
 #  Development Status
 
-Void Rush is currently under active development.
+Fateful Rush is currently under active development.
 
 ### Current work focuses on:
 
