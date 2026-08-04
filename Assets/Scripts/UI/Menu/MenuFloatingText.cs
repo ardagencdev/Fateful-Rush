@@ -3,841 +3,217 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class MenuFloatingText : MonoBehaviour
+[DisallowMultipleComponent]
+public sealed class MenuFloatingText : MonoBehaviour
 {
-    [Header("Reference")]
-    public TMP_Text textUI;
+    [Header("References")]
+    [SerializeField] private TMP_Text textUI;
+    [SerializeField] private RectTransform target;
 
-    [Header("Float")]
-    public float floatAmount = 10f;
-    public float floatSpeed = 2f;
+    [Header("Message Cycle")]
+    [SerializeField] private bool cycleMessages;
+    [SerializeField] private bool randomOrder;
+    [SerializeField] private bool showFirstMessageImmediately = true;
 
-    [Header("Pulse")]
-    public float pulseAmount = 0.1f;
-    public float pulseSpeed = 2f;
-
-    [Header("Rainbow")]
-    public bool rainbow;
-    public float rainbowSpeed = 0.2f;
-
-    [Header("Shake")]
-    public bool shake;
-    public float shakeAmount = 4f;
-    public float shakeSpeed = 25f;
-
-    [Header("Fade Loop")]
-    public bool fadeLoop;
-    public float minAlpha = 0.25f;
-    public float maxAlpha = 1f;
-    public float fadeSpeed = 2f;
-
-    [Header("Rotate")]
-    public bool rotate;
-    public float rotateAmount = 8f;
-    public float rotateSpeed = 2f;
-
-    [Header("Wave")]
-    public bool waveMove;
-    public float waveXAmount = 8f;
-    public float waveYAmount = 4f;
-    public float waveSpeed = 2f;
-
-    [Header("Color Pulse")]
-    public bool colorPulse;
-    public Color pulseColor = Color.magenta;
-    public float colorPulseSpeed = 2f;
-
-    [Header("Typewriter")]
-    public bool typewriter;
-
-    [Tooltip("Bu nesne birden fazla mesaj arasında geçiş yapacaksa aç.")]
-    public bool cycleMessages;
-
-    [Tooltip(
-        "Cycle Messages kapalıyken kullanılacak tek mesaj. " +
-        "Boş bırakılırsa TMP üzerindeki mevcut yazı kullanılır."
-    )]
     [TextArea]
-    public string typewriterMessage = "";
-
-    [Tooltip("Yalnızca Cycle Messages açıkken kullanılır.")]
-    [TextArea]
-    public string[] typewriterMessages =
+    [SerializeField]
+    private string[] messages =
     {
-        "Prepare for the Void",
-        "The Void Is Watching",
-        "Your Signal Is Fading",
-        "Something Moves Beyond",
-        "The Dark Remembers",
-        "The Silence Is Alive",
-        "You Were Never Alone",
         "The Stars Won't Answer",
-        "There Is No Way Back",
-        "Survival Only Delays It"
+        "Fate Is Already Moving",
+        "Your Signal Is Fading",
+        "There Is No Way Back"
     };
 
-    public float typeSpeed = 0.06f;
+    [Min(0.1f)]
+    [SerializeField] private float messageDuration = 6f;
 
-    public bool showCursor = true;
-    public string cursor = "_";
+    [Min(0.05f)]
+    [SerializeField] private float crossFadeDuration = 0.45f;
 
-    public bool eraseAfterType = true;
-    public float eraseSpeed = 0.035f;
+    [Header("Ambient Motion")]
+    [SerializeField] private bool ambientMotion = true;
+    [SerializeField] private Vector2 driftAmount = new Vector2(6f, 3f);
 
-    public bool loopTypewriter = true;
-    public bool randomMessageOrder = true;
+    [Min(0f)]
+    [SerializeField] private float driftSpeed = 0.08f;
 
-    public float waitAfterType = 10f;
-    public float waitAfterErase = 0.5f;
+    [Range(0f, 5f)]
+    [SerializeField] private float rotationAmount = 1.25f;
 
-    [Header("Glitch")]
-    public bool glitch;
-    public float glitchIntervalMin = 4f;
-    public float glitchIntervalMax = 9f;
-    public float glitchDuration = 0.15f;
-    public float glitchPositionAmount = 4f;
-    public int glitchCharacterChanges = 2;
-    public string glitchCharacters = "#@$%&!?<>/\\|";
+    [Range(0f, 0.08f)]
+    [SerializeField] private float breatheAmount = 0.012f;
 
-    [Header("Cursor Blink")]
-    public bool cursorBlink = true;
-    public float cursorBlinkSpeed = 0.5f;
+    [Min(0f)]
+    [SerializeField] private float breatheSpeed = 0.55f;
 
-    [Header("Letter Spacing")]
-    public bool letterSpacingAnim;
-    public float letterSpacingAmount = 8f;
-    public float letterSpacingSpeed = 1.5f;
+    [Header("Opacity")]
+    [Range(0f, 1f)]
+    [SerializeField] private float baseOpacity = 0.5f;
 
-    private static readonly string[] DefaultTypewriterMessages =
-    {
-        "Prepare for the Void",
-        "The Void Is Watching",
-        "Your Signal Is Fading",
-        "Something Moves Beyond",
-        "The Dark Remembers",
-        "The Silence Is Alive",
-        "You Were Never Alone",
-        "The Stars Won't Answer",
-        "There Is No Way Back",
-        "Survival Only Delays It"
-    };
+    [Range(0f, 0.4f)]
+    [SerializeField] private float opacityPulseAmount = 0.06f;
+
+    [Min(0f)]
+    [SerializeField] private float opacityPulseSpeed = 0.45f;
+
+    [Header("Rare Signal Glitch")]
+    [SerializeField] private bool glitch;
+
+    [Min(0.5f)]
+    [SerializeField] private float glitchIntervalMin = 10f;
+
+    [Min(0.5f)]
+    [SerializeField] private float glitchIntervalMax = 20f;
+
+    [Range(0.02f, 0.2f)]
+    [SerializeField] private float glitchDuration = 0.07f;
+
+    [Range(0f, 4f)]
+    [SerializeField] private float glitchPositionAmount = 1.25f;
+
+    [Range(1, 3)]
+    [SerializeField] private int glitchCharacterChanges = 1;
+
+    [SerializeField] private string glitchCharacters = "#@$%&!?<>/\\|";
+
+    private readonly List<string> usableMessages = new List<string>();
+
+    private Vector2 baseAnchoredPosition;
+    private Vector3 baseScale;
+    private Quaternion baseRotation;
+    private Color baseColor;
+
+    private float noiseSeedX;
+    private float noiseSeedY;
+    private float phase;
+    private float messageAlpha = 1f;
+
+    private Vector2 glitchOffset;
+    private string stableText = string.Empty;
+    private int currentMessageIndex = -1;
+    private int previousRandomIndex = -1;
 
     private bool initialized;
-    private bool cursorVisible = true;
-    private bool isGlitching;
 
-    private float cursorTimer;
-    private float cursorPositionCompensation;
-
-    private Vector3 startPos;
-    private Vector3 startScale;
-    private Quaternion startRot;
-
-    private Color originalColor;
-    private string originalText = "";
-    private string currentTypedText = "";
-
-    private int currentMessageIndex;
-    private int previousRandomMessageIndex = -1;
-
-    private Coroutine typeRoutine;
+    private Coroutine initializationRoutine;
+    private Coroutine messageRoutine;
     private Coroutine glitchRoutine;
 
-    private IEnumerator Start()
+    private void Reset()
     {
-        if (textUI == null)
-            textUI = GetComponent<TMP_Text>();
+        textUI = GetComponent<TMP_Text>();
+        target = transform as RectTransform;
+    }
 
-        yield return null;
+    private void Awake()
+    {
+        ResolveReferences();
+    }
 
-        startPos = transform.localPosition;
-        startScale = transform.localScale;
-        startRot = transform.localRotation;
+    private void OnEnable()
+    {
+        ResolveReferences();
 
-        if (textUI != null)
+        if (initialized)
         {
-            originalColor = textUI.color;
-            originalText = textUI.text;
-
-            CalculateCursorCompensation();
+            RestoreBaseState();
+            StartEffects();
+            return;
         }
 
-        currentMessageIndex = 0;
-        previousRandomMessageIndex = -1;
+        initializationRoutine = StartCoroutine(InitializeAfterLayout());
+    }
 
-        cursorVisible = true;
-        cursorTimer = 0f;
-        currentTypedText = "";
+    private IEnumerator InitializeAfterLayout()
+    {
+        // UI layout has one frame to settle before the base position is cached.
+        yield return null;
+
+        if (!isActiveAndEnabled || textUI == null || target == null)
+            yield break;
+
+        CaptureBaseState();
+        BuildUsableMessages();
+
+        noiseSeedX = Random.Range(0f, 1000f);
+        noiseSeedY = Random.Range(1000f, 2000f);
+        phase = Random.Range(0f, Mathf.PI * 2f);
 
         initialized = true;
+        initializationRoutine = null;
 
-        if (typewriter && textUI != null)
-            typeRoutine = StartCoroutine(TypewriterRoutine());
-
-        if (glitch && textUI != null)
-            glitchRoutine = StartCoroutine(GlitchRoutine());
+        StartEffects();
     }
 
     private void Update()
     {
-        if (!initialized)
+        if (!initialized || textUI == null || target == null)
             return;
 
-        ApplyPositionEffect();
-        ApplyScaleEffect();
-        ApplyRotationEffect();
-        ApplyColorEffect();
-        ApplyLetterSpacingEffect();
-        ApplyCursorBlink();
+        float time = Time.unscaledTime;
+
+        ApplyMotion(time);
+        ApplyOpacity(time);
     }
 
-    private void CalculateCursorCompensation()
-    {
-        cursorPositionCompensation = 0f;
-
-        if (textUI == null ||
-            string.IsNullOrEmpty(cursor))
-        {
-            return;
-        }
-
-        textUI.ForceMeshUpdate();
-
-        Vector2 cursorSize =
-            textUI.GetPreferredValues(cursor);
-
-        /*
-         * Cursor görünürken ortalanmış metin,
-         * cursor genişliğinin yarısı kadar sola gider.
-         * Objeyi aynı miktarda sağa taşıyarak bunu dengeliyoruz.
-         */
-        cursorPositionCompensation =
-            cursorSize.x * 0.5f;
-    }
-
-    private void ApplyPositionEffect()
-    {
-        Vector3 finalPos = startPos;
-
-        if (floatAmount != 0f)
-        {
-            finalPos += Vector3.up *
-                (
-                    Mathf.Sin(
-                        Time.time * floatSpeed
-                    ) *
-                    floatAmount
-                );
-        }
-
-        if (waveMove)
-        {
-            float x =
-                Mathf.Sin(
-                    Time.time * waveSpeed
-                ) *
-                waveXAmount;
-
-            float y =
-                Mathf.Cos(
-                    Time.time *
-                    waveSpeed *
-                    1.25f
-                ) *
-                waveYAmount;
-
-            finalPos += new Vector3(
-                x,
-                y,
-                0f
-            );
-        }
-
-        if (shake)
-        {
-            float x =
-                Mathf.Sin(
-                    Time.time * shakeSpeed
-                ) *
-                shakeAmount;
-
-            float y =
-                Mathf.Cos(
-                    Time.time *
-                    shakeSpeed *
-                    1.3f
-                ) *
-                shakeAmount;
-
-            finalPos += new Vector3(
-                x,
-                y,
-                0f
-            );
-        }
-
-        if (isGlitching)
-        {
-            finalPos += new Vector3(
-                Random.Range(
-                    -glitchPositionAmount,
-                    glitchPositionAmount
-                ),
-                Random.Range(
-                    -glitchPositionAmount,
-                    glitchPositionAmount
-                ),
-                0f
-            );
-        }
-
-        /*
-         * Cursor görünürken metin objesini yarım cursor
-         * genişliği kadar sağa kaydırır. Böylece asıl cümle
-         * cursor yanıp sönerken yerinden oynamaz.
-         */
-        if (typewriter &&
-            showCursor &&
-            cursorVisible &&
-            !string.IsNullOrEmpty(cursor))
-        {
-            finalPos += Vector3.right *
-                cursorPositionCompensation;
-        }
-
-        transform.localPosition = finalPos;
-    }
-
-    private void ApplyScaleEffect()
-    {
-        float scale = 1f;
-
-        if (pulseAmount != 0f)
-        {
-            scale +=
-                Mathf.Sin(
-                    Time.time * pulseSpeed
-                ) *
-                pulseAmount;
-        }
-
-        transform.localScale =
-            startScale * scale;
-    }
-
-    private void ApplyRotationEffect()
-    {
-        if (!rotate)
-        {
-            transform.localRotation = startRot;
-            return;
-        }
-
-        float z =
-            Mathf.Sin(
-                Time.time * rotateSpeed
-            ) *
-            rotateAmount;
-
-        transform.localRotation =
-            startRot *
-            Quaternion.Euler(
-                0f,
-                0f,
-                z
-            );
-    }
-
-    private void ApplyColorEffect()
+    private void ResolveReferences()
     {
         if (textUI == null)
-            return;
+            textUI = GetComponent<TMP_Text>();
 
-        Color color = originalColor;
-
-        if (rainbow)
-        {
-            color = Color.HSVToRGB(
-                Mathf.PingPong(
-                    Time.time * rainbowSpeed,
-                    1f
-                ),
-                1f,
-                1f
-            );
-        }
-
-        if (colorPulse)
-        {
-            float t =
-                (
-                    Mathf.Sin(
-                        Time.time *
-                        colorPulseSpeed
-                    ) +
-                    1f
-                ) /
-                2f;
-
-            color = Color.Lerp(
-                color,
-                pulseColor,
-                t
-            );
-        }
-
-        if (fadeLoop)
-        {
-            color.a = Mathf.Lerp(
-                minAlpha,
-                maxAlpha,
-                (
-                    Mathf.Sin(
-                        Time.time *
-                        fadeSpeed
-                    ) +
-                    1f
-                ) /
-                2f
-            );
-        }
-
-        textUI.color = color;
+        if (target == null)
+            target = transform as RectTransform;
     }
 
-    private IEnumerator TypewriterRoutine()
+    private void CaptureBaseState()
     {
-        while (true)
-        {
-            string message =
-                GetNextMessage();
-
-            yield return TypeText(message);
-
-            if (waitAfterType > 0f)
-            {
-                yield return new WaitForSecondsRealtime(
-                    waitAfterType
-                );
-            }
-
-            if (eraseAfterType)
-            {
-                yield return EraseText(message);
-
-                if (waitAfterErase > 0f)
-                {
-                    yield return new WaitForSecondsRealtime(
-                        waitAfterErase
-                    );
-                }
-            }
-
-            if (!loopTypewriter)
-                yield break;
-
-            if (!eraseAfterType)
-            {
-                currentTypedText = "";
-                RefreshTypewriterText();
-            }
-        }
+        baseAnchoredPosition = target.anchoredPosition;
+        baseScale = target.localScale;
+        baseRotation = target.localRotation;
+        baseColor = textUI.color;
+        stableText = textUI.text;
     }
 
-    private string GetNextMessage()
+    private void BuildUsableMessages()
     {
-        if (!cycleMessages)
+        usableMessages.Clear();
+
+        if (messages != null)
         {
-            if (!string.IsNullOrWhiteSpace(
-                typewriterMessage
-            ))
+            for (int i = 0; i < messages.Length; i++)
             {
-                return typewriterMessage.Trim();
-            }
-
-            if (!string.IsNullOrWhiteSpace(
-                originalText
-            ))
-            {
-                return originalText.Trim();
-            }
-
-            return DefaultTypewriterMessages[0];
-        }
-
-        string[] usableMessages =
-            GetUsableMessages();
-
-        if (usableMessages.Length == 0)
-            return DefaultTypewriterMessages[0];
-
-        if (randomMessageOrder)
-        {
-            int selectedIndex;
-
-            if (usableMessages.Length == 1)
-            {
-                selectedIndex = 0;
-            }
-            else
-            {
-                do
-                {
-                    selectedIndex = Random.Range(
-                        0,
-                        usableMessages.Length
-                    );
-                }
-                while (
-                    selectedIndex ==
-                    previousRandomMessageIndex
-                );
-            }
-
-            previousRandomMessageIndex =
-                selectedIndex;
-
-            return usableMessages[
-                selectedIndex
-            ];
-        }
-
-        if (currentMessageIndex < 0 ||
-            currentMessageIndex >=
-            usableMessages.Length)
-        {
-            currentMessageIndex = 0;
-        }
-
-        string selectedMessage =
-            usableMessages[currentMessageIndex];
-
-        currentMessageIndex =
-            (
-                currentMessageIndex + 1
-            ) %
-            usableMessages.Length;
-
-        return selectedMessage;
-    }
-
-    private string[] GetUsableMessages()
-    {
-        if (typewriterMessages == null ||
-            typewriterMessages.Length == 0)
-        {
-            return DefaultTypewriterMessages;
-        }
-
-        List<string> validMessages =
-            new List<string>();
-
-        for (int i = 0;
-             i < typewriterMessages.Length;
-             i++)
-        {
-            string message =
-                typewriterMessages[i];
-
-            if (string.IsNullOrWhiteSpace(
-                message
-            ))
-            {
-                continue;
-            }
-
-            validMessages.Add(
-                message.Trim()
-            );
-        }
-
-        if (validMessages.Count == 0)
-            return DefaultTypewriterMessages;
-
-        return validMessages.ToArray();
-    }
-
-    private IEnumerator TypeText(
-        string message
-    )
-    {
-        if (message == null)
-            message = "";
-
-        currentTypedText = "";
-
-        ResetCursorBlink();
-        RefreshTypewriterText();
-
-        for (int i = 0;
-             i <= message.Length;
-             i++)
-        {
-            currentTypedText =
-                message.Substring(0, i);
-
-            RefreshTypewriterText();
-
-            if (typeSpeed > 0f)
-            {
-                yield return new WaitForSecondsRealtime(
-                    typeSpeed
-                );
-            }
-            else
-            {
-                yield return null;
-            }
-        }
-    }
-
-    private IEnumerator EraseText(
-        string message
-    )
-    {
-        if (message == null)
-            message = "";
-
-        for (int i = message.Length;
-             i >= 0;
-             i--)
-        {
-            currentTypedText =
-                message.Substring(0, i);
-
-            RefreshTypewriterText();
-
-            if (eraseSpeed > 0f)
-            {
-                yield return new WaitForSecondsRealtime(
-                    eraseSpeed
-                );
-            }
-            else
-            {
-                yield return null;
+                if (!string.IsNullOrWhiteSpace(messages[i]))
+                    usableMessages.Add(messages[i].Trim());
             }
         }
 
-        currentTypedText = "";
-        RefreshTypewriterText();
+        if (usableMessages.Count == 0 && !string.IsNullOrWhiteSpace(stableText))
+            usableMessages.Add(stableText.Trim());
     }
 
-    private void RefreshTypewriterText()
+    private void StartEffects()
     {
-        if (textUI == null ||
-            isGlitching)
-        {
-            return;
-        }
+        StopEffectCoroutines();
 
-        textUI.text =
-            BuildDisplayedText(
-                currentTypedText
-            );
+        glitchOffset = Vector2.zero;
+        messageAlpha = 1f;
+
+        if (cycleMessages && usableMessages.Count > 0)
+            messageRoutine = StartCoroutine(MessageCycleRoutine());
+        else
+            textUI.text = stableText;
+
+        if (glitch)
+            glitchRoutine = StartCoroutine(GlitchRoutine());
     }
 
-    private string BuildDisplayedText(
-        string message
-    )
+    private void StopEffectCoroutines()
     {
-        if (message == null)
-            message = "";
-
-        if (!showCursor ||
-            string.IsNullOrEmpty(cursor))
+        if (messageRoutine != null)
         {
-            return message;
-        }
-
-        return cursorVisible
-            ? message + cursor
-            : message;
-    }
-
-    private IEnumerator GlitchRoutine()
-    {
-        while (true)
-        {
-            float minimumInterval =
-                Mathf.Max(
-                    0f,
-                    glitchIntervalMin
-                );
-
-            float maximumInterval =
-                Mathf.Max(
-                    minimumInterval,
-                    glitchIntervalMax
-                );
-
-            yield return new WaitForSecondsRealtime(
-                Random.Range(
-                    minimumInterval,
-                    maximumInterval
-                )
-            );
-
-            if (textUI == null)
-                continue;
-
-            string sourceText =
-                typewriter
-                    ? currentTypedText
-                    : originalText;
-
-            if (string.IsNullOrEmpty(
-                sourceText
-            ))
-            {
-                continue;
-            }
-
-            isGlitching = true;
-
-            float timer = 0f;
-            float safeDuration =
-                Mathf.Max(
-                    0f,
-                    glitchDuration
-                );
-
-            while (timer < safeDuration)
-            {
-                timer +=
-                    Time.unscaledDeltaTime;
-
-                string glitchedText =
-                    CreateGlitchedText(
-                        sourceText
-                    );
-
-                textUI.text =
-                    typewriter &&
-                    showCursor &&
-                    cursorVisible
-                        ? glitchedText + cursor
-                        : glitchedText;
-
-                yield return null;
-            }
-
-            isGlitching = false;
-
-            if (typewriter)
-                RefreshTypewriterText();
-            else
-                textUI.text = originalText;
-        }
-    }
-
-    private string CreateGlitchedText(
-        string source
-    )
-    {
-        if (string.IsNullOrEmpty(source) ||
-            string.IsNullOrEmpty(
-                glitchCharacters
-            ))
-        {
-            return source;
-        }
-
-        char[] characters =
-            source.ToCharArray();
-
-        int changes =
-            Mathf.Max(
-                0,
-                glitchCharacterChanges
-            );
-
-        for (int i = 0;
-             i < changes;
-             i++)
-        {
-            int index = Random.Range(
-                0,
-                characters.Length
-            );
-
-            if (characters[index] == ' ')
-                continue;
-
-            characters[index] =
-                glitchCharacters[
-                    Random.Range(
-                        0,
-                        glitchCharacters.Length
-                    )
-                ];
-        }
-
-        return new string(characters);
-    }
-
-    private void ApplyCursorBlink()
-    {
-        if (!typewriter ||
-            !cursorBlink ||
-            textUI == null ||
-            !showCursor ||
-            string.IsNullOrEmpty(cursor) ||
-            isGlitching)
-        {
-            return;
-        }
-
-        cursorTimer +=
-            Time.unscaledDeltaTime;
-
-        float safeBlinkSpeed =
-            Mathf.Max(
-                0.05f,
-                cursorBlinkSpeed
-            );
-
-        if (cursorTimer <
-            safeBlinkSpeed)
-        {
-            return;
-        }
-
-        cursorTimer = 0f;
-        cursorVisible =
-            !cursorVisible;
-
-        RefreshTypewriterText();
-    }
-
-    private void ResetCursorBlink()
-    {
-        cursorTimer = 0f;
-        cursorVisible = true;
-    }
-
-    private void ApplyLetterSpacingEffect()
-    {
-        if (!letterSpacingAnim ||
-            textUI == null)
-        {
-            return;
-        }
-
-        textUI.characterSpacing =
-            Mathf.Sin(
-                Time.time *
-                letterSpacingSpeed
-            ) *
-            letterSpacingAmount;
-    }
-
-    private void OnDisable()
-    {
-        if (typeRoutine != null)
-        {
-            StopCoroutine(typeRoutine);
-            typeRoutine = null;
+            StopCoroutine(messageRoutine);
+            messageRoutine = null;
         }
 
         if (glitchRoutine != null)
@@ -845,7 +221,223 @@ public class MenuFloatingText : MonoBehaviour
             StopCoroutine(glitchRoutine);
             glitchRoutine = null;
         }
-
-        isGlitching = false;
     }
+
+    private void ApplyMotion(float time)
+    {
+        Vector2 offset = Vector2.zero;
+        float rotation = 0f;
+        float scaleMultiplier = 1f;
+
+        if (ambientMotion)
+        {
+            float noiseTime = time * driftSpeed;
+
+            float xNoise = Mathf.PerlinNoise(noiseSeedX, noiseTime) * 2f - 1f;
+            float yNoise = Mathf.PerlinNoise(noiseSeedY, noiseTime) * 2f - 1f;
+
+            offset = new Vector2(
+                xNoise * driftAmount.x,
+                yNoise * driftAmount.y
+            );
+
+            float rotationNoise =
+                Mathf.PerlinNoise(noiseSeedX + 73.1f, noiseTime * 0.8f) * 2f - 1f;
+
+            rotation = rotationNoise * rotationAmount;
+
+            if (breatheAmount > 0f)
+            {
+                scaleMultiplier += Mathf.Sin(
+                    time * breatheSpeed * Mathf.PI * 2f + phase
+                ) * breatheAmount;
+            }
+        }
+
+        target.anchoredPosition = baseAnchoredPosition + offset + glitchOffset;
+        target.localRotation = baseRotation * Quaternion.Euler(0f, 0f, rotation);
+        target.localScale = baseScale * scaleMultiplier;
+    }
+
+    private void ApplyOpacity(float time)
+    {
+        float pulse = 0f;
+
+        if (opacityPulseAmount > 0f)
+        {
+            pulse = Mathf.Sin(
+                time * opacityPulseSpeed * Mathf.PI * 2f + phase
+            ) * opacityPulseAmount;
+        }
+
+        Color color = baseColor;
+        color.a = Mathf.Clamp01(baseOpacity + pulse) * messageAlpha;
+        textUI.color = color;
+    }
+
+    private IEnumerator MessageCycleRoutine()
+    {
+        bool firstMessage = true;
+
+        while (isActiveAndEnabled)
+        {
+            string nextMessage = GetNextMessage();
+
+            if (firstMessage && showFirstMessageImmediately)
+            {
+                stableText = nextMessage;
+                textUI.text = stableText;
+                messageAlpha = 1f;
+            }
+            else
+            {
+                yield return FadeMessage(1f, 0f);
+
+                stableText = nextMessage;
+                textUI.text = stableText;
+
+                yield return FadeMessage(0f, 1f);
+            }
+
+            firstMessage = false;
+
+            yield return new WaitForSecondsRealtime(messageDuration);
+        }
+    }
+
+    private IEnumerator FadeMessage(float from, float to)
+    {
+        float duration = Mathf.Max(0.05f, crossFadeDuration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            t = t * t * (3f - 2f * t); // SmoothStep without overshoot.
+
+            messageAlpha = Mathf.LerpUnclamped(from, to, t);
+            yield return null;
+        }
+
+        messageAlpha = to;
+    }
+
+    private string GetNextMessage()
+    {
+        if (usableMessages.Count == 0)
+            return stableText;
+
+        if (usableMessages.Count == 1)
+            return usableMessages[0];
+
+        if (randomOrder)
+        {
+            int selectedIndex;
+
+            do
+            {
+                selectedIndex = Random.Range(0, usableMessages.Count);
+            }
+            while (selectedIndex == previousRandomIndex);
+
+            previousRandomIndex = selectedIndex;
+            return usableMessages[selectedIndex];
+        }
+
+        currentMessageIndex = (currentMessageIndex + 1) % usableMessages.Count;
+        return usableMessages[currentMessageIndex];
+    }
+
+    private IEnumerator GlitchRoutine()
+    {
+        while (isActiveAndEnabled)
+        {
+            float minimum = Mathf.Max(0.5f, glitchIntervalMin);
+            float maximum = Mathf.Max(minimum, glitchIntervalMax);
+
+            yield return new WaitForSecondsRealtime(Random.Range(minimum, maximum));
+
+            if (messageAlpha < 0.95f || string.IsNullOrEmpty(stableText))
+                continue;
+
+            float elapsed = 0f;
+
+            while (elapsed < glitchDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+
+                glitchOffset = Random.insideUnitCircle * glitchPositionAmount;
+                textUI.text = CreateGlitchedText(stableText);
+
+                yield return null;
+            }
+
+            textUI.text = stableText;
+            glitchOffset = Vector2.zero;
+        }
+    }
+
+    private string CreateGlitchedText(string source)
+    {
+        if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(glitchCharacters))
+            return source;
+
+        char[] characters = source.ToCharArray();
+        int appliedChanges = 0;
+        int safety = characters.Length * 2;
+
+        while (appliedChanges < glitchCharacterChanges && safety-- > 0)
+        {
+            int index = Random.Range(0, characters.Length);
+
+            if (char.IsWhiteSpace(characters[index]))
+                continue;
+
+            characters[index] = glitchCharacters[
+                Random.Range(0, glitchCharacters.Length)
+            ];
+
+            appliedChanges++;
+        }
+
+        return new string(characters);
+    }
+
+    private void RestoreBaseState()
+    {
+        if (!initialized || textUI == null || target == null)
+            return;
+
+        target.anchoredPosition = baseAnchoredPosition;
+        target.localScale = baseScale;
+        target.localRotation = baseRotation;
+        textUI.color = baseColor;
+        textUI.text = stableText;
+
+        messageAlpha = 1f;
+        glitchOffset = Vector2.zero;
+    }
+
+    private void OnDisable()
+    {
+        if (initializationRoutine != null)
+        {
+            StopCoroutine(initializationRoutine);
+            initializationRoutine = null;
+        }
+
+        StopEffectCoroutines();
+        RestoreBaseState();
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        glitchIntervalMin = Mathf.Max(0.5f, glitchIntervalMin);
+        glitchIntervalMax = Mathf.Max(glitchIntervalMin, glitchIntervalMax);
+        messageDuration = Mathf.Max(0.1f, messageDuration);
+        crossFadeDuration = Mathf.Max(0.05f, crossFadeDuration);
+    }
+#endif
 }
