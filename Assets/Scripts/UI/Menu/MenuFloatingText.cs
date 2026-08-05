@@ -79,7 +79,10 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     private readonly List<string> usableMessages = new List<string>();
 
-    private Vector2 baseAnchoredPosition;
+    // localPosition is intentionally used instead of anchoredPosition.
+    // Different RectTransform anchors interpret anchoredPosition differently,
+    // while localPosition represents the same physical point under a shared parent.
+    private Vector3 baseLocalPosition;
     private Vector3 baseScale;
     private Quaternion baseRotation;
     private Color baseColor;
@@ -95,10 +98,24 @@ public sealed class MenuFloatingText : MonoBehaviour
     private int previousRandomIndex = -1;
 
     private bool initialized;
+    private bool sharedGlitchControlled;
 
     private Coroutine initializationRoutine;
     private Coroutine messageRoutine;
     private Coroutine glitchRoutine;
+
+    public bool IsInitialized => initialized;
+
+    public bool IsReadyForSharedGlitch =>
+        initialized &&
+        isActiveAndEnabled &&
+        textUI != null &&
+        target != null &&
+        messageAlpha >= 0.95f &&
+        !string.IsNullOrEmpty(stableText);
+
+    public Vector3 BaseLocalPosition => baseLocalPosition;
+    public Transform TargetParent => target != null ? target.parent : null;
 
     private void Reset()
     {
@@ -127,8 +144,9 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     private IEnumerator InitializeAfterLayout()
     {
-        // UI layout has one frame to settle before the base position is cached.
+        // Let the Canvas and anchors finish their first layout pass.
         yield return null;
+        Canvas.ForceUpdateCanvases();
 
         if (!isActiveAndEnabled || textUI == null || target == null)
             yield break;
@@ -168,7 +186,7 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     private void CaptureBaseState()
     {
-        baseAnchoredPosition = target.anchoredPosition;
+        baseLocalPosition = target.localPosition;
         baseScale = target.localScale;
         baseRotation = target.localRotation;
         baseColor = textUI.color;
@@ -204,7 +222,7 @@ public sealed class MenuFloatingText : MonoBehaviour
         else
             textUI.text = stableText;
 
-        if (glitch)
+        if (glitch && !sharedGlitchControlled)
             glitchRoutine = StartCoroutine(GlitchRoutine());
     }
 
@@ -254,7 +272,8 @@ public sealed class MenuFloatingText : MonoBehaviour
             }
         }
 
-        target.anchoredPosition = baseAnchoredPosition + offset + glitchOffset;
+        Vector2 totalOffset = offset + glitchOffset;
+        target.localPosition = baseLocalPosition + new Vector3(totalOffset.x, totalOffset.y, 0f);
         target.localRotation = baseRotation * Quaternion.Euler(0f, 0f, rotation);
         target.localScale = baseScale * scaleMultiplier;
     }
@@ -314,7 +333,7 @@ public sealed class MenuFloatingText : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
-            t = t * t * (3f - 2f * t); // SmoothStep without overshoot.
+            t = t * t * (3f - 2f * t);
 
             messageAlpha = Mathf.LerpUnclamped(from, to, t);
             yield return null;
@@ -358,7 +377,7 @@ public sealed class MenuFloatingText : MonoBehaviour
 
             yield return new WaitForSecondsRealtime(Random.Range(minimum, maximum));
 
-            if (messageAlpha < 0.95f || string.IsNullOrEmpty(stableText))
+            if (!IsReadyForSharedGlitch)
                 continue;
 
             float elapsed = 0f;
@@ -366,16 +385,69 @@ public sealed class MenuFloatingText : MonoBehaviour
             while (elapsed < glitchDuration)
             {
                 elapsed += Time.unscaledDeltaTime;
-
-                glitchOffset = Random.insideUnitCircle * glitchPositionAmount;
-                textUI.text = CreateGlitchedText(stableText);
-
+                ApplySharedGlitchFrame();
                 yield return null;
             }
 
-            textUI.text = stableText;
-            glitchOffset = Vector2.zero;
+            EndSharedGlitch();
         }
+    }
+
+    public void SetSharedGlitchControlled(bool controlled)
+    {
+        sharedGlitchControlled = controlled;
+
+        if (controlled)
+        {
+            if (glitchRoutine != null)
+            {
+                StopCoroutine(glitchRoutine);
+                glitchRoutine = null;
+            }
+
+            if (initialized)
+                EndSharedGlitch();
+
+            return;
+        }
+
+        if (
+            glitch &&
+            initialized &&
+            isActiveAndEnabled &&
+            glitchRoutine == null
+        )
+        {
+            glitchRoutine = StartCoroutine(GlitchRoutine());
+        }
+    }
+
+    public void SetBaseLocalPosition(Vector3 position)
+    {
+        baseLocalPosition = position;
+
+        if (target == null)
+            return;
+
+        target.localPosition = baseLocalPosition +
+            new Vector3(glitchOffset.x, glitchOffset.y, 0f);
+    }
+
+    public void ApplySharedGlitchFrame()
+    {
+        if (!IsReadyForSharedGlitch)
+            return;
+
+        glitchOffset = Random.insideUnitCircle * glitchPositionAmount;
+        textUI.text = CreateGlitchedText(stableText);
+    }
+
+    public void EndSharedGlitch()
+    {
+        glitchOffset = Vector2.zero;
+
+        if (textUI != null && initialized)
+            textUI.text = stableText;
     }
 
     private string CreateGlitchedText(string source)
@@ -409,7 +481,7 @@ public sealed class MenuFloatingText : MonoBehaviour
         if (!initialized || textUI == null || target == null)
             return;
 
-        target.anchoredPosition = baseAnchoredPosition;
+        target.localPosition = baseLocalPosition;
         target.localScale = baseScale;
         target.localRotation = baseRotation;
         textUI.color = baseColor;

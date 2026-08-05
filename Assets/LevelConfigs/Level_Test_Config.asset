@@ -230,8 +230,8 @@ MonoBehaviour:
   beaconHunterStunMultiplier: 0.8
   armorEnabled: 1
   slowEnabled: 1
-  armorMinSpawnTime: 5
-  armorMaxSpawnTime: 10
+  armorMinSpawnTime: 1
+  armorMaxSpawnTime: 2
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0

@@ -250,6 +250,13 @@ public class LevelSelectPanel : MonoBehaviour
         }
     }
 
+    public IReadOnlyList<LevelConfig> GetConfiguredLevels()
+    {
+        // Main menu Continue sistemi, LevelSelectPanel ile ayni
+        // LevelConfig listesini kullansin; ikinci bir 40 elemanli liste tutulmasin.
+        return GetValidLevels();
+    }
+
     private void OnMissionBriefingClosed()
     {
         RefreshButtons();

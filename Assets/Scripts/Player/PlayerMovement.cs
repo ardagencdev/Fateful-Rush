@@ -71,6 +71,28 @@ public class PlayerMovement : MonoBehaviour
 
     public Vector2 CurrentVelocity => currentVelocity;
     public Vector2 CurrentMoveInput => moveInput;
+
+    public Vector2 VisualMoveDirection
+    {
+        get
+        {
+            if (currentVelocity.sqrMagnitude > 0.0001f)
+                return currentVelocity.normalized;
+
+            if (playerDash != null &&
+                playerDash.IsDashing &&
+                LastMoveDirection.sqrMagnitude > 0.0001f)
+            {
+                return LastMoveDirection.normalized;
+            }
+
+            if (moveInput.sqrMagnitude > 0.0001f)
+                return moveInput.normalized;
+
+            return Vector2.zero;
+        }
+    }
+
     public float CurrentMoveSpeed => GetCurrentSpeed();
 
     public bool IsGameOver { get; private set; }

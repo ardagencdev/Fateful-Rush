@@ -26647,6 +26647,14 @@ PrefabInstance:
       propertyPath: turnAcceleration
       value: 130
       objectReference: {fileID: 0}
+    - target: {fileID: 1520705724468336694, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: pulseSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1520705724468336694, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: pulseAmount
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: comboUI
       value: 
@@ -26710,6 +26718,18 @@ PrefabInstance:
     - target: {fileID: 2307238948728083217, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2377731757498341298, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: playerMovement
+      value: 
+      objectReference: {fileID: 1118182838}
+    - target: {fileID: 2740902502840445114, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2740902502840445114, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4065927315343198356, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: inputCurve
@@ -26789,6 +26809,7 @@ PrefabInstance:
       objectReference: {fileID: 1252622767}
     m_RemovedComponents:
     - {fileID: 7497433958581034973, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+    - {fileID: 1520705724468336694, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -26835,6 +26856,7 @@ MonoBehaviour:
   skinCatalog: {fileID: 11400000, guid: 6a94e3ee225b5934ba73c6c7b9674c3f, type: 2}
   playerSpriteRenderer: {fileID: 2867039574598277699}
   playerDash: {fileID: 1118182829}
+  playerArmor: {fileID: 0}
 --- !u!1001 &4023838829864494741
 PrefabInstance:
   m_ObjectHideFlags: 0

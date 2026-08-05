@@ -10,6 +10,29 @@ public class PlayerArmor : MonoBehaviour
     [Header("Visual")]
     public GameObject shieldVisual;
 
+    [SerializeField]
+    private SpriteRenderer shieldSpriteRenderer;
+
+    [SerializeField, Range(0f, 1f)]
+    [Tooltip("Bütün skinlerde Armor Visual için kullanılan ortak alpha.")]
+    private float armorVisualAlpha = 0.55f;
+
+    [SerializeField, Range(0.1f, 1.5f)]
+    [Tooltip("Armor renginin genel parlaklığı.")]
+    private float armorVisualIntensity = 0.85f;
+
+    [SerializeField]
+    [Tooltip(
+        "Mevcut mor shield sprite'ın ana rengi. " +
+        "Hedef skin rengini doğru göstermek için otomatik dengelenir."
+    )]
+    private Color sourceSpriteReferenceColor =
+        new Color(0.60f, 0.46f, 0.87f, 1f);
+
+    [SerializeField, Min(1f)]
+    [Tooltip("Renk dengelemesinde kullanılabilecek en yüksek HDR kanal değeri.")]
+    private float maximumTintChannel = 2.25f;
+
     [Header("Break Effect")]
     [Min(0.01f)]
     public float breakScaleDuration = 0.18f;
@@ -26,6 +49,7 @@ public class PlayerArmor : MonoBehaviour
 
     private Vector3 shieldOriginalScale;
     private float playerOriginalAlpha = 1f;
+    private Color currentArmorVisualColor = Color.white;
 
     private Coroutine breakRoutine;
     private Coroutine immuneRoutine;
@@ -47,9 +71,13 @@ public class PlayerArmor : MonoBehaviour
         if (soundManager == null)
             soundManager = FindAnyObjectByType<SoundManager>();
 
+        FindShieldSpriteRenderer();
+
         if (shieldVisual != null)
         {
-            shieldOriginalScale = shieldVisual.transform.localScale;
+            shieldOriginalScale =
+                shieldVisual.transform.localScale;
+
             shieldVisual.SetActive(false);
         }
     }
@@ -66,9 +94,96 @@ public class PlayerArmor : MonoBehaviour
 
         if (shieldVisual != null)
         {
-            shieldVisual.transform.localScale = shieldOriginalScale;
+            ApplyVisualColor(
+                currentArmorVisualColor
+            );
+
+            shieldVisual.transform.localScale =
+                shieldOriginalScale;
+
             shieldVisual.SetActive(true);
         }
+    }
+
+    public void ApplyVisualColor(Color targetColor)
+    {
+        currentArmorVisualColor = targetColor;
+
+        FindShieldSpriteRenderer();
+
+        if (shieldSpriteRenderer == null)
+            return;
+
+        shieldSpriteRenderer.color =
+            BuildCompensatedRendererTint(
+                targetColor
+            );
+    }
+
+    private Color BuildCompensatedRendererTint(
+        Color targetColor
+    )
+    {
+        Color normalizedTarget =
+            NormalizeHdrColor(targetColor);
+
+        normalizedTarget *= armorVisualIntensity;
+
+        Color source = sourceSpriteReferenceColor;
+
+        float redSource =
+            Mathf.Max(0.05f, source.r);
+
+        float greenSource =
+            Mathf.Max(0.05f, source.g);
+
+        float blueSource =
+            Mathf.Max(0.05f, source.b);
+
+        Color compensatedTint = new Color(
+            normalizedTarget.r / redSource,
+            normalizedTarget.g / greenSource,
+            normalizedTarget.b / blueSource,
+            armorVisualAlpha
+        );
+
+        compensatedTint.r = Mathf.Min(
+            compensatedTint.r,
+            maximumTintChannel
+        );
+
+        compensatedTint.g = Mathf.Min(
+            compensatedTint.g,
+            maximumTintChannel
+        );
+
+        compensatedTint.b = Mathf.Min(
+            compensatedTint.b,
+            maximumTintChannel
+        );
+
+        compensatedTint.a = armorVisualAlpha;
+
+        return compensatedTint;
+    }
+
+    private static Color NormalizeHdrColor(Color color)
+    {
+        float highestChannel = Mathf.Max(
+            color.r,
+            color.g,
+            color.b
+        );
+
+        if (highestChannel > 1f)
+        {
+            color.r /= highestChannel;
+            color.g /= highestChannel;
+            color.b /= highestChannel;
+        }
+
+        color.a = 1f;
+        return color;
     }
 
     public void BreakArmor()
@@ -91,7 +206,8 @@ public class PlayerArmor : MonoBehaviour
         if (breakRoutine != null)
             StopCoroutine(breakRoutine);
 
-        breakRoutine = StartCoroutine(BreakScaleEffect());
+        breakRoutine =
+            StartCoroutine(BreakScaleEffect());
     }
 
     private void StartImmunity()
@@ -99,7 +215,8 @@ public class PlayerArmor : MonoBehaviour
         if (immuneRoutine != null)
             StopCoroutine(immuneRoutine);
 
-        immuneRoutine = StartCoroutine(ImmuneRoutine());
+        immuneRoutine =
+            StartCoroutine(ImmuneRoutine());
     }
 
     private IEnumerator ImmuneRoutine()
@@ -123,7 +240,10 @@ public class PlayerArmor : MonoBehaviour
             timer += Time.deltaTime;
 
             float blink =
-                Mathf.PingPong(timer * immuneBlinkSpeed, 1f);
+                Mathf.PingPong(
+                    timer * immuneBlinkSpeed,
+                    1f
+                );
 
             float alpha =
                 Mathf.Lerp(
@@ -161,7 +281,9 @@ public class PlayerArmor : MonoBehaviour
             timer += Time.deltaTime;
 
             float t =
-                Mathf.Clamp01(timer / breakScaleDuration);
+                Mathf.Clamp01(
+                    timer / breakScaleDuration
+                );
 
             t *= t;
 
@@ -176,7 +298,9 @@ public class PlayerArmor : MonoBehaviour
         }
 
         shieldVisual.SetActive(false);
-        shieldVisual.transform.localScale = shieldOriginalScale;
+
+        shieldVisual.transform.localScale =
+            shieldOriginalScale;
 
         breakRoutine = null;
     }
@@ -189,6 +313,20 @@ public class PlayerArmor : MonoBehaviour
         Color color = playerSpriteRenderer.color;
         color.a = alpha;
         playerSpriteRenderer.color = color;
+    }
+
+    private void FindShieldSpriteRenderer()
+    {
+        if (shieldSpriteRenderer != null)
+            return;
+
+        if (shieldVisual == null)
+            return;
+
+        shieldSpriteRenderer =
+            shieldVisual.GetComponentInChildren<SpriteRenderer>(
+                true
+            );
     }
 
     private void OnDisable()
@@ -208,5 +346,39 @@ public class PlayerArmor : MonoBehaviour
         IsImmune = false;
 
         SetPlayerAlpha(playerOriginalAlpha);
+    }
+
+    private void OnValidate()
+    {
+        armorVisualAlpha =
+            Mathf.Clamp01(armorVisualAlpha);
+
+        armorVisualIntensity =
+            Mathf.Clamp(
+                armorVisualIntensity,
+                0.1f,
+                1.5f
+            );
+
+        maximumTintChannel =
+            Mathf.Max(1f, maximumTintChannel);
+
+        sourceSpriteReferenceColor.r =
+            Mathf.Max(
+                0.05f,
+                sourceSpriteReferenceColor.r
+            );
+
+        sourceSpriteReferenceColor.g =
+            Mathf.Max(
+                0.05f,
+                sourceSpriteReferenceColor.g
+            );
+
+        sourceSpriteReferenceColor.b =
+            Mathf.Max(
+                0.05f,
+                sourceSpriteReferenceColor.b
+            );
     }
 }

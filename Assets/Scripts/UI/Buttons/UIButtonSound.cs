@@ -19,7 +19,8 @@ public class UIButtonSound : MonoBehaviour
         SkinEquip = 7,
 
         Custom = 8,
-        Exit = 9
+        Exit = 9,
+        Continue = 10
     }
 
     [SerializeField]
@@ -31,6 +32,13 @@ public class UIButtonSound : MonoBehaviour
     private AudioClip customSound;
 
     private Button button;
+    private MainMenu continueMainMenu;
+
+    public void ConfigureAsContinue(MainMenu mainMenu)
+    {
+        soundType = ButtonSoundType.Continue;
+        continueMainMenu = mainMenu;
+    }
 
     private void Awake()
     {
@@ -104,11 +112,31 @@ public class UIButtonSound : MonoBehaviour
                 soundManager.PlayExitButtonSound();
                 break;
 
+            case ButtonSoundType.Continue:
+                PlayContinueSound(soundManager);
+                break;
+
             case ButtonSoundType.Custom:
                 soundManager.PlayCustomSound(customSound);
                 break;
         }
 
         VibrationManager.Instance?.VibrateLight();
+    }
+
+    private void PlayContinueSound(SoundManager soundManager)
+    {
+        if (continueMainMenu == null)
+            continueMainMenu = FindAnyObjectByType<MainMenu>();
+
+        if (continueMainMenu != null &&
+            continueMainMenu.IsContinueAvailable)
+        {
+            soundManager.PlayStartButtonSound();
+        }
+        else
+        {
+            soundManager.PlayLockedLevelSound();
+        }
     }
 }

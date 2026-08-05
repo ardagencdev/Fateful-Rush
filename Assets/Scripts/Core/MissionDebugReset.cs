@@ -8,22 +8,46 @@ public class MissionDebugReset : MonoBehaviour
     [SerializeField, Min(1)]
     private int missionCount = 40;
 
+    [Header("Debug Keys")]
+    [SerializeField]
+    private Key skinAccessToggleKey = Key.K;
+
+    private void Start()
+    {
+        Debug.Log(
+            "<color=cyan><b>[DEBUG CONTROLS]</b></color>\n" +
+            "<color=yellow>R</color> - Bütün ilerlemeyi sıfırla\n" +
+            "<color=lime>U</color> - Bütün levelları aç\n" +
+            "<color=magenta>K</color> - Bütün skinleri aç / kapat"
+        );
+    }
+
     private void Update()
     {
-        if (Keyboard.current == null)
+        Keyboard keyboard = Keyboard.current;
+
+        if (keyboard == null)
             return;
 
         // R: Bütün ilerlemeyi sıfırla
-        if (Keyboard.current.rKey.wasPressedThisFrame)
+        if (keyboard.rKey.wasPressedThisFrame)
         {
             ResetMissionProgress();
             return;
         }
 
         // U: Bütün levelları aç
-        if (Keyboard.current.uKey.wasPressedThisFrame)
+        if (keyboard.uKey.wasPressedThisFrame)
         {
             UnlockAllMissions();
+            return;
+        }
+
+        // K (Inspector'dan değiştirilebilir): Bütün skinleri aç / tekrar kilitle
+        if (skinAccessToggleKey != Key.None &&
+            keyboard[skinAccessToggleKey].wasPressedThisFrame)
+        {
+            ToggleAllSkinsAccess();
         }
     }
 
@@ -37,6 +61,7 @@ public class MissionDebugReset : MonoBehaviour
 
         PlayerPrefs.SetInt("UnlockedLevel", 1);
 
+        PlayerSkinCatalog.SetDebugAllSkinsUnlocked(false);
         PlayerSkinCatalog.ClearSavedSelection();
 
         PlayerPrefs.Save();
@@ -55,6 +80,18 @@ public class MissionDebugReset : MonoBehaviour
         Debug.Log(
             "<color=lime>[DEBUG]</color> " +
             $"All {missionCount} missions were unlocked."
+        );
+    }
+
+    private void ToggleAllSkinsAccess()
+    {
+        bool unlocked =
+            PlayerSkinCatalog.ToggleDebugAllSkinsUnlocked();
+
+        Debug.Log(
+            unlocked
+                ? "<color=cyan>[DEBUG]</color> All player skins were unlocked."
+                : "<color=orange>[DEBUG]</color> Skin unlocks returned to normal progression."
         );
     }
 

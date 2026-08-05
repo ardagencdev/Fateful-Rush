@@ -14,6 +14,9 @@ public class PlayerSkinApplier : MonoBehaviour
     [SerializeField]
     private PlayerDash playerDash;
 
+    [SerializeField]
+    private PlayerArmor playerArmor;
+
     public PlayerSkinCatalog.SkinEntry CurrentSkin
     {
         get;
@@ -30,6 +33,11 @@ public class PlayerSkinApplier : MonoBehaviour
     public Color CurrentDashTrailColor =>
         CurrentSkin != null
             ? CurrentSkin.dashTrailColor
+            : Color.white;
+
+    public Color CurrentArmorVisualColor =>
+        CurrentSkin != null
+            ? CurrentSkin.armorVisualColor
             : Color.white;
 
     private void Awake()
@@ -80,6 +88,13 @@ public class PlayerSkinApplier : MonoBehaviour
                 skin.dashTrailColor
             );
         }
+
+        if (playerArmor != null)
+        {
+            playerArmor.ApplyVisualColor(
+                skin.armorVisualColor
+            );
+        }
     }
 
     private void FindMissingReferences()
@@ -92,5 +107,8 @@ public class PlayerSkinApplier : MonoBehaviour
 
         if (playerDash == null)
             playerDash = GetComponent<PlayerDash>();
+
+        if (playerArmor == null)
+            playerArmor = GetComponent<PlayerArmor>();
     }
 }
