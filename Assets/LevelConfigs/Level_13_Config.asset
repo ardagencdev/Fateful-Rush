@@ -40,35 +40,34 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Slow power-up temporarily reduces enemy and hazard pressure.
-  - Collect it before the arena becomes crowded; using the quiet window early can
-    prevent a later collapse.
+  - "Slow temporarily reduces every active enemy. Trigger it when the arena is crowded, not while threats are still spawning."
+  - "This is a survival mission: clone is not available yet, so bomb awareness and central positioning decide the run."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 1
   winScore: 15
   timeLimit: 50
   showGameTimerHUD: 1
-  playerMoveSpeed: 6.8
+  playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 0
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3
+  cloneDuration: 3.0
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.45
   slowDuration: 5
   comboEnabled: 0
-  comboTimeLimit: 2
+  comboTimeLimit: 1.95
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.25
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 5
-    playerSpeedMultiplier: 1.5
+    coinsRequired: 8
+    playerSpeedMultiplier: 1.055
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.40928, g: 0.49312, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1.2
@@ -85,20 +84,20 @@ MonoBehaviour:
   normalCoinEnabled: 1
   goldCoinEnabled: 1
   rareCoinEnabled: 1
-  obstacleSpawnMode: 1
+  obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
     enabled: 1
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
     enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: e92d44d4f2069ce47ad1f793030e40d8, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
-    enabled: 1
-  - prefab: {fileID: 1198742668289528155, guid: b0b17e18d59613249b04b704bf589e04, type: 3}
     enabled: 0
+  - prefab: {fileID: 1198742668289528155, guid: b0b17e18d59613249b04b704bf589e04, type: 3}
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: aa4e8dc2beb3cdb4da72ef8675f7c575, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: e51d565c6e170ff46b9180c55a5bdc67, type: 3}
@@ -106,7 +105,7 @@ MonoBehaviour:
   - prefab: {fileID: 1198742668289528155, guid: b45512429b7a5764788d7dfd1ea74531, type: 3}
     enabled: 0
   - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 9ebcaeaa04c505648a171fde806a61c0, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 847a7b13c1a308048b25dc05595b68cc, type: 3}
@@ -116,8 +115,8 @@ MonoBehaviour:
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 4
-  normalEnemySpawnInterval: 5
-  normalEnemyDanger: 1
+  normalEnemySpawnInterval: 7.0
+  normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -132,7 +131,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10
+  projectileEnemySpawnInterval: 14
   projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -154,8 +153,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemySpawnInterval: 0
+  hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -166,10 +165,10 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 1
+  bossSpawnCondition: 0
   bossSpawnScore: 75
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 1
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -181,7 +180,7 @@ MonoBehaviour:
   beaconEnemyCount: 0
   beaconMinSpawnTime: 10
   beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -191,7 +190,7 @@ MonoBehaviour:
     buffDuration: 15
     buffSizeMultiplier: 1.25
     normalSpeedMultiplier: 1.35
-    normalMaxSpeedMultiplier: 1.25
+    normalMaxSpeedMultiplier: 1
     projectileMoveMultiplier: 1.2
     projectileShotMultiplier: 1.25
     projectileFireMultiplier: 1.25
@@ -202,6 +201,7 @@ MonoBehaviour:
     moveSpeed: 3
     safeDistanceFromPlayer: 5
     wanderStrength: 0.6
+    respawnDelay: 6
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
@@ -230,7 +230,7 @@ MonoBehaviour:
   beaconBuffDuration: 15
   beaconBuffSizeMultiplier: 1.25
   beaconNormalSpeedMultiplier: 1.35
-  beaconNormalMaxSpeedMultiplier: 1.25
+  beaconNormalMaxSpeedMultiplier: 1
   beaconProjectileMoveMultiplier: 1.2
   beaconProjectileShotMultiplier: 1.25
   beaconProjectileFireMultiplier: 1.25
@@ -244,8 +244,8 @@ MonoBehaviour:
   armorMaxSpawnTime: 30
   slowMinSpawnTime: 12
   slowMaxSpawnTime: 18
-  verticalLaserEnabled: 1
-  verticalLaserDanger: 2
+  verticalLaserEnabled: 0
+  verticalLaserDanger: 1
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -255,7 +255,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 2
+  horizontalLaserDanger: 1
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -264,7 +264,7 @@ MonoBehaviour:
     lifeTime: 1.5
     width: 0.5
     sizeExtra: 1
-  bombTrapEnabled: 0
+  bombTrapEnabled: 1
   bombDanger: 2
   bombCustomOverride: 0
   bombOverride:
@@ -287,3 +287,4 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
+

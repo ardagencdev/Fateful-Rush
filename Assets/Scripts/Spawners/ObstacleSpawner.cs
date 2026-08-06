@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class ObstacleSpawner : MonoBehaviour
 {
+    private const int MaximumObstaclesPerLevel = 5;
+
     [Header("Obstacle Mode")]
     public ObstacleSpawnMode obstacleSpawnMode = ObstacleSpawnMode.Fixed;
 
@@ -11,56 +13,51 @@ public class ObstacleSpawner : MonoBehaviour
     public LevelObstacleOption[] levelObstacles;
 
     [Header("Random Obstacles")]
-    [Min(0)]
+    [Range(0, MaximumObstaclesPerLevel)]
     public int randomObstacleCount = 5;
 
     [Header("Spawn Settings")]
-    [Min(0f)]
-    public float minDistanceBetweenObstacles = 2.5f;
-
-    [Min(0f)]
-    public float playerSafeDistance = 3f;
-
-    [Min(0f)]
-    public float edgePadding = 1f;
-
-    [Min(0f)]
-    public float checkRadius = 0.8f;
-
-    [Min(1)]
-    public int maxAttempts = 100;
+    [Min(0f)] public float minDistanceBetweenObstacles = 1.2f;
+    [Min(0f)] public float playerSafeDistance = 3.5f;
+    [Min(0f)] public float edgePadding = 0.6f;
+    [Tooltip("Extra empty strip kept between an obstacle footprint and the arena edge.")]
+    [Min(0f)] public float arenaEdgeClearance = 1.25f;
+    [Min(0f)] public float checkRadius = 0.8f;
+    [Min(1)] public int maxAttempts = 120;
 
     [Header("References")]
     public Transform player;
 
     [Header("Intro Popups")]
-    [Min(0f)]
-    public float obstaclePopupGap = 0.04f;
+    [Min(0f)] public float obstaclePopupGap = 0.04f;
+
+    private struct SpawnedFootprint
+    {
+        public Vector2 Position;
+        public float Radius;
+    }
 
     private int obstacleLayerIndex;
     private int wallLayerIndex;
-
     private ContactFilter2D spawnFilter;
-
     private readonly Collider2D[] spawnHits = new Collider2D[32];
-    private readonly List<Vector2> spawnedPositions = new List<Vector2>();
+    private readonly List<SpawnedFootprint> spawnedFootprints = new List<SpawnedFootprint>();
     private readonly List<GameObject> spawnedObstacles = new List<GameObject>();
 
     private void Awake()
     {
         obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
         wallLayerIndex = LayerMask.NameToLayer("Wall");
-
         spawnFilter = ContactFilter2D.noFilter;
         spawnFilter.useTriggers = true;
     }
 
     public void SpawnObstacles()
     {
-        if (CameraWorldBounds.Instance == null) return;
-        if (levelObstacles == null || levelObstacles.Length == 0) return;
+        if (CameraWorldBounds.Instance == null || levelObstacles == null || levelObstacles.Length == 0)
+            return;
 
-        spawnedPositions.Clear();
+        spawnedFootprints.Clear();
         spawnedObstacles.Clear();
 
         if (obstacleSpawnMode == ObstacleSpawnMode.Random)
@@ -71,82 +68,103 @@ public class ObstacleSpawner : MonoBehaviour
 
     private void SpawnEnabledObstacles()
     {
+        int spawnedCount = 0;
         foreach (LevelObstacleOption obstacle in levelObstacles)
         {
-            if (obstacle == null) continue;
-            if (!obstacle.enabled) continue;
-            if (obstacle.prefab == null) continue;
-
-            SpawnObstaclePrefab(obstacle.prefab);
+            if (spawnedCount >= MaximumObstaclesPerLevel)
+                break;
+            if (obstacle == null || !obstacle.enabled || obstacle.prefab == null)
+                continue;
+            if (SpawnObstaclePrefab(obstacle.prefab))
+                spawnedCount++;
         }
     }
 
     private void SpawnRandomObstacles()
     {
-        List<GameObject> randomPool = new List<GameObject>();
-
+        List<GameObject> pool = new List<GameObject>();
         foreach (LevelObstacleOption obstacle in levelObstacles)
         {
-            if (obstacle == null)
-                continue;
-
-            if (!obstacle.enabled)
-                continue;
-
-            if (obstacle.prefab == null)
-                continue;
-
-            if (!randomPool.Contains(obstacle.prefab))
-                randomPool.Add(obstacle.prefab);
+            if (obstacle != null && obstacle.enabled && obstacle.prefab != null && !pool.Contains(obstacle.prefab))
+                pool.Add(obstacle.prefab);
         }
 
-        if (randomPool.Count == 0)
-            return;
-
-        Shuffle(randomPool);
-
-        int spawnCount =
-            Mathf.Min(randomObstacleCount, randomPool.Count);
-
-        for (int i = 0; i < spawnCount; i++)
-            SpawnObstaclePrefab(randomPool[i]);
+        Shuffle(pool);
+        int targetCount = Mathf.Min(randomObstacleCount, pool.Count, MaximumObstaclesPerLevel);
+        int spawnedCount = 0;
+        for (int i = 0; i < pool.Count && spawnedCount < targetCount; i++)
+        {
+            if (SpawnObstaclePrefab(pool[i]))
+                spawnedCount++;
+        }
     }
 
-    private void SpawnObstaclePrefab(GameObject prefab)
+    private bool SpawnObstaclePrefab(GameObject prefab)
     {
-        if (prefab == null) return;
+        Vector2 halfExtents = GetPrefabHalfExtents(prefab);
+        float footprintRadius = Mathf.Max(halfExtents.x, halfExtents.y, checkRadius);
 
-        if (!TryGetValidPosition(out Vector2 spawnPos))
-            return;
+        if (!TryGetValidPosition(halfExtents, footprintRadius, out Vector2 spawnPos))
+        {
+            Debug.LogWarning($"[ObstacleSpawner] Safe position not found for {prefab.name}; obstacle skipped.", this);
+            return false;
+        }
 
         GameObject spawned = Instantiate(prefab, spawnPos, Quaternion.identity);
-
         spawnedObstacles.Add(spawned);
-        spawnedPositions.Add(spawnPos);
+        spawnedFootprints.Add(new SpawnedFootprint { Position = spawnPos, Radius = footprintRadius });
+        return true;
     }
 
+    private static Vector2 GetPrefabHalfExtents(GameObject prefab)
+    {
+        Bounds combined = new Bounds(Vector3.zero, Vector3.zero);
+        bool hasBounds = false;
+
+        Collider2D[] colliders = prefab.GetComponentsInChildren<Collider2D>(true);
+        foreach (Collider2D collider in colliders)
+        {
+            Bounds bounds = collider.bounds;
+            if (bounds.extents.sqrMagnitude <= 0.0001f)
+                continue;
+            if (!hasBounds) { combined = bounds; hasBounds = true; }
+            else combined.Encapsulate(bounds);
+        }
+
+        if (!hasBounds)
+        {
+            Renderer[] renderers = prefab.GetComponentsInChildren<Renderer>(true);
+            foreach (Renderer renderer in renderers)
+            {
+                Bounds bounds = renderer.bounds;
+                if (bounds.extents.sqrMagnitude <= 0.0001f)
+                    continue;
+                if (!hasBounds) { combined = bounds; hasBounds = true; }
+                else combined.Encapsulate(bounds);
+            }
+        }
+
+        if (!hasBounds)
+            return Vector2.one * 0.8f;
+
+        return new Vector2(
+            Mathf.Max(0.35f, combined.extents.x),
+            Mathf.Max(0.35f, combined.extents.y)
+        );
+    }
 
     public IEnumerator PlaySpawnedObstaclePopupsAndWait()
     {
-        if (spawnedObstacles.Count == 0)
-            yield break;
-
+        if (spawnedObstacles.Count == 0) yield break;
         List<GameObject> popupList = new List<GameObject>(spawnedObstacles);
         Shuffle(popupList);
-
         foreach (GameObject obstacle in popupList)
         {
             if (obstacle == null) continue;
-
-            SpawnPopEffect popEffect = obstacle.GetComponent<SpawnPopEffect>();
-
-            if (popEffect != null)
-                yield return popEffect.PlayAndWait();
-            else
-                obstacle.transform.localScale = obstacle.transform.localScale == Vector3.zero ? Vector3.one : obstacle.transform.localScale;
-
-            if (obstaclePopupGap > 0f)
-                yield return new WaitForSecondsRealtime(obstaclePopupGap);
+            SpawnPopEffect effect = obstacle.GetComponent<SpawnPopEffect>();
+            if (effect != null) yield return effect.PlayAndWait();
+            else if (obstacle.transform.localScale == Vector3.zero) obstacle.transform.localScale = Vector3.one;
+            if (obstaclePopupGap > 0f) yield return new WaitForSecondsRealtime(obstaclePopupGap);
         }
     }
 
@@ -155,33 +173,37 @@ public class ObstacleSpawner : MonoBehaviour
         foreach (GameObject obstacle in spawnedObstacles)
         {
             if (obstacle == null) continue;
-
-            SpawnPopEffect popEffect = obstacle.GetComponent<SpawnPopEffect>();
-
-            if (popEffect != null)
-                popEffect.HideInstant();
+            SpawnPopEffect effect = obstacle.GetComponent<SpawnPopEffect>();
+            if (effect != null) effect.HideInstant();
         }
     }
 
     public void ClearObstacles()
     {
         foreach (GameObject obstacle in spawnedObstacles)
-        {
-            if (obstacle != null)
-                Destroy(obstacle);
-        }
-
+            if (obstacle != null) Destroy(obstacle);
         spawnedObstacles.Clear();
-        spawnedPositions.Clear();
+        spawnedFootprints.Clear();
     }
 
-    private bool TryGetValidPosition(out Vector2 spawnPos)
+    private bool TryGetValidPosition(Vector2 halfExtents, float footprintRadius, out Vector2 spawnPos)
     {
+        CameraWorldBounds bounds = CameraWorldBounds.Instance;
+        float minX = bounds.MinX + edgePadding + arenaEdgeClearance + halfExtents.x;
+        float maxX = bounds.MaxX - edgePadding - arenaEdgeClearance - halfExtents.x;
+        float minY = bounds.MinY + edgePadding + arenaEdgeClearance + halfExtents.y;
+        float maxY = bounds.MaxY - edgePadding - arenaEdgeClearance - halfExtents.y;
+
+        if (minX >= maxX || minY >= maxY)
+        {
+            spawnPos = Vector2.zero;
+            return false;
+        }
+
         for (int i = 0; i < maxAttempts; i++)
         {
-            spawnPos = CameraWorldBounds.Instance.RandomPointInside(edgePadding);
-
-            if (IsValidPosition(spawnPos))
+            spawnPos = new Vector2(Random.Range(minX, maxX), Random.Range(minY, maxY));
+            if (IsValidPosition(spawnPos, footprintRadius))
                 return true;
         }
 
@@ -189,82 +211,56 @@ public class ObstacleSpawner : MonoBehaviour
         return false;
     }
 
-    private bool IsValidPosition(Vector2 pos)
+    private bool IsValidPosition(Vector2 pos, float footprintRadius)
     {
-        if (player != null)
-        {
-            float safeDistanceSqr = playerSafeDistance * playerSafeDistance;
+        if (player != null && Vector2.Distance(player.position, pos) < playerSafeDistance + footprintRadius)
+            return false;
 
-            if (((Vector2)player.position - pos).sqrMagnitude < safeDistanceSqr)
+        foreach (SpawnedFootprint other in spawnedFootprints)
+        {
+            if (Vector2.Distance(pos, other.Position) < footprintRadius + other.Radius + minDistanceBetweenObstacles)
                 return false;
         }
 
-        float obstacleDistanceSqr = minDistanceBetweenObstacles * minDistanceBetweenObstacles;
-
-        for (int i = 0; i < spawnedPositions.Count; i++)
-        {
-            if ((pos - spawnedPositions[i]).sqrMagnitude < obstacleDistanceSqr)
-                return false;
-        }
-
-        int hitCount = Physics2D.OverlapCircle(pos, checkRadius, spawnFilter, spawnHits);
-
+        float overlapRadius = Mathf.Max(checkRadius, footprintRadius);
+        int hitCount = Physics2D.OverlapCircle(pos, overlapRadius, spawnFilter, spawnHits);
         for (int i = 0; i < hitCount; i++)
         {
             Collider2D hit = spawnHits[i];
-            if (hit == null) continue;
-
-            if (IsBlocked(hit))
+            if (hit != null && IsBlocked(hit))
                 return false;
         }
-
         return true;
     }
 
     private bool IsBlocked(Collider2D hit)
     {
         GameObject obj = hit.gameObject;
-
-        return hit.CompareTag("Coin") ||
-               hit.CompareTag("Player") ||
-               hit.CompareTag("PowerUp") ||
-               obj.layer == obstacleLayerIndex ||
-               obj.layer == wallLayerIndex;
+        return hit.CompareTag("Coin") || hit.CompareTag("Player") || hit.CompareTag("PowerUp") ||
+               hit.CompareTag("Enemy") || hit.CompareTag("Bomb") ||
+               obj.layer == obstacleLayerIndex || obj.layer == wallLayerIndex;
     }
 
-    private void Shuffle(List<GameObject> list)
+    private static void Shuffle(List<GameObject> list)
     {
         for (int i = 0; i < list.Count; i++)
         {
-            int randomIndex = Random.Range(i, list.Count);
-
-            GameObject temp = list[i];
-            list[i] = list[randomIndex];
-            list[randomIndex] = temp;
+            int index = Random.Range(i, list.Count);
+            GameObject temporary = list[i];
+            list[i] = list[index];
+            list[index] = temporary;
         }
     }
 
     private void OnValidate()
     {
-        randomObstacleCount =
-            Mathf.Max(0, randomObstacleCount);
-
-        minDistanceBetweenObstacles =
-            Mathf.Max(0f, minDistanceBetweenObstacles);
-
-        playerSafeDistance =
-            Mathf.Max(0f, playerSafeDistance);
-
-        edgePadding =
-            Mathf.Max(0f, edgePadding);
-
-        checkRadius =
-            Mathf.Max(0f, checkRadius);
-
-        maxAttempts =
-            Mathf.Max(1, maxAttempts);
-
-        obstaclePopupGap =
-            Mathf.Max(0f, obstaclePopupGap);
+        randomObstacleCount = Mathf.Clamp(randomObstacleCount, 0, MaximumObstaclesPerLevel);
+        minDistanceBetweenObstacles = Mathf.Max(0f, minDistanceBetweenObstacles);
+        playerSafeDistance = Mathf.Max(0f, playerSafeDistance);
+        edgePadding = Mathf.Max(0f, edgePadding);
+        arenaEdgeClearance = Mathf.Max(0f, arenaEdgeClearance);
+        checkRadius = Mathf.Max(0f, checkRadius);
+        maxAttempts = Mathf.Max(1, maxAttempts);
+        obstaclePopupGap = Mathf.Max(0f, obstaclePopupGap);
     }
 }

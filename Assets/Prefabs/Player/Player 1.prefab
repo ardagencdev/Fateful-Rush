@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2740902502840445114}
   - component: {fileID: 6181474848875714697}
   - component: {fileID: 2377731757498341298}
-  - component: {fileID: 1520705724468336694}
   m_Layer: 7
   m_Name: ShieldVisual
   m_TagString: Untagged
@@ -107,20 +106,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShieldRotate
   rotateSpeed: 40
---- !u!114 &1520705724468336694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6074685825724596311}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ccf79e216b956b40a033b2b1cd59fdd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShieldPulse
-  pulseSpeed: 2
-  pulseAmount: 0.05
 --- !u!1 &7818038825221792328
 GameObject:
   m_ObjectHideFlags: 0

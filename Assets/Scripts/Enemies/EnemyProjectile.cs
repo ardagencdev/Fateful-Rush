@@ -47,6 +47,7 @@ public class EnemyProjectile : MonoBehaviour
 
     private ProjectileEnemyFollow poolOwner;
     private PlayerMovement playerMovement;
+    private Vector2 travelVelocity;
 
     private void Awake()
     {
@@ -122,7 +123,8 @@ public class EnemyProjectile : MonoBehaviour
             col.enabled = true;
 
         rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.linearVelocity = direction.normalized * speed;
+        travelVelocity = direction.normalized * speed;
+        rb.linearVelocity = travelVelocity;
         rb.angularVelocity = 0f;
 
         if (lifeRoutine != null)
@@ -310,6 +312,15 @@ public class EnemyProjectile : MonoBehaviour
         if (stopped || disappearing)
             return;
 
+        if (IsEnemyFamily(collision.gameObject))
+        {
+            if (col != null && collision.collider != null)
+                Physics2D.IgnoreCollision(col, collision.collider, true);
+
+            rb.linearVelocity = travelVelocity;
+            return;
+        }
+
         HandleHit(collision.gameObject);
     }
 
@@ -334,6 +345,12 @@ public class EnemyProjectile : MonoBehaviour
     {
         if (other == null)
             return;
+
+        if (IsEnemyFamily(other))
+        {
+            rb.linearVelocity = travelVelocity;
+            return;
+        }
 
         if (IsVoidClone(other))
         {
@@ -363,6 +380,19 @@ public class EnemyProjectile : MonoBehaviour
 
         if (ShouldReturnOnHit(other))
             ReturnToPool();
+    }
+
+    private bool IsEnemyFamily(GameObject other)
+    {
+        if (other == null)
+            return false;
+
+        return other.GetComponentInParent<EnemyFollow>() != null ||
+               other.GetComponentInParent<ProjectileEnemyFollow>() != null ||
+               other.GetComponentInParent<HunterEnemyFollow>() != null ||
+               other.GetComponentInParent<BossEnemyFollow>() != null ||
+               other.GetComponentInParent<MiniBossFollow>() != null ||
+               other.GetComponentInParent<BeaconEnemy>() != null;
     }
 
     private bool IsVoidClone(GameObject other)

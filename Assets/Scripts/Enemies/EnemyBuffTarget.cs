@@ -10,30 +10,37 @@ public class EnemyBuffTarget : MonoBehaviour
 
     private bool buffed;
     private Coroutine buffRoutine;
+    private BeaconEnemy buffSource;
 
     private EnemyFollow normal;
     private ProjectileEnemyFollow projectile;
     private HunterEnemyFollow hunter;
 
     private bool canReceiveBeaconBuff = true;
-
     private Vector3 scaleBeforeBuff;
 
-    private float nSpeed, nMaxSpeed;
-    private float pMoveSpeed, pShotSpeed, pFireRate;
-    private float hRep, hWarn, hCharge, hStun;
-
-    private float appliedSizeMult = 1f;
-    private float appliedNormalSpeedMult = 1f;
+    private float pMoveSpeed;
+    private float pShotSpeed;
+    private float pFireRate;
+    private float hRep;
+    private float hWarn;
+    private float hCharge;
+    private float hStun;
 
     public bool IsBuffed => buffed;
     public bool CanReceiveBeaconBuff => canReceiveBeaconBuff;
+    public BeaconEnemy BuffSource => buffSource;
 
     private void Awake()
     {
         FindChildAura();
         SetAura(false);
         RefreshBaseValues();
+    }
+
+    private void OnDisable()
+    {
+        RemoveBeaconBuff();
     }
 
     public void RefreshBaseValues()
@@ -49,33 +56,11 @@ public class EnemyBuffTarget : MonoBehaviour
             GetComponentInParent<BeaconEnemy>() == null &&
             GetComponentInParent<BossEnemyFollow>() == null &&
             GetComponentInParent<MiniBossFollow>() == null;
-
-        if (normal != null)
-        {
-            nSpeed = normal.speed;
-            nMaxSpeed = normal.maxSpeed;
-        }
-
-        if (projectile != null)
-        {
-            pMoveSpeed = projectile.moveSpeed;
-            pShotSpeed = projectile.projectileSpeed;
-            pFireRate = projectile.fireRate;
-        }
-
-        if (hunter != null)
-        {
-            hRep = hunter.repositionTime;
-            hWarn = hunter.warningDuration;
-            hCharge = hunter.chargeSpeed;
-            hStun = hunter.stunDuration;
-        }
     }
 
     private void FindChildAura()
     {
         Transform aura = transform.Find("BuffAura");
-
         if (aura != null)
             buffAura = aura.gameObject;
     }
@@ -87,48 +72,39 @@ public class EnemyBuffTarget : MonoBehaviour
     }
 
     public void ApplyBeaconBuff(
+        BeaconEnemy source,
         float sizeMult,
         float nSpeedMult,
-        float nMaxMult,
+        float ignoredNormalMaxMult,
         float pMoveMult,
         float pShotMult,
         float pFireMult,
         float hRepMult,
         float hWarnMult,
         float hChargeMult,
-        float hStunMult
-    )
+        float hStunMult)
     {
-        if (!canReceiveBeaconBuff) return;
-        if (buffed) return;
+        if (source == null || !canReceiveBeaconBuff || buffed)
+            return;
 
         RefreshBaseValues();
-
-        if (!canReceiveBeaconBuff) return;
+        if (!canReceiveBeaconBuff)
+            return;
 
         buffed = true;
-
-        appliedSizeMult = sizeMult;
-        appliedNormalSpeedMult = nSpeedMult;
+        buffSource = source;
         scaleBeforeBuff = transform.localScale;
 
         if (buffRoutine != null)
             StopCoroutine(buffRoutine);
 
-        buffRoutine = StartCoroutine(BuffDurationRoutine());
-
         SetAura(true);
+        transform.localScale = scaleBeforeBuff * Mathf.Max(0.1f, sizeMult);
 
-        transform.localScale = scaleBeforeBuff * sizeMult;
-
+        // Beacon can temporarily accelerate a normal enemy, but its effective speed
+        // is clamped by EnemyFollow.maxSpeed and the max speed itself is never raised.
         if (normal != null)
-        {
-            nSpeed = normal.speed;
-            nMaxSpeed = normal.maxSpeed;
-
-            normal.speed = nSpeed * nSpeedMult;
-            normal.maxSpeed = nMaxSpeed * nMaxMult;
-        }
+            normal.SetBeaconSpeedMultiplier(Mathf.Max(1f, nSpeedMult));
 
         if (projectile != null)
         {
@@ -136,9 +112,9 @@ public class EnemyBuffTarget : MonoBehaviour
             pShotSpeed = projectile.projectileSpeed;
             pFireRate = projectile.fireRate;
 
-            projectile.moveSpeed = pMoveSpeed * pMoveMult;
-            projectile.projectileSpeed = pShotSpeed * pShotMult;
-            projectile.fireRate = pFireRate / pFireMult;
+            projectile.moveSpeed = pMoveSpeed * Mathf.Max(0.1f, pMoveMult);
+            projectile.projectileSpeed = pShotSpeed * Mathf.Max(0.1f, pShotMult);
+            projectile.fireRate = pFireRate / Mathf.Max(0.1f, pFireMult);
         }
 
         if (hunter != null)
@@ -148,46 +124,44 @@ public class EnemyBuffTarget : MonoBehaviour
             hCharge = hunter.chargeSpeed;
             hStun = hunter.stunDuration;
 
-            hunter.repositionTime = hRep * hRepMult;
-            hunter.warningDuration = hWarn * hWarnMult;
-            hunter.chargeSpeed = hCharge * hChargeMult;
-            hunter.stunDuration = hStun * hStunMult;
+            hunter.repositionTime = hRep * Mathf.Max(0.1f, hRepMult);
+            hunter.warningDuration = hWarn * Mathf.Max(0.1f, hWarnMult);
+            hunter.chargeSpeed = hCharge * Mathf.Max(0.1f, hChargeMult);
+            hunter.stunDuration = hStun * Mathf.Max(0.1f, hStunMult);
         }
+
+        buffRoutine = StartCoroutine(BuffDurationRoutine());
     }
 
     private IEnumerator BuffDurationRoutine()
     {
-        yield return new WaitForSeconds(buffDuration);
-
-        RemoveBeaconBuff();
+        yield return new WaitForSeconds(Mathf.Max(0.1f, buffDuration));
         buffRoutine = null;
+        RemoveBeaconBuff();
     }
 
-    public void RemoveBeaconBuff()
+    public void RemoveBeaconBuff(BeaconEnemy requester = null)
     {
-        if (!buffed) return;
+        if (!buffed)
+            return;
+
+        // A different Beacon must not remove a buff it did not create.
+        if (requester != null && buffSource != requester)
+            return;
+
+        if (buffRoutine != null)
+        {
+            StopCoroutine(buffRoutine);
+            buffRoutine = null;
+        }
 
         buffed = false;
-
+        buffSource = null;
         SetAura(false);
-
-        if (appliedSizeMult > 0.001f)
-            transform.localScale = transform.localScale / appliedSizeMult;
-        else
-            transform.localScale = scaleBeforeBuff;
+        transform.localScale = scaleBeforeBuff;
 
         if (normal != null)
-        {
-            if (appliedNormalSpeedMult > 0.001f)
-                normal.speed = normal.speed / appliedNormalSpeedMult;
-            else
-                normal.speed = nSpeed;
-
-            normal.maxSpeed = nMaxSpeed;
-
-            if (normal.speed > normal.maxSpeed)
-                normal.speed = normal.maxSpeed;
-        }
+            normal.SetBeaconSpeedMultiplier(1f);
 
         if (projectile != null)
         {
@@ -203,8 +177,5 @@ public class EnemyBuffTarget : MonoBehaviour
             hunter.chargeSpeed = hCharge;
             hunter.stunDuration = hStun;
         }
-
-        appliedSizeMult = 1f;
-        appliedNormalSpeedMult = 1f;
     }
 }

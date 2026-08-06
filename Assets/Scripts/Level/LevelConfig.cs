@@ -119,7 +119,7 @@ public class ComboSpeedStage
 
 [CreateAssetMenu(
     fileName = "LevelConfig",
-    menuName = "Void Rush/Level Config"
+    menuName = "Fateful Rush/Level Config"
 )]
 public class LevelConfig : ScriptableObject
 {
@@ -489,7 +489,7 @@ public class LevelConfig : ScriptableObject
     private float beaconNormalSpeedMultiplier = 1.35f;
 
     [SerializeField, HideInInspector]
-    private float beaconNormalMaxSpeedMultiplier = 1.25f;
+    private float beaconNormalMaxSpeedMultiplier = 1f;
 
     [SerializeField, HideInInspector]
     private float beaconProjectileMoveMultiplier = 1.2f;
@@ -511,6 +511,9 @@ public class LevelConfig : ScriptableObject
 
     [SerializeField, HideInInspector]
     private float beaconHunterStunMultiplier = 0.8f;
+
+    [SerializeField, HideInInspector]
+    private float beaconRespawnDelay = 6f;
 
     [Header("POWER UPS")]
     public bool armorEnabled = false;
@@ -764,7 +767,8 @@ public class LevelConfig : ScriptableObject
                 hunterRepositionMultiplier = beaconHunterRepositionMultiplier,
                 hunterWarningMultiplier = beaconHunterWarningMultiplier,
                 hunterChargeMultiplier = beaconHunterChargeMultiplier,
-                hunterStunMultiplier = beaconHunterStunMultiplier
+                hunterStunMultiplier = beaconHunterStunMultiplier,
+                respawnDelay = beaconRespawnDelay
             };
         }
 

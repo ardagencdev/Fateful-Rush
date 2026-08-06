@@ -53,6 +53,7 @@ public class EnemyFollow : MonoBehaviour
     public float closeRangeSpeedMultiplier = 0.9f;
 
     private float movementOffset;
+    private float beaconSpeedMultiplier = 1f;
     private float sideMoveAmount;
     private float sideMoveSpeed;
 
@@ -405,7 +406,7 @@ public class EnemyFollow : MonoBehaviour
         float distanceToTarget
     )
     {
-        float finalSpeed = speed;
+        float finalSpeed = GetEffectiveSpeed();
 
         if (distanceToTarget < closeRangeDistance)
         {
@@ -460,7 +461,7 @@ public class EnemyFollow : MonoBehaviour
                 rb.MovePosition(
                     rb.position +
                     escapeDirection *
-                    speed *
+                    GetEffectiveSpeed() *
                     escapeSpeedMultiplier *
                     Time.fixedDeltaTime
                 );
@@ -551,6 +552,20 @@ public class EnemyFollow : MonoBehaviour
             scale.x = -absX;
 
         transform.localScale = scale;
+    }
+
+
+    public void SetBeaconSpeedMultiplier(float multiplier)
+    {
+        beaconSpeedMultiplier = Mathf.Max(1f, multiplier);
+    }
+
+    public float GetEffectiveSpeed()
+    {
+        return Mathf.Min(
+            Mathf.Max(0f, speed) * beaconSpeedMultiplier,
+            Mathf.Max(0f, maxSpeed)
+        );
     }
 
     private void IncreaseSpeed()

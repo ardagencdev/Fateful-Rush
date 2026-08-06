@@ -866,7 +866,6 @@ GameObject:
   - component: {fileID: 874773148}
   - component: {fileID: 874773151}
   - component: {fileID: 874773150}
-  - component: {fileID: 874773152}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1021,21 +1020,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &874773152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 874773146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a3c5d31afb4e7045911921ccaeb516f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::deneme
-  speed: 5
-  ScoreText: {fileID: 1375851118}
-  GameStatusText: {fileID: 1363908134}
 --- !u!1 &923280968
 GameObject:
   m_ObjectHideFlags: 0

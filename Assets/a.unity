@@ -18612,8 +18612,9 @@ MonoBehaviour:
   levelObstacles: []
   randomObstacleCount: 5
   minDistanceBetweenObstacles: 7
-  playerSafeDistance: 3
+  playerSafeDistance: 3.5
   edgePadding: 1.5
+  arenaEdgeClearance: 1.25
   checkRadius: 1.2
   maxAttempts: 100
   player: {fileID: 1118182825}
@@ -22460,10 +22461,11 @@ MonoBehaviour:
   maxBeaconCount: 1
   minSpawnTime: 15
   maxSpawnTime: 30
+  respawnDelay: 6
   buffDuration: 15
   buffSizeMultiplier: 1.25
   normalSpeedMultiplier: 1.3
-  normalMaxSpeedMultiplier: 1.2
+  normalMaxSpeedMultiplier: 1
   projectileMoveMultiplier: 1.2
   projectileShotMultiplier: 1.25
   projectileFireMultiplier: 1.25
@@ -22480,7 +22482,7 @@ MonoBehaviour:
   wanderStrength: 0.6
   spawnPadding: 1
   checkRadius: 0.8
-  minDistanceFromPlayer: 4
+  minDistanceFromPlayer: 5
   maxAttempts: 50
   player: {fileID: 1118182825}
   playerMovement: {fileID: 1118182838}

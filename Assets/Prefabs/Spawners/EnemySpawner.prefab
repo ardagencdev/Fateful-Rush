@@ -118,6 +118,11 @@ MonoBehaviour:
   maxEnemyLimit: 7
   minDistanceFromPlayer: 3
   edgeOffset: 0.8
+  absolutePlayerSafeDistance: 4.5
+  forwardSpawnBlockDistance: 8
+  forwardSpawnDotThreshold: 0.3
+  playerPredictionTime: 0.75
+  predictedPositionSafeDistance: 4
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 2112

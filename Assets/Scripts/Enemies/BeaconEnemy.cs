@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -78,6 +79,10 @@ public class BeaconEnemy : MonoBehaviour
     private int unstuckDirection = 1;
 
     private EnemyBuffTarget[] cachedTargets = new EnemyBuffTarget[0];
+    private readonly HashSet<EnemyBuffTarget> appliedBuffTargets =
+        new HashSet<EnemyBuffTarget>();
+    private BeaconEnemySpawner spawnerOwner;
+    private bool spawnerNotified;
 
     private ContactFilter2D solidFilter;
     private ContactFilter2D escapeFilter;
@@ -421,9 +426,15 @@ public class BeaconEnemy : MonoBehaviour
         return pos;
     }
 
+    public void SetSpawnerOwner(BeaconEnemySpawner owner)
+    {
+        spawnerOwner = owner;
+    }
+
     public void ApplyBuffToTarget(GameObject targetObject)
     {
-        if (targetObject == null) return;
+        if (targetObject == null || dead)
+            return;
 
         EnemyBuffTarget target = targetObject.GetComponent<EnemyBuffTarget>();
 
@@ -433,15 +444,15 @@ public class BeaconEnemy : MonoBehaviour
         if (target == null)
             target = targetObject.AddComponent<EnemyBuffTarget>();
 
-        if (!target.CanReceiveBeaconBuff) return;
-        if (target.IsBuffed) return;
+        if (!target.CanReceiveBeaconBuff || target.IsBuffed)
+            return;
 
         target.buffDuration = buffDuration;
-
         target.ApplyBeaconBuff(
+            this,
             buffSizeMultiplier,
             normalSpeedMultiplier,
-            normalMaxSpeedMultiplier,
+            1f,
             projectileMoveMultiplier,
             projectileShotMultiplier,
             projectileFireMultiplier,
@@ -450,6 +461,30 @@ public class BeaconEnemy : MonoBehaviour
             hunterChargeMultiplier,
             hunterStunMultiplier
         );
+
+        if (target.BuffSource == this)
+            appliedBuffTargets.Add(target);
+    }
+
+    private void ReleaseAppliedBuffs()
+    {
+        foreach (EnemyBuffTarget target in appliedBuffTargets)
+        {
+            if (target != null)
+                target.RemoveBeaconBuff(this);
+        }
+
+        appliedBuffTargets.Clear();
+    }
+
+    private void NotifySpawnerOnce()
+    {
+        if (spawnerNotified)
+            return;
+
+        spawnerNotified = true;
+        if (spawnerOwner != null)
+            spawnerOwner.NotifyBeaconDestroyed(this);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -467,6 +502,8 @@ public class BeaconEnemy : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         PlayerDash dash = other.GetComponent<PlayerDash>();
+        if (dash == null)
+            dash = other.GetComponentInParent<PlayerDash>();
 
         if (dash != null && dash.IsDashing)
             Die();
@@ -479,9 +516,18 @@ public class BeaconEnemy : MonoBehaviour
         dead = true;
         active = false;
 
+        ReleaseAppliedBuffs();
+        NotifySpawnerOnce();
+
         if (soundManager != null)
             soundManager.PlayBeaconDeathSound();
 
         Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseAppliedBuffs();
+        NotifySpawnerOnce();
     }
 }

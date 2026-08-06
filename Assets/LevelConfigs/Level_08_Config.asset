@@ -36,39 +36,38 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 08 \u2014 ONE MORE CHANCE"
-  missionDifficulty: 1
+  missionDifficulty: 3
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Armor absorbs one lethal hit and grants a brief immunity window after breaking.
-  - Armor is insurance, not a reason to stop moving. Collect it when the route is
-    safe.
+  - "Armor absorbs one lethal hit and grants brief protection after it breaks. It does not make a trapped route safe."
+  - "Use the armor window to leave danger immediately; staying inside the same crossfire will waste the protection."
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 80
+  winScore: 90
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 6.5
+  playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 0
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.3
-  cloneDuration: 3
+  cloneDuration: 3.0
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.5
+  comboTimeLimit: 2.05
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.1
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 5
-    playerSpeedMultiplier: 1.13
+    coinsRequired: 8
+    playerSpeedMultiplier: 1.055
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.37944, g: 0.71552, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1.1
@@ -104,7 +103,7 @@ MonoBehaviour:
   - prefab: {fileID: 1198742668289528155, guid: e51d565c6e170ff46b9180c55a5bdc67, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: b45512429b7a5764788d7dfd1ea74531, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 9ebcaeaa04c505648a171fde806a61c0, type: 3}
@@ -113,11 +112,11 @@ MonoBehaviour:
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 44cf2912484bee54c95a93af81028b6e, type: 3}
     enabled: 0
-  randomObstacleCount: 5
+  randomObstacleCount: 2
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 3
-  normalEnemySpawnInterval: 3.6
-  normalEnemyDanger: 1
+  normalEnemyCount: 4
+  normalEnemySpawnInterval: 5.2
+  normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -132,7 +131,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 1
-  projectileEnemySpawnInterval: 8
+  projectileEnemySpawnInterval: 10
   projectileEnemyDanger: 1
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -154,8 +153,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemySpawnInterval: 0
+  hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -169,7 +168,7 @@ MonoBehaviour:
   bossSpawnCondition: 0
   bossSpawnScore: 75
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 1
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -181,7 +180,7 @@ MonoBehaviour:
   beaconEnemyCount: 0
   beaconMinSpawnTime: 10
   beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -191,7 +190,7 @@ MonoBehaviour:
     buffDuration: 15
     buffSizeMultiplier: 1.25
     normalSpeedMultiplier: 1.35
-    normalMaxSpeedMultiplier: 1.25
+    normalMaxSpeedMultiplier: 1
     projectileMoveMultiplier: 1.2
     projectileShotMultiplier: 1.25
     projectileFireMultiplier: 1.25
@@ -202,6 +201,7 @@ MonoBehaviour:
     moveSpeed: 3
     safeDistanceFromPlayer: 5
     wanderStrength: 0.6
+    respawnDelay: 6
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
@@ -230,7 +230,7 @@ MonoBehaviour:
   beaconBuffDuration: 15
   beaconBuffSizeMultiplier: 1.25
   beaconNormalSpeedMultiplier: 1.35
-  beaconNormalMaxSpeedMultiplier: 1.25
+  beaconNormalMaxSpeedMultiplier: 1
   beaconProjectileMoveMultiplier: 1.2
   beaconProjectileShotMultiplier: 1.25
   beaconProjectileFireMultiplier: 1.25
@@ -245,7 +245,7 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
-  verticalLaserDanger: 2
+  verticalLaserDanger: 1
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -255,7 +255,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 2
+  horizontalLaserDanger: 1
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -265,7 +265,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 0
-  bombDanger: 2
+  bombDanger: 1
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -287,3 +287,4 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
+

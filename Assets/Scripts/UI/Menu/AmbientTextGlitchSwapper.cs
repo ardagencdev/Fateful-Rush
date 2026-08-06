@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 public sealed class AmbientTextGlitchSwapper : MonoBehaviour
@@ -26,17 +27,16 @@ public sealed class AmbientTextGlitchSwapper : MonoBehaviour
     [SerializeField] private float swapMoment = 0.5f;
 
     [Header("Reset")]
-    [Tooltip("Main menu kapanınca yazıları kendi başlangıç sıralarına döndürür.")]
-    [SerializeField] private bool restoreOriginalOrderOnDisable = true;
+    [Tooltip("Main menu kapanınca yazıları kendi başlangıç metinlerine döndürür.")]
+    [FormerlySerializedAs("restoreOriginalOrderOnDisable")]
+    [SerializeField] private bool restoreOriginalTextsOnDisable = true;
 
-    // Each slot is stored in the common parent's local space. This avoids the
-    // anchor-dependent anchoredPosition bug that moved texts off-screen.
-    private readonly Vector3[] originalSlots = new Vector3[RequiredTextCount];
-    private readonly int[] currentSlotByText = new int[RequiredTextCount];
-    private readonly int[] nextSlotByText = new int[RequiredTextCount];
+    private readonly string[] originalTexts = new string[RequiredTextCount];
+    private readonly string[] currentTexts = new string[RequiredTextCount];
+    private readonly string[] nextTexts = new string[RequiredTextCount];
 
     private Coroutine swapRoutine;
-    private bool slotsCaptured;
+    private bool originalTextsCaptured;
 
     private void Reset()
     {
@@ -69,20 +69,10 @@ public sealed class AmbientTextGlitchSwapper : MonoBehaviour
         if (!isActiveAndEnabled)
             yield break;
 
-        if (!ShareSameParent())
-        {
-            Debug.LogError(
-                $"{nameof(AmbientTextGlitchSwapper)}: The three texts must be " +
-                "children of the same parent RectTransform.",
-                this
-            );
-            yield break;
-        }
-
         SetSharedControl(true);
 
-        if (!slotsCaptured)
-            CaptureOriginalSlots();
+        if (!originalTextsCaptured)
+            CaptureOriginalTexts();
 
         while (isActiveAndEnabled)
         {
@@ -97,78 +87,69 @@ public sealed class AmbientTextGlitchSwapper : MonoBehaviour
             if (!isActiveAndEnabled)
                 yield break;
 
-            yield return PlayGlitchAndSwap();
+            yield return PlayGlitchAndSwapTexts();
         }
     }
 
-    private IEnumerator PlayGlitchAndSwap()
+    private IEnumerator PlayGlitchAndSwapTexts()
     {
-        BuildRandomDerangement();
+        BuildRandomTextDerangement();
 
         float duration = Mathf.Max(0.04f, sharedGlitchDuration);
         float switchTime = duration * Mathf.Clamp(swapMoment, 0.1f, 0.9f);
         float elapsed = 0f;
-        bool positionsChanged = false;
+        bool textsChanged = false;
 
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
 
+            // Metin değişimi glitch'in tam ortasında gerçekleşir. Transformlara
+            // kesinlikle dokunulmaz; her obje kendi fiziksel konumunda kalır.
+            if (!textsChanged && elapsed >= switchTime)
+            {
+                ApplyNextTextAssignment();
+                textsChanged = true;
+            }
+
             for (int i = 0; i < RequiredTextCount; i++)
                 floatingTexts[i].ApplySharedGlitchFrame();
-
-            if (!positionsChanged && elapsed >= switchTime)
-            {
-                ApplyNextSlotAssignment();
-                positionsChanged = true;
-            }
 
             yield return null;
         }
 
-        if (!positionsChanged)
-            ApplyNextSlotAssignment();
+        if (!textsChanged)
+            ApplyNextTextAssignment();
 
         EndAllGlitches();
     }
 
-    private void BuildRandomDerangement()
+    private void BuildRandomTextDerangement()
     {
-        // With three texts there are exactly two arrangements where every text
-        // moves to a different slot. Pick one randomly, so no text stays still
-        // and no two texts can ever share a slot.
+        for (int i = 0; i < RequiredTextCount; i++)
+            currentTexts[i] = floatingTexts[i].StableText;
+
+        // Üç yazıda, hiçbir yazının aynı yerde kalmadığı iki güvenli dağılım vardır:
+        // sola döndürme veya sağa döndürme. Böylece aynı metin iki objeye kopyalanmaz.
         bool rotateForward = Random.value < 0.5f;
+        int offset = rotateForward ? 1 : RequiredTextCount - 1;
 
         for (int i = 0; i < RequiredTextCount; i++)
-        {
-            int currentSlot = currentSlotByText[i];
-
-            nextSlotByText[i] = rotateForward
-                ? (currentSlot + 1) % RequiredTextCount
-                : (currentSlot + RequiredTextCount - 1) % RequiredTextCount;
-        }
+            nextTexts[i] = currentTexts[(i + offset) % RequiredTextCount];
     }
 
-    private void ApplyNextSlotAssignment()
+    private void ApplyNextTextAssignment()
     {
         for (int i = 0; i < RequiredTextCount; i++)
-        {
-            int slotIndex = nextSlotByText[i];
-            floatingTexts[i].SetBaseLocalPosition(originalSlots[slotIndex]);
-            currentSlotByText[i] = slotIndex;
-        }
+            floatingTexts[i].SetStableText(nextTexts[i]);
     }
 
-    private void CaptureOriginalSlots()
+    private void CaptureOriginalTexts()
     {
         for (int i = 0; i < RequiredTextCount; i++)
-        {
-            originalSlots[i] = floatingTexts[i].BaseLocalPosition;
-            currentSlotByText[i] = i;
-            nextSlotByText[i] = i;
-        }
+            originalTexts[i] = floatingTexts[i].StableText;
 
-        slotsCaptured = true;
+        originalTextsCaptured = true;
     }
 
     private bool AllTextsInitialized()
@@ -190,22 +171,6 @@ public sealed class AmbientTextGlitchSwapper : MonoBehaviour
         for (int i = 0; i < RequiredTextCount; i++)
         {
             if (!floatingTexts[i].IsReadyForSharedGlitch)
-                return false;
-        }
-
-        return true;
-    }
-
-    private bool ShareSameParent()
-    {
-        Transform parent = floatingTexts[0].TargetParent;
-
-        if (parent == null)
-            return false;
-
-        for (int i = 1; i < RequiredTextCount; i++)
-        {
-            if (floatingTexts[i].TargetParent != parent)
                 return false;
         }
 
@@ -236,17 +201,13 @@ public sealed class AmbientTextGlitchSwapper : MonoBehaviour
         }
     }
 
-    private void RestoreOriginalOrder()
+    private void RestoreOriginalTexts()
     {
-        if (!slotsCaptured || !HasValidReferences())
+        if (!originalTextsCaptured || !HasValidReferences())
             return;
 
         for (int i = 0; i < RequiredTextCount; i++)
-        {
-            floatingTexts[i].SetBaseLocalPosition(originalSlots[i]);
-            currentSlotByText[i] = i;
-            nextSlotByText[i] = i;
-        }
+            floatingTexts[i].SetStableText(originalTexts[i]);
     }
 
     private void EnsureReferences()
@@ -307,8 +268,8 @@ public sealed class AmbientTextGlitchSwapper : MonoBehaviour
 
         EndAllGlitches();
 
-        if (restoreOriginalOrderOnDisable)
-            RestoreOriginalOrder();
+        if (restoreOriginalTextsOnDisable)
+            RestoreOriginalTexts();
 
         SetSharedControl(false);
     }

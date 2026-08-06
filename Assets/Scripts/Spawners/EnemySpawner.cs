@@ -178,6 +178,15 @@ public class EnemySpawner : MonoBehaviour
     [Min(0f)]
     public float edgeOffset = 0.8f;
 
+    [Header("Fair Spawn Protection")]
+    [Tooltip("No enemy may appear closer than this, even if an old scene value is lower.")]
+    [Min(0f)] public float absolutePlayerSafeDistance = 4.5f;
+    [Tooltip("Reject edge spawns inside the player's immediate forward path.")]
+    [Min(0f)] public float forwardSpawnBlockDistance = 8f;
+    [Range(-1f, 1f)] public float forwardSpawnDotThreshold = 0.3f;
+    [Min(0f)] public float playerPredictionTime = 0.75f;
+    [Min(0f)] public float predictedPositionSafeDistance = 4f;
+
     [Header("Obstacle Check")]
     public LayerMask obstacleLayer;
 
@@ -723,26 +732,73 @@ public class EnemySpawner : MonoBehaviour
             return false;
 
         Vector2 playerPosition = player.position;
+        float safeDistance = Mathf.Max(minDistanceFromPlayer, absolutePlayerSafeDistance);
 
-        float minimumDistanceSquared =
-            minDistanceFromPlayer *
-            minDistanceFromPlayer;
-
-        if ((spawnPosition - playerPosition)
-                .sqrMagnitude <
-            minimumDistanceSquared)
-        {
+        if (Vector2.Distance(spawnPosition, playerPosition) < safeDistance)
             return false;
+
+        Vector2 movementDirection = Vector2.zero;
+        Vector2 playerVelocity = Vector2.zero;
+
+        if (playerMovement != null)
+        {
+            movementDirection = playerMovement.CurrentMoveInput;
+            if (movementDirection.sqrMagnitude <= 0.01f)
+                movementDirection = playerMovement.LastMoveDirection;
+
+            Rigidbody2D playerBody = playerMovement.GetComponent<Rigidbody2D>();
+            if (playerBody != null)
+                playerVelocity = playerBody.linearVelocity;
         }
 
+        if (movementDirection.sqrMagnitude > 0.01f)
+        {
+            movementDirection.Normalize();
+            Vector2 toSpawn = spawnPosition - playerPosition;
+            float distance = toSpawn.magnitude;
+
+            if (distance <= forwardSpawnBlockDistance && distance > 0.01f &&
+                Vector2.Dot(movementDirection, toSpawn / distance) >= forwardSpawnDotThreshold)
+            {
+                return false;
+            }
+        }
+
+        Vector2 predictedPosition = playerPosition + playerVelocity * playerPredictionTime;
+        if (Vector2.Distance(spawnPosition, predictedPosition) < predictedPositionSafeDistance)
+            return false;
+
+        // noFilter makes the safety check independent of a scene LayerMask mistake.
+        ContactFilter2D fullFilter = ContactFilter2D.noFilter;
+        fullFilter.useTriggers = true;
         int hitCount = Physics2D.OverlapCircle(
             spawnPosition,
             spawnCheckRadius,
-            obstacleFilter,
+            fullFilter,
             spawnCheckHits
         );
 
-        return hitCount == 0;
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider2D hit = spawnCheckHits[i];
+            if (hit == null)
+                continue;
+
+            if (hit.CompareTag("Player") || hit.CompareTag("Enemy") ||
+                hit.CompareTag("Coin") || hit.CompareTag("PowerUp") ||
+                hit.CompareTag("Bomb"))
+            {
+                return false;
+            }
+
+            int layer = hit.gameObject.layer;
+            int wallLayer = LayerMask.NameToLayer("Wall");
+            int obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
+            if (layer == wallLayer || layer == obstacleLayerIndex)
+                return false;
+        }
+
+        return true;
     }
 
     private Vector2 GetRandomEdgePosition()
@@ -1057,6 +1113,11 @@ public class EnemySpawner : MonoBehaviour
 
         maxSpawnAttempts =
             Mathf.Max(1, maxSpawnAttempts);
+
+        absolutePlayerSafeDistance = Mathf.Max(0f, absolutePlayerSafeDistance);
+        forwardSpawnBlockDistance = Mathf.Max(0f, forwardSpawnBlockDistance);
+        playerPredictionTime = Mathf.Max(0f, playerPredictionTime);
+        predictedPositionSafeDistance = Mathf.Max(0f, predictedPositionSafeDistance);
 
         if (Application.isPlaying)
             RefreshObstacleFilter();

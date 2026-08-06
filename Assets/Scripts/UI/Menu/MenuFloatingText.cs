@@ -19,10 +19,22 @@ public sealed class MenuFloatingText : MonoBehaviour
     [SerializeField]
     private string[] messages =
     {
-        "The Stars Won't Answer",
-        "Fate Is Already Moving",
-        "Your Signal Is Fading",
-        "There Is No Way Back"
+        "Fate Is Closing In",
+        "The Stars Have Gone Silent",
+        "Every Second Seals Your Path",
+        "No Signal Reaches Home",
+        "Something Is Following You",
+        "The Future Is Collapsing",
+        "Time Refuses To Wait",
+        "Your Next Move Is Final",
+        "The Dark Remembers Your Name",
+        "Survival Was Never Promised",
+        "There Is No Safe Vector",
+        "The End Is Gaining Ground",
+        "Run Before Fate Finds You",
+        "Fate Moves Faster Than You",
+        "The Countdown Has Begun",
+        "Only Motion Keeps You Alive"
     };
 
     [Min(0.1f)]
@@ -114,6 +126,7 @@ public sealed class MenuFloatingText : MonoBehaviour
         messageAlpha >= 0.95f &&
         !string.IsNullOrEmpty(stableText);
 
+    public string StableText => stableText;
     public Vector3 BaseLocalPosition => baseLocalPosition;
     public Transform TargetParent => target != null ? target.parent : null;
 
@@ -420,6 +433,17 @@ public sealed class MenuFloatingText : MonoBehaviour
         {
             glitchRoutine = StartCoroutine(GlitchRoutine());
         }
+    }
+
+    public void SetStableText(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        stableText = value;
+
+        if (textUI != null)
+            textUI.text = stableText;
     }
 
     public void SetBaseLocalPosition(Vector3 position)

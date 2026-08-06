@@ -40,35 +40,37 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - No Armor or Slow will appear. Three Clone uses are your only emergency resource.
-  - Spend one charge per pressure phase and keep Dash available whenever multiple
-    warnings overlap.
+  - "This long survival mission has no permanent safe lane. Clone cooldown begins after its active time, leaving a real vulnerable gap."
+  - "Rotate Armor, Slow and Clone across separate emergencies. Using two together usually leaves the next wave unanswered."
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
   timeLimit: 75
   showGameTimerHUD: 1
-  playerMoveSpeed: 6.8
+  playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 1
   dashDistance: 2.6
   dashDuration: 0.12
   dashCooldown: 1.8
-  cloneDuration: 4
-  cloneCooldown: 7
+  cloneDuration: 3.25
+  cloneCooldown: 16
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 0
-  comboTimeLimit: 2
+  comboTimeLimit: 1.65
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.25
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.04
   - comboMultiplier: 3
-    coinsRequired: 5
-    playerSpeedMultiplier: 1.5
+    coinsRequired: 9
+    playerSpeedMultiplier: 1.07
+  - comboMultiplier: 4
+    coinsRequired: 16
+    playerSpeedMultiplier: 1.1
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.9096875, g: 0.1067188, b: 0.1290625, a: 1}
   nearStarsSpeedMultiplier: 1.675
@@ -90,9 +92,9 @@ MonoBehaviour:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
     enabled: 1
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: e92d44d4f2069ce47ad1f793030e40d8, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
@@ -108,15 +110,15 @@ MonoBehaviour:
   - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 9ebcaeaa04c505648a171fde806a61c0, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: 847a7b13c1a308048b25dc05595b68cc, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: 44cf2912484bee54c95a93af81028b6e, type: 3}
-    enabled: 0
-  randomObstacleCount: 5
+    enabled: 1
+  randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 5
+  normalEnemyCount: 5
+  normalEnemySpawnInterval: 8.0
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -131,8 +133,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10
+  projectileEnemyCount: 3
+  projectileEnemySpawnInterval: 14
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -153,8 +155,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 1
-  hunterEnemySpawnInterval: 18
+  hunterEnemyCount: 3
+  hunterEnemySpawnInterval: 19
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -166,10 +168,10 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 1
+  bossSpawnCondition: 0
   bossSpawnScore: 75
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 1
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -181,7 +183,7 @@ MonoBehaviour:
   beaconEnemyCount: 0
   beaconMinSpawnTime: 10
   beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -191,7 +193,7 @@ MonoBehaviour:
     buffDuration: 15
     buffSizeMultiplier: 1.25
     normalSpeedMultiplier: 1.35
-    normalMaxSpeedMultiplier: 1.25
+    normalMaxSpeedMultiplier: 1
     projectileMoveMultiplier: 1.2
     projectileShotMultiplier: 1.25
     projectileFireMultiplier: 1.25
@@ -202,6 +204,7 @@ MonoBehaviour:
     moveSpeed: 3
     safeDistanceFromPlayer: 5
     wanderStrength: 0.6
+    respawnDelay: 6
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
@@ -230,7 +233,7 @@ MonoBehaviour:
   beaconBuffDuration: 15
   beaconBuffSizeMultiplier: 1.25
   beaconNormalSpeedMultiplier: 1.35
-  beaconNormalMaxSpeedMultiplier: 1.25
+  beaconNormalMaxSpeedMultiplier: 1
   beaconProjectileMoveMultiplier: 1.2
   beaconProjectileShotMultiplier: 1.25
   beaconProjectileFireMultiplier: 1.25
@@ -238,10 +241,10 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
-  armorEnabled: 0
-  slowEnabled: 0
-  armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
+  armorEnabled: 1
+  slowEnabled: 1
+  armorMinSpawnTime: 20
+  armorMaxSpawnTime: 28
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 1
@@ -287,3 +290,4 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
+

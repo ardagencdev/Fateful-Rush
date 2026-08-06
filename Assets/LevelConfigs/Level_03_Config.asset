@@ -36,37 +36,35 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 03 \u2014 FIRST PURSUIT"
-  missionDifficulty: 1
+  missionDifficulty: 2
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Stalkers pursue continuously and accelerate over time. Keep moving so the enemy
-    never settles directly behind you.
-  - Use wide curves around the arena; sudden reversals are riskier before Dash becomes
-    available.
+  - "Normal enemies accelerate while they remain alive. Cross behind them rather than running in a straight line."
+  - "Do not wait at the edge for a coin. Keep the pursuers on one side and collect through the open half of the arena."
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 45
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 6.5
+  playerMoveSpeed: 6.4
   dashEnabled: 0
   cloneEnabled: 0
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2
-  cloneDuration: 3
+  cloneDuration: 3.0
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.65
+  comboTimeLimit: 2.2
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.1
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.4981271, g: 0.8889412, b: 0.9745882, a: 1}
   nearStarsSpeedMultiplier: 0.9
@@ -111,10 +109,10 @@ MonoBehaviour:
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 44cf2912484bee54c95a93af81028b6e, type: 3}
     enabled: 0
-  randomObstacleCount: 5
+  randomObstacleCount: 0
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 1
-  normalEnemySpawnInterval: 4
+  normalEnemyCount: 2
+  normalEnemySpawnInterval: 5.5
   normalEnemyDanger: 1
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -130,8 +128,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 5
-  projectileEnemyDanger: 2
+  projectileEnemySpawnInterval: 0
+  projectileEnemyDanger: 1
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -152,8 +150,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemySpawnInterval: 0
+  hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -167,7 +165,7 @@ MonoBehaviour:
   bossSpawnCondition: 0
   bossSpawnScore: 75
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 1
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -179,7 +177,7 @@ MonoBehaviour:
   beaconEnemyCount: 0
   beaconMinSpawnTime: 10
   beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -189,7 +187,7 @@ MonoBehaviour:
     buffDuration: 15
     buffSizeMultiplier: 1.25
     normalSpeedMultiplier: 1.35
-    normalMaxSpeedMultiplier: 1.25
+    normalMaxSpeedMultiplier: 1
     projectileMoveMultiplier: 1.2
     projectileShotMultiplier: 1.25
     projectileFireMultiplier: 1.25
@@ -200,6 +198,7 @@ MonoBehaviour:
     moveSpeed: 3
     safeDistanceFromPlayer: 5
     wanderStrength: 0.6
+    respawnDelay: 6
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
@@ -228,7 +227,7 @@ MonoBehaviour:
   beaconBuffDuration: 15
   beaconBuffSizeMultiplier: 1.25
   beaconNormalSpeedMultiplier: 1.35
-  beaconNormalMaxSpeedMultiplier: 1.25
+  beaconNormalMaxSpeedMultiplier: 1
   beaconProjectileMoveMultiplier: 1.2
   beaconProjectileShotMultiplier: 1.25
   beaconProjectileFireMultiplier: 1.25
@@ -243,7 +242,7 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
-  verticalLaserDanger: 2
+  verticalLaserDanger: 1
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -253,7 +252,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 2
+  horizontalLaserDanger: 1
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -263,7 +262,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 0
-  bombDanger: 2
+  bombDanger: 1
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -285,3 +284,4 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
+

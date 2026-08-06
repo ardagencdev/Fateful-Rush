@@ -7,16 +7,15 @@ using TMPro;
 public class VoidCloneAbility : MonoBehaviour
 {
     public static Transform ActiveCloneTarget { get; private set; }
-
-    public static bool HasActiveClone =>
-        ActiveCloneTarget != null;
+    public static bool HasActiveClone => ActiveCloneTarget != null;
 
     [Header("Clone")]
     public GameObject clonePrefab;
     public float cloneDuration = 3f;
 
     [Header("Cooldown")]
-    public float cloneCooldown = 8f;
+    [Tooltip("Starts only after the clone disappears.")]
+    public float cloneCooldown = 12f;
 
     [Header("UI")]
     public Button cloneButton;
@@ -34,242 +33,159 @@ public class VoidCloneAbility : MonoBehaviour
     private bool canUseClone = true;
     private bool cloneActive;
     private bool gameOverHandled;
-
+    private bool cooldownActive;
     private float cooldownTimer;
     private float textRefreshTimer;
-
     private const float TextRefreshInterval = 0.1f;
-
     private GameObject activeCloneObject;
     private Coroutine cloneRoutine;
 
     private void Awake()
     {
-        if (playerMovement == null)
-            playerMovement = GetComponent<PlayerMovement>();
-
-        if (playerSkinApplier == null)
-            playerSkinApplier = GetComponent<PlayerSkinApplier>();
-
+        if (playerMovement == null) playerMovement = GetComponent<PlayerMovement>();
+        if (playerSkinApplier == null) playerSkinApplier = GetComponent<PlayerSkinApplier>();
         ResetCloneState();
     }
 
-    private void OnEnable()
-    {
-        ResetCloneState();
-    }
-
-    private void OnDisable()
-    {
-        ClearActiveClone();
-    }
-
-    private void OnDestroy()
-    {
-        ClearActiveClone();
-    }
+    private void OnEnable() => ResetCloneState();
+    private void OnDisable() => ClearAllCloneState();
+    private void OnDestroy() => ClearAllCloneState();
 
     private void Update()
     {
         if (!GameStateManager.IsGameplayStarted)
             return;
 
-        if (playerMovement != null &&
-            playerMovement.IsGameOver)
+        if (playerMovement != null && playerMovement.IsGameOver)
         {
             HandleGameOver();
             return;
         }
 
-        if (Keyboard.current != null &&
-            Keyboard.current.eKey.wasPressedThisFrame)
-        {
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
             UseClone();
-        }
 
-        if (!canUseClone)
-            UpdateCooldownUI();
+        if (cooldownActive)
+            UpdateCooldown();
     }
 
     private void HandleGameOver()
     {
-        if (gameOverHandled)
-            return;
-
+        if (gameOverHandled) return;
         gameOverHandled = true;
-
-        ClearActiveClone();
-
-        if (cloneButton != null)
-            cloneButton.interactable = false;
-
+        ClearAllCloneState();
+        if (cloneButton != null) cloneButton.interactable = false;
         HideCooldownUI();
     }
 
-    public void SetCloneCooldown(float cooldown)
-    {
-        cloneCooldown = Mathf.Max(0.1f, cooldown);
-    }
-
-    public void SetCloneUses(int uses)
-    {
-        // Legacy compatibility only.
-        // Clone is cooldown-based, so the old use-count value is intentionally ignored.
-    }
+    public void SetCloneCooldown(float cooldown) => cloneCooldown = Mathf.Max(0.1f, cooldown);
+    public void SetCloneUses(int uses) { }
 
     public void UseClone()
     {
-        if (!GameStateManager.IsGameplayStarted)
+        if (!GameStateManager.IsGameplayStarted || !canUseClone || cloneActive || cooldownActive)
             return;
-
-        if (!canUseClone)
+        if (playerMovement != null && playerMovement.IsGameOver)
             return;
-
-        if (cloneActive)
-            return;
-
-        if (playerMovement != null &&
-            playerMovement.IsGameOver)
-        {
-            return;
-        }
-
         if (clonePrefab == null)
             return;
 
         canUseClone = false;
-        cooldownTimer = cloneCooldown;
-        textRefreshTimer = 0f;
-
+        cloneActive = true;
         StatsManager.AddCloneUse();
-
-        if (soundManager != null)
-            soundManager.PlayVoidCloneSound();
-
-        ShowCooldownUI();
+        if (soundManager != null) soundManager.PlayVoidCloneSound();
+        ShowActiveUI();
         UpdateUI();
-
-        cloneRoutine =
-            StartCoroutine(CloneRoutine());
+        cloneRoutine = StartCoroutine(CloneRoutine());
     }
 
     private IEnumerator CloneRoutine()
     {
-        cloneActive = true;
+        activeCloneObject = Instantiate(clonePrefab, transform.position, Quaternion.identity);
+        ActiveCloneTarget = activeCloneObject.transform;
 
-        activeCloneObject =
-            Instantiate(
-                clonePrefab,
-                transform.position,
-                Quaternion.identity
-            );
-
-        ActiveCloneTarget =
-            activeCloneObject.transform;
-
-        VoidClone cloneScript =
-            activeCloneObject.GetComponent<VoidClone>();
-
+        VoidClone cloneScript = activeCloneObject.GetComponent<VoidClone>();
         if (cloneScript != null)
         {
-            cloneScript.SetSkin(
-                GetCurrentPlayerSprite()
-            );
-
-            cloneScript.StartClone(
-                cloneDuration,
-                playerMovement
-            );
+            cloneScript.SetSkin(GetCurrentPlayerSprite());
+            cloneScript.StartClone(cloneDuration, playerMovement);
         }
 
-        yield return new WaitForSeconds(cloneDuration);
-
-        ClearActiveClone();
+        yield return new WaitForSeconds(Mathf.Max(0.01f, cloneDuration));
 
         cloneRoutine = null;
-
-        UpdateUI();
+        DestroyCloneObject();
+        BeginCooldown();
     }
-
 
     private Sprite GetCurrentPlayerSprite()
     {
-        if (playerSkinApplier != null &&
-            playerSkinApplier.CurrentSprite != null)
-        {
+        if (playerSkinApplier != null && playerSkinApplier.CurrentSprite != null)
             return playerSkinApplier.CurrentSprite;
-        }
-
-        SpriteRenderer playerRenderer =
-            GetComponentInChildren<SpriteRenderer>(true);
-
-        return playerRenderer != null
-            ? playerRenderer.sprite
-            : null;
+        SpriteRenderer renderer = GetComponentInChildren<SpriteRenderer>(true);
+        return renderer != null ? renderer.sprite : null;
     }
 
-    private void ClearActiveClone()
+    private void DestroyCloneObject()
     {
-        if (cloneRoutine != null)
-        {
-            StopCoroutine(cloneRoutine);
-            cloneRoutine = null;
-        }
-
         ActiveCloneTarget = null;
-
-        if (activeCloneObject != null)
-            Destroy(activeCloneObject);
-
+        if (activeCloneObject != null) Destroy(activeCloneObject);
         activeCloneObject = null;
         cloneActive = false;
     }
 
-    private void UpdateCooldownUI()
+    private void BeginCooldown()
     {
-        cooldownTimer -= Time.deltaTime;
-        cooldownTimer = Mathf.Max(cooldownTimer, 0f);
+        cooldownActive = true;
+        cooldownTimer = cloneCooldown;
+        textRefreshTimer = 0f;
+        ShowCooldownUI();
+        UpdateCooldownVisuals();
+        UpdateUI();
+    }
 
+    private void UpdateCooldown()
+    {
+        cooldownTimer = Mathf.Max(0f, cooldownTimer - Time.deltaTime);
+        UpdateCooldownVisuals();
+        if (cooldownTimer > 0f) return;
+
+        cooldownActive = false;
+        canUseClone = true;
+        HideCooldownUI();
+        UpdateUI();
+    }
+
+    private void UpdateCooldownVisuals()
+    {
         if (cooldownFill != null)
-        {
-            cooldownFill.fillAmount =
-                cloneCooldown <= 0f
-                    ? 0f
-                    : cooldownTimer / cloneCooldown;
-        }
+            cooldownFill.fillAmount = cloneCooldown <= 0f ? 0f : cooldownTimer / cloneCooldown;
 
         textRefreshTimer -= Time.deltaTime;
+        if (textRefreshTimer > 0f) return;
+        textRefreshTimer = TextRefreshInterval;
+        if (cooldownText != null)
+            cooldownText.text = cooldownTimer > 0f ? cooldownTimer.ToString("F1") : "";
+    }
 
-        if (textRefreshTimer <= 0f)
+    private void ShowActiveUI()
+    {
+        if (cooldownFill != null)
         {
-            textRefreshTimer =
-                TextRefreshInterval;
-
-            if (cooldownText != null)
-            {
-                cooldownText.text =
-                    cooldownTimer > 0f
-                        ? cooldownTimer.ToString("F1")
-                        : "";
-            }
+            cooldownFill.gameObject.SetActive(true);
+            cooldownFill.fillAmount = 1f;
         }
-
-        if (cooldownTimer <= 0f)
+        if (cooldownText != null)
         {
-            canUseClone = true;
-
-            HideCooldownUI();
-            UpdateUI();
+            cooldownText.gameObject.SetActive(true);
+            cooldownText.text = "ACTIVE";
         }
     }
 
     private void ShowCooldownUI()
     {
-        if (cooldownFill != null)
-            cooldownFill.gameObject.SetActive(true);
-
-        if (cooldownText != null)
-            cooldownText.gameObject.SetActive(true);
+        if (cooldownFill != null) cooldownFill.gameObject.SetActive(true);
+        if (cooldownText != null) cooldownText.gameObject.SetActive(true);
     }
 
     private void HideCooldownUI()
@@ -279,7 +195,6 @@ public class VoidCloneAbility : MonoBehaviour
             cooldownFill.gameObject.SetActive(false);
             cooldownFill.fillAmount = 0f;
         }
-
         if (cooldownText != null)
         {
             cooldownText.text = "";
@@ -287,46 +202,36 @@ public class VoidCloneAbility : MonoBehaviour
         }
     }
 
+    private void ClearAllCloneState()
+    {
+        if (cloneRoutine != null)
+        {
+            StopCoroutine(cloneRoutine);
+            cloneRoutine = null;
+        }
+        DestroyCloneObject();
+        cooldownActive = false;
+        cooldownTimer = 0f;
+    }
+
     public void ResetCloneState()
     {
         StopAllCoroutines();
-
         cloneRoutine = null;
-
-        ActiveCloneTarget = null;
-
-        if (activeCloneObject != null)
-            Destroy(activeCloneObject);
-
-        activeCloneObject = null;
-
+        DestroyCloneObject();
         canUseClone = true;
-        cloneActive = false;
+        cooldownActive = false;
         gameOverHandled = false;
-
         cooldownTimer = 0f;
         textRefreshTimer = 0f;
-
         HideCooldownUI();
         UpdateUI();
     }
 
     private void UpdateUI()
     {
-        bool usable =
-            canUseClone &&
-            !cloneActive &&
-            !gameOverHandled;
-
-        if (cloneButton != null)
-            cloneButton.interactable = usable;
-
-        if (cloneButtonImage != null)
-        {
-            cloneButtonImage.sprite =
-                usable
-                    ? readySprite
-                    : usedSprite;
-        }
+        bool usable = canUseClone && !cloneActive && !cooldownActive && !gameOverHandled;
+        if (cloneButton != null) cloneButton.interactable = usable;
+        if (cloneButtonImage != null) cloneButtonImage.sprite = usable ? readySprite : usedSprite;
     }
 }

@@ -16098,13 +16098,25 @@ MonoBehaviour:
   textUI: {fileID: 628918158}
   target: {fileID: 628918156}
   cycleMessages: 1
-  randomOrder: 0
+  randomOrder: 1
   showFirstMessageImmediately: 1
   messages:
-  - The Stars Won't Answer
-  - Fate Is Already Moving
-  - Your Signal Is Fading
-  - There Is No Way Back
+  - Fate Is Closing In
+  - The Stars Have Gone Silent
+  - Something Is Following You
+  - The Future Is Collapsing
+  - Time Refuses To Wait
+  - Your Next Move Is Final
+  - The Dark Remembers Your Name
+  - Survival Was Never Promised
+  - There Is No Safe Vector
+  - The End Is Gaining Ground
+  - Run Before Fate Finds You
+  - Fate Moves Faster Than You
+  - The Countdown Has Begun
+  - Only Motion Keeps You Alive
+  - Every Second Seals Your Path
+  - No Signal Reaches Home
   messageDuration: 6
   crossFadeDuration: 0.45
   ambientMotion: 1
@@ -22639,7 +22651,7 @@ MonoBehaviour:
   swapIntervalMax: 20
   sharedGlitchDuration: 0.09
   swapMoment: 0.5
-  restoreOriginalOrderOnDisable: 1
+  restoreOriginalTextsOnDisable: 1
 --- !u!1 &1235968507
 GameObject:
   m_ObjectHideFlags: 0

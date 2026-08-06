@@ -35,44 +35,42 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 0
-  briefingTitle: MIDPOINT CRISIS
+  briefingTitle: "MISSION 25 \u2014 MIDPOINT CRISIS"
   missionDifficulty: 5
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss returns with Hunters and a denser obstacle layout. Two Clone uses are
-    available.
-  - Use the first Clone to control the pre-Boss crowd and preserve the second for
-    the split phase.
+  - "The Boss enters at 125 score while horizontal lasers control escape lanes."
+  - "Reach the Boss threshold with Dash ready. Pull the Boss away from the next coin route before continuing the objective."
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
-  winScore: 145
+  winScore: 180
   timeLimit: 35
   showGameTimerHUD: 0
-  playerMoveSpeed: 6.5
+  playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 1
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 1.95
-  cloneDuration: 4
-  cloneCooldown: 7.5
+  cloneDuration: 3.0
+  cloneCooldown: 14
   cloneUses: 1
   armorImmuneDuration: 1
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.35
+  comboTimeLimit: 1.8
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.18
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.035
   - comboMultiplier: 3
-    coinsRequired: 7
-    playerSpeedMultiplier: 1.21
+    coinsRequired: 8
+    playerSpeedMultiplier: 1.065
   - comboMultiplier: 4
-    coinsRequired: 12
-    playerSpeedMultiplier: 1.24
+    coinsRequired: 14
+    playerSpeedMultiplier: 1.09
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.91712, g: 0.24624, b: 0.74392, a: 1}
   nearStarsSpeedMultiplier: 1.45
@@ -92,35 +90,35 @@ MonoBehaviour:
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 1982787718258633688, guid: 3146b88f91c051d47b5fddc85a0e1d31, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 4507725915358148117, guid: 5f848fa623177b64780c532f94c62ca5, type: 3}
-    enabled: 1
+    enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: e92d44d4f2069ce47ad1f793030e40d8, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: a1835203bad3bd848865e7a8a38f1e4c, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: b0b17e18d59613249b04b704bf589e04, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: aa4e8dc2beb3cdb4da72ef8675f7c575, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: e51d565c6e170ff46b9180c55a5bdc67, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: b45512429b7a5764788d7dfd1ea74531, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 5815721319752824181, guid: 06b667b5b68c53a488fd94752c69f0dd, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 9ebcaeaa04c505648a171fde806a61c0, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 847a7b13c1a308048b25dc05595b68cc, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: 44cf2912484bee54c95a93af81028b6e, type: 3}
     enabled: 0
-  randomObstacleCount: 5
+  randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 3.5
+  normalEnemyCount: 5
+  normalEnemySpawnInterval: 4.5
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -136,7 +134,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 8
+  projectileEnemySpawnInterval: 9.5
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -157,8 +155,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 1
-  hunterEnemySpawnInterval: 14
+  hunterEnemyCount: 2
+  hunterEnemySpawnInterval: 15
   hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -171,7 +169,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 95
+  bossSpawnScore: 125
   bossSpawnTime: 30
   bossDanger: 2
   bossCustomOverride: 0
@@ -185,7 +183,7 @@ MonoBehaviour:
   beaconEnemyCount: 0
   beaconMinSpawnTime: 10
   beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -195,7 +193,7 @@ MonoBehaviour:
     buffDuration: 15
     buffSizeMultiplier: 1.25
     normalSpeedMultiplier: 1.35
-    normalMaxSpeedMultiplier: 1.25
+    normalMaxSpeedMultiplier: 1
     projectileMoveMultiplier: 1.2
     projectileShotMultiplier: 1.25
     projectileFireMultiplier: 1.25
@@ -206,6 +204,7 @@ MonoBehaviour:
     moveSpeed: 3
     safeDistanceFromPlayer: 5
     wanderStrength: 0.6
+    respawnDelay: 6
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
@@ -234,7 +233,7 @@ MonoBehaviour:
   beaconBuffDuration: 15
   beaconBuffSizeMultiplier: 1.25
   beaconNormalSpeedMultiplier: 1.35
-  beaconNormalMaxSpeedMultiplier: 1.25
+  beaconNormalMaxSpeedMultiplier: 1
   beaconProjectileMoveMultiplier: 1.2
   beaconProjectileShotMultiplier: 1.25
   beaconProjectileFireMultiplier: 1.25
@@ -245,11 +244,11 @@ MonoBehaviour:
   armorEnabled: 1
   slowEnabled: 0
   armorMinSpawnTime: 16
-  armorMaxSpawnTime: 23
+  armorMaxSpawnTime: 24
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
-  verticalLaserDanger: 2
+  verticalLaserDanger: 1
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -258,7 +257,7 @@ MonoBehaviour:
     lifeTime: 1.5
     width: 0.5
     sizeExtra: 1
-  horizontalLaserEnabled: 0
+  horizontalLaserEnabled: 1
   horizontalLaserDanger: 2
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
@@ -269,7 +268,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 0
-  bombDanger: 2
+  bombDanger: 1
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -291,3 +290,4 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
+
