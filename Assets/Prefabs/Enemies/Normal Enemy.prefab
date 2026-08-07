@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972ce5ce4d61fa64a83b513d036141e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyFollow
-  player: {fileID: 2294080268187735524, guid: c6c4cdc064c48dd409741134c7e32737, type: 3}
+  player: {fileID: 0}
   speed: 2.5
   maxSpeed: 5
   speedIncreaseRate: 0.2
@@ -75,6 +75,9 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
+  obstacleProbeDistance: 0.75
+  obstacleAvoidanceAttempts: 5
+  obstacleOutwardBias: 0.25
   escapeCheckRadius: 1.2
   escapeSpeedMultiplier: 2.2
   spawnEffectDuration: 0.15

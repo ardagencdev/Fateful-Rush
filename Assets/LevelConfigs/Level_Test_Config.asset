@@ -94,7 +94,7 @@ MonoBehaviour:
   - prefab: {fileID: 1198742668289528155, guid: aa4e8dc2beb3cdb4da72ef8675f7c575, type: 3}
     enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: e51d565c6e170ff46b9180c55a5bdc67, type: 3}
-    enabled: 0
+    enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: b45512429b7a5764788d7dfd1ea74531, type: 3}
     enabled: 0
   - prefab: {fileID: 1198742668289528155, guid: 9ebcaeaa04c505648a171fde806a61c0, type: 3}
@@ -105,7 +105,7 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 0
+  normalEnemyCount: 1
   normalEnemySpawnInterval: 2.5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
@@ -181,7 +181,7 @@ MonoBehaviour:
     buffDuration: 15
     buffSizeMultiplier: 1.25
     normalSpeedMultiplier: 1.3
-    normalMaxSpeedMultiplier: 1.2
+    normalMaxSpeedMultiplier: 1
     projectileMoveMultiplier: 1.2
     projectileShotMultiplier: 1.25
     projectileFireMultiplier: 1.25
@@ -192,6 +192,7 @@ MonoBehaviour:
     moveSpeed: 3
     safeDistanceFromPlayer: 5
     wanderStrength: 0.6
+    respawnDelay: 6
   normalMinStartSpeed: 1.5
   normalMaxStartSpeed: 2.5
   normalMaxSpeed: 7
@@ -228,6 +229,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 1

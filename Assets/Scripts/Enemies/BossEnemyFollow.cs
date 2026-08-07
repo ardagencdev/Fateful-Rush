@@ -20,6 +20,8 @@ public class BossEnemyFollow : MonoBehaviour
     [Header("Collision")]
     public LayerMask solidLayers;
     public float castSkin = 0.05f;
+    public float obstacleProbeDistance = 1f;
+    [Range(0f, 1f)] public float obstacleOutwardBias = 0.3f;
 
     [Tooltip("Doğrudan hareket mümkün değilse kaç farklı kayma açısı denenecek.")]
     [Range(1, 8)]
@@ -76,9 +78,13 @@ public class BossEnemyFollow : MonoBehaviour
     private Vector3 originalScale;
 
     private ContactFilter2D solidFilter;
+    private ContactFilter2D navigationFilter;
 
     private readonly RaycastHit2D[] castHits =
         new RaycastHit2D[8];
+
+    private readonly RaycastHit2D[] avoidanceHits =
+        new RaycastHit2D[12];
 
     private readonly Collider2D[] escapeHits =
         new Collider2D[16];
@@ -109,6 +115,15 @@ public class BossEnemyFollow : MonoBehaviour
         solidFilter.SetLayerMask(solidLayers);
         solidFilter.useLayerMask = true;
         solidFilter.useTriggers = false;
+
+        navigationFilter = new ContactFilter2D();
+        navigationFilter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(
+                (LayerMask)(solidLayers.value | obstacleLayer.value)
+            )
+        );
+        navigationFilter.useLayerMask = true;
+        navigationFilter.useTriggers = false;
     }
 
     private void Start()
@@ -248,10 +263,30 @@ public class BossEnemyFollow : MonoBehaviour
                 )
             );
 
+        float movementDistance =
+            speed * Time.fixedDeltaTime;
+
+        Vector2 steeredDirection =
+            EnemyObstacleSteering2D.GetSteeredDirection(
+                bossCollider,
+                direction,
+                direction,
+                navigationFilter,
+                avoidanceHits,
+                obstacleProbeDistance,
+                movementDistance,
+                castSkin,
+                slideDirectionAttempts,
+                obstacleOutwardBias,
+                ref unstuckDirection
+            );
+
+        if (steeredDirection.sqrMagnitude <= 0.001f)
+            return false;
+
         Vector2 intendedMovement =
-            direction *
-            speed *
-            Time.fixedDeltaTime;
+            steeredDirection *
+            movementDistance;
 
         Vector2 movement =
             intendedMovement +
@@ -267,7 +302,7 @@ public class BossEnemyFollow : MonoBehaviour
         }
 
         if (TrySlideAroundObstacle(
-                direction,
+                steeredDirection,
                 intendedMovement.magnitude))
         {
             return true;
@@ -384,7 +419,7 @@ public class BossEnemyFollow : MonoBehaviour
         int hitCount =
             bossCollider.Cast(
                 movement.normalized,
-                solidFilter,
+                navigationFilter,
                 castHits,
                 movement.magnitude +
                 Mathf.Max(castSkin, 0f)

@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class EnemyFollow : MonoBehaviour
 {
     [Header("Target")]
@@ -33,8 +34,13 @@ public class EnemyFollow : MonoBehaviour
     public float separationRadius = 0.75f;
     public float separationStrength = 0.65f;
 
-    [Header("Advanced Unstuck")]
+    [Header("Obstacle Avoidance")]
     public LayerMask obstacleLayer;
+    public float obstacleProbeDistance = 0.75f;
+    [Range(2, 8)] public int obstacleAvoidanceAttempts = 5;
+    [Range(0f, 1f)] public float obstacleOutwardBias = 0.25f;
+
+    [Header("Advanced Unstuck")]
     public float escapeCheckRadius = 1.2f;
     public float escapeSpeedMultiplier = 2.2f;
 
@@ -58,6 +64,7 @@ public class EnemyFollow : MonoBehaviour
     private float sideMoveSpeed;
 
     private Rigidbody2D rb;
+    private Collider2D col;
     private Rigidbody2D targetRigidbody;
     private PlayerMovement playerMovement;
     private Transform originalPlayerTarget;
@@ -70,13 +77,25 @@ public class EnemyFollow : MonoBehaviour
     private float stuckTimer;
     private float unstuckTimer;
     private int unstuckDirection = 1;
+    private int obstacleAvoidanceSide = 1;
 
+    private ContactFilter2D navigationFilter;
+
+    private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[12];
     private readonly Collider2D[] escapeHits = new Collider2D[16];
     private readonly Collider2D[] separationHits = new Collider2D[16];
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
+
+        navigationFilter = new ContactFilter2D();
+        navigationFilter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(obstacleLayer)
+        );
+        navigationFilter.useLayerMask = true;
+        navigationFilter.useTriggers = false;
     }
 
     private void Start()
@@ -91,6 +110,7 @@ public class EnemyFollow : MonoBehaviour
         speed = Random.Range(minStartSpeed, maxStartSpeed);
 
         unstuckDirection = Random.Range(0, 2) == 0 ? -1 : 1;
+        obstacleAvoidanceSide = unstuckDirection;
         unstuckTimer = 0f;
 
         FindPlayerIfNeeded();
@@ -254,7 +274,7 @@ public class EnemyFollow : MonoBehaviour
             ).normalized;
         }
 
-        Move(finalDirection, distanceToTarget);
+        Move(finalDirection, targetDirection, distanceToTarget);
         HandleStuckCheck(distanceToTarget);
         FlipSprite(finalDirection);
     }
@@ -403,6 +423,7 @@ public class EnemyFollow : MonoBehaviour
 
     private void Move(
         Vector2 direction,
+        Vector2 targetDirection,
         float distanceToTarget
     )
     {
@@ -425,17 +446,37 @@ public class EnemyFollow : MonoBehaviour
             finalSpeed *= speedMultiplier;
         }
 
+        float movementDistance =
+            finalSpeed * Time.fixedDeltaTime;
+
+        Vector2 steeredDirection =
+            EnemyObstacleSteering2D.GetSteeredDirection(
+                col,
+                direction,
+                targetDirection,
+                navigationFilter,
+                avoidanceHits,
+                obstacleProbeDistance,
+                movementDistance,
+                0.03f,
+                obstacleAvoidanceAttempts,
+                obstacleOutwardBias,
+                ref obstacleAvoidanceSide
+            );
+
+        if (steeredDirection.sqrMagnitude <= 0.001f)
+            return;
+
         rb.MovePosition(
             rb.position +
-            direction *
-            finalSpeed *
-            Time.fixedDeltaTime
+            steeredDirection *
+            movementDistance
         );
     }
 
     private void HandleStuckCheck(float distanceToTarget)
     {
-        if (distanceToTarget <= closeRangeDistance)
+        if (distanceToTarget <= 0.15f)
         {
             ResetStuckCheck();
             return;
@@ -480,7 +521,9 @@ public class EnemyFollow : MonoBehaviour
     private Vector2 GetEscapeDirection()
     {
         ContactFilter2D filter = new ContactFilter2D();
-        filter.SetLayerMask(obstacleLayer);
+        filter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(obstacleLayer)
+        );
         filter.useLayerMask = true;
         filter.useTriggers = false;
 

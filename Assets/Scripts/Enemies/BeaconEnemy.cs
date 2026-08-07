@@ -45,6 +45,9 @@ public class BeaconEnemy : MonoBehaviour
     [Header("Collision")]
     public LayerMask solidLayers;
     public float castSkin = 0.05f;
+    public float obstacleProbeDistance = 0.8f;
+    [Range(2, 8)] public int obstacleAvoidanceAttempts = 5;
+    [Range(0f, 1f)] public float obstacleOutwardBias = 0.3f;
 
     [Header("Spawn Effect")]
     public float spawnEffectDuration = 0.15f;
@@ -88,6 +91,7 @@ public class BeaconEnemy : MonoBehaviour
     private ContactFilter2D escapeFilter;
 
     private readonly RaycastHit2D[] castHits = new RaycastHit2D[4];
+    private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[12];
     private readonly Collider2D[] escapeHits = new Collider2D[8];
 
     private void Awake()
@@ -101,11 +105,15 @@ public class BeaconEnemy : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
         solidFilter = new ContactFilter2D();
-        solidFilter.SetLayerMask(solidLayers);
+        solidFilter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(solidLayers)
+        );
         solidFilter.useTriggers = false;
 
         escapeFilter = new ContactFilter2D();
-        escapeFilter.SetLayerMask(solidLayers);
+        escapeFilter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(solidLayers)
+        );
         escapeFilter.useTriggers = true;
 
         targetScale = transform.localScale;
@@ -319,7 +327,29 @@ public class BeaconEnemy : MonoBehaviour
         if (dir.sqrMagnitude <= 0.001f) return;
 
         Vector2 pos = rb.position;
-        Vector2 nextPos = pos + dir.normalized * moveSpeed * Time.fixedDeltaTime;
+        float movementDistance = moveSpeed * Time.fixedDeltaTime;
+
+        Vector2 steeredDirection =
+            EnemyObstacleSteering2D.GetSteeredDirection(
+                col,
+                dir,
+                dir,
+                solidFilter,
+                avoidanceHits,
+                obstacleProbeDistance,
+                movementDistance,
+                castSkin,
+                obstacleAvoidanceAttempts,
+                obstacleOutwardBias,
+                ref unstuckDirection
+            );
+
+        if (steeredDirection.sqrMagnitude <= 0.001f)
+            return;
+
+        Vector2 nextPos =
+            pos + steeredDirection * movementDistance;
+
         nextPos = ClampToBounds(nextPos);
 
         Vector2 movement = nextPos - pos;
@@ -330,8 +360,12 @@ public class BeaconEnemy : MonoBehaviour
             return;
         }
 
-        Vector2 sideDir = new Vector2(-dir.y, dir.x) * unstuckDirection;
-        Vector2 sideMove = sideDir.normalized * moveSpeed * Time.fixedDeltaTime;
+        Vector2 sideDir =
+            new Vector2(-steeredDirection.y, steeredDirection.x) *
+            unstuckDirection;
+
+        Vector2 sideMove =
+            sideDir.normalized * movementDistance;
 
         if (CanMove(sideMove))
         {

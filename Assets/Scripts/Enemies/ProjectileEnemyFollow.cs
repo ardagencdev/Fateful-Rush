@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class ProjectileEnemyFollow : MonoBehaviour
 {
     [Header("Target")]
@@ -38,8 +39,13 @@ public class ProjectileEnemyFollow : MonoBehaviour
     public float minSideMoveSpeed = 1.5f;
     public float maxSideMoveSpeed = 3f;
 
-    [Header("Advanced Unstuck")]
+    [Header("Obstacle Avoidance")]
     public LayerMask obstacleLayer;
+    public float obstacleProbeDistance = 0.8f;
+    [Range(2, 8)] public int obstacleAvoidanceAttempts = 5;
+    [Range(0f, 1f)] public float obstacleOutwardBias = 0.3f;
+
+    [Header("Advanced Unstuck")]
     public float escapeCheckRadius = 1.2f;
     public float escapeSpeedMultiplier = 2.2f;
 
@@ -70,6 +76,9 @@ public class ProjectileEnemyFollow : MonoBehaviour
     private readonly List<EnemyProjectile> ownedProjectiles =
         new List<EnemyProjectile>();
 
+    private readonly RaycastHit2D[] avoidanceHits =
+        new RaycastHit2D[12];
+
     private readonly Collider2D[] escapeHits =
         new Collider2D[16];
 
@@ -77,6 +86,7 @@ public class ProjectileEnemyFollow : MonoBehaviour
         new Collider2D[16];
 
     private Rigidbody2D rb;
+    private Collider2D col;
     private Rigidbody2D targetRigidbody;
     private AudioSource audioSource;
     private PlayerMovement playerMovement;
@@ -96,16 +106,26 @@ public class ProjectileEnemyFollow : MonoBehaviour
     private float strafeDirectionTimer;
     private int strafeDirection = 1;
     private int unstuckDirection = 1;
+    private int obstacleAvoidanceSide = 1;
 
     private bool isSpawning;
     private bool stopped;
     private bool attemptedMovementThisFrame;
 
     private Transform cachedCurrentTarget;
+    private ContactFilter2D navigationFilter;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
+
+        navigationFilter = new ContactFilter2D();
+        navigationFilter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(obstacleLayer)
+        );
+        navigationFilter.useLayerMask = true;
+        navigationFilter.useTriggers = false;
 
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
@@ -146,6 +166,8 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         unstuckDirection =
             Random.Range(0, 2) == 0 ? -1 : 1;
+
+        obstacleAvoidanceSide = unstuckDirection;
 
         ResetStrafeTimer();
 
@@ -432,7 +454,7 @@ public class ProjectileEnemyFollow : MonoBehaviour
                 );
         }
 
-        Move(finalDirection, movementDistance);
+        Move(finalDirection, desiredDirection, movementDistance);
     }
 
     private Vector2 GetStrafeDirection(
@@ -604,6 +626,7 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
     private void Move(
         Vector2 direction,
+        Vector2 tacticalDirection,
         float distance
     )
     {
@@ -615,9 +638,27 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         attemptedMovementThisFrame = true;
 
+        Vector2 steeredDirection =
+            EnemyObstacleSteering2D.GetSteeredDirection(
+                col,
+                direction,
+                tacticalDirection,
+                navigationFilter,
+                avoidanceHits,
+                obstacleProbeDistance,
+                distance,
+                0.03f,
+                obstacleAvoidanceAttempts,
+                obstacleOutwardBias,
+                ref obstacleAvoidanceSide
+            );
+
+        if (steeredDirection.sqrMagnitude <= 0.001f)
+            return;
+
         rb.MovePosition(
             rb.position +
-            direction.normalized * distance
+            steeredDirection.normalized * distance
         );
     }
 
@@ -894,7 +935,9 @@ public class ProjectileEnemyFollow : MonoBehaviour
         ContactFilter2D filter =
             new ContactFilter2D();
 
-        filter.SetLayerMask(obstacleLayer);
+        filter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(obstacleLayer)
+        );
         filter.useLayerMask = true;
         filter.useTriggers = false;
 
