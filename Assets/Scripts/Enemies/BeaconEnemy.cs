@@ -76,12 +76,10 @@ public class BeaconEnemy : MonoBehaviour
     private bool isSpawning;
 
     private float retargetTimer;
-    private float targetCacheTimer;
     private float stuckTimer;
     private float unstuckTimer;
     private int unstuckDirection = 1;
 
-    private EnemyBuffTarget[] cachedTargets = new EnemyBuffTarget[0];
     private readonly HashSet<EnemyBuffTarget> appliedBuffTargets =
         new HashSet<EnemyBuffTarget>();
     private BeaconEnemySpawner spawnerOwner;
@@ -89,6 +87,9 @@ public class BeaconEnemy : MonoBehaviour
 
     private ContactFilter2D solidFilter;
     private ContactFilter2D escapeFilter;
+
+    private WaitForSeconds activationWait;
+    private WaitForSeconds pulseWait;
 
     private readonly RaycastHit2D[] castHits = new RaycastHit2D[4];
     private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[12];
@@ -144,7 +145,11 @@ public class BeaconEnemy : MonoBehaviour
 
         lastPosition = rb.position;
 
-        RefreshTargetCache();
+        RuntimeObjectPool.Prewarm(activationWavePrefab, 1);
+        RuntimeObjectPool.Prewarm(loopWavePrefab, 2);
+
+        activationWait = new WaitForSeconds(Mathf.Max(0f, activationDelay));
+        pulseWait = new WaitForSeconds(Mathf.Max(0.05f, pulseInterval));
 
         StartCoroutine(SpawnEffect());
         StartCoroutine(ActivationRoutine());
@@ -157,7 +162,6 @@ public class BeaconEnemy : MonoBehaviour
         if (playerMovement != null && playerMovement.IsGameOver) return;
         if (player == null) return;
 
-        HandleTargetCache();
         HandleRetarget();
         MoveLogic();
         HandleStuckCheck();
@@ -185,7 +189,7 @@ public class BeaconEnemy : MonoBehaviour
 
     private IEnumerator ActivationRoutine()
     {
-        yield return new WaitForSeconds(activationDelay);
+        yield return activationWait;
 
         if (dead) yield break;
 
@@ -196,7 +200,11 @@ public class BeaconEnemy : MonoBehaviour
 
         if (activationWavePrefab != null)
         {
-            GameObject wave = Instantiate(activationWavePrefab, transform.position, Quaternion.identity);
+            GameObject wave = RuntimeObjectPool.Spawn(
+                activationWavePrefab,
+                transform.position,
+                Quaternion.identity
+            );
             BeaconPulseWave pulse = wave.GetComponent<BeaconPulseWave>();
 
             if (pulse != null)
@@ -210,7 +218,7 @@ public class BeaconEnemy : MonoBehaviour
     {
         while (active && !dead)
         {
-            yield return new WaitForSeconds(pulseInterval);
+            yield return pulseWait;
 
             if (dead) yield break;
             if (loopWavePrefab == null) continue;
@@ -218,27 +226,16 @@ public class BeaconEnemy : MonoBehaviour
             if (soundManager != null)
                 soundManager.PlayBeaconLoopWaveSound();
 
-            GameObject wave = Instantiate(loopWavePrefab, transform.position, Quaternion.identity);
+            GameObject wave = RuntimeObjectPool.Spawn(
+                loopWavePrefab,
+                transform.position,
+                Quaternion.identity
+            );
             BeaconPulseWave pulse = wave.GetComponent<BeaconPulseWave>();
 
             if (pulse != null)
                 pulse.Initialize(this, true);
         }
-    }
-
-    private void HandleTargetCache()
-    {
-        targetCacheTimer -= Time.fixedDeltaTime;
-
-        if (targetCacheTimer > 0f) return;
-
-        targetCacheTimer = targetCacheRefreshInterval;
-        RefreshTargetCache();
-    }
-
-    private void RefreshTargetCache()
-    {
-        cachedTargets = FindObjectsByType<EnemyBuffTarget>(FindObjectsInactive.Exclude);
     }
 
     private void HandleRetarget()
@@ -258,15 +255,14 @@ public class BeaconEnemy : MonoBehaviour
         float bestSqrDistance = Mathf.Infinity;
         Vector2 beaconPos = rb.position;
 
-        for (int i = 0; i < cachedTargets.Length; i++)
+        foreach (EnemyBuffTarget target in EnemyBuffTarget.ActiveTargets)
         {
-            EnemyBuffTarget target = cachedTargets[i];
-
             if (target == null) continue;
             if (target.IsBuffed) continue;
             if (!target.CanReceiveBeaconBuff) continue;
 
-            float sqrDistance = ((Vector2)target.transform.position - beaconPos).sqrMagnitude;
+            float sqrDistance =
+                ((Vector2)target.transform.position - beaconPos).sqrMagnitude;
 
             if (sqrDistance < bestSqrDistance)
             {

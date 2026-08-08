@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 10 \u2014 HOLD THE VOID"
-  missionDifficulty: 3
+  missionDifficulty: 2
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Survive Time ignores score: coins and combo will not save you. Your only objective is to remain alive for 45 seconds."
-  - "Preserve open space as bombs accumulate. Armor is a recovery option, not a reason to cross an armed bomb."
+  - 'Survive Time ignores score: coins and combo will not save you. Your only objective
+    is to remain alive for 45 seconds.'
+  - Preserve open space as bombs accumulate. Armor is a recovery option, not a reason
+    to cross an armed bomb.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 1
   winScore: 15
@@ -53,7 +55,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.3
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 1
@@ -61,17 +63,12 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 2.05
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
-  - comboMultiplier: 3
-    coinsRequired: 8
-    playerSpeedMultiplier: 1.055
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.36312, g: 0.58496, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1.15
-  nearStarsSizeMultiplier: 1.02
+  nearStarsSpeedMultiplier: 1.058
+  nearStarsSizeMultiplier: 0.969
+  starfieldDensityMultiplier: 0.865
   nearStarsEmissionRate: 38
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -81,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -114,8 +111,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 7.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 5.8
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -153,7 +150,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 0
+  hunterEnemySpawnInterval: 0.01
   hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -165,7 +162,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -238,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 0
   armorMinSpawnTime: 14
@@ -265,7 +263,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 1
+  bombDanger: 2
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -287,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

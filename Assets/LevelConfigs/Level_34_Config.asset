@@ -40,8 +40,9 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Beacon buffs, vertical lasers and three Hunters create repeated survival spikes."
-  - "Kill the Beacon before using Slow when possible; otherwise part of the power-up duration is spent fighting amplified enemies."
+  - Beacon buffs, vertical lasers and three Hunters create repeated survival spikes.
+  - Kill the Beacon before using Slow when possible; otherwise part of the power-up
+    duration is spent fighting amplified enemies.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
@@ -61,20 +62,12 @@ MonoBehaviour:
   slowDuration: 5.5
   comboEnabled: 0
   comboTimeLimit: 1.7
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.04
-  - comboMultiplier: 3
-    coinsRequired: 9
-    playerSpeedMultiplier: 1.07
-  - comboMultiplier: 4
-    coinsRequired: 16
-    playerSpeedMultiplier: 1.1
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.95464, g: 0.15872, b: 0.23152, a: 1}
-  nearStarsSpeedMultiplier: 1.625
-  nearStarsSizeMultiplier: 1.16
+  nearStarsSpeedMultiplier: 1.612
+  nearStarsSizeMultiplier: 1.154
+  starfieldDensityMultiplier: 1.173
   nearStarsEmissionRate: 56
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -84,9 +77,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -117,8 +110,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 7.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 7
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -133,7 +126,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 3
+  projectileEnemyCount: 2
   projectileEnemySpawnInterval: 13
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
@@ -155,7 +148,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 3
+  hunterEnemyCount: 2
   hunterEnemySpawnInterval: 17
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
@@ -168,7 +161,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -241,6 +234,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 20
@@ -248,7 +242,7 @@ MonoBehaviour:
   slowMinSpawnTime: 34
   slowMaxSpawnTime: 42
   verticalLaserEnabled: 1
-  verticalLaserDanger: 3
+  verticalLaserDanger: 4
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -290,4 +284,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

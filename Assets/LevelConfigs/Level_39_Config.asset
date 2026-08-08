@@ -40,8 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Reach 180 score before time expires; the Boss arrives at 135 while projectile and Hunter danger is near maximum."
-  - "Enter the Boss phase with Armor or Slow available. Do not spend Dash on score if it is needed to cross the Boss path."
+  - Reach 180 score before time expires; the Boss arrives at 135 while projectile
+    and Hunter danger is near maximum.
+  - Enter the Boss phase with Armor or Slow available. Do not spend Dash on score
+    if it is needed to cross the Boss path.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 180
@@ -60,27 +62,28 @@ MonoBehaviour:
   slowMultiplier: 0.4
   slowDuration: 5.5
   comboEnabled: 1
-  comboTimeLimit: 1.65
+  comboTimeLimit: 2.1299999
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 4
-    playerSpeedMultiplier: 1.04
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 9
-    playerSpeedMultiplier: 1.07
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.055
   - comboMultiplier: 4
-    coinsRequired: 16
-    playerSpeedMultiplier: 1.1
+    coinsRequired: 18
+    playerSpeedMultiplier: 1.08
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.8203125, g: 0.0482812, b: 0.0809375, a: 1}
-  nearStarsSpeedMultiplier: 1.725
-  nearStarsSizeMultiplier: 1.19
+  nearStarsSpeedMultiplier: 1.727
+  nearStarsSizeMultiplier: 1.192
+  starfieldDensityMultiplier: 1.237
   nearStarsEmissionRate: 62
-  coinSpawnInterval: 0.7
-  maxCoinCount: 11
-  normalCoinChance: 52
-  goldCoinChance: 32
-  rareCoinChance: 16
+  coinSpawnInterval: 0.74
+  maxCoinCount: 9
+  normalCoinChance: 72
+  goldCoinChance: 22
+  rareCoinChance: 6
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -117,8 +120,8 @@ MonoBehaviour:
     enabled: 1
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 6.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 6
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -135,7 +138,7 @@ MonoBehaviour:
     separationStrength: 0.65
   projectileEnemyCount: 2
   projectileEnemySpawnInterval: 14
-  projectileEnemyDanger: 5
+  projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -155,7 +158,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 3
+  hunterEnemyCount: 2
   hunterEnemySpawnInterval: 17
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
@@ -169,9 +172,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 135
+  bossSpawnScore: 122
   bossSpawnTime: 30
-  bossDanger: 4
+  bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -241,6 +244,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 18
@@ -248,7 +252,7 @@ MonoBehaviour:
   slowMinSpawnTime: 38
   slowMaxSpawnTime: 46
   verticalLaserEnabled: 1
-  verticalLaserDanger: 4
+  verticalLaserDanger: 5
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -268,7 +272,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 5
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -290,4 +294,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

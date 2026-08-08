@@ -193,7 +193,7 @@ public class PlayerArmor : MonoBehaviour
 
         HasArmor = false;
 
-        StatsManager.AddArmorKill();
+        StatsManager.AddArmorSave();
 
         if (soundManager != null)
             soundManager.PlayArmorBreakSound();

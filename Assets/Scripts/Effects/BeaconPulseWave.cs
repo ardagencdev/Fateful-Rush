@@ -14,16 +14,14 @@ public class BeaconPulseWave : MonoBehaviour
 
     private SpriteRenderer sr;
     private BeaconEnemy source;
-
     private bool canBuff;
     private float timer;
+    private Color baseColor;
 
     private readonly HashSet<EnemyBuffTarget> hitTargets =
         new HashSet<EnemyBuffTarget>();
 
-    public void Initialize(
-        BeaconEnemy beacon,
-        bool buffEnabled)
+    public void Initialize(BeaconEnemy beacon, bool buffEnabled)
     {
         source = beacon;
         canBuff = buffEnabled;
@@ -32,28 +30,30 @@ public class BeaconPulseWave : MonoBehaviour
     private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-
-        transform.localScale =
-            Vector3.one * startScale;
-
+        baseColor = sr != null ? sr.color : Color.white;
         duration = Mathf.Max(0.01f, duration);
+    }
+
+    private void OnEnable()
+    {
+        timer = 0f;
+        source = null;
+        canBuff = false;
+        hitTargets.Clear();
+        transform.localScale = Vector3.one * startScale;
+
+        if (sr != null)
+            sr.color = baseColor;
     }
 
     private void Update()
     {
         timer += Time.deltaTime;
 
-        float t =
-            Mathf.Clamp01(timer / duration);
+        float t = Mathf.Clamp01(timer / Mathf.Max(0.01f, duration));
+        float currentScale = Mathf.Lerp(startScale, endScale, t);
 
-        float currentScale =
-            Mathf.Lerp(
-                startScale,
-                endScale,
-                t);
-
-        transform.localScale =
-            Vector3.one * currentScale;
+        transform.localScale = Vector3.one * currentScale;
 
         if (canBuff && source != null)
         {
@@ -67,47 +67,48 @@ public class BeaconPulseWave : MonoBehaviour
 
         if (sr != null)
         {
-            Color color = sr.color;
-            color.a = Mathf.Lerp(1f, 0f, t);
+            Color color = baseColor;
+            color.a = Mathf.Lerp(baseColor.a, 0f, t);
             sr.color = color;
         }
 
         if (timer >= duration)
-            Destroy(gameObject);
+            RuntimeObjectPool.Release(gameObject);
     }
 
     private void CheckBuffTargets(float radius)
     {
-        Collider2D[] hits =
-            Physics2D.OverlapCircleAll(
-                transform.position,
-                radius,
-                enemyLayers);
+        float radiusSquared = radius * radius;
+        Vector2 center = transform.position;
 
-        if (hits == null || hits.Length == 0)
-            return;
-
-        foreach (Collider2D hit in hits)
+        foreach (EnemyBuffTarget target in EnemyBuffTarget.ActiveTargets)
         {
-            EnemyBuffTarget target =
-                hit.GetComponentInParent<EnemyBuffTarget>();
-
-            if (target == null)
+            if (target == null ||
+                target.IsBuffed ||
+                !target.CanReceiveBeaconBuff ||
+                hitTargets.Contains(target))
+            {
                 continue;
+            }
 
-            if (target.IsBuffed)
-                continue;
+            Vector2 targetPosition = target.transform.position;
 
-            if (hitTargets.Contains(target))
-                continue;
-
-            if (target.GetComponent<BeaconEnemy>() != null)
+            if ((targetPosition - center).sqrMagnitude > radiusSquared)
                 continue;
 
             hitTargets.Add(target);
-
-            source.ApplyBuffToTarget(
-                target.gameObject);
+            source.ApplyBuffToTarget(target.gameObject);
         }
+    }
+
+    private void OnDisable()
+    {
+        source = null;
+        canBuff = false;
+        timer = 0f;
+        hitTargets.Clear();
+
+        if (sr != null)
+            sr.color = baseColor;
     }
 }

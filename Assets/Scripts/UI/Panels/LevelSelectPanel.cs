@@ -68,10 +68,11 @@ public class LevelSelectPanel : MonoBehaviour
         PreparePageButtons();
 
         // Panel başlangıçta kapalı olabileceği için burada coroutine çalıştırmıyoruz.
+        // Circular pagination: both navigation buttons stay visible.
         SetNavigationButtonInstant(
             previousPageButton,
             previousPageGroup,
-            false,
+            true,
             previousPageBaseScale
         );
 
@@ -274,28 +275,28 @@ public class LevelSelectPanel : MonoBehaviour
 
     public void NextPage()
     {
-        if (pageRoutine != null)
+        if (pageRoutine != null || totalPageCount <= 1)
             return;
 
-        if (currentPageIndex >= totalPageCount - 1)
-            return;
+        int nextPageIndex =
+            (currentPageIndex + 1) % totalPageCount;
 
         StartPageTransition(
-            currentPageIndex + 1,
+            nextPageIndex,
             -1
         );
     }
 
     public void PreviousPage()
     {
-        if (pageRoutine != null)
+        if (pageRoutine != null || totalPageCount <= 1)
             return;
 
-        if (currentPageIndex <= 0)
-            return;
+        int previousPageIndex =
+            (currentPageIndex - 1 + totalPageCount) % totalPageCount;
 
         StartPageTransition(
-            currentPageIndex - 1,
+            previousPageIndex,
             1
         );
     }
@@ -598,11 +599,13 @@ public class LevelSelectPanel : MonoBehaviour
                 $"{currentPageIndex + 1} / {totalPageCount}";
         }
 
+        // Circular pagination: when there is more than one page,
+        // both arrows are always available (1 <-> last page).
         bool canGoPrevious =
-            currentPageIndex > 0;
+            totalPageCount > 1;
 
         bool canGoNext =
-            currentPageIndex < totalPageCount - 1;
+            totalPageCount > 1;
 
         RefreshNavigationButton(
             previousPageButton,
@@ -772,10 +775,10 @@ public class LevelSelectPanel : MonoBehaviour
     )
     {
         bool canGoPrevious =
-            currentPageIndex > 0;
+            totalPageCount > 1;
 
         bool canGoNext =
-            currentPageIndex < totalPageCount - 1;
+            totalPageCount > 1;
 
         if (previousPageButton != null &&
             previousPageButton.gameObject.activeSelf)

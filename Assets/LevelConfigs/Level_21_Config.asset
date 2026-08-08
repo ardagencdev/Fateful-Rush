@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 21 \u2014 NARROW ESCAPE"
-  missionDifficulty: 4
+  missionDifficulty: 3
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Dual Lasers control the arena, but the enemy wave is lighter than the previous mission. Safe lanes still change often."
-  - "Stay near the centre until a warning appears, then choose the side with fewer enemies. Clone should solve only true overlaps."
+  - Dual Lasers control the arena, but the enemy wave is lighter than the previous
+    mission. Safe lanes still change often.
+  - Stay near the centre until a warning appears, then choose the side with fewer
+    enemies. Clone should solve only true overlaps.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 1
   winScore: 15
@@ -53,7 +55,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 1.95
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 14
   cloneUses: 1
   armorImmuneDuration: 1
@@ -61,20 +63,12 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 1.8
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.035
-  - comboMultiplier: 3
-    coinsRequired: 8
-    playerSpeedMultiplier: 1.065
-  - comboMultiplier: 4
-    coinsRequired: 14
-    playerSpeedMultiplier: 1.09
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.72, g: 0.3, b: 0.95, a: 1}
-  nearStarsSpeedMultiplier: 1.35
-  nearStarsSizeMultiplier: 1.08
+  nearStarsSpeedMultiplier: 1.312
+  nearStarsSizeMultiplier: 1.054
+  starfieldDensityMultiplier: 1.006
   nearStarsEmissionRate: 42
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -84,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -117,8 +111,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 7.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 6.3
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -135,7 +129,7 @@ MonoBehaviour:
     separationStrength: 0.65
   projectileEnemyCount: 1
   projectileEnemySpawnInterval: 15
-  projectileEnemyDanger: 2
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -168,7 +162,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -241,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 18
@@ -248,7 +243,7 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 1
-  verticalLaserDanger: 1
+  verticalLaserDanger: 2
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -290,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

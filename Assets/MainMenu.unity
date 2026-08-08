@@ -15269,7 +15269,7 @@ MonoBehaviour:
   continueLevelText: {fileID: 1349646196}
   unavailableContinueAlpha: 0.25
   devRoomConfig: {fileID: 11400000, guid: 7bc9b7110624ec840b86ec026053196c, type: 2}
-  devRoomButton: {fileID: 0}
+  devRoomButton: {fileID: 1432845818}
   devRoomRevealKey: 101
   fallbackQuitDelay: 0.35
 --- !u!1 &571473934
@@ -18535,7 +18535,6 @@ GameObject:
   - component: {fileID: 789087159}
   - component: {fileID: 789087164}
   - component: {fileID: 789087163}
-  - component: {fileID: 789087165}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -18658,29 +18657,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &789087165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789087158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cf23a7fc756d21478c6d200fe5318ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  gameSceneName: a
-  fadeSwitcher: {fileID: 0}
-  mainMenuPanel: {fileID: 0}
-  levelSelectPanel: {fileID: 0}
-  continueButton: {fileID: 0}
-  continueLevelText: {fileID: 0}
-  unavailableContinueAlpha: 0.25
-  devRoomConfig: {fileID: 0}
-  devRoomButton: {fileID: 0}
-  devRoomRevealKey: 101
-  fallbackQuitDelay: 0.35
 --- !u!1 &790159917
 GameObject:
   m_ObjectHideFlags: 0

@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a763b57140f98d8419d2dcf55c0f7b87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinSpawnEffect
-  collectParticlePrefab: {fileID: 3164944008043292859, guid: 07b3a310ac3154c42a900b4891062cf9, type: 3}
+  collectParticlePrefab: {fileID: 0}
   spawnDuration: 0.2
   collectDuration: 0.12
 --- !u!1 &6177097690152987900

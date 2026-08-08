@@ -142,12 +142,9 @@ public class PlayerCoinCollector : MonoBehaviour
 
         if (coin != null)
         {
-            string coinType =
-                GetCoinType(coin.value);
-
             StatsManager.AddCoin(
-                gainedScore,
-                coinType
+                coinValue,
+                coin.Type
             );
         }
 
@@ -323,18 +320,6 @@ public class PlayerCoinCollector : MonoBehaviour
             if (body != null)
                 body.simulated = false;
         }
-    }
-
-    private static string GetCoinType(
-        int coinValue)
-    {
-        if (coinValue == 5)
-            return "Gold";
-
-        if (coinValue == 10)
-            return "Rare";
-
-        return "Normal";
     }
 
     private bool IsGameOver()

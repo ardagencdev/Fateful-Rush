@@ -40,8 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Learn the arena before the pursuit begins. Keep a clear route through the centre instead of circling the boundary."
-  - "Collect the nearest coins first. Clean movement matters more than speed in this opening mission."
+  - Learn the arena before the pursuit begins. Keep a clear route through the centre
+    instead of circling the boundary.
+  - Collect the nearest coins first. Clean movement matters more than speed in this
+    opening mission.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 15
@@ -53,7 +55,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
@@ -61,20 +63,18 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 2.4
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.5568628, g: 0.9372549, b: 0.9607843, a: 1}
   nearStarsSpeedMultiplier: 0.85
   nearStarsSizeMultiplier: 0.9
+  starfieldDensityMultiplier: 0.75
   nearStarsEmissionRate: 22
-  coinSpawnInterval: 0.95
+  coinSpawnInterval: 0.92
   maxCoinCount: 7
   normalCoinChance: 100
-  goldCoinChance: 25
-  rareCoinChance: 5
+  goldCoinChance: 0
+  rareCoinChance: 0
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -112,7 +112,7 @@ MonoBehaviour:
   randomObstacleCount: 0
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 0
-  normalEnemySpawnInterval: 0
+  normalEnemySpawnInterval: 0.01
   normalEnemyDanger: 1
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -128,7 +128,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 0
+  projectileEnemySpawnInterval: 0.01
   projectileEnemyDanger: 1
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -150,7 +150,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 0
+  hunterEnemySpawnInterval: 0.01
   hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -235,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 15
@@ -284,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

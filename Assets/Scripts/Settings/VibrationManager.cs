@@ -11,6 +11,11 @@ public class VibrationManager : MonoBehaviour
     private const int MinAmplitude = 1;
     private const int MaxAmplitude = 255;
 
+    private static readonly long[] SuccessTimings = { 0, 35, 50, 45 };
+    private static readonly int[] SuccessAmplitudes = { 0, 100, 0, 160 };
+    private static readonly long[] FailureTimings = { 0, 80, 60, 120 };
+    private static readonly int[] FailureAmplitudes = { 0, 200, 0, 255 };
+
     private bool isEnabled;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -83,42 +88,12 @@ public class VibrationManager : MonoBehaviour
 
     public void VibrateSuccess()
     {
-        VibratePattern(
-            new long[]
-            {
-                0,
-                35,
-                50,
-                45
-            },
-            new int[]
-            {
-                0,
-                100,
-                0,
-                160
-            }
-        );
+        VibratePattern(SuccessTimings, SuccessAmplitudes);
     }
 
     public void VibrateFailure()
     {
-        VibratePattern(
-            new long[]
-            {
-                0,
-                80,
-                60,
-                120
-            },
-            new int[]
-            {
-                0,
-                200,
-                0,
-                255
-            }
-        );
+        VibratePattern(FailureTimings, FailureAmplitudes);
     }
 
     public void CancelVibration()
@@ -216,15 +191,12 @@ public class VibrationManager : MonoBehaviour
             if (androidSdkVersion >= AndroidOreoSdk &&
                 vibrationEffectClass != null)
             {
-                int[] clampedAmplitudes =
-                    ClampAmplitudes(amplitudes);
-
                 using AndroidJavaObject effect =
                     vibrationEffectClass
                         .CallStatic<AndroidJavaObject>(
                             "createWaveform",
                             timings,
-                            clampedAmplitudes,
+                            amplitudes,
                             -1
                         );
 
@@ -278,37 +250,6 @@ public class VibrationManager : MonoBehaviour
         }
 
         return true;
-    }
-
-    private static int[] ClampAmplitudes(
-        int[] amplitudes
-    )
-    {
-        int[] result =
-            new int[amplitudes.Length];
-
-        for (int i = 0;
-             i < amplitudes.Length;
-             i++)
-        {
-            /*
-             * Pattern içindeki 0 değeri,
-             * o bölümde titreşim olmadığını ifade eder.
-             */
-            if (amplitudes[i] <= 0)
-            {
-                result[i] = 0;
-                continue;
-            }
-
-            result[i] = Mathf.Clamp(
-                amplitudes[i],
-                MinAmplitude,
-                MaxAmplitude
-            );
-        }
-
-        return result;
     }
 
 #if UNITY_ANDROID && !UNITY_EDITOR

@@ -40,8 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "The highest pure score target combines severe enemies, bombs, a recurring Beacon and five obstacles."
-  - "Keep chains local. Remove the Beacon before committing to a high-value route through the dark wreckage."
+  - The highest pure score target combines severe enemies, bombs, a recurring Beacon
+    and five obstacles.
+  - Keep chains local. Remove the Beacon before committing to a high-value route
+    through the dark wreckage.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 0
   winScore: 260
@@ -60,27 +62,28 @@ MonoBehaviour:
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 1.65
+  comboTimeLimit: 2.08
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 4
-    playerSpeedMultiplier: 1.04
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 9
-    playerSpeedMultiplier: 1.07
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.055
   - comboMultiplier: 4
-    coinsRequired: 16
-    playerSpeedMultiplier: 1.1
+    coinsRequired: 18
+    playerSpeedMultiplier: 1.08
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.865, g: 0.0775, b: 0.105, a: 1}
-  nearStarsSpeedMultiplier: 1.7
-  nearStarsSizeMultiplier: 1.18
+  nearStarsSpeedMultiplier: 1.704
+  nearStarsSizeMultiplier: 1.185
+  starfieldDensityMultiplier: 1.224
   nearStarsEmissionRate: 60
-  coinSpawnInterval: 0.7
-  maxCoinCount: 10
-  normalCoinChance: 45
-  goldCoinChance: 35
-  rareCoinChance: 20
+  coinSpawnInterval: 0.82
+  maxCoinCount: 9
+  normalCoinChance: 72
+  goldCoinChance: 22
+  rareCoinChance: 6
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -117,8 +120,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 4.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 5.5
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -133,7 +136,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 3
+  projectileEnemyCount: 2
   projectileEnemySpawnInterval: 9
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
@@ -155,7 +158,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 3
+  hunterEnemyCount: 2
   hunterEnemySpawnInterval: 14
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
@@ -241,6 +244,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 0
   armorMinSpawnTime: 18
@@ -268,7 +272,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 5
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -290,4 +294,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

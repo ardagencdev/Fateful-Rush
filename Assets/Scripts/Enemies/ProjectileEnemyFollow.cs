@@ -70,9 +70,6 @@ public class ProjectileEnemyFollow : MonoBehaviour
     [Header("Spawn Effect")]
     public float spawnEffectDuration = 0.15f;
 
-    private readonly Queue<GameObject> projectilePool =
-        new Queue<GameObject>();
-
     private readonly List<EnemyProjectile> ownedProjectiles =
         new List<EnemyProjectile>();
 
@@ -174,7 +171,10 @@ public class ProjectileEnemyFollow : MonoBehaviour
         lastPosition = rb.position;
 
         FindPlayerIfNeeded();
-        CreateProjectilePool();
+        RuntimeObjectPool.Prewarm(
+            projectilePrefab,
+            Mathf.Max(1, poolSize)
+        );
 
         StartCoroutine(SpawnEffect());
     }
@@ -277,38 +277,32 @@ public class ProjectileEnemyFollow : MonoBehaviour
             foundPlayer.GetComponent<PlayerMovement>();
     }
 
-    private void CreateProjectilePool()
+    private GameObject GetProjectileFromPool(Vector3 position)
     {
-        if (projectilePrefab == null)
-            return;
-
-        for (int i = 0; i < poolSize; i++)
-        {
-            GameObject projectile =
-                Instantiate(projectilePrefab);
-
-            projectile.SetActive(false);
-
-            RegisterProjectile(projectile);
-            projectilePool.Enqueue(projectile);
-        }
+        return RuntimeObjectPool.Spawn(
+            projectilePrefab,
+            position,
+            Quaternion.identity
+        );
     }
 
-    private void RegisterProjectile(GameObject projectile)
+    private void RegisterActiveProjectile(EnemyProjectile projectile)
     {
         if (projectile == null)
             return;
 
-        EnemyProjectile projectileScript =
-            projectile.GetComponent<EnemyProjectile>();
+        projectile.SetPoolOwner(this);
 
-        if (projectileScript == null)
+        if (!ownedProjectiles.Contains(projectile))
+            ownedProjectiles.Add(projectile);
+    }
+
+    public void NotifyProjectileReturned(EnemyProjectile projectile)
+    {
+        if (projectile == null)
             return;
 
-        projectileScript.SetPoolOwner(this);
-
-        if (!ownedProjectiles.Contains(projectileScript))
-            ownedProjectiles.Add(projectileScript);
+        ownedProjectiles.Remove(projectile);
     }
 
     public void ReturnProjectileToPool(GameObject projectile)
@@ -316,37 +310,16 @@ public class ProjectileEnemyFollow : MonoBehaviour
         if (projectile == null)
             return;
 
-        Rigidbody2D projectileRb =
-            projectile.GetComponent<Rigidbody2D>();
+        EnemyProjectile projectileScript =
+            projectile.GetComponent<EnemyProjectile>();
 
-        if (projectileRb != null)
+        if (projectileScript != null)
         {
-            projectileRb.linearVelocity = Vector2.zero;
-            projectileRb.angularVelocity = 0f;
+            projectileScript.ReturnToPool();
+            return;
         }
 
-        projectile.SetActive(false);
-
-        if (!projectilePool.Contains(projectile))
-            projectilePool.Enqueue(projectile);
-    }
-
-    private GameObject GetProjectileFromPool()
-    {
-        if (projectilePool.Count > 0)
-            return projectilePool.Dequeue();
-
-        if (projectilePrefab == null)
-            return null;
-
-        GameObject projectile =
-            Instantiate(projectilePrefab);
-
-        projectile.SetActive(false);
-
-        RegisterProjectile(projectile);
-
-        return projectile;
+        RuntimeObjectPool.Release(projectile);
     }
 
     private void HandleMovement(Transform currentTarget)
@@ -796,18 +769,10 @@ public class ProjectileEnemyFollow : MonoBehaviour
         }
 
         GameObject projectile =
-            GetProjectileFromPool();
+            GetProjectileFromPool(firePoint.position);
 
         if (projectile == null)
             return;
-
-        projectile.transform.position =
-            firePoint.position;
-
-        projectile.transform.rotation =
-            Quaternion.identity;
-
-        projectile.SetActive(true);
 
         Vector2 aimPosition =
             GetAimPosition(currentTarget);
@@ -831,16 +796,7 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         if (projectileScript != null)
         {
-            projectileScript.SetPoolOwner(this);
-
-            if (!ownedProjectiles.Contains(
-                    projectileScript
-                ))
-            {
-                ownedProjectiles.Add(
-                    projectileScript
-                );
-            }
+            RegisterActiveProjectile(projectileScript);
 
             projectileScript.Launch(
                 direction,
@@ -1066,18 +1022,19 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
     private void DisableActiveProjectiles()
     {
-        for (int i = 0;
-             i < ownedProjectiles.Count;
-             i++)
+        while (ownedProjectiles.Count > 0)
         {
-            EnemyProjectile projectile =
-                ownedProjectiles[i];
+            int lastIndex = ownedProjectiles.Count - 1;
+            EnemyProjectile projectile = ownedProjectiles[lastIndex];
+            ownedProjectiles.RemoveAt(lastIndex);
 
-            if (projectile != null &&
-                projectile.gameObject.activeSelf)
-            {
+            if (projectile == null)
+                continue;
+
+            projectile.SetPoolOwner(null);
+
+            if (projectile.gameObject.activeSelf)
                 projectile.ReturnToPool();
-            }
         }
     }
 

@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 16 \u2014 FALSE TARGET"
-  missionDifficulty: 4
+  missionDifficulty: 2
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Clone redirects active enemies for a limited duration. Its cooldown begins only after the clone disappears."
-  - "Use the decoy to reset a collapsing formation, then reposition before enemies return to you."
+  - Clone redirects active enemies for a limited duration. Its cooldown begins only
+    after the clone disappears.
+  - Use the decoy to reset a collapsing formation, then reposition before enemies
+    return to you.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
   winScore: 140
@@ -53,34 +55,32 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 12
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 1.85
+  comboTimeLimit: 2.12
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.02
   - comboMultiplier: 3
-    coinsRequired: 7
-    playerSpeedMultiplier: 1.055
-  - comboMultiplier: 4
-    coinsRequired: 12
-    playerSpeedMultiplier: 1.08
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.045
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.5, g: 0.37, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1.25
-  nearStarsSizeMultiplier: 1.05
+  nearStarsSpeedMultiplier: 1.196
+  nearStarsSizeMultiplier: 1.015
+  starfieldDensityMultiplier: 0.942
   nearStarsEmissionRate: 38
-  coinSpawnInterval: 0.84
-  maxCoinCount: 9
-  normalCoinChance: 62
-  goldCoinChance: 28
-  rareCoinChance: 10
+  coinSpawnInterval: 0.85
+  maxCoinCount: 8
+  normalCoinChance: 74
+  goldCoinChance: 22
+  rareCoinChance: 4
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -117,9 +117,9 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 4.8
-  normalEnemyDanger: 2
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 5.3
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -241,6 +241,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 15
@@ -290,4 +291,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

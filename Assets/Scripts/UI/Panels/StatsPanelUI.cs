@@ -162,7 +162,7 @@ public class StatsPanelUI : MonoBehaviour
                 $"Clone Uses: {StatsManager.GetCloneUses()}\n\n" +
                 $"Slow Buff Uses: {StatsManager.GetSlowBuffUses()}\n" +
                 $"Armor Buff Uses: {StatsManager.GetArmorBuffUses()}\n" +
-                $"Armor Kills: {StatsManager.GetArmorKills()}";
+                $"Armor Saves: {StatsManager.GetArmorKills()}";
         }
     }
 

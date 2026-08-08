@@ -123,24 +123,25 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     public void NextSkin()
     {
-        if (!CanNavigate())
+        if (!CanNavigate() || skinCatalog.Skins.Count <= 1)
             return;
 
-        if (currentSkinIndex >= skinCatalog.Skins.Count - 1)
-            return;
+        int nextSkinIndex =
+            (currentSkinIndex + 1) % skinCatalog.Skins.Count;
 
-        StartSkinTransition(currentSkinIndex + 1, 1);
+        StartSkinTransition(nextSkinIndex, 1);
     }
 
     public void PreviousSkin()
     {
-        if (!CanNavigate())
+        if (!CanNavigate() || skinCatalog.Skins.Count <= 1)
             return;
 
-        if (currentSkinIndex <= 0)
-            return;
+        int previousSkinIndex =
+            (currentSkinIndex - 1 + skinCatalog.Skins.Count) %
+            skinCatalog.Skins.Count;
 
-        StartSkinTransition(currentSkinIndex - 1, -1);
+        StartSkinTransition(previousSkinIndex, -1);
     }
 
     public void EquipCurrentSkin()
@@ -386,28 +387,31 @@ public class PlayerSkinPanelUI : MonoBehaviour
             ? skinCatalog.Skins.Count
             : 0;
 
+        bool canNavigate = skinCount > 1;
+
         if (previousSkinButton != null)
         {
-            previousSkinButton.gameObject.SetActive(
-                currentSkinIndex > 0
-            );
+            previousSkinButton.gameObject.SetActive(true);
+            previousSkinButton.interactable = canNavigate;
         }
 
         if (nextSkinButton != null)
         {
-            nextSkinButton.gameObject.SetActive(
-                currentSkinIndex < skinCount - 1
-            );
+            nextSkinButton.gameObject.SetActive(true);
+            nextSkinButton.interactable = canNavigate;
         }
     }
 
     private void SetControlsInteractable(bool state)
     {
+        bool canNavigate =
+            skinCatalog != null && skinCatalog.Skins.Count > 1;
+
         if (previousSkinButton != null)
-            previousSkinButton.interactable = state;
+            previousSkinButton.interactable = state && canNavigate;
 
         if (nextSkinButton != null)
-            nextSkinButton.interactable = state;
+            nextSkinButton.interactable = state && canNavigate;
 
         if (equipButton != null)
         {

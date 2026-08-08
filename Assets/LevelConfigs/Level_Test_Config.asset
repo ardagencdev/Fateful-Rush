@@ -71,6 +71,7 @@ MonoBehaviour:
   nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1
+  starfieldDensityMultiplier: 1
   nearStarsEmissionRate: 30
   coinSpawnInterval: 1
   maxCoinCount: 8

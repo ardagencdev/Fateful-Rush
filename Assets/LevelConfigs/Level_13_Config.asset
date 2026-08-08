@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 13 \u2014 TIME DISTORTION"
-  missionDifficulty: 3
+  missionDifficulty: 2
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Slow temporarily reduces every active enemy. Trigger it when the arena is crowded, not while threats are still spawning."
-  - "This is a survival mission: clone is not available yet, so bomb awareness and central positioning decide the run."
+  - Slow temporarily reduces every active enemy. Trigger it when the arena is crowded,
+    not while threats are still spawning.
+  - 'This is a survival mission: clone is not available yet, so bomb awareness and
+    central positioning decide the run.'
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 1
   winScore: 15
@@ -53,7 +55,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
@@ -61,17 +63,12 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 1.95
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
-  - comboMultiplier: 3
-    coinsRequired: 8
-    playerSpeedMultiplier: 1.055
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.40928, g: 0.49312, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1.2
-  nearStarsSizeMultiplier: 1.04
+  nearStarsSpeedMultiplier: 1.127
+  nearStarsSizeMultiplier: 0.992
+  starfieldDensityMultiplier: 0.904
   nearStarsEmissionRate: 38
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -81,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -114,8 +111,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 7.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 6
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -153,7 +150,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 0
+  hunterEnemySpawnInterval: 0.01
   hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -165,7 +162,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -238,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 1
   armorMinSpawnTime: 15
@@ -287,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

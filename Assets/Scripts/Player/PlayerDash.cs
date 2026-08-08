@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class PlayerDash : MonoBehaviour
 {
+    private static readonly WaitForFixedUpdate CachedWaitForFixedUpdate =
+        new WaitForFixedUpdate();
     [Header("References")]
     public PlayerMovement playerMovement;
     public SoundManager soundManager;
@@ -181,7 +183,7 @@ public class PlayerDash : MonoBehaviour
 
             MovePlayer(nextPosition);
 
-            yield return new WaitForFixedUpdate();
+            yield return CachedWaitForFixedUpdate;
         }
 
         MovePlayer(targetPosition);

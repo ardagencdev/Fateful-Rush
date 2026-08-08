@@ -410,7 +410,7 @@ public class GameStateManager : MonoBehaviour
             );
         }
 
-        PlayerPrefs.Save();
+        StatsManager.SaveIfDirty();
 
         SetHUD(false);
         StopLaserSystems();
@@ -465,6 +465,7 @@ public class GameStateManager : MonoBehaviour
         StatsManager.AddRun();
         StatsManager.AddDeath();
         StatsManager.AddPlayTime(gameTimer);
+        StatsManager.SaveIfDirty();
 
         if (playerMovement != null)
             playerMovement.SetGameOver(true);

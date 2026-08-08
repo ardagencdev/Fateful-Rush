@@ -1,8 +1,20 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyBuffTarget : MonoBehaviour
 {
+    private static readonly HashSet<EnemyBuffTarget> activeTargets =
+        new HashSet<EnemyBuffTarget>();
+
+    public static IEnumerable<EnemyBuffTarget> ActiveTargets => activeTargets;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetRegistry()
+    {
+        activeTargets.Clear();
+    }
+
     public GameObject buffAura;
 
     [Header("Buff Duration")]
@@ -38,8 +50,14 @@ public class EnemyBuffTarget : MonoBehaviour
         RefreshBaseValues();
     }
 
+    private void OnEnable()
+    {
+        activeTargets.Add(this);
+    }
+
     private void OnDisable()
     {
+        activeTargets.Remove(this);
         RemoveBeaconBuff();
     }
 

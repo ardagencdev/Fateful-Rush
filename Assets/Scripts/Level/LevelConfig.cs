@@ -258,19 +258,35 @@ public class LevelConfig : ScriptableObject
         }
     };
 
-    [Header("BACKGROUND / NEAR STARS")]
+    [Header("BACKGROUND / STARFIELD")]
     public bool randomizeNearStarsColor = false;
 
     [ColorUsage(false, true)]
     public Color nearStarsColor = Color.white;
 
+    [Tooltip(
+        "MidStars ve NearStars hareket hızını birlikte çarpar. " +
+        "FarStars sabit kalır, SparkleStars hareket etmez."
+    )]
     [Min(0f)]
     public float nearStarsSpeedMultiplier = 1f;
 
+    [Tooltip(
+        "MidStars ve NearStars boyutunu birlikte çarpar. " +
+        "SparkleStars'a daha hafif uygulanır."
+    )]
     [Min(0f)]
     public float nearStarsSizeMultiplier = 1f;
 
-    [Min(0f)]
+    [Tooltip(
+        "MidStars, NearStars ve SparkleStars emission yoğunluğunu çarpar. " +
+        "Mobil performans için 0.75-1.25 aralığında tutulması önerilir."
+    )]
+    [Range(0.75f, 1.25f)]
+    public float starfieldDensityMultiplier = 1f;
+
+    // Legacy serialized value. New layered starfield uses starfieldDensityMultiplier.
+    [HideInInspector]
     public float nearStarsEmissionRate = 30f;
 
     [Header("COINS")]

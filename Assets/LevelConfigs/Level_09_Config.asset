@@ -35,13 +35,15 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 1
-  briefingTitle: "MISSION 09 \u2014 RED LINE"
-  missionDifficulty: 3
+  briefingTitle: "MISSION 09 \u2014 BLAST RADIUS"
+  missionDifficulty: 2
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Space Bombs enter the arena here. A newly placed bomb is briefly safe, then becomes a permanent lethal zone."
-  - "Track the growing minefield while collecting. Do not let coins pull you into a route with no return path."
+  - Space Bombs enter the arena here. A newly placed bomb is briefly safe, then becomes
+    a permanent lethal zone.
+  - Track the growing minefield while collecting. Do not let coins pull you into
+    a route with no return path.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 100
@@ -53,31 +55,32 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.3
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.05
+  comboTimeLimit: 2.18
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.02
   - comboMultiplier: 3
-    coinsRequired: 8
-    playerSpeedMultiplier: 1.055
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.04
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.37056, g: 0.64448, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1.125
-  nearStarsSizeMultiplier: 1.01
+  nearStarsSpeedMultiplier: 1.035
+  nearStarsSizeMultiplier: 0.962
+  starfieldDensityMultiplier: 0.853
   nearStarsEmissionRate: 36
   coinSpawnInterval: 0.88
-  maxCoinCount: 8
-  normalCoinChance: 72
-  goldCoinChance: 28
-  rareCoinChance: 5
+  maxCoinCount: 7
+  normalCoinChance: 78
+  goldCoinChance: 22
+  rareCoinChance: 0
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -114,8 +117,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 2
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 5.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 4.7
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -153,7 +156,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 0
+  hunterEnemySpawnInterval: 0.01
   hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -238,6 +241,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 15
@@ -287,4 +291,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

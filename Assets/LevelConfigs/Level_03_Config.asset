@@ -25,7 +25,7 @@ MonoBehaviour:
     goldCoin: 0
     rareCoin: 0
     staticObstacles: 0
-    normalEnemy: 1
+    normalEnemy: 0
     projectileEnemy: 0
     hunterEnemy: 0
     boss: 0
@@ -35,13 +35,15 @@ MonoBehaviour:
     verticalLaser: 0
     horizontalLaser: 0
     spaceBomb: 0
-  briefingTitle: "MISSION 03 \u2014 FIRST PURSUIT"
-  missionDifficulty: 2
+  briefingTitle: "MISSION 03 \u2014 SUSTAINED PURSUIT"
+  missionDifficulty: 1
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Normal enemies accelerate while they remain alive. Cross behind them rather than running in a straight line."
-  - "Do not wait at the edge for a coin. Keep the pursuers on one side and collect through the open half of the arena."
+  - The Stalker is no longer a tutorial threat. It stays on you longer and punishes
+    straight, predictable routes.
+  - Keep the pursuer on one side of the arena, then cut across open space for coins.
+    Short, controlled routes are safer than long chases.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 45
@@ -53,28 +55,29 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.2
+  comboTimeLimit: 2.25
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.02
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.4981271, g: 0.8889412, b: 0.9745882, a: 1}
-  nearStarsSpeedMultiplier: 0.9
-  nearStarsSizeMultiplier: 0.92
+  nearStarsSpeedMultiplier: 0.896
+  nearStarsSizeMultiplier: 0.915
+  starfieldDensityMultiplier: 0.776
   nearStarsEmissionRate: 26
-  coinSpawnInterval: 0.9
-  maxCoinCount: 8
+  coinSpawnInterval: 0.92
+  maxCoinCount: 7
   normalCoinChance: 100
-  goldCoinChance: 25
-  rareCoinChance: 5
+  goldCoinChance: 0
+  rareCoinChance: 0
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -112,7 +115,7 @@ MonoBehaviour:
   randomObstacleCount: 0
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 2
-  normalEnemySpawnInterval: 5.5
+  normalEnemySpawnInterval: 3
   normalEnemyDanger: 1
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -128,7 +131,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 0
-  projectileEnemySpawnInterval: 0
+  projectileEnemySpawnInterval: 0.01
   projectileEnemyDanger: 1
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -150,7 +153,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 0
+  hunterEnemySpawnInterval: 0.01
   hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -235,6 +238,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 15
@@ -284,4 +288,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

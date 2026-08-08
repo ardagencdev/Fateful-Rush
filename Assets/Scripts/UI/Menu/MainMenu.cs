@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    public static MainMenu Instance { get; private set; }
+
     [Header("Scene")]
     [SerializeField] private string gameSceneName = "a";
 
@@ -48,6 +50,13 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            enabled = false;
+            return;
+        }
+
+        Instance = this;
         Time.timeScale = 1f;
 
         isDesktopDevRoomAllowed =
@@ -76,6 +85,9 @@ public class MainMenu : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
+
         if (continueButton != null)
         {
             continueButton.onClick.RemoveListener(

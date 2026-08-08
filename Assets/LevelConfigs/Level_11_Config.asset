@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 1
     spaceBomb: 0
   briefingTitle: "MISSION 11 \u2014 SPLIT HORIZON"
-  missionDifficulty: 3
+  missionDifficulty: 2
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Horizontal Lasers announce their lane before firing. Leave the warning band early, before enemies close the safe side."
-  - "Projectiles and a laser can force opposite reactions. Prioritize the laser lane, then dodge the committed shot."
+  - Horizontal Lasers announce their lane before firing. Leave the warning band early,
+    before enemies close the safe side.
+  - Projectiles and a laser can force opposite reactions. Prioritize the laser lane,
+    then dodge the committed shot.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
   winScore: 110
@@ -53,31 +55,32 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.4
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 1.95
+  comboTimeLimit: 2.18
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.02
   - comboMultiplier: 3
-    coinsRequired: 8
-    playerSpeedMultiplier: 1.055
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.04
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.36, g: 0.56, b: 1, a: 1}
-  nearStarsSpeedMultiplier: 1.15
-  nearStarsSizeMultiplier: 1.02
+  nearStarsSpeedMultiplier: 1.081
+  nearStarsSizeMultiplier: 0.977
+  starfieldDensityMultiplier: 0.878
   nearStarsEmissionRate: 34
-  coinSpawnInterval: 0.84
-  maxCoinCount: 9
-  normalCoinChance: 72
-  goldCoinChance: 28
-  rareCoinChance: 5
+  coinSpawnInterval: 0.88
+  maxCoinCount: 8
+  normalCoinChance: 78
+  goldCoinChance: 22
+  rareCoinChance: 0
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -114,8 +117,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 2
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 4.7
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 4.8
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -153,7 +156,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 0
+  hunterEnemySpawnInterval: 0.01
   hunterEnemyDanger: 1
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -238,6 +241,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 15
@@ -255,7 +259,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserDanger: 1
+  horizontalLaserDanger: 2
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -287,4 +291,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

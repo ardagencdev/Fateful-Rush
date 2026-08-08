@@ -127,7 +127,7 @@ public class UIButtonSound : MonoBehaviour
     private void PlayContinueSound(SoundManager soundManager)
     {
         if (continueMainMenu == null)
-            continueMainMenu = FindAnyObjectByType<MainMenu>();
+            continueMainMenu = MainMenu.Instance;
 
         if (continueMainMenu != null &&
             continueMainMenu.IsContinueAvailable)

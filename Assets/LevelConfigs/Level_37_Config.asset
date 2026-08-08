@@ -40,8 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "This long survival mission has no permanent safe lane. Clone cooldown begins after its active time, leaving a real vulnerable gap."
-  - "Rotate Armor, Slow and Clone across separate emergencies. Using two together usually leaves the next wave unanswered."
+  - This long survival mission has no permanent safe lane. Clone cooldown begins
+    after its active time, leaving a real vulnerable gap.
+  - Rotate Armor, Slow and Clone across separate emergencies. Using two together
+    usually leaves the next wave unanswered.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
@@ -61,20 +63,12 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 1.65
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.04
-  - comboMultiplier: 3
-    coinsRequired: 9
-    playerSpeedMultiplier: 1.07
-  - comboMultiplier: 4
-    coinsRequired: 16
-    playerSpeedMultiplier: 1.1
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.9096875, g: 0.1067188, b: 0.1290625, a: 1}
-  nearStarsSpeedMultiplier: 1.675
-  nearStarsSizeMultiplier: 1.17
+  nearStarsSpeedMultiplier: 1.681
+  nearStarsSizeMultiplier: 1.177
+  starfieldDensityMultiplier: 1.212
   nearStarsEmissionRate: 58
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -84,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -117,8 +111,8 @@ MonoBehaviour:
     enabled: 1
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 8.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 7.2
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -133,7 +127,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 3
+  projectileEnemyCount: 2
   projectileEnemySpawnInterval: 14
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
@@ -155,7 +149,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 3
+  hunterEnemyCount: 2
   hunterEnemySpawnInterval: 19
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
@@ -168,7 +162,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -241,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 20
@@ -268,7 +263,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 5
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -290,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

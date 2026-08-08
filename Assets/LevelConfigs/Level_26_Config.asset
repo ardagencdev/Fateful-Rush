@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 26 \u2014 CROSSED LINES"
-  missionDifficulty: 5
+  missionDifficulty: 4
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Both laser directions are active during a long survival window. Warning order matters more than raw speed."
-  - "Use Slow before Clone when possible. Save the decoy for a second hazard arriving before the first escape is complete."
+  - Both laser directions are active during a long survival window. Warning order
+    matters more than raw speed.
+  - Use Slow before Clone when possible. Save the decoy for a second hazard arriving
+    before the first escape is complete.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 1
   winScore: 15
@@ -53,7 +55,7 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 1.95
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 15
   cloneUses: 1
   armorImmuneDuration: 0.8
@@ -61,20 +63,12 @@ MonoBehaviour:
   slowDuration: 5.5
   comboEnabled: 0
   comboTimeLimit: 1.75
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.035
-  - comboMultiplier: 3
-    coinsRequired: 8
-    playerSpeedMultiplier: 1.065
-  - comboMultiplier: 4
-    coinsRequired: 14
-    playerSpeedMultiplier: 1.09
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.94, g: 0.24, b: 0.72, a: 1}
-  nearStarsSpeedMultiplier: 1.45
-  nearStarsSizeMultiplier: 1.1
+  nearStarsSpeedMultiplier: 1.427
+  nearStarsSizeMultiplier: 1.092
+  starfieldDensityMultiplier: 1.071
   nearStarsEmissionRate: 46
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -84,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -117,8 +111,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 7.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 6
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -168,7 +162,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -241,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 1
   armorMinSpawnTime: 15
@@ -248,7 +243,7 @@ MonoBehaviour:
   slowMinSpawnTime: 26
   slowMaxSpawnTime: 34
   verticalLaserEnabled: 1
-  verticalLaserDanger: 2
+  verticalLaserDanger: 3
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -290,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

@@ -273,7 +273,7 @@ public class SlowScreenEffect : MonoBehaviour
         }
 
         texture.SetPixels(pixels);
-        texture.Apply(false, false);
+        texture.Apply(false, true);
 
         return texture;
     }

@@ -30,10 +30,12 @@ public class LevelManager : MonoBehaviour
     public ComboUI comboUI;
 
     [Header("BACKGROUND")]
-    public ParticleSystem nearStars;
+    public StarfieldController starfieldController;
 
-    private float originalNearStarsSpeed = 1f;
-    private float originalNearStarsSize = 1f;
+    // Kept only so existing scene serialization does not lose the old reference.
+    // The new layered starfield is controlled by StarfieldController.
+    [HideInInspector]
+    public ParticleSystem nearStars;
 
     private bool initialized;
 
@@ -47,8 +49,8 @@ public class LevelManager : MonoBehaviour
         if (initialized)
             return;
 
-        CacheStarDefaults();
         ResolveSpawnerReferences();
+        ResolveStarfieldReference();
         ResolveSelectedLevel();
 
         if (currentLevel == null)
@@ -194,77 +196,18 @@ public class LevelManager : MonoBehaviour
 
     private void ApplyBackground()
     {
-        if (nearStars == null)
-            return;
-
-        Color selectedColor =
-            currentLevel.randomizeNearStarsColor
-                ? GenerateRandomNearStarsColor()
-                : currentLevel.nearStarsColor;
-
-        ParticleSystem.MainModule main =
-            nearStars.main;
-
-        main.startColor = selectedColor;
-
-        main.startSpeed =
-            originalNearStarsSpeed *
-            currentLevel.nearStarsSpeedMultiplier;
-
-        main.startSize =
-            originalNearStarsSize *
-            currentLevel.nearStarsSizeMultiplier;
-
-        ParticleSystem.EmissionModule emission =
-            nearStars.emission;
-
-        emission.rateOverTime =
-            currentLevel.nearStarsEmissionRate;
-
-        ApplyColorToExistingParticles(selectedColor);
-    }
-
-    private void ApplyColorToExistingParticles(Color color)
-    {
-        if (nearStars == null)
-            return;
-
-        int maxParticles =
-            nearStars.main.maxParticles;
-
-        if (maxParticles <= 0)
-            return;
-
-        ParticleSystem.Particle[] particles =
-            new ParticleSystem.Particle[maxParticles];
-
-        int particleCount =
-            nearStars.GetParticles(particles);
-
-        for (int i = 0; i < particleCount; i++)
-            particles[i].startColor = color;
-
-        if (particleCount > 0)
+        if (starfieldController == null)
         {
-            nearStars.SetParticles(
-                particles,
-                particleCount
+            Debug.LogWarning(
+                "[LevelManager] StarfieldController bulunamadı. " +
+                "Background level ayarları uygulanamadı.",
+                this
             );
-        }
-    }
 
-    private Color GenerateRandomNearStarsColor()
-    {
-        return Random.ColorHSV(
-            0f,
-            1f,
-            0.65f,
-            1f,
-            0.8f,
-            1f,
-            1f,
-            1f
-        );
+            return;
+        }
+
+        starfieldController.ApplyLevel(currentLevel);
     }
 
     private void ApplyCoins()
@@ -594,19 +537,15 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void CacheStarDefaults()
+    private void ResolveStarfieldReference()
     {
-        if (nearStars == null)
+        if (starfieldController != null)
             return;
 
-        ParticleSystem.MainModule main =
-            nearStars.main;
-
-        originalNearStarsSpeed =
-            main.startSpeed.constant;
-
-        originalNearStarsSize =
-            main.startSize.constant;
+        starfieldController =
+            FindAnyObjectByType<StarfieldController>(
+                FindObjectsInactive.Include
+            );
     }
 
     private void SetUIVisible(

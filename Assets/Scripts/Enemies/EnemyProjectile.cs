@@ -36,8 +36,13 @@ public class EnemyProjectile : MonoBehaviour
 
     private SpriteRenderer[] spriteRenderers;
     private Color[] originalColors;
+    private Color[] impactStartColors;
 
     private Vector3 originalScale;
+
+    private int wallLayerLower;
+    private int wallLayerUpper;
+    private int obstacleLayerIndex;
 
     private bool stopped;
     private bool disappearing;
@@ -69,6 +74,9 @@ public class EnemyProjectile : MonoBehaviour
         originalColors =
             new Color[spriteRenderers.Length];
 
+        impactStartColors =
+            new Color[spriteRenderers.Length];
+
         for (int i = 0; i < spriteRenderers.Length; i++)
             originalColors[i] = spriteRenderers[i].color;
 
@@ -79,6 +87,10 @@ public class EnemyProjectile : MonoBehaviour
             CollisionDetectionMode2D.Continuous;
 
         rb.bodyType = RigidbodyType2D.Dynamic;
+
+        wallLayerLower = LayerMask.NameToLayer("wall");
+        wallLayerUpper = LayerMask.NameToLayer("Wall");
+        obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
     }
 
     private void OnEnable()
@@ -184,10 +196,13 @@ public class EnemyProjectile : MonoBehaviour
         transform.localScale = originalScale;
         ResetSpriteColors();
 
-        if (poolOwner != null)
-            poolOwner.ReturnProjectileToPool(gameObject);
-        else
-            gameObject.SetActive(false);
+        ProjectileEnemyFollow previousOwner = poolOwner;
+        poolOwner = null;
+
+        if (previousOwner != null)
+            previousOwner.NotifyProjectileReturned(this);
+
+        RuntimeObjectPool.Release(gameObject);
     }
 
     private void StartSmoothDisappear()
@@ -228,13 +243,10 @@ public class EnemyProjectile : MonoBehaviour
     {
         Vector3 startScale = transform.localScale;
 
-        Color[] startColors =
-            new Color[spriteRenderers.Length];
-
         for (int i = 0; i < spriteRenderers.Length; i++)
         {
             if (spriteRenderers[i] != null)
-                startColors[i] = spriteRenderers[i].color;
+                impactStartColors[i] = spriteRenderers[i].color;
         }
 
         float timer = 0f;
@@ -264,9 +276,9 @@ public class EnemyProjectile : MonoBehaviour
                     if (spriteRenderers[i] == null)
                         continue;
 
-                    Color color = startColors[i];
+                    Color color = impactStartColors[i];
                     color.a = Mathf.Lerp(
-                        startColors[i].a,
+                        impactStartColors[i].a,
                         0f,
                         smoothT
                     );
@@ -438,10 +450,6 @@ public class EnemyProjectile : MonoBehaviour
         if (other == null)
             return false;
 
-        int wallLayerLower = LayerMask.NameToLayer("wall");
-        int wallLayerUpper = LayerMask.NameToLayer("Wall");
-        int obstacleLayer = LayerMask.NameToLayer("Obstacle");
-
         Transform current = other.transform;
 
         while (current != null)
@@ -462,8 +470,8 @@ public class EnemyProjectile : MonoBehaviour
                  currentLayer == wallLayerLower) ||
                 (wallLayerUpper != -1 &&
                  currentLayer == wallLayerUpper) ||
-                (obstacleLayer != -1 &&
-                 currentLayer == obstacleLayer))
+                (obstacleLayerIndex != -1 &&
+                 currentLayer == obstacleLayerIndex))
             {
                 return true;
             }

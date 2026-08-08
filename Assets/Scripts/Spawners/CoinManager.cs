@@ -80,6 +80,15 @@ public class CoinManager : MonoBehaviour
         spawnFilter.useTriggers = true;
     }
 
+    private void Start()
+    {
+        int prewarmCount = Mathf.Max(1, maxCoinCount);
+
+        RuntimeObjectPool.Prewarm(normalCoin, prewarmCount);
+        RuntimeObjectPool.Prewarm(goldCoin, prewarmCount);
+        RuntimeObjectPool.Prewarm(rareCoin, prewarmCount);
+    }
+
     private void Update()
     {
         if (!GameStateManager.IsGameplayStarted)
@@ -138,8 +147,11 @@ public class CoinManager : MonoBehaviour
              i >= 0;
              i--)
         {
-            if (activeCoins[i] == null)
+            if (activeCoins[i] == null ||
+                !activeCoins[i].activeSelf)
+            {
                 activeCoins.RemoveAt(i);
+            }
         }
     }
 
@@ -159,7 +171,7 @@ public class CoinManager : MonoBehaviour
             return false;
         }
 
-        GameObject coinObject = Instantiate(
+        GameObject coinObject = RuntimeObjectPool.Spawn(
             coinPrefab,
             spawnPosition,
             Quaternion.identity
@@ -175,7 +187,7 @@ public class CoinManager : MonoBehaviour
                 coinPrefab
             );
 
-            Destroy(coinObject);
+            RuntimeObjectPool.Release(coinObject);
             return false;
         }
 
@@ -201,18 +213,18 @@ public class CoinManager : MonoBehaviour
     {
         if (prefab == normalCoin)
         {
-            coin.value = normalCoinValue;
+            coin.Configure(CoinType.Normal, normalCoinValue);
             return;
         }
 
         if (prefab == goldCoin)
         {
-            coin.value = goldCoinValue;
+            coin.Configure(CoinType.Gold, goldCoinValue);
             return;
         }
 
         if (prefab == rareCoin)
-            coin.value = rareCoinValue;
+            coin.Configure(CoinType.Rare, rareCoinValue);
     }
 
     private bool TryGetValidSpawnPosition(

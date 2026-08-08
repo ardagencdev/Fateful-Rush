@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 31 \u2014 NO SAFE ORBIT"
-  missionDifficulty: 5
+  missionDifficulty: 4
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Every major arena hazard is active. Survive by preserving options, not by remaining in one comfortable corner."
-  - "Armor covers one failure; Clone creates one reset. Spend them on separate danger peaks instead of together."
+  - Every major arena hazard is active. Survive by preserving options, not by remaining
+    in one comfortable corner.
+  - Armor covers one failure; Clone creates one reset. Spend them on separate danger
+    peaks instead of together.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
@@ -61,20 +63,12 @@ MonoBehaviour:
   slowDuration: 5
   comboEnabled: 0
   comboTimeLimit: 1.7
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.04
-  - comboMultiplier: 3
-    coinsRequired: 9
-    playerSpeedMultiplier: 1.07
-  - comboMultiplier: 4
-    coinsRequired: 16
-    playerSpeedMultiplier: 1.1
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 1, g: 0.23, b: 0.4, a: 1}
-  nearStarsSpeedMultiplier: 1.55
-  nearStarsSizeMultiplier: 1.13
+  nearStarsSpeedMultiplier: 1.542
+  nearStarsSizeMultiplier: 1.131
+  starfieldDensityMultiplier: 1.135
   nearStarsEmissionRate: 50
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -84,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -117,8 +111,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 7.5
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 7
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -135,7 +129,7 @@ MonoBehaviour:
     separationStrength: 0.65
   projectileEnemyCount: 2
   projectileEnemySpawnInterval: 14
-  projectileEnemyDanger: 3
+  projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -155,7 +149,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 3
+  hunterEnemyCount: 2
   hunterEnemySpawnInterval: 18
   hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
@@ -168,7 +162,7 @@ MonoBehaviour:
     maxChargeTime: 0.65
     stunDuration: 1
   bossEnabled: 0
-  bossSpawnCondition: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 75
   bossSpawnTime: 30
   bossDanger: 1
@@ -241,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 0
   armorMinSpawnTime: 18
@@ -268,7 +263,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 3
+  bombDanger: 4
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -290,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

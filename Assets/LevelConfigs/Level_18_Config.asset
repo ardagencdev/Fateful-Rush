@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 18 \u2014 SIGNAL BREAKER"
-  missionDifficulty: 4
+  missionDifficulty: 3
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Beacon enemies amplify nearby threats. Destroy a Beacon by dashing into it while Dash is active."
-  - "Killing the Beacon instantly removes every buff it created, but a replacement appears after a short delay."
+  - Beacon enemies amplify nearby threats. Destroy a Beacon by dashing into it while
+    Dash is active.
+  - Killing the Beacon instantly removes every buff it created, but a replacement
+    appears after a short delay.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 110
@@ -53,34 +55,32 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 13
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.45
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 1.85
+  comboTimeLimit: 2.1699998
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.02
   - comboMultiplier: 3
-    coinsRequired: 7
-    playerSpeedMultiplier: 1.055
-  - comboMultiplier: 4
-    coinsRequired: 12
-    playerSpeedMultiplier: 1.08
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.045
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.57744, g: 0.34536, b: 0.9824, a: 1}
-  nearStarsSpeedMultiplier: 1.3
-  nearStarsSizeMultiplier: 1.07
+  nearStarsSpeedMultiplier: 1.242
+  nearStarsSizeMultiplier: 1.031
+  starfieldDensityMultiplier: 0.968
   nearStarsEmissionRate: 42
   coinSpawnInterval: 0.78
-  maxCoinCount: 10
-  normalCoinChance: 52
-  goldCoinChance: 32
-  rareCoinChance: 16
+  maxCoinCount: 9
+  normalCoinChance: 74
+  goldCoinChance: 22
+  rareCoinChance: 4
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -117,7 +117,7 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
+  normalEnemyCount: 3
   normalEnemySpawnInterval: 5.5
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
@@ -241,6 +241,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 0
   slowEnabled: 1
   armorMinSpawnTime: 15
@@ -268,7 +269,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 2
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -290,4 +291,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

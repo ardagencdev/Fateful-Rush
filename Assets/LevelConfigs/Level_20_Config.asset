@@ -36,12 +36,14 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 20 \u2014 SYSTEM CHECK"
-  missionDifficulty: 4
+  missionDifficulty: 3
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "This checkpoint combines both laser directions, Space Bombs and a Boss before the timed target is complete."
-  - "Score early while the arena is clean. After the Boss arrives, protect the run rather than forcing every coin chain."
+  - This checkpoint combines both laser directions, Space Bombs and a Boss before
+    the timed target is complete.
+  - Score early while the arena is clean. After the Boss arrives, protect the run
+    rather than forcing every coin chain.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 125
@@ -53,34 +55,32 @@ MonoBehaviour:
   dashDistance: 2.5
   dashDuration: 0.12
   dashCooldown: 2.1
-  cloneDuration: 3.0
+  cloneDuration: 3
   cloneCooldown: 14
   cloneUses: 1
   armorImmuneDuration: 1
   slowMultiplier: 0.45
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 1.85
+  comboTimeLimit: 2.1699998
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 3
-    playerSpeedMultiplier: 1.03
+    coinsRequired: 4
+    playerSpeedMultiplier: 1.02
   - comboMultiplier: 3
-    coinsRequired: 7
-    playerSpeedMultiplier: 1.055
-  - comboMultiplier: 4
-    coinsRequired: 12
-    playerSpeedMultiplier: 1.08
+    coinsRequired: 10
+    playerSpeedMultiplier: 1.045
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.69712, g: 0.30728, b: 0.9552, a: 1}
-  nearStarsSpeedMultiplier: 1.35
-  nearStarsSizeMultiplier: 1.09
+  nearStarsSpeedMultiplier: 1.288
+  nearStarsSizeMultiplier: 1.046
+  starfieldDensityMultiplier: 0.994
   nearStarsEmissionRate: 46
   coinSpawnInterval: 0.78
-  maxCoinCount: 10
-  normalCoinChance: 52
-  goldCoinChance: 32
-  rareCoinChance: 16
+  maxCoinCount: 9
+  normalCoinChance: 74
+  goldCoinChance: 22
+  rareCoinChance: 4
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
@@ -117,8 +117,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 5
-  normalEnemySpawnInterval: 6.0
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 6.1
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -133,9 +133,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 3
+  projectileEnemyCount: 2
   projectileEnemySpawnInterval: 13
-  projectileEnemyDanger: 2
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -169,7 +169,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 90
+  bossSpawnScore: 85
   bossSpawnTime: 30
   bossDanger: 2
   bossCustomOverride: 0
@@ -241,6 +241,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 18
@@ -268,7 +269,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 2
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
@@ -290,4 +291,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

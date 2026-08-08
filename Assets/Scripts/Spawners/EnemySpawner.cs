@@ -207,6 +207,11 @@ public class EnemySpawner : MonoBehaviour
     private int spawnedHunter;
 
     private ContactFilter2D obstacleFilter;
+    private ContactFilter2D fullSpawnFilter;
+
+    private Rigidbody2D playerBody;
+    private int wallLayerIndex;
+    private int obstacleLayerIndex;
 
     private readonly Collider2D[] spawnCheckHits =
         new Collider2D[16];
@@ -216,6 +221,12 @@ public class EnemySpawner : MonoBehaviour
 
     private void Awake()
     {
+        wallLayerIndex = LayerMask.NameToLayer("Wall");
+        obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
+
+        fullSpawnFilter = ContactFilter2D.noFilter;
+        fullSpawnFilter.useTriggers = true;
+
         RefreshPlayerReferences();
         RefreshObstacleFilter();
     }
@@ -734,7 +745,9 @@ public class EnemySpawner : MonoBehaviour
         Vector2 playerPosition = player.position;
         float safeDistance = Mathf.Max(minDistanceFromPlayer, absolutePlayerSafeDistance);
 
-        if (Vector2.Distance(spawnPosition, playerPosition) < safeDistance)
+        float safeDistanceSquared = safeDistance * safeDistance;
+
+        if ((spawnPosition - playerPosition).sqrMagnitude < safeDistanceSquared)
             return false;
 
         Vector2 movementDirection = Vector2.zero;
@@ -746,7 +759,6 @@ public class EnemySpawner : MonoBehaviour
             if (movementDirection.sqrMagnitude <= 0.01f)
                 movementDirection = playerMovement.LastMoveDirection;
 
-            Rigidbody2D playerBody = playerMovement.GetComponent<Rigidbody2D>();
             if (playerBody != null)
                 playerVelocity = playerBody.linearVelocity;
         }
@@ -764,17 +776,23 @@ public class EnemySpawner : MonoBehaviour
             }
         }
 
-        Vector2 predictedPosition = playerPosition + playerVelocity * playerPredictionTime;
-        if (Vector2.Distance(spawnPosition, predictedPosition) < predictedPositionSafeDistance)
+        Vector2 predictedPosition =
+            playerPosition + playerVelocity * playerPredictionTime;
+
+        float predictedSafeDistanceSquared =
+            predictedPositionSafeDistance * predictedPositionSafeDistance;
+
+        if ((spawnPosition - predictedPosition).sqrMagnitude <
+            predictedSafeDistanceSquared)
+        {
             return false;
+        }
 
         // noFilter makes the safety check independent of a scene LayerMask mistake.
-        ContactFilter2D fullFilter = ContactFilter2D.noFilter;
-        fullFilter.useTriggers = true;
         int hitCount = Physics2D.OverlapCircle(
             spawnPosition,
             spawnCheckRadius,
-            fullFilter,
+            fullSpawnFilter,
             spawnCheckHits
         );
 
@@ -792,10 +810,12 @@ public class EnemySpawner : MonoBehaviour
             }
 
             int layer = hit.gameObject.layer;
-            int wallLayer = LayerMask.NameToLayer("Wall");
-            int obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
-            if (layer == wallLayer || layer == obstacleLayerIndex)
+
+            if (layer == wallLayerIndex ||
+                layer == obstacleLayerIndex)
+            {
                 return false;
+            }
         }
 
         return true;
@@ -920,6 +940,11 @@ public class EnemySpawner : MonoBehaviour
         if (playerMovement != null)
         {
             player = playerMovement.transform;
+            playerBody = playerMovement.GetComponent<Rigidbody2D>();
+        }
+        else
+        {
+            playerBody = null;
         }
     }
 

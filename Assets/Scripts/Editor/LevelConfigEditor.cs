@@ -886,7 +886,7 @@ public class LevelConfigEditor : Editor
     private void DrawBackground()
     {
         FoldoutBox(
-            "BACKGROUND / NEAR STARS",
+            "BACKGROUND / STARFIELD",
             ref backgroundExpanded,
             () =>
             {
@@ -899,7 +899,7 @@ public class LevelConfigEditor : Editor
                 {
                     Prop("nearStarsSpeedMultiplier");
                     Prop("nearStarsSizeMultiplier");
-                    Prop("nearStarsEmissionRate");
+                    Prop("starfieldDensityMultiplier");
                 }
             }
         );

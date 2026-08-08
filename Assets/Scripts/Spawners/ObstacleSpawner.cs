@@ -131,6 +131,9 @@ public class ObstacleSpawner : MonoBehaviour
             MaximumObstaclesPerLevel
         );
 
+    private readonly Dictionary<GameObject, PrefabFootprint> footprintCache =
+        new Dictionary<GameObject, PrefabFootprint>();
+
     private int layoutSearchNodes;
     private float activeEdgeClearance;
 
@@ -965,6 +968,18 @@ public class ObstacleSpawner : MonoBehaviour
         GetPrefabFootprint(
             GameObject prefab)
     {
+        if (prefab == null)
+        {
+            return new PrefabFootprint
+            {
+                CenterOffset = Vector2.zero,
+                HalfExtents = Vector2.one * Mathf.Max(0.05f, checkRadius)
+            };
+        }
+
+        if (footprintCache.TryGetValue(prefab, out PrefabFootprint cached))
+            return cached;
+
         Transform root =
             prefab.transform;
 
@@ -1055,15 +1070,14 @@ public class ObstacleSpawner : MonoBehaviour
                     checkRadius
                 );
 
-            return new PrefabFootprint
+            PrefabFootprint fallbackFootprint = new PrefabFootprint
             {
-                CenterOffset =
-                    Vector2.zero,
-
-                HalfExtents =
-                    Vector2.one *
-                    fallback
+                CenterOffset = Vector2.zero,
+                HalfExtents = Vector2.one * fallback
             };
+
+            footprintCache[prefab] = fallbackFootprint;
+            return fallbackFootprint;
         }
 
         Vector2 center =
@@ -1090,14 +1104,14 @@ public class ObstacleSpawner : MonoBehaviour
                 halfExtents.y
             );
 
-        return new PrefabFootprint
+        PrefabFootprint footprint = new PrefabFootprint
         {
-            CenterOffset =
-                center,
-
-            HalfExtents =
-                halfExtents
+            CenterOffset = center,
+            HalfExtents = halfExtents
         };
+
+        footprintCache[prefab] = footprint;
+        return footprint;
     }
 
     private static void AddPolygonCollider(

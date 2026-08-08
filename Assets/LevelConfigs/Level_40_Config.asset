@@ -25,7 +25,7 @@ MonoBehaviour:
     goldCoin: 0
     rareCoin: 0
     staticObstacles: 2
-    normalEnemy: 2
+    normalEnemy: 0
     projectileEnemy: 2
     hunterEnemy: 2
     boss: 2
@@ -40,8 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Final Challenge: survive 80 seconds against recurring Beacons, every hazard type and a Boss entering at 55 seconds."
-  - "Destroy Beacons with Dash to clear their buffs. Stagger Armor, Slow and Clone\u2014the final 25 seconds require more than one answer."
+  - 'Final Challenge: survive 80 seconds against recurring Beacons, every hazard
+    type and a Boss entering at 55 seconds.'
+  - "Destroy Beacons with Dash to clear their buffs. Stagger Armor, Slow and Clone\u2014the
+    final 25 seconds require more than one answer."
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
@@ -61,20 +63,12 @@ MonoBehaviour:
   slowDuration: 5.5
   comboEnabled: 0
   comboTimeLimit: 1.65
-  comboSpeedStages:
-  - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.04
-  - comboMultiplier: 3
-    coinsRequired: 9
-    playerSpeedMultiplier: 1.07
-  - comboMultiplier: 4
-    coinsRequired: 16
-    playerSpeedMultiplier: 1.1
+  comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.8, g: 0.035, b: 0.07, a: 1}
   nearStarsSpeedMultiplier: 1.75
   nearStarsSizeMultiplier: 1.2
+  starfieldDensityMultiplier: 1.25
   nearStarsEmissionRate: 64
   coinSpawnInterval: 1
   maxCoinCount: 8
@@ -84,9 +78,9 @@ MonoBehaviour:
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5
-  normalCoinEnabled: 1
-  goldCoinEnabled: 1
-  rareCoinEnabled: 1
+  normalCoinEnabled: 0
+  goldCoinEnabled: 0
+  rareCoinEnabled: 0
   obstacleSpawnMode: 0
   levelObstacles:
   - prefab: {fileID: 4509020153673322666, guid: afedeaabd585710449580ef5dbb3e1bc, type: 3}
@@ -117,9 +111,9 @@ MonoBehaviour:
     enabled: 1
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 4
-  normalEnemySpawnInterval: 8.0
-  normalEnemyDanger: 5
+  normalEnemyCount: 3
+  normalEnemySpawnInterval: 7.4
+  normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -155,9 +149,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 3
+  hunterEnemyCount: 2
   hunterEnemySpawnInterval: 18
-  hunterEnemyDanger: 5
+  hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -170,7 +164,7 @@ MonoBehaviour:
   bossEnabled: 1
   bossSpawnCondition: 1
   bossSpawnScore: 75
-  bossSpawnTime: 55
+  bossSpawnTime: 52
   bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
@@ -241,6 +235,7 @@ MonoBehaviour:
   beaconHunterWarningMultiplier: 0.8
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
+  beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
   armorMinSpawnTime: 18
@@ -248,7 +243,7 @@ MonoBehaviour:
   slowMinSpawnTime: 32
   slowMaxSpawnTime: 38
   verticalLaserEnabled: 1
-  verticalLaserDanger: 4
+  verticalLaserDanger: 5
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -258,7 +253,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserDanger: 4
+  horizontalLaserDanger: 5
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -290,4 +285,3 @@ MonoBehaviour:
   bombMinSpawnTime: 6
   bombMaxSpawnTime: 14
   maxBombCount: 3
-

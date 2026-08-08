@@ -62,6 +62,12 @@ public class PlayerCollisionHandler : MonoBehaviour
         if (danger == null)
             return;
 
+        // EnemyProjectile owns player-projectile collision handling.
+        // Skipping it here prevents armor from returning a pooled projectile
+        // while this component simultaneously destroys the same object.
+        if (danger.GetComponentInParent<EnemyProjectile>() != null)
+            return;
+
         if (playerArmor != null && playerArmor.IsImmune)
             return;
 
