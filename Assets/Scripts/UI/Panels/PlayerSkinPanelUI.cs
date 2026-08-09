@@ -154,14 +154,14 @@ public class PlayerSkinPanelUI : MonoBehaviour
         if (!skinCatalog.IsUnlocked(skin))
         {
             SoundManager.Instance?.PlayLockedLevelSound();
-            VibrationManager.Instance?.VibrateLight();
+            VibrationManager.Instance?.VibrateUI();
             return;
         }
 
         // Açık veya zaten equipped olan skinlerde
         // her tıklamada Option sesi gelsin.
         SoundManager.Instance?.PlayOptionButtonSound();
-        VibrationManager.Instance?.VibrateLight();
+        VibrationManager.Instance?.VibrateUI();
 
         if (skinCatalog.IsSelected(skin))
             return;

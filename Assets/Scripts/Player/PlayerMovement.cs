@@ -494,8 +494,6 @@ public class PlayerMovement : MonoBehaviour
                 ? "UNKNOWN"
                 : deathCause;
 
-        VibrationManager.Instance?.VibrateHeavy();
-
         CameraShake.Instance?.Shake(
             0.3f,
             0.7f

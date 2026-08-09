@@ -42,7 +42,7 @@ public class SlowPowerUp : MonoBehaviour
         if (pickupCollider != null)
             pickupCollider.enabled = false;
 
-        VibrationManager.Instance?.VibrateMedium();
+        VibrationManager.Instance?.VibratePowerUp();
         StatsManager.AddSlowBuffUse();
 
         if (soundManager != null)

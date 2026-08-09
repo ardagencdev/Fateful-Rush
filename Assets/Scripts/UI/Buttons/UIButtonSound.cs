@@ -121,7 +121,7 @@ public class UIButtonSound : MonoBehaviour
                 break;
         }
 
-        VibrationManager.Instance?.VibrateLight();
+        VibrationManager.Instance?.VibrateUI();
     }
 
     private void PlayContinueSound(SoundManager soundManager)

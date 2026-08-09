@@ -45,7 +45,7 @@ public class ArmorPowerUp : MonoBehaviour
 
         armor.ActivateArmor();
 
-        VibrationManager.Instance?.VibrateMedium();
+        VibrationManager.Instance?.VibratePowerUp();
         StatsManager.AddArmorBuffUse();
 
         if (soundManager != null)

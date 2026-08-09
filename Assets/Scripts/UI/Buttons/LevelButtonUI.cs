@@ -150,7 +150,7 @@ public class LevelButtonUI : MonoBehaviour,
         if (!unlocked)
         {
             SoundManager.Instance?.PlayLockedLevelSound();
-            VibrationManager.Instance?.VibrateLight();
+            VibrationManager.Instance?.VibrateUI();
             return;
         }
 

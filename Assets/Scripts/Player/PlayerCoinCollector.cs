@@ -125,7 +125,7 @@ public class PlayerCoinCollector : MonoBehaviour
         }
 
         VibrationManager.Instance
-            ?.VibrateLight();
+            ?.VibrateCoin();
 
         int currentCombo =
             UpdateCombo();

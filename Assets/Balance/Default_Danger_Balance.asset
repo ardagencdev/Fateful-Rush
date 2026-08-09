@@ -74,7 +74,7 @@ MonoBehaviour:
     stoppingDistance: 7.2
     retreatDistance: 4.2
     fireRate: 1.85
-    projectileSpeed: 5.4
+    projectileSpeed: 6
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.48
     strafeDirectionChangeMinTime: 2.2
@@ -91,7 +91,7 @@ MonoBehaviour:
     stoppingDistance: 7
     retreatDistance: 4.1
     fireRate: 1.6
-    projectileSpeed: 5.8
+    projectileSpeed: 6.2
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.54
     strafeDirectionChangeMinTime: 1.9
@@ -108,7 +108,7 @@ MonoBehaviour:
     stoppingDistance: 6.8
     retreatDistance: 4
     fireRate: 1.35
-    projectileSpeed: 6.2
+    projectileSpeed: 6.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.6
     strafeDirectionChangeMinTime: 1.6

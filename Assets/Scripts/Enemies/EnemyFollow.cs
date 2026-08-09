@@ -1,6 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
+public enum NormalEnemyPursuitRole
+{
+    Pursuer,
+    Interceptor,
+    Flanker
+}
+
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 public class EnemyFollow : MonoBehaviour
@@ -20,6 +27,22 @@ public class EnemyFollow : MonoBehaviour
     public float predictionDistanceThreshold = 2.5f;
     public float predictionTime = 0.25f;
     public float maxPredictionDistance = 1.5f;
+
+    [Header("Group Pursuit")]
+    public NormalEnemyPursuitRole pursuitRole =
+        NormalEnemyPursuitRole.Pursuer;
+
+    [Min(0f)]
+    public float interceptorLeadDistance = 2.6f;
+
+    [Min(0f)]
+    public float flankerLeadDistance = 0.9f;
+
+    [Min(0f)]
+    public float flankerSideOffset = 2.2f;
+
+    [Min(0.1f)]
+    public float tacticalOffsetFadeDistance = 3.4f;
 
     [Header("Wave Movement")]
     public float minSideMoveAmount = 0.1f;
@@ -78,6 +101,7 @@ public class EnemyFollow : MonoBehaviour
     private float unstuckTimer;
     private int unstuckDirection = 1;
     private int obstacleAvoidanceSide = 1;
+    private int flankSide = 1;
 
     private ContactFilter2D navigationFilter;
 
@@ -189,6 +213,15 @@ public class EnemyFollow : MonoBehaviour
         targetRigidbody = foundPlayer.GetComponent<Rigidbody2D>();
     }
 
+    public void ConfigurePursuitRole(
+        NormalEnemyPursuitRole role,
+        int preferredFlankSide = 1
+    )
+    {
+        pursuitRole = role;
+        flankSide = preferredFlankSide < 0 ? -1 : 1;
+    }
+
     private IEnumerator SpawnEffect()
     {
         isSpawning = true;
@@ -281,36 +314,140 @@ public class EnemyFollow : MonoBehaviour
 
     private Vector2 GetTargetPosition()
     {
-        Vector2 targetPosition = player.position;
+        Vector2 playerPosition = player.position;
 
-        if (!predictionEnabled)
-            return targetPosition;
-
+        // Clone aggro should stay simple and predictable: all Stalkers
+        // converge on the clone instead of trying to flank a decoy.
         if (player != originalPlayerTarget)
-            return targetPosition;
+            return playerPosition;
 
-        if (targetRigidbody == null)
-            return targetPosition;
-
-        float distance = Vector2.Distance(
+        float distanceToPlayer = Vector2.Distance(
             rb.position,
-            targetPosition
+            playerPosition
         );
 
-        if (distance < predictionDistanceThreshold)
+        Vector2 targetVelocity =
+            targetRigidbody != null
+                ? targetRigidbody.linearVelocity
+                : Vector2.zero;
+
+        Vector2 predictionOffset = Vector2.zero;
+
+        if (predictionEnabled &&
+            targetRigidbody != null &&
+            distanceToPlayer >= predictionDistanceThreshold)
+        {
+            predictionOffset =
+                targetVelocity * predictionTime;
+
+            predictionOffset = Vector2.ClampMagnitude(
+                predictionOffset,
+                maxPredictionDistance
+            );
+        }
+
+        Vector2 tacticalOffset = Vector2.zero;
+
+        if (pursuitRole != NormalEnemyPursuitRole.Pursuer)
+        {
+            Vector2 travelDirection =
+                GetPlayerTravelDirection(
+                    playerPosition,
+                    targetVelocity
+                );
+
+            float tacticalStrength = Mathf.InverseLerp(
+                closeRangeDistance,
+                tacticalOffsetFadeDistance,
+                distanceToPlayer
+            );
+
+            if (pursuitRole ==
+                NormalEnemyPursuitRole.Interceptor)
+            {
+                tacticalOffset =
+                    travelDirection *
+                    interceptorLeadDistance *
+                    tacticalStrength;
+            }
+            else if (pursuitRole ==
+                     NormalEnemyPursuitRole.Flanker)
+            {
+                Vector2 sideDirection = new Vector2(
+                    -travelDirection.y,
+                    travelDirection.x
+                ) * flankSide;
+
+                tacticalOffset = (
+                    travelDirection * flankerLeadDistance +
+                    sideDirection * flankerSideOffset
+                ) * tacticalStrength;
+            }
+        }
+
+        return ClampTargetInsideArena(
+            playerPosition +
+            predictionOffset +
+            tacticalOffset
+        );
+    }
+
+    private Vector2 GetPlayerTravelDirection(
+        Vector2 playerPosition,
+        Vector2 targetVelocity
+    )
+    {
+        if (targetVelocity.sqrMagnitude > 0.04f)
+            return targetVelocity.normalized;
+
+        if (playerMovement != null)
+        {
+            Vector2 inputDirection =
+                playerMovement.CurrentMoveInput;
+
+            if (inputDirection.sqrMagnitude <= 0.04f)
+            {
+                inputDirection =
+                    playerMovement.LastMoveDirection;
+            }
+
+            if (inputDirection.sqrMagnitude > 0.04f)
+                return inputDirection.normalized;
+        }
+
+        Vector2 enemyToPlayer =
+            playerPosition - rb.position;
+
+        if (enemyToPlayer.sqrMagnitude > 0.001f)
+            return enemyToPlayer.normalized;
+
+        return Vector2.right;
+    }
+
+    private static Vector2 ClampTargetInsideArena(
+        Vector2 targetPosition
+    )
+    {
+        CameraWorldBounds bounds =
+            CameraWorldBounds.Instance;
+
+        if (bounds == null)
             return targetPosition;
 
-        Vector2 targetVelocity = targetRigidbody.linearVelocity;
+        const float margin = 0.25f;
 
-        Vector2 predictionOffset =
-            targetVelocity * predictionTime;
-
-        predictionOffset = Vector2.ClampMagnitude(
-            predictionOffset,
-            maxPredictionDistance
+        return new Vector2(
+            Mathf.Clamp(
+                targetPosition.x,
+                bounds.MinX + margin,
+                bounds.MaxX - margin
+            ),
+            Mathf.Clamp(
+                targetPosition.y,
+                bounds.MinY + margin,
+                bounds.MaxY - margin
+            )
         );
-
-        return targetPosition + predictionOffset;
     }
 
     private Vector2 GetWaveDirection(

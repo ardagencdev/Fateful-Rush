@@ -593,7 +593,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5917997935372504609, guid: ba49f9e417f58624ab12d00f268da7c4, type: 3}
+  m_Sprite: {fileID: -5917997935372504609, guid: ffb99c78b4a68d94cbc922249b317445, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -834,7 +834,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5917997935372504609, guid: ba49f9e417f58624ab12d00f268da7c4, type: 3}
+  m_Sprite: {fileID: -5917997935372504609, guid: ffb99c78b4a68d94cbc922249b317445, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -974,6 +974,7 @@ MonoBehaviour:
   fadeInDuration: 1.4
   holdDuration: 2.2
   fadeOutDuration: 0.8
+  minimumSkipDelay: 0.6
   introAudioSource: {fileID: 1780783026}
   introSound: {fileID: 8300000, guid: 3c08acb57fb6e224d9b7121b3cb5db6f, type: 3}
   fadeOutSoundWhenSkipping: 1

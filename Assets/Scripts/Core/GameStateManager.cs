@@ -433,6 +433,8 @@ public class GameStateManager : MonoBehaviour
         if (soundManager != null)
             soundManager.PlayWinSound();
 
+        VibrationManager.Instance?.VibrateSuccess();
+
         StartCoroutine(FreezeGameRoutine());
     }
 
@@ -497,6 +499,8 @@ public class GameStateManager : MonoBehaviour
 
         if (soundManager != null)
             soundManager.PlayLoseSound();
+
+        VibrationManager.Instance?.VibrateFailure();
 
         StartCoroutine(FreezeGameRoutine());
     }

@@ -198,6 +198,8 @@ public class PlayerArmor : MonoBehaviour
         if (soundManager != null)
             soundManager.PlayArmorBreakSound();
 
+        VibrationManager.Instance?.VibrateArmorBreak();
+
         StartImmunity();
 
         if (shieldVisual == null)

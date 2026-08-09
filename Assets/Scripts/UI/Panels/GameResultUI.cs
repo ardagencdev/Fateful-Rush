@@ -49,6 +49,21 @@ public class GameResultUI : MonoBehaviour
 
     private LevelManager levelManager;
 
+    // Cached result metric layout.
+    // Survive Time missions temporarily center the time metric,
+    // then the original Inspector positions are restored for every other mode.
+    private RectTransform winTimeLabelRect;
+    private RectTransform winTimeValueRect;
+    private RectTransform loseSurvivedLabelRect;
+    private RectTransform loseSurvivedValueRect;
+
+    private Vector2 winTimeLabelDefaultPosition;
+    private Vector2 winTimeValueDefaultPosition;
+    private Vector2 loseSurvivedLabelDefaultPosition;
+    private Vector2 loseSurvivedValueDefaultPosition;
+
+    private bool metricLayoutCached;
+
     private void Awake()
     {
         levelManager =
@@ -73,6 +88,8 @@ public class GameResultUI : MonoBehaviour
             );
         }
 
+        CacheMetricLayout();
+
         PrepareSkinUnlockUI();
         HideSkinUnlockImmediate();
         Hide();
@@ -96,6 +113,7 @@ public class GameResultUI : MonoBehaviour
     {
         ShowPanel();
         SetResultState(true);
+        ApplyMetricVisibility();
 
         if (winScoreValue != null)
         {
@@ -133,6 +151,7 @@ public class GameResultUI : MonoBehaviour
     {
         ShowPanel();
         SetResultState(false);
+        ApplyMetricVisibility();
 
         if (destroyedByText != null)
         {
@@ -160,6 +179,308 @@ public class GameResultUI : MonoBehaviour
         }
 
         HideSkinUnlockImmediate();
+    }
+
+    private void ApplyMetricVisibility()
+    {
+        LevelConfig currentLevel = GetCurrentLevel();
+
+        // Game Result UI rules:
+        // Reach Score             -> Score + Survived Time
+        // Survive Time            -> Survived Time only
+        // Reach Score Within Time -> Score + Survived Time
+        //
+        // If no LevelConfig exists (debug/non-level launch), keep both visible.
+        bool showScore = true;
+        bool showTime = true;
+
+        if (currentLevel != null)
+        {
+            showScore =
+                currentLevel.winCondition !=
+                WinConditionType.SurviveTime;
+        }
+
+        SetMetricVisible(
+            winScoreValue,
+            winUI,
+            showScore,
+            "SCORE"
+        );
+
+        SetMetricVisible(
+            loseScoreValue,
+            loseUI,
+            showScore,
+            "SCORE"
+        );
+
+        SetMetricVisible(
+            winTimeValue,
+            winUI,
+            showTime,
+            "TIME",
+            "SURVIVED"
+        );
+
+        SetMetricVisible(
+            loseSurvivedValue,
+            loseUI,
+            showTime,
+            "SURVIVED",
+            "TIME"
+        );
+
+        ApplyMetricLayout(currentLevel);
+    }
+
+    private void CacheMetricLayout()
+    {
+        winTimeValueRect =
+            winTimeValue != null
+                ? winTimeValue.rectTransform
+                : null;
+
+        loseSurvivedValueRect =
+            loseSurvivedValue != null
+                ? loseSurvivedValue.rectTransform
+                : null;
+
+        TextMeshProUGUI winTimeLabel =
+            FindMetricLabel(
+                winTimeValue,
+                winUI,
+                "TIME",
+                "SURVIVED"
+            );
+
+        TextMeshProUGUI loseSurvivedLabel =
+            FindMetricLabel(
+                loseSurvivedValue,
+                loseUI,
+                "SURVIVED",
+                "TIME"
+            );
+
+        winTimeLabelRect =
+            winTimeLabel != null
+                ? winTimeLabel.rectTransform
+                : null;
+
+        loseSurvivedLabelRect =
+            loseSurvivedLabel != null
+                ? loseSurvivedLabel.rectTransform
+                : null;
+
+        if (winTimeLabelRect != null)
+        {
+            winTimeLabelDefaultPosition =
+                winTimeLabelRect.anchoredPosition;
+        }
+
+        if (winTimeValueRect != null)
+        {
+            winTimeValueDefaultPosition =
+                winTimeValueRect.anchoredPosition;
+        }
+
+        if (loseSurvivedLabelRect != null)
+        {
+            loseSurvivedLabelDefaultPosition =
+                loseSurvivedLabelRect.anchoredPosition;
+        }
+
+        if (loseSurvivedValueRect != null)
+        {
+            loseSurvivedValueDefaultPosition =
+                loseSurvivedValueRect.anchoredPosition;
+        }
+
+        metricLayoutCached = true;
+    }
+
+    private void ApplyMetricLayout(
+        LevelConfig currentLevel)
+    {
+        if (!metricLayoutCached)
+        {
+            CacheMetricLayout();
+        }
+
+        bool centerTime =
+            currentLevel != null &&
+            currentLevel.winCondition ==
+            WinConditionType.SurviveTime;
+
+        SetMetricHorizontalPosition(
+            winTimeLabelRect,
+            winTimeLabelDefaultPosition,
+            centerTime
+        );
+
+        SetMetricHorizontalPosition(
+            winTimeValueRect,
+            winTimeValueDefaultPosition,
+            centerTime
+        );
+
+        SetMetricHorizontalPosition(
+            loseSurvivedLabelRect,
+            loseSurvivedLabelDefaultPosition,
+            centerTime
+        );
+
+        SetMetricHorizontalPosition(
+            loseSurvivedValueRect,
+            loseSurvivedValueDefaultPosition,
+            centerTime
+        );
+    }
+
+    private static void SetMetricHorizontalPosition(
+        RectTransform rect,
+        Vector2 defaultPosition,
+        bool centered)
+    {
+        if (rect == null)
+            return;
+
+        Vector2 position = defaultPosition;
+
+        if (centered)
+        {
+            position.x = 0f;
+        }
+
+        rect.anchoredPosition = position;
+    }
+
+    private static TextMeshProUGUI FindMetricLabel(
+        TextMeshProUGUI valueText,
+        GameObject uiGroup,
+        params string[] labelKeywords)
+    {
+        if (valueText == null)
+            return null;
+
+        Transform parent = valueText.transform.parent;
+
+        if (parent == null)
+            return null;
+
+        TextMeshProUGUI[] siblingTexts =
+            parent.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        for (int i = 0; i < siblingTexts.Length; i++)
+        {
+            TextMeshProUGUI text = siblingTexts[i];
+
+            if (text == null || text == valueText)
+                continue;
+
+            if (uiGroup != null &&
+                !text.transform.IsChildOf(uiGroup.transform))
+            {
+                continue;
+            }
+
+            if (MatchesAnyMetricKeyword(
+                    text,
+                    labelKeywords))
+            {
+                return text;
+            }
+        }
+
+        return null;
+    }
+
+    private static void SetMetricVisible(
+        TextMeshProUGUI valueText,
+        GameObject uiGroup,
+        bool visible,
+        params string[] labelKeywords
+    )
+    {
+        if (valueText == null)
+            return;
+
+        valueText.gameObject.SetActive(visible);
+
+        Transform parent = valueText.transform.parent;
+
+        if (parent == null)
+            return;
+
+        // Result rows in the existing UI use a label + value under the same parent.
+        // Hide only matching labels so we never risk disabling the whole result group.
+        TextMeshProUGUI[] siblingTexts =
+            parent.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        for (int i = 0; i < siblingTexts.Length; i++)
+        {
+            TextMeshProUGUI text = siblingTexts[i];
+
+            if (text == null || text == valueText)
+                continue;
+
+            if (uiGroup != null &&
+                !text.transform.IsChildOf(uiGroup.transform))
+            {
+                continue;
+            }
+
+            if (!MatchesAnyMetricKeyword(
+                    text,
+                    labelKeywords))
+            {
+                continue;
+            }
+
+            text.gameObject.SetActive(visible);
+        }
+    }
+
+    private static bool MatchesAnyMetricKeyword(
+        TextMeshProUGUI text,
+        string[] keywords
+    )
+    {
+        if (text == null ||
+            keywords == null ||
+            keywords.Length == 0)
+        {
+            return false;
+        }
+
+        string objectName =
+            text.gameObject.name.ToUpperInvariant();
+
+        string visibleText =
+            string.IsNullOrWhiteSpace(text.text)
+                ? string.Empty
+                : text.text
+                    .Trim()
+                    .TrimEnd(':')
+                    .ToUpperInvariant();
+
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            string keyword = keywords[i];
+
+            if (string.IsNullOrWhiteSpace(keyword))
+                continue;
+
+            keyword = keyword.ToUpperInvariant();
+
+            if (visibleText.Contains(keyword) ||
+                objectName.Contains(keyword))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void SetResultState(bool won)

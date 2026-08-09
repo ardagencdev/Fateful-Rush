@@ -123,6 +123,14 @@ public class ControlLayoutManager : MonoBehaviour
     {
         CurrentSide = side;
 
+        ResolvePlayerInputController();
+
+        if (playerInputController != null)
+        {
+            playerInputController
+                .PrepareForJoystickLayoutChange();
+        }
+
         bool joystickOnLeft =
             side == JoystickSide.Left;
 
@@ -217,6 +225,18 @@ public class ControlLayoutManager : MonoBehaviour
         if (refreshRoutine != null)
             StopCoroutine(refreshRoutine);
 
+        // Refresh immediately so a paused PlayerInputController cannot write
+        // the old anchoredPosition back using the newly changed anchors/pivot.
+        Canvas.ForceUpdateCanvases();
+        ResolvePlayerInputController();
+
+        if (playerInputController != null)
+        {
+            playerInputController
+                .RefreshJoystickBasePosition();
+        }
+
+        // Refresh once more after Unity has completed the full UI layout pass.
         refreshRoutine =
             StartCoroutine(
                 RefreshPlayerInputNextFrame()
@@ -228,12 +248,7 @@ public class ControlLayoutManager : MonoBehaviour
         yield return null;
 
         Canvas.ForceUpdateCanvases();
-
-        if (playerInputController == null)
-        {
-            playerInputController =
-                FindAnyObjectByType<PlayerInputController>();
-        }
+        ResolvePlayerInputController();
 
         if (playerInputController != null)
         {
@@ -242,6 +257,15 @@ public class ControlLayoutManager : MonoBehaviour
         }
 
         refreshRoutine = null;
+    }
+
+    private void ResolvePlayerInputController()
+    {
+        if (playerInputController != null)
+            return;
+
+        playerInputController =
+            FindAnyObjectByType<PlayerInputController>();
     }
 
     [ContextMenu("Reset Joystick Layout Save")]

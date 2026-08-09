@@ -200,6 +200,10 @@ public class EnemySpawner : MonoBehaviour
     private float projectileSpawnTimer;
     private float hunterSpawnTimer;
 
+    private float normalFirstSpawnDelay;
+    private float projectileFirstSpawnDelay;
+    private float hunterFirstSpawnDelay;
+
     private bool bossSpawned;
 
     private int spawnedNormal;
@@ -229,6 +233,10 @@ public class EnemySpawner : MonoBehaviour
 
         RefreshPlayerReferences();
         RefreshObstacleFilter();
+
+        normalFirstSpawnDelay = normalEnemySpawnInterval;
+        projectileFirstSpawnDelay = projectileEnemySpawnInterval;
+        hunterFirstSpawnDelay = hunterEnemySpawnInterval;
     }
 
     private void Update()
@@ -332,6 +340,52 @@ public class EnemySpawner : MonoBehaviour
         miniBossSpeed = settings.miniBossSpeed;
     }
 
+    public void ConfigureSpawnPacing(LevelConfig level)
+    {
+        normalFirstSpawnDelay = normalEnemySpawnInterval;
+        projectileFirstSpawnDelay = projectileEnemySpawnInterval;
+        hunterFirstSpawnDelay = hunterEnemySpawnInterval;
+
+        if (level == null ||
+            (level.winCondition != WinConditionType.SurviveTime &&
+             level.winCondition != WinConditionType.ReachScoreWithinTime))
+        {
+            return;
+        }
+
+        float missionTime =
+            Mathf.Max(0.1f, level.SafeTimeLimit);
+
+        // Time-based missions need pressure almost immediately. These values
+        // affect only the first spawn; the configured repeat intervals remain intact.
+        normalFirstSpawnDelay = Mathf.Min(
+            normalEnemySpawnInterval,
+            Mathf.Clamp(
+                missionTime * 0.04f,
+                1.25f,
+                2.75f
+            )
+        );
+
+        projectileFirstSpawnDelay = Mathf.Min(
+            projectileEnemySpawnInterval,
+            Mathf.Clamp(
+                missionTime * 0.07f,
+                2.5f,
+                4.5f
+            )
+        );
+
+        hunterFirstSpawnDelay = Mathf.Min(
+            hunterEnemySpawnInterval,
+            Mathf.Clamp(
+                missionTime * 0.11f,
+                4f,
+                7f
+            )
+        );
+    }
+
     public void ResetSpawner()
     {
         normalSpawnTimer = 0f;
@@ -362,9 +416,14 @@ public class EnemySpawner : MonoBehaviour
         if (normalEnemyPrefab == null)
             return;
 
+        float requiredDelay =
+            spawnedNormal == 0
+                ? normalFirstSpawnDelay
+                : normalEnemySpawnInterval;
+
         normalSpawnTimer += Time.deltaTime;
 
-        if (normalSpawnTimer < normalEnemySpawnInterval)
+        if (normalSpawnTimer < requiredDelay)
             return;
 
         if (TrySpawnNormalEnemy())
@@ -375,8 +434,7 @@ public class EnemySpawner : MonoBehaviour
         {
             normalSpawnTimer = Mathf.Max(
                 0f,
-                normalEnemySpawnInterval -
-                FailedSpawnRetryDelay
+                requiredDelay - FailedSpawnRetryDelay
             );
         }
     }
@@ -389,13 +447,15 @@ public class EnemySpawner : MonoBehaviour
         if (projectileEnemyPrefab == null)
             return;
 
+        float requiredDelay =
+            spawnedProjectile == 0
+                ? projectileFirstSpawnDelay
+                : projectileEnemySpawnInterval;
+
         projectileSpawnTimer += Time.deltaTime;
 
-        if (projectileSpawnTimer <
-            projectileEnemySpawnInterval)
-        {
+        if (projectileSpawnTimer < requiredDelay)
             return;
-        }
 
         if (TrySpawnProjectileEnemy())
         {
@@ -405,8 +465,7 @@ public class EnemySpawner : MonoBehaviour
         {
             projectileSpawnTimer = Mathf.Max(
                 0f,
-                projectileEnemySpawnInterval -
-                FailedSpawnRetryDelay
+                requiredDelay - FailedSpawnRetryDelay
             );
         }
     }
@@ -419,9 +478,14 @@ public class EnemySpawner : MonoBehaviour
         if (hunterEnemyPrefab == null)
             return;
 
+        float requiredDelay =
+            spawnedHunter == 0
+                ? hunterFirstSpawnDelay
+                : hunterEnemySpawnInterval;
+
         hunterSpawnTimer += Time.deltaTime;
 
-        if (hunterSpawnTimer < hunterEnemySpawnInterval)
+        if (hunterSpawnTimer < requiredDelay)
             return;
 
         if (TrySpawnHunterEnemy())
@@ -432,8 +496,7 @@ public class EnemySpawner : MonoBehaviour
         {
             hunterSpawnTimer = Mathf.Max(
                 0f,
-                hunterEnemySpawnInterval -
-                FailedSpawnRetryDelay
+                requiredDelay - FailedSpawnRetryDelay
             );
         }
     }
@@ -449,8 +512,66 @@ public class EnemySpawner : MonoBehaviour
 
         spawnedNormal++;
         ConfigureSpawnedEnemy(enemy);
+        ConfigureNormalPursuitRole(
+            enemy,
+            spawnedNormal
+        );
 
         return true;
+    }
+
+    private void ConfigureNormalPursuitRole(
+        GameObject enemy,
+        int spawnSequence
+    )
+    {
+        if (enemy == null)
+            return;
+
+        EnemyFollow normal =
+            enemy.GetComponent<EnemyFollow>();
+
+        if (normal == null)
+            return;
+
+        if (spawnSequence <= 1)
+        {
+            normal.ConfigurePursuitRole(
+                NormalEnemyPursuitRole.Pursuer
+            );
+
+            return;
+        }
+
+        int flankSide =
+            Random.value < 0.5f ? -1 : 1;
+
+        if (normalEnemyCount >= 3)
+        {
+            NormalEnemyPursuitRole role =
+                spawnSequence == 2
+                    ? NormalEnemyPursuitRole.Interceptor
+                    : NormalEnemyPursuitRole.Flanker;
+
+            normal.ConfigurePursuitRole(
+                role,
+                flankSide
+            );
+
+            return;
+        }
+
+        // With only two Stalkers, alternate between cutting the player's
+        // route and approaching from the side so runs do not feel identical.
+        NormalEnemyPursuitRole secondRole =
+            Random.value < 0.5f
+                ? NormalEnemyPursuitRole.Interceptor
+                : NormalEnemyPursuitRole.Flanker;
+
+        normal.ConfigurePursuitRole(
+            secondRole,
+            flankSide
+        );
     }
 
     private bool TrySpawnProjectileEnemy()

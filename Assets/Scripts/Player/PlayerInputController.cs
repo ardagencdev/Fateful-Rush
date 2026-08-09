@@ -124,6 +124,22 @@ public class PlayerInputController : MonoBehaviour
         UpdateJoystickVisual();
     }
 
+    public void PrepareForJoystickLayoutChange()
+    {
+        controlSource = ControlSource.None;
+        activeTouchId = -1;
+        isPointerActive = false;
+
+        rawInput = Vector2.zero;
+        targetHandlePosition = Vector2.zero;
+        visualHandlePosition = Vector2.zero;
+
+        ResetHandleInstant();
+
+        if (playerMovement != null)
+            playerMovement.SetMoveInput(Vector2.zero);
+    }
+
     public void RefreshJoystickBasePosition()
     {
         if (joystickBG == null)
@@ -137,6 +153,9 @@ public class PlayerInputController : MonoBehaviour
 
         targetBGAnchoredPosition =
             originalBGAnchoredPosition;
+
+        joystickStartLocalPosition = Vector2.zero;
+        joystickCenterLocalPosition = Vector2.zero;
 
         joystickBG.anchoredPosition =
             originalBGAnchoredPosition;

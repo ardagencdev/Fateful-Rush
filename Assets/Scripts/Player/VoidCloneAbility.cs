@@ -94,6 +94,7 @@ public class VoidCloneAbility : MonoBehaviour
         cloneActive = true;
         StatsManager.AddCloneUse();
         if (soundManager != null) soundManager.PlayVoidCloneSound();
+        VibrationManager.Instance?.VibrateClone();
         ShowActiveUI();
         UpdateUI();
         cloneRoutine = StartCoroutine(CloneRoutine());

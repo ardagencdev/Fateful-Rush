@@ -134,7 +134,7 @@ public class PlayerDash : MonoBehaviour
         if (soundManager != null)
             soundManager.PlayDashSound();
 
-        VibrationManager.Instance?.VibrateLight();
+        VibrationManager.Instance?.VibrateDash();
         StatsManager.AddDashUse();
 
         if (trail != null && clearTrailOnDash)

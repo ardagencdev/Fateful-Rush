@@ -284,6 +284,10 @@ public class LevelManager : MonoBehaviour
         ApplyHunterEnemySettings();
         ApplyBossSettings();
 
+        enemySpawner.ConfigureSpawnPacing(
+            currentLevel
+        );
+
         enemySpawner.ResetSpawner();
     }
 

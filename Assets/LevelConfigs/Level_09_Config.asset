@@ -54,7 +54,7 @@ MonoBehaviour:
   cloneEnabled: 0
   dashDistance: 2.5
   dashDuration: 0.12
-  dashCooldown: 2.3
+  dashCooldown: 2.6
   cloneDuration: 3
   cloneCooldown: 8
   cloneUses: 1
