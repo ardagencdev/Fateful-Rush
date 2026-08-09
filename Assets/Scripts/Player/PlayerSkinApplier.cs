@@ -17,6 +17,9 @@ public class PlayerSkinApplier : MonoBehaviour
     [SerializeField]
     private PlayerArmor playerArmor;
 
+    [SerializeField]
+    private SpecialSkinVisuals specialSkinVisuals;
+
     public PlayerSkinCatalog.SkinEntry CurrentSkin
     {
         get;
@@ -95,6 +98,11 @@ public class PlayerSkinApplier : MonoBehaviour
                 skin.armorVisualColor
             );
         }
+
+        if (specialSkinVisuals != null)
+        {
+            specialSkinVisuals.ApplySkin(skin);
+        }
     }
 
     private void FindMissingReferences()
@@ -110,5 +118,17 @@ public class PlayerSkinApplier : MonoBehaviour
 
         if (playerArmor == null)
             playerArmor = GetComponent<PlayerArmor>();
+
+        if (specialSkinVisuals == null)
+        {
+            specialSkinVisuals =
+                GetComponent<SpecialSkinVisuals>();
+
+            if (specialSkinVisuals == null)
+            {
+                specialSkinVisuals =
+                    gameObject.AddComponent<SpecialSkinVisuals>();
+            }
+        }
     }
 }

@@ -30,7 +30,6 @@ public class MainMenu : MonoBehaviour
     [Header("Dev Room")]
     [SerializeField] private LevelConfig devRoomConfig;
     [SerializeField] private GameObject devRoomButton;
-    [SerializeField] private Key devRoomRevealKey = Key.F8;
 
     [Header("Quit")]
     [SerializeField, Min(0f)]
@@ -44,6 +43,7 @@ public class MainMenu : MonoBehaviour
     private bool isQuitting;
     private bool isDevRoomButtonVisible;
     private bool isDesktopDevRoomAllowed;
+    private int lastDevRoomHotkeyFrame = -1;
 
     public bool IsContinueAvailable =>
         continueTargetLevel != null;
@@ -61,6 +61,11 @@ public class MainMenu : MonoBehaviour
 
         isDesktopDevRoomAllowed =
             IsDesktopPlatform();
+
+        // MainMenu componenti MainMenuPanel üzerinde ve panel başka bir
+        // menü açıldığında inactive oluyor. MonoBehaviour.Update() bu durumda
+        // çalışmadığı için F8'i Input System'in global update callback'inden dinliyoruz.
+        InputSystem.onAfterUpdate += HandleInputSystemAfterUpdate;
 
         FindDevRoomButtonIfNeeded();
         SetDevRoomButtonVisible(false);
@@ -85,6 +90,8 @@ public class MainMenu : MonoBehaviour
 
     private void OnDestroy()
     {
+        InputSystem.onAfterUpdate -= HandleInputSystemAfterUpdate;
+
         if (Instance == this)
             Instance = null;
 
@@ -96,18 +103,25 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void HandleInputSystemAfterUpdate()
     {
         if (!isDesktopDevRoomAllowed)
             return;
 
         Keyboard keyboard = Keyboard.current;
 
-        if (keyboard == null)
+        if (keyboard == null || !keyboard.f8Key.wasPressedThisFrame)
             return;
 
-        if (!keyboard[devRoomRevealKey].wasPressedThisFrame)
+        // Input System ayni Unity frame'inde birden fazla update turu
+        // calistirabilirse tek F8 basisi iki kez toggle edilmesin.
+        if (lastDevRoomHotkeyFrame == Time.frameCount)
             return;
+
+        lastDevRoomHotkeyFrame = Time.frameCount;
+
+        // Referans daha sonra kaybolduysa / deserialize olmadiysa tekrar bul.
+        FindDevRoomButtonIfNeeded();
 
         SetDevRoomButtonVisible(
             !isDevRoomButtonVisible

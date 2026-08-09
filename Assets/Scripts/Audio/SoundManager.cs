@@ -22,6 +22,13 @@ public class SoundManager : MonoBehaviour
     public AudioClip dashSound;
     public AudioClip voidCloneSound;
 
+    [Header("Prestige Skin Coin Sounds")]
+    [Tooltip("Used only while the DARK skin is equipped. Falls back to the normal coin sound if empty.")]
+    public AudioClip darkCoinSound;
+
+    [Tooltip("Used only while the GOLDEN skin is equipped. Falls back to the normal coin sound if empty.")]
+    public AudioClip goldenCoinSound;
+
     [Header("UI Sounds")]
     public AudioClip menuButtonSound;
     public AudioClip backButtonSound;
@@ -88,6 +95,30 @@ public class SoundManager : MonoBehaviour
     }
 
     public void PlayCoinSound() => PlaySound(coinSound);
+
+    public void PlayCoinSound(string skinId)
+    {
+        string normalizedSkinId =
+            string.IsNullOrWhiteSpace(skinId)
+                ? string.Empty
+                : skinId.Trim().ToLowerInvariant();
+
+        AudioClip selectedClip = coinSound;
+
+        if (normalizedSkinId == "dark" &&
+            darkCoinSound != null)
+        {
+            selectedClip = darkCoinSound;
+        }
+        else if (normalizedSkinId == "golden" &&
+                 goldenCoinSound != null)
+        {
+            selectedClip = goldenCoinSound;
+        }
+
+        PlaySound(selectedClip);
+    }
+
     public void PlayLoseSound() => PlaySound(loseSound);
     public void PlayWinSound() => PlaySound(winSound);
     public void PlayArmorCollectSound() => PlaySound(armorCollectSound);

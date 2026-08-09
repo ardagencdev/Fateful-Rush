@@ -11,6 +11,12 @@ public class PlayerCoinCollector : MonoBehaviour
     public ComboUI comboUI;
     public GameStateManager gameStateManager;
 
+    [SerializeField]
+    private SpecialSkinVisuals specialSkinVisuals;
+
+    [SerializeField]
+    private PlayerSkinApplier playerSkinApplier;
+
     [Header("UI")]
     public TextMeshProUGUI scoreText;
 
@@ -51,6 +57,18 @@ public class PlayerCoinCollector : MonoBehaviour
         {
             gameStateManager =
                 FindAnyObjectByType<GameStateManager>();
+        }
+
+        if (specialSkinVisuals == null)
+        {
+            specialSkinVisuals =
+                GetComponent<SpecialSkinVisuals>();
+        }
+
+        if (playerSkinApplier == null)
+        {
+            playerSkinApplier =
+                GetComponent<PlayerSkinApplier>();
         }
 
         UpdateScoreUI();
@@ -167,10 +185,28 @@ public class PlayerCoinCollector : MonoBehaviour
         if (scoreUIEffect != null)
             scoreUIEffect.PlayPop();
 
+        PlaySpecialSkinCoinEffect(
+            coin,
+            coinCollider,
+            coinValue
+        );
+
         PlayCollectEffect(coin, coinCollider);
 
         if (soundManager != null)
-            soundManager.PlayCoinSound();
+        {
+            string activeSkinId =
+                specialSkinVisuals != null
+                    ? specialSkinVisuals.ActiveSkinId
+                    : playerSkinApplier != null &&
+                      playerSkinApplier.CurrentSkin != null
+                        ? playerSkinApplier.CurrentSkin.id
+                        : string.Empty;
+
+            soundManager.PlayCoinSound(
+                activeSkinId
+            );
+        }
 
         gameStateManager
             ?.CheckScoreObjective(score);
@@ -261,6 +297,93 @@ public class PlayerCoinCollector : MonoBehaviour
             0f,
             combo
         );
+    }
+
+
+    private void PlaySpecialSkinCoinEffect(
+        Coin coin,
+        Collider2D coinCollider,
+        int coinValue)
+    {
+        if (specialSkinVisuals == null)
+        {
+            specialSkinVisuals =
+                GetComponent<SpecialSkinVisuals>();
+        }
+
+        if (specialSkinVisuals == null)
+            return;
+
+        Vector3 burstPosition;
+
+        if (coin != null)
+        {
+            burstPosition = coin.transform.position;
+        }
+        else if (coinCollider != null)
+        {
+            burstPosition = coinCollider.bounds.center;
+        }
+        else
+        {
+            return;
+        }
+
+        float coinWorldSize = GetCoinWorldSize(
+            coin,
+            coinCollider
+        );
+
+        specialSkinVisuals.PlayCoinCollectBurst(
+            burstPosition,
+            coinValue,
+            coinWorldSize
+        );
+    }
+
+    private static float GetCoinWorldSize(
+        Coin coin,
+        Collider2D coinCollider)
+    {
+        SpriteRenderer coinRenderer = null;
+
+        if (coin != null)
+        {
+            coinRenderer =
+                coin.GetComponentInChildren<SpriteRenderer>(true);
+        }
+
+        if (coinRenderer == null && coinCollider != null)
+        {
+            coinRenderer =
+                coinCollider.GetComponentInParent<SpriteRenderer>();
+
+            if (coinRenderer == null)
+            {
+                coinRenderer =
+                    coinCollider.GetComponentInChildren<SpriteRenderer>(true);
+            }
+        }
+
+        if (coinRenderer != null)
+        {
+            Vector3 size = coinRenderer.bounds.size;
+            float worldSize = Mathf.Max(size.x, size.y);
+
+            if (worldSize > 0.001f)
+                return worldSize;
+        }
+
+        if (coinCollider != null)
+        {
+            Vector3 size = coinCollider.bounds.size;
+            float worldSize = Mathf.Max(size.x, size.y);
+
+            if (worldSize > 0.001f)
+                return worldSize;
+        }
+
+        return 0.6f;
     }
 
     private void PlayCollectEffect(

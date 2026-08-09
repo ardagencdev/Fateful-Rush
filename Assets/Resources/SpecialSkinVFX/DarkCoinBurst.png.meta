@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 01518e100999ae24485b1960235e2e50
+guid: 7a20f2fe31100e145960dfdac6d44799
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4085748384562721820
-    second: WhitePlayer_0
+      213: -2283970921438648808
+    second: DarkCoinVFX_0
+  - first:
+      213: 7014843316067072909
+    second: DarkCoinVFX_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -72,7 +75,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WhitePlayer_0
+      name: DarkCoinVFX_1
       rect:
         serializedVersion: 2
-        x: 8
+        x: 184
         y: 0
-        width: 1016
-        height: 1024
+        width: 1253
+        height: 1008
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4eb4380dd718c47c0800000000000000
-      internalID: -4085748384562721820
+      spriteID: d8b733964dab95160800000000000000
+      internalID: 7014843316067072909
       vertices: []
       indices: 
       edges: []
@@ -138,7 +141,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 71f5d5476be8cd14fb6c0a2c26467dde
+    spriteID: 8cafcc7e01e96584095ab33d27506dd2
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +151,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      WhitePlayer_0: -4085748384562721820
+      DarkCoinVFX_0: -2283970921438648808
+      DarkCoinVFX_1: 7014843316067072909
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

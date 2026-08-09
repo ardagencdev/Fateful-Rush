@@ -70,11 +70,11 @@ MonoBehaviour:
     separationRadius: 0.94
     separationStrength: 0.96
   projectileEnemyLevels:
-  - moveSpeed: 2.6
+  - moveSpeed: 3
     stoppingDistance: 7.2
     retreatDistance: 4.2
-    fireRate: 1.85
-    projectileSpeed: 6
+    fireRate: 1.45
+    projectileSpeed: 6.3
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.48
     strafeDirectionChangeMinTime: 2.2
@@ -87,11 +87,11 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  - moveSpeed: 2.9
+  - moveSpeed: 3.4
     stoppingDistance: 7
     retreatDistance: 4.1
-    fireRate: 1.6
-    projectileSpeed: 6.2
+    fireRate: 1.3
+    projectileSpeed: 6.5
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.54
     strafeDirectionChangeMinTime: 1.9
@@ -104,11 +104,11 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.95
     separationStrength: 0.5
-  - moveSpeed: 3.2
+  - moveSpeed: 3.8
     stoppingDistance: 6.8
     retreatDistance: 4
-    fireRate: 1.35
-    projectileSpeed: 6.4
+    fireRate: 1.15
+    projectileSpeed: 6.7
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.6
     strafeDirectionChangeMinTime: 1.6
@@ -121,11 +121,11 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 1
     separationStrength: 0.55
-  - moveSpeed: 3.5
+  - moveSpeed: 4.2
     stoppingDistance: 6.6
     retreatDistance: 3.9
-    fireRate: 1.15
-    projectileSpeed: 6.6
+    fireRate: 1
+    projectileSpeed: 6.9
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.67
     strafeDirectionChangeMinTime: 1.3
@@ -138,11 +138,11 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 1.05
     separationStrength: 0.59999996
-  - moveSpeed: 3.8
+  - moveSpeed: 4.5
     stoppingDistance: 6.4
     retreatDistance: 3.8
-    fireRate: 1
-    projectileSpeed: 7
+    fireRate: 0.85
+    projectileSpeed: 7.2
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.74
     strafeDirectionChangeMinTime: 1.1
@@ -323,62 +323,62 @@ MonoBehaviour:
     maxSpawnTime: 18
     warningDuration: 2.4
     lifeTime: 1.1
-    width: 0.4
+    width: 4
     sizeExtra: 1
   - minSpawnTime: 9
     maxSpawnTime: 15
     warningDuration: 2.1
     lifeTime: 1.25
-    width: 0.45
+    width: 4.5
     sizeExtra: 1
   - minSpawnTime: 7
     maxSpawnTime: 12
     warningDuration: 1.75
     lifeTime: 1.4
-    width: 0.5
+    width: 5
     sizeExtra: 1.08
   - minSpawnTime: 5.5
     maxSpawnTime: 9.5
     warningDuration: 1.45
     lifeTime: 1.55
-    width: 0.58
+    width: 5.5
     sizeExtra: 1.15
   - minSpawnTime: 4.5
     maxSpawnTime: 8
     warningDuration: 1.2
     lifeTime: 1.7
-    width: 0.65
+    width: 6
     sizeExtra: 1.22
   horizontalLaserLevels:
   - minSpawnTime: 12
     maxSpawnTime: 18
     warningDuration: 2.4
     lifeTime: 1.1
-    width: 0.4
+    width: 4
     sizeExtra: 1
   - minSpawnTime: 9
     maxSpawnTime: 15
     warningDuration: 2.1
     lifeTime: 1.25
-    width: 0.45
+    width: 4.5
     sizeExtra: 1
   - minSpawnTime: 7
     maxSpawnTime: 12
     warningDuration: 1.75
     lifeTime: 1.4
-    width: 0.5
+    width: 5
     sizeExtra: 1.08
   - minSpawnTime: 5.5
     maxSpawnTime: 9.5
     warningDuration: 1.45
     lifeTime: 1.55
-    width: 0.58
+    width: 5.5
     sizeExtra: 1.15
   - minSpawnTime: 4.5
     maxSpawnTime: 8
     warningDuration: 1.2
     lifeTime: 1.7
-    width: 0.65
+    width: 6
     sizeExtra: 1.22
   bombLevels:
   - minSpawnTime: 8.5

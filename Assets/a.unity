@@ -24870,7 +24870,9 @@ MonoBehaviour:
   armorBreakSound: {fileID: 8300000, guid: 93ff6985fac534548a0d3562cfdf0f84, type: 3}
   slowCollectSound: {fileID: 8300000, guid: 65775f71e5bea984fbfcb59a0ff10581, type: 3}
   dashSound: {fileID: 8300000, guid: fa7d8c9532865a5458d9772b083ecbb5, type: 3}
-  voidCloneSound: {fileID: 8300000, guid: a0906e582b7cdec46999f741f89c700f, type: 3}
+  voidCloneSound: {fileID: 8300000, guid: 2cefeebc79839e14e8c77daa838fb9b4, type: 3}
+  darkCoinSound: {fileID: 8300000, guid: 0173ccd72ab65204aaa8eee30147b985, type: 3}
+  goldenCoinSound: {fileID: 8300000, guid: 59a07e3a2e71d3a4682675bad5484512, type: 3}
   menuButtonSound: {fileID: 8300000, guid: 9e0c7c3ef0b54b844ac299ea1a788a6e, type: 3}
   backButtonSound: {fileID: 8300000, guid: 29dd4eaf3192530458c01a0a734c411d, type: 3}
   startButtonSound: {fileID: 8300000, guid: df9dfe86f849b01419acf1947178cd4e, type: 3}
@@ -34316,7 +34318,9 @@ MonoBehaviour:
   cooldownText: {fileID: 826620987}
   readySprite: {fileID: 6489824121191484246, guid: cbccc08fc87b9ed41aa0e3b8722e444b, type: 3}
   usedSprite: {fileID: -8811133759953127199, guid: cbccc08fc87b9ed41aa0e3b8722e444b, type: 3}
+  activeOverlayColor: {r: 0, g: 0, b: 0, a: 1}
   playerMovement: {fileID: 1118182838}
+  playerArmor: {fileID: 0}
   soundManager: {fileID: 1252622767}
   playerSkinApplier: {fileID: 2867039574598277702}
 --- !u!114 &1979272563 stripped
@@ -36464,7 +36468,8 @@ MonoBehaviour:
   skinCatalog: {fileID: 11400000, guid: 6a94e3ee225b5934ba73c6c7b9674c3f, type: 2}
   playerSpriteRenderer: {fileID: 2867039574598277699}
   playerDash: {fileID: 1118182829}
-  playerArmor: {fileID: 0}
+  playerArmor: {fileID: 1979272568}
+  specialSkinVisuals: {fileID: 0}
 --- !u!1001 &4023838829864494741
 PrefabInstance:
   m_ObjectHideFlags: 0

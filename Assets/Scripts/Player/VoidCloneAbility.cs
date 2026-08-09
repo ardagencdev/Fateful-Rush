@@ -1,8 +1,10 @@
 using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class VoidCloneAbility : MonoBehaviour
 {
@@ -25,8 +27,15 @@ public class VoidCloneAbility : MonoBehaviour
     public Sprite readySprite;
     public Sprite usedSprite;
 
+    [Header("Clone Active Overlay")]
+    [Tooltip(
+        "Clone aktifken buttonu ustten asagi dolduran overlay rengi."
+    )]
+    public Color activeOverlayColor = Color.black;
+
     [Header("References")]
     public PlayerMovement playerMovement;
+    public PlayerArmor playerArmor;
     public SoundManager soundManager;
     public PlayerSkinApplier playerSkinApplier;
 
@@ -34,22 +43,68 @@ public class VoidCloneAbility : MonoBehaviour
     private bool cloneActive;
     private bool gameOverHandled;
     private bool cooldownActive;
+
+    private float activeTimer;
     private float cooldownTimer;
     private float textRefreshTimer;
+
     private const float TextRefreshInterval = 0.1f;
+
     private GameObject activeCloneObject;
     private Coroutine cloneRoutine;
 
+    private EventTrigger cloneButtonEventTrigger;
+    private EventTrigger.Entry pointerDownEntry;
+    private bool immediatePressConfigured;
+
+    // Active fazinda cooldownFill'i gecici olarak Vertical/Top yapacagiz.
+    // Cooldown basladiginda Inspector'daki normal ayarlara geri doner.
+    private bool cooldownFillDefaultsCaptured;
+    private Color cooldownFillDefaultColor;
+    private Image.Type cooldownFillDefaultType;
+    private Image.FillMethod cooldownFillDefaultMethod;
+    private int cooldownFillDefaultOrigin;
+    private bool cooldownFillDefaultClockwise;
+
     private void Awake()
     {
-        if (playerMovement == null) playerMovement = GetComponent<PlayerMovement>();
-        if (playerSkinApplier == null) playerSkinApplier = GetComponent<PlayerSkinApplier>();
+        if (playerMovement == null)
+            playerMovement = GetComponent<PlayerMovement>();
+
+        if (playerArmor == null)
+            playerArmor = GetComponent<PlayerArmor>();
+
+        if (playerSkinApplier == null)
+            playerSkinApplier = GetComponent<PlayerSkinApplier>();
+
+        if (soundManager == null)
+            soundManager = SoundManager.Instance;
+
+        if (soundManager == null)
+            soundManager = FindAnyObjectByType<SoundManager>();
+
+        PreloadCloneSound();
+        CaptureCooldownFillDefaults();
+        ConfigureImmediateButtonPress();
         ResetCloneState();
     }
 
-    private void OnEnable() => ResetCloneState();
-    private void OnDisable() => ClearAllCloneState();
-    private void OnDestroy() => ClearAllCloneState();
+    private void OnEnable()
+    {
+        ConfigureImmediateButtonPress();
+        ResetCloneState();
+    }
+
+    private void OnDisable()
+    {
+        ClearAllCloneState();
+    }
+
+    private void OnDestroy()
+    {
+        RemoveImmediateButtonPress();
+        ClearAllCloneState();
+    }
 
     private void Update()
     {
@@ -62,57 +117,181 @@ public class VoidCloneAbility : MonoBehaviour
             return;
         }
 
-        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current != null &&
+            Keyboard.current.eKey.wasPressedThisFrame)
+        {
             UseClone();
+        }
 
         if (cooldownActive)
             UpdateCooldown();
     }
 
+    private void ConfigureImmediateButtonPress()
+    {
+        if (immediatePressConfigured || cloneButton == null)
+            return;
+
+        cloneButtonEventTrigger =
+            cloneButton.GetComponent<EventTrigger>();
+
+        if (cloneButtonEventTrigger == null)
+        {
+            cloneButtonEventTrigger =
+                cloneButton.gameObject.AddComponent<EventTrigger>();
+        }
+
+        if (cloneButtonEventTrigger.triggers == null)
+        {
+            cloneButtonEventTrigger.triggers =
+                new List<EventTrigger.Entry>();
+        }
+
+        pointerDownEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerDown
+        };
+
+        pointerDownEntry.callback.AddListener(
+            _ => UseClone()
+        );
+
+        cloneButtonEventTrigger.triggers.Add(
+            pointerDownEntry
+        );
+
+        immediatePressConfigured = true;
+    }
+
+    private void RemoveImmediateButtonPress()
+    {
+        if (!immediatePressConfigured ||
+            cloneButtonEventTrigger == null ||
+            pointerDownEntry == null ||
+            cloneButtonEventTrigger.triggers == null)
+        {
+            return;
+        }
+
+        cloneButtonEventTrigger.triggers.Remove(
+            pointerDownEntry
+        );
+
+        pointerDownEntry = null;
+        cloneButtonEventTrigger = null;
+        immediatePressConfigured = false;
+    }
+
+    private void PreloadCloneSound()
+    {
+        if (soundManager == null ||
+            soundManager.voidCloneSound == null)
+        {
+            return;
+        }
+
+        if (soundManager.voidCloneSound.loadState ==
+            AudioDataLoadState.Unloaded)
+        {
+            soundManager.voidCloneSound.LoadAudioData();
+        }
+    }
+
     private void HandleGameOver()
     {
-        if (gameOverHandled) return;
+        if (gameOverHandled)
+            return;
+
         gameOverHandled = true;
         ClearAllCloneState();
-        if (cloneButton != null) cloneButton.interactable = false;
+
+        if (cloneButton != null)
+            cloneButton.interactable = false;
+
         HideCooldownUI();
     }
 
-    public void SetCloneCooldown(float cooldown) => cloneCooldown = Mathf.Max(0.1f, cooldown);
-    public void SetCloneUses(int uses) { }
+    public void SetCloneCooldown(float cooldown)
+    {
+        cloneCooldown = Mathf.Max(0.1f, cooldown);
+    }
+
+    public void SetCloneUses(int uses)
+    {
+        // Legacy compatibility only. Clone is cooldown-based.
+    }
 
     public void UseClone()
     {
-        if (!GameStateManager.IsGameplayStarted || !canUseClone || cloneActive || cooldownActive)
+        if (!isActiveAndEnabled ||
+            !GameStateManager.IsGameplayStarted ||
+            Time.timeScale <= 0f ||
+            gameOverHandled ||
+            !canUseClone ||
+            cloneActive ||
+            cooldownActive)
+        {
             return;
+        }
+
         if (playerMovement != null && playerMovement.IsGameOver)
             return;
+
         if (clonePrefab == null)
             return;
 
         canUseClone = false;
         cloneActive = true;
+        activeTimer = Mathf.Max(0.01f, cloneDuration);
+
         StatsManager.AddCloneUse();
-        if (soundManager != null) soundManager.PlayVoidCloneSound();
+
+        // PointerDown uzerinden calistigi icin mobilde parmak kaldirilmasini
+        // beklemeden clone ve SFX ayni anda baslar.
+        if (soundManager != null)
+            soundManager.PlayVoidCloneSound();
+
         VibrationManager.Instance?.VibrateClone();
+
         ShowActiveUI();
+        UpdateActiveVisuals();
         UpdateUI();
+
         cloneRoutine = StartCoroutine(CloneRoutine());
     }
 
     private IEnumerator CloneRoutine()
     {
-        activeCloneObject = Instantiate(clonePrefab, transform.position, Quaternion.identity);
+        activeCloneObject = Instantiate(
+            clonePrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
         ActiveCloneTarget = activeCloneObject.transform;
 
-        VoidClone cloneScript = activeCloneObject.GetComponent<VoidClone>();
+        VoidClone cloneScript =
+            activeCloneObject.GetComponent<VoidClone>();
+
         if (cloneScript != null)
         {
             cloneScript.SetSkin(GetCurrentPlayerSprite());
+            cloneScript.CopyArmorVisual(playerArmor);
             cloneScript.StartClone(cloneDuration, playerMovement);
         }
 
-        yield return new WaitForSeconds(Mathf.Max(0.01f, cloneDuration));
+        activeTimer = Mathf.Max(0.01f, cloneDuration);
+
+        while (activeTimer > 0f)
+        {
+            activeTimer = Mathf.Max(
+                0f,
+                activeTimer - Time.deltaTime
+            );
+
+            UpdateActiveVisuals();
+            yield return null;
+        }
 
         cloneRoutine = null;
         DestroyCloneObject();
@@ -121,18 +300,30 @@ public class VoidCloneAbility : MonoBehaviour
 
     private Sprite GetCurrentPlayerSprite()
     {
-        if (playerSkinApplier != null && playerSkinApplier.CurrentSprite != null)
+        if (playerSkinApplier != null &&
+            playerSkinApplier.CurrentSprite != null)
+        {
             return playerSkinApplier.CurrentSprite;
-        SpriteRenderer renderer = GetComponentInChildren<SpriteRenderer>(true);
-        return renderer != null ? renderer.sprite : null;
+        }
+
+        SpriteRenderer renderer =
+            GetComponentInChildren<SpriteRenderer>(true);
+
+        return renderer != null
+            ? renderer.sprite
+            : null;
     }
 
     private void DestroyCloneObject()
     {
         ActiveCloneTarget = null;
-        if (activeCloneObject != null) Destroy(activeCloneObject);
+
+        if (activeCloneObject != null)
+            Destroy(activeCloneObject);
+
         activeCloneObject = null;
         cloneActive = false;
+        activeTimer = 0f;
     }
 
     private void BeginCooldown()
@@ -140,6 +331,7 @@ public class VoidCloneAbility : MonoBehaviour
         cooldownActive = true;
         cooldownTimer = cloneCooldown;
         textRefreshTimer = 0f;
+
         ShowCooldownUI();
         UpdateCooldownVisuals();
         UpdateUI();
@@ -147,60 +339,168 @@ public class VoidCloneAbility : MonoBehaviour
 
     private void UpdateCooldown()
     {
-        cooldownTimer = Mathf.Max(0f, cooldownTimer - Time.deltaTime);
+        cooldownTimer = Mathf.Max(
+            0f,
+            cooldownTimer - Time.deltaTime
+        );
+
         UpdateCooldownVisuals();
-        if (cooldownTimer > 0f) return;
+
+        if (cooldownTimer > 0f)
+            return;
 
         cooldownActive = false;
         canUseClone = true;
+
         HideCooldownUI();
         UpdateUI();
+    }
+
+    private void UpdateActiveVisuals()
+    {
+        if (cooldownFill == null)
+            return;
+
+        float duration = Mathf.Max(
+            0.01f,
+            cloneDuration
+        );
+
+        // Clone basladiginda 0, clone biterken 1.
+        // Vertical + Top origin sayesinde siyahlik ustten asagi iner.
+        float activeProgress = 1f - Mathf.Clamp01(
+            activeTimer / duration
+        );
+
+        cooldownFill.fillAmount = activeProgress;
     }
 
     private void UpdateCooldownVisuals()
     {
         if (cooldownFill != null)
-            cooldownFill.fillAmount = cloneCooldown <= 0f ? 0f : cooldownTimer / cloneCooldown;
+        {
+            cooldownFill.fillAmount = cloneCooldown <= 0f
+                ? 0f
+                : Mathf.Clamp01(cooldownTimer / cloneCooldown);
+        }
 
         textRefreshTimer -= Time.deltaTime;
-        if (textRefreshTimer > 0f) return;
+
+        if (textRefreshTimer > 0f)
+            return;
+
         textRefreshTimer = TextRefreshInterval;
+
         if (cooldownText != null)
-            cooldownText.text = cooldownTimer > 0f ? cooldownTimer.ToString("F1") : "";
+        {
+            cooldownText.text = cooldownTimer > 0f
+                ? cooldownTimer.ToString("F1")
+                : "";
+        }
     }
 
     private void ShowActiveUI()
     {
         if (cooldownFill != null)
         {
+            CaptureCooldownFillDefaults();
+
             cooldownFill.gameObject.SetActive(true);
-            cooldownFill.fillAmount = 1f;
-        }
-        if (cooldownText != null)
-        {
-            cooldownText.gameObject.SetActive(true);
-            cooldownText.text = "ACTIVE";
-        }
-    }
-
-    private void ShowCooldownUI()
-    {
-        if (cooldownFill != null) cooldownFill.gameObject.SetActive(true);
-        if (cooldownText != null) cooldownText.gameObject.SetActive(true);
-    }
-
-    private void HideCooldownUI()
-    {
-        if (cooldownFill != null)
-        {
-            cooldownFill.gameObject.SetActive(false);
+            cooldownFill.color = activeOverlayColor;
+            cooldownFill.type = Image.Type.Filled;
+            cooldownFill.fillMethod = Image.FillMethod.Vertical;
+            cooldownFill.fillOrigin =
+                (int)Image.OriginVertical.Top;
             cooldownFill.fillAmount = 0f;
         }
+
+        // Clone aktifken hicbir yazi yok.
         if (cooldownText != null)
         {
             cooldownText.text = "";
             cooldownText.gameObject.SetActive(false);
         }
+    }
+
+    private void ShowCooldownUI()
+    {
+        RestoreCooldownFillDefaults();
+
+        if (cooldownFill != null)
+        {
+            cooldownFill.gameObject.SetActive(true);
+            cooldownFill.fillAmount = 1f;
+        }
+
+        if (cooldownText != null)
+            cooldownText.gameObject.SetActive(true);
+    }
+
+    private void HideCooldownUI()
+    {
+        RestoreCooldownFillDefaults();
+
+        if (cooldownFill != null)
+        {
+            cooldownFill.gameObject.SetActive(false);
+            cooldownFill.fillAmount = 0f;
+        }
+
+        if (cooldownText != null)
+        {
+            cooldownText.text = "";
+            cooldownText.gameObject.SetActive(false);
+        }
+    }
+
+    private void CaptureCooldownFillDefaults()
+    {
+        if (cooldownFillDefaultsCaptured ||
+            cooldownFill == null)
+        {
+            return;
+        }
+
+        cooldownFillDefaultColor =
+            cooldownFill.color;
+
+        cooldownFillDefaultType =
+            cooldownFill.type;
+
+        cooldownFillDefaultMethod =
+            cooldownFill.fillMethod;
+
+        cooldownFillDefaultOrigin =
+            cooldownFill.fillOrigin;
+
+        cooldownFillDefaultClockwise =
+            cooldownFill.fillClockwise;
+
+        cooldownFillDefaultsCaptured = true;
+    }
+
+    private void RestoreCooldownFillDefaults()
+    {
+        if (!cooldownFillDefaultsCaptured ||
+            cooldownFill == null)
+        {
+            return;
+        }
+
+        cooldownFill.color =
+            cooldownFillDefaultColor;
+
+        cooldownFill.type =
+            cooldownFillDefaultType;
+
+        cooldownFill.fillMethod =
+            cooldownFillDefaultMethod;
+
+        cooldownFill.fillOrigin =
+            cooldownFillDefaultOrigin;
+
+        cooldownFill.fillClockwise =
+            cooldownFillDefaultClockwise;
     }
 
     private void ClearAllCloneState()
@@ -210,29 +510,63 @@ public class VoidCloneAbility : MonoBehaviour
             StopCoroutine(cloneRoutine);
             cloneRoutine = null;
         }
+
         DestroyCloneObject();
+
         cooldownActive = false;
         cooldownTimer = 0f;
+        textRefreshTimer = 0f;
     }
 
     public void ResetCloneState()
     {
         StopAllCoroutines();
         cloneRoutine = null;
+
         DestroyCloneObject();
+
         canUseClone = true;
         cooldownActive = false;
         gameOverHandled = false;
+        activeTimer = 0f;
         cooldownTimer = 0f;
         textRefreshTimer = 0f;
+
         HideCooldownUI();
         UpdateUI();
     }
 
     private void UpdateUI()
     {
-        bool usable = canUseClone && !cloneActive && !cooldownActive && !gameOverHandled;
-        if (cloneButton != null) cloneButton.interactable = usable;
-        if (cloneButtonImage != null) cloneButtonImage.sprite = usable ? readySprite : usedSprite;
+        bool usable =
+            canUseClone &&
+            !cloneActive &&
+            !cooldownActive &&
+            !gameOverHandled;
+
+        if (cloneButton != null)
+        {
+            // Clone aktifken Button'i Unity'nin Disabled rengine gecirmiyoruz;
+            // aksi halde ustten asagi dolan siyah overlay gorunmeden
+            // buton bir anda kararirdi. Tekrar basmalar UseClone guard'inda engelli.
+            cloneButton.interactable =
+                cloneActive && !gameOverHandled
+                    ? true
+                    : usable;
+        }
+
+        if (cloneButtonImage != null)
+        {
+            if (cloneActive)
+            {
+                cloneButtonImage.sprite = readySprite;
+            }
+            else
+            {
+                cloneButtonImage.sprite = usable
+                    ? readySprite
+                    : usedSprite;
+            }
+        }
     }
 }

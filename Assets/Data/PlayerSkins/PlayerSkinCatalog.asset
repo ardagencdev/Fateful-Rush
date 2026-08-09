@@ -15,52 +15,72 @@ MonoBehaviour:
   skins:
   - id: white
     displayName: WHITE
-    playerSprite: {fileID: 21300000, guid: 01518e100999ae24485b1960235e2e50, type: 3}
-    dashTrailColor: {r: 0.92156863, g: 0.9607843, b: 1, a: 0}
+    playerSprite: {fileID: -4085748384562721820, guid: 01518e100999ae24485b1960235e2e50, type: 3}
+    dashTrailColor: {r: 1.380546, g: 1.4392927, b: 1.4980392, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 1.4980392, b: 1.4980392, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 0
   - id: blue
     displayName: BLUE
-    playerSprite: {fileID: 21300000, guid: 360fb9d2659c5e642bcae6f52185f043, type: 3}
-    dashTrailColor: {r: 0.078431375, g: 0.5294118, b: 1, a: 0}
+    playerSprite: {fileID: -1990303306248272906, guid: 360fb9d2659c5e642bcae6f52185f043, type: 3}
+    dashTrailColor: {r: 0.14686659, g: 0.6168397, b: 1.4980392, a: 0}
+    armorVisualColor: {r: 0.38185316, g: 0.7930796, b: 1.4980392, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 4
   - id: cyan
     displayName: CYAN
-    playerSprite: {fileID: 21300000, guid: 84c85369d67acf34b962eb808623d703, type: 3}
-    dashTrailColor: {r: 0, g: 0.92156863, b: 0.9019608, a: 0}
+    playerSprite: {fileID: 8902824919242271618, guid: 84c85369d67acf34b962eb808623d703, type: 3}
+    dashTrailColor: {r: 0.46997312, g: 1.3217994, b: 1.4980392, a: 0}
+    armorVisualColor: {r: 0.93994623, g: 1.4099193, b: 1.4980392, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 8
   - id: yellow
     displayName: YELLOW
-    playerSprite: {fileID: 21300000, guid: 519b60e682cbc7d47aa8cab9fa1098a2, type: 3}
-    dashTrailColor: {r: 1, g: 0.8627451, b: 0.078431375, a: 0}
+    playerSprite: {fileID: -5716934265592407773, guid: 519b60e682cbc7d47aa8cab9fa1098a2, type: 3}
+    dashTrailColor: {r: 1.4980392, g: 1.4392927, b: 0.23498656, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 1.468666, b: 0.70495963, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 12
   - id: orange
     displayName: ORANGE
     playerSprite: {fileID: -6840934628537648883, guid: c6ac0d30ddeca534894856e61b534849, type: 3}
-    dashTrailColor: {r: 1, g: 0.4117647, b: 0, a: 0}
+    dashTrailColor: {r: 1.4980392, g: 0.6168397, b: 0.088119954, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 0.9105729, b: 0.3231065, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 16
   - id: red
     displayName: RED
-    playerSprite: {fileID: 21300000, guid: 12a4f066afb7ff84ea6fdecaee39f916, type: 3}
-    dashTrailColor: {r: 1, g: 0.11764706, b: 0.1764706, a: 0}
+    playerSprite: {fileID: -3818393354303293454, guid: 12a4f066afb7ff84ea6fdecaee39f916, type: 3}
+    dashTrailColor: {r: 1.4980392, g: 0.20561324, b: 0.26435986, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 0.14267041, b: 0.2140056, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 20
   - id: purple
     displayName: PURPLE
-    playerSprite: {fileID: 21300000, guid: 8d7178da840f5784fba4b5cf7c2505d7, type: 3}
-    dashTrailColor: {r: 0.6862745, g: 0.23529412, b: 1, a: 0}
+    playerSprite: {fileID: 8057961249046504388, guid: 8d7178da840f5784fba4b5cf7c2505d7, type: 3}
+    dashTrailColor: {r: 0.9693195, g: 0.26435986, b: 1.4980392, a: 0}
+    armorVisualColor: {r: 1.1455594, g: 0.58746636, b: 1.4980392, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 24
   - id: silver
     displayName: SILVER
-    playerSprite: {fileID: 21300000, guid: b8b6dcb1285a3184b962ca9d74f9c3df, type: 3}
-    dashTrailColor: {r: 0.6862745, g: 0.78431374, b: 0.8627451, a: 0}
+    playerSprite: {fileID: 1743708838107697744, guid: b8b6dcb1285a3184b962ca9d74f9c3df, type: 3}
+    dashTrailColor: {r: 1.1651417, g: 1.3648803, b: 1.4980394, a: 0}
+    armorVisualColor: {r: 1.345178, g: 1.4368947, b: 1.4980391, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 28
   - id: dark
     displayName: DARK
-    playerSprite: {fileID: 21300000, guid: 5a3f18844f3cb674185d20a5bd6990c5, type: 3}
-    dashTrailColor: {r: 0.21568628, g: 0.27450982, b: 0.37254903, a: 0}
+    playerSprite: {fileID: 622316905666471184, guid: 5a3f18844f3cb674185d20a5bd6990c5, type: 3}
+    dashTrailColor: {r: 1.6470587, g: 0.057068165, b: 0.17254901, a: 0}
+    armorVisualColor: {r: 0.98039216, g: 0.015686275, b: 0.09411765, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 32
   - id: golden
     displayName: GOLDEN
-    playerSprite: {fileID: 21300000, guid: 4ca4c01538ff55b40b0300a689ab1cb2, type: 3}
-    dashTrailColor: {r: 1, g: 0.7058824, b: 0.09803922, a: 0}
+    playerSprite: {fileID: 7417481400307438080, guid: 4ca4c01538ff55b40b0300a689ab1cb2, type: 3}
+    dashTrailColor: {r: 2, g: 1.8039216, b: 0.98039216, a: 0}
+    armorVisualColor: {r: 2, g: 1.8980392, b: 1.4509804, a: 1}
+    armorVisualColorVersion: 2
     requiredCompletedLevel: 40
   defaultSkinIndex: 0

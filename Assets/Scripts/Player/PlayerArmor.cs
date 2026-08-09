@@ -57,6 +57,10 @@ public class PlayerArmor : MonoBehaviour
     public bool IsImmune { get; private set; }
     public bool HasArmor { get; private set; }
 
+    // Void Clone, armor aktifken oyuncudaki mevcut shield visual'in
+    // birebir gorsel kopyasini olusturmak icin bunu kullanir.
+    public GameObject ArmorVisualObject => shieldVisual;
+
     private void Awake()
     {
         if (playerSpriteRenderer == null)

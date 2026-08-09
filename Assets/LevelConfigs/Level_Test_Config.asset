@@ -43,7 +43,7 @@ MonoBehaviour:
   - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
-  winScore: 100
+  winScore: 10000
   timeLimit: 30
   showGameTimerHUD: 0
   playerMoveSpeed: 6.5
@@ -106,7 +106,7 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 1
+  normalEnemyCount: 0
   normalEnemySpawnInterval: 2.5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
@@ -238,7 +238,7 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
-  verticalLaserDanger: 5
+  verticalLaserDanger: 1
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -248,7 +248,7 @@ MonoBehaviour:
     width: 5.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 5
+  horizontalLaserDanger: 1
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 5

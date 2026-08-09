@@ -10,6 +10,10 @@ public class ShieldRotate : MonoBehaviour
     [SerializeField]
     private SpriteRenderer shieldSpriteRenderer;
 
+    // Runtime'da sadece clone armor icin atanir.
+    // Null ise normal player davranisi kullanilir.
+    private VoidClone cloneMovementSource;
+
     [Header("Movement Spin")]
     [SerializeField, Min(0f)]
     [Tooltip(
@@ -79,13 +83,23 @@ public class ShieldRotate : MonoBehaviour
         if (Time.timeScale <= 0f)
             return;
 
-        FindPlayerMovement();
+        Vector2 moveDirection;
 
-        if (playerMovement == null)
-            return;
+        if (cloneMovementSource != null)
+        {
+            moveDirection =
+                cloneMovementSource.VisualMoveDirection;
+        }
+        else
+        {
+            FindPlayerMovement();
 
-        Vector2 moveDirection =
-            playerMovement.VisualMoveDirection;
+            if (playerMovement == null)
+                return;
+
+            moveDirection =
+                playerMovement.VisualMoveDirection;
+        }
 
         // Player hareket etmiyorsa Armor bulunduğu açıda anında durur.
         if (moveDirection.sqrMagnitude <= MovementThresholdSqr)
@@ -128,6 +142,20 @@ public class ShieldRotate : MonoBehaviour
             0f,
             currentWorldAngle
         );
+    }
+
+    public void ConfigureForClone(VoidClone cloneSource)
+    {
+        cloneMovementSource = cloneSource;
+        playerMovement = null;
+
+        currentWorldAngle =
+            transform.eulerAngles.z;
+
+        currentAngularSpeed = 0f;
+
+        ApplyVisualAlpha();
+        enabled = true;
     }
 
     private void UpdateSpinDirection(
@@ -179,8 +207,11 @@ public class ShieldRotate : MonoBehaviour
 
     private void FindPlayerMovement()
     {
-        if (playerMovement != null)
+        if (cloneMovementSource != null ||
+            playerMovement != null)
+        {
             return;
+        }
 
         playerMovement =
             GetComponentInParent<PlayerMovement>(true);

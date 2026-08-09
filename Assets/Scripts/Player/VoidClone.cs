@@ -12,48 +12,59 @@ public class VoidClone : MonoBehaviour
     public float maxAlpha = 0.75f;
 
     [Header("Movement")]
-    [Tooltip("Player hızı bunun altındaysa clone sabit kalır.")]
+    [Tooltip("Player inputu bunun altindaysa clone tamamen sabit kalir.")]
     public float minimumMovementSpeed = 0.1f;
 
-    [Tooltip("Clone hızının player hızına oranı.")]
+    [Tooltip("Clone hizinin player hizina orani.")]
     [Range(0.5f, 1.5f)]
     public float speedMultiplier = 0.9f;
 
-    [Tooltip("Player ayarları alınamazsa kullanılacak hızlanma.")]
+    [Tooltip("Player ayarlari alinamazsa kullanilacak hizlanma.")]
     public float fallbackAcceleration = 55f;
 
-    [Tooltip("Player ayarları alınamazsa kullanılacak dönüş hızlanması.")]
+    [Tooltip("Player ayarlari alinamazsa kullanilacak donus hizlanmasi.")]
     public float fallbackTurnAcceleration = 90f;
 
     [Header("Natural Movement")]
-    [Tooltip("Clone'un sakin bir şekilde yeni rota seçme aralığı.")]
+    [Tooltip("Clone'un sakin bir sekilde yeni rota secme araligi.")]
     public Vector2 directionChangeInterval = new Vector2(0.75f, 1.25f);
 
-    [Tooltip("Doğal rota değişimindeki maksimum açı.")]
+    [Tooltip("Dogal rota degisimindeki maksimum aci.")]
     [Range(0f, 60f)]
     public float maximumTurnAngle = 18f;
 
-    [Tooltip("Clone'un ilk kaçış yönünü ne kadar koruyacağı.")]
+    [Tooltip("Clone'un ilk kacis yonunu ne kadar koruyacagi.")]
     [Range(0f, 1f)]
     public float originalDirectionInfluence = 0.35f;
 
-    [Header("Collision Avoidance")]
-    [Tooltip("Wall ve Obstacle layerlarını seç.")]
+    [Header("Obstacle Avoidance - Same System As Stalker")]
+    [Tooltip("Ek layerlar. Obstacle ve Wall layerlari otomatik eklenir.")]
     public LayerMask solidLayers;
 
-    [Tooltip("Clone'un duvarı kaç birim önceden fark edeceği.")]
+    [Tooltip("Clone'un obstacle'i kac birim onceden fark edecegi.")]
     public float avoidanceLookAhead = 1.25f;
 
-    [Tooltip("Duvar algılandığında yana dönüşün gücü.")]
-    [Range(0f, 1f)]
-    public float avoidanceStrength = 0.85f;
+    [Range(2, 8)]
+    public int obstacleAvoidanceAttempts = 5;
 
-    [Tooltip("Collider ile yüzey arasında bırakılacak mesafe.")]
+    [Range(0f, 1f)]
+    public float obstacleOutwardBias = 0.25f;
+
+    [Tooltip("Collider ile engel arasinda birakilacak guvenlik payi.")]
     public float collisionSkin = 0.04f;
 
-    [Tooltip("Tek FixedUpdate içinde kaç kayma denemesi yapılacağı.")]
-    [Range(1, 4)]
-    public int movementIterations = 2;
+    [Header("Advanced Unstuck")]
+    [Min(0.1f)]
+    public float stuckCheckTime = 0.35f;
+
+    [Min(0.001f)]
+    public float stuckDistance = 0.06f;
+
+    [Min(0.1f)]
+    public float escapeCheckRadius = 1.1f;
+
+    [Min(1f)]
+    public float escapeSpeedMultiplier = 1.9f;
 
     private Rigidbody2D rb;
     private Collider2D cloneCollider;
@@ -61,20 +72,44 @@ public class VoidClone : MonoBehaviour
     private Vector2 originalDirection;
     private Vector2 desiredDirection;
     private Vector2 currentVelocity;
+    private Vector2 lastPosition;
 
     private float targetSpeed;
     private float acceleration;
     private float turnAcceleration;
     private float directionTimer;
     private float nextDirectionChange;
+    private float stuckTimer;
 
     private bool cloneActive;
     private bool shouldMove;
 
     private Vector3 originalScale;
 
-    private readonly RaycastHit2D[] castResults = new RaycastHit2D[16];
-    private ContactFilter2D collisionFilter;
+    private int obstacleAvoidanceSide = 1;
+
+    private ContactFilter2D navigationFilter;
+    private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[16];
+    private readonly Collider2D[] escapeHits = new Collider2D[16];
+
+    private GameObject clonedArmorVisual;
+
+    // ShieldRotate clone armorunda bu yonu kullanir.
+    // Clone sabitse Vector2.zero doner ve armor da aninda durur.
+    public Vector2 VisualMoveDirection
+    {
+        get
+        {
+            if (!cloneActive ||
+                !shouldMove ||
+                currentVelocity.sqrMagnitude <= 0.0001f)
+            {
+                return Vector2.zero;
+            }
+
+            return currentVelocity.normalized;
+        }
+    }
 
     private void Awake()
     {
@@ -82,7 +117,7 @@ public class VoidClone : MonoBehaviour
         cloneCollider = GetComponent<Collider2D>();
 
         if (spriteRenderer == null)
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
 
         originalScale = transform.localScale;
 
@@ -96,15 +131,24 @@ public class VoidClone : MonoBehaviour
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-        collisionFilter = new ContactFilter2D
-        {
-            useLayerMask = true,
-            useTriggers = true
-        };
+        RebuildNavigationFilter();
 
-        collisionFilter.SetLayerMask(solidLayers);
+        obstacleAvoidanceSide = Random.value < 0.5f
+            ? -1
+            : 1;
+
+        lastPosition = rb.position;
     }
 
+    private void RebuildNavigationFilter()
+    {
+        navigationFilter = new ContactFilter2D();
+        navigationFilter.SetLayerMask(
+            EnemyObstacleSteering2D.BuildNavigationMask(solidLayers)
+        );
+        navigationFilter.useLayerMask = true;
+        navigationFilter.useTriggers = false;
+    }
 
     public void SetSkin(Sprite skinSprite)
     {
@@ -121,7 +165,69 @@ public class VoidClone : MonoBehaviour
         }
     }
 
-    public void StartClone(float duration, PlayerMovement playerMovement)
+    public void CopyArmorVisual(PlayerArmor sourceArmor)
+    {
+        ClearClonedArmorVisual();
+
+        if (sourceArmor == null ||
+            !sourceArmor.HasArmor ||
+            sourceArmor.ArmorVisualObject == null)
+        {
+            return;
+        }
+
+        GameObject sourceVisual =
+            sourceArmor.ArmorVisualObject;
+
+        clonedArmorVisual = Instantiate(
+            sourceVisual,
+            transform,
+            false
+        );
+
+        clonedArmorVisual.name = "CloneArmorVisual";
+
+        // Armor visual player'a gore nasil konumlandiysa clone'da da aynisini koru.
+        clonedArmorVisual.transform.localPosition =
+            sourceVisual.transform.localPosition;
+
+        clonedArmorVisual.transform.localRotation =
+            sourceVisual.transform.localRotation;
+
+        clonedArmorVisual.transform.localScale =
+            sourceVisual.transform.localScale;
+
+        // Clone armor sadece gorseldir; fizik/collision uretmemeli.
+        Collider2D[] armorColliders =
+            clonedArmorVisual.GetComponentsInChildren<Collider2D>(true);
+
+        for (int i = 0; i < armorColliders.Length; i++)
+            armorColliders[i].enabled = false;
+
+        Rigidbody2D[] armorBodies =
+            clonedArmorVisual.GetComponentsInChildren<Rigidbody2D>(true);
+
+        for (int i = 0; i < armorBodies.Length; i++)
+            armorBodies[i].simulated = false;
+
+        // Player armorundaki mevcut ShieldRotate ayarlarini aynen koruyoruz.
+        // Tek fark hareket kaynagi PlayerMovement yerine bu clone oluyor.
+        // Boylece saga giderken saat yonu, sola giderken ters yon ve
+        // clone sabitken tam durma davranisi player ile birebir ayni kalir.
+        ShieldRotate[] armorRotators =
+            clonedArmorVisual.GetComponentsInChildren<ShieldRotate>(true);
+
+        for (int i = 0; i < armorRotators.Length; i++)
+        {
+            armorRotators[i].ConfigureForClone(this);
+        }
+
+        clonedArmorVisual.SetActive(true);
+    }
+
+    public void StartClone(
+        float duration,
+        PlayerMovement playerMovement)
     {
         StopAllCoroutines();
 
@@ -138,25 +244,51 @@ public class VoidClone : MonoBehaviour
             playerInput = playerMovement.CurrentMoveInput;
             playerMoveSpeed = playerMovement.CurrentMoveSpeed;
 
-            acceleration = Mathf.Max(0.01f, playerMovement.acceleration);
-            turnAcceleration = Mathf.Max(0.01f, playerMovement.turnAcceleration);
+            acceleration = Mathf.Max(
+                0.01f,
+                playerMovement.acceleration
+            );
+
+            turnAcceleration = Mathf.Max(
+                0.01f,
+                playerMovement.turnAcceleration
+            );
         }
 
-        if (playerVelocity.sqrMagnitude < 0.01f && playerInput.sqrMagnitude > 0.01f)
-            playerVelocity = playerInput.normalized * playerMoveSpeed;
+        // Kritik fark: Clone'un hareket edip etmeyecegine residual velocity degil,
+        // oyuncunun o anda gercekten input verip vermedigi karar verir.
+        // Oyuncu joystick'i biraktiysa player yavasliyor olsa bile clone sabit kalir.
+        bool hasLivePlayerInput =
+            playerMovement != null
+                ? playerInput.magnitude >= minimumMovementSpeed
+                : playerVelocity.magnitude >= minimumMovementSpeed;
 
-        float playerSpeed = playerVelocity.magnitude;
-        shouldMove = playerSpeed >= minimumMovementSpeed;
+        shouldMove = hasLivePlayerInput;
 
         if (shouldMove)
         {
-            originalDirection = -playerVelocity.normalized;
+            Vector2 sourceDirection =
+                playerVelocity.sqrMagnitude > 0.01f
+                    ? playerVelocity.normalized
+                    : playerInput.normalized;
+
+            originalDirection = -sourceDirection;
             desiredDirection = originalDirection;
 
-            targetSpeed = Mathf.Max(playerSpeed, playerMoveSpeed * 0.7f) * speedMultiplier;
+            float effectivePlayerSpeed = Mathf.Max(
+                playerVelocity.magnitude,
+                playerMoveSpeed * Mathf.Clamp01(playerInput.magnitude)
+            );
 
-            // Player gibi bir anda tam hıza fırlamasın.
-            currentVelocity = originalDirection * Mathf.Min(playerSpeed, targetSpeed) * 0.55f;
+            targetSpeed = Mathf.Max(
+                effectivePlayerSpeed,
+                playerMoveSpeed * 0.7f
+            ) * speedMultiplier;
+
+            currentVelocity =
+                originalDirection *
+                Mathf.Min(effectivePlayerSpeed, targetSpeed) *
+                0.55f;
 
             directionTimer = 0f;
             ScheduleNextDirectionChange();
@@ -169,27 +301,87 @@ public class VoidClone : MonoBehaviour
             targetSpeed = 0f;
         }
 
+        obstacleAvoidanceSide = Random.value < 0.5f
+            ? -1
+            : 1;
+
+        stuckTimer = 0f;
+        lastPosition = rb != null
+            ? rb.position
+            : (Vector2)transform.position;
+
         cloneActive = true;
         UpdateFacing(currentVelocity);
+
         StartCoroutine(CloneLifetimeRoutine(duration));
     }
 
     private void FixedUpdate()
     {
-        if (!cloneActive || !shouldMove || rb == null || cloneCollider == null || Time.timeScale <= 0f)
+        if (!cloneActive ||
+            !shouldMove ||
+            rb == null ||
+            cloneCollider == null ||
+            Time.timeScale <= 0f)
+        {
             return;
+        }
 
         float delta = GetCloneDeltaTime();
 
         UpdateNaturalDirection(delta);
-        ApplyObstacleAvoidance();
         UpdateVelocity(delta);
 
         if (currentVelocity.sqrMagnitude <= 0.0001f)
+        {
+            HandleStuckCheck(delta);
             return;
+        }
 
-        MoveWithSliding(currentVelocity * delta);
-        UpdateFacing(currentVelocity);
+        float movementDistance =
+            currentVelocity.magnitude * delta;
+
+        Vector2 steeredDirection =
+            EnemyObstacleSteering2D.GetSteeredDirection(
+                cloneCollider,
+                currentVelocity.normalized,
+                desiredDirection,
+                navigationFilter,
+                avoidanceHits,
+                avoidanceLookAhead,
+                movementDistance,
+                collisionSkin,
+                obstacleAvoidanceAttempts,
+                obstacleOutwardBias,
+                ref obstacleAvoidanceSide
+            );
+
+        if (steeredDirection.sqrMagnitude > 0.001f)
+        {
+            float currentSpeed = currentVelocity.magnitude;
+
+            currentVelocity =
+                steeredDirection.normalized * currentSpeed;
+
+            desiredDirection = Vector2.Lerp(
+                desiredDirection,
+                steeredDirection.normalized,
+                0.72f
+            ).normalized;
+
+            rb.MovePosition(
+                rb.position +
+                currentVelocity * delta
+            );
+
+            UpdateFacing(currentVelocity);
+        }
+        else
+        {
+            TryImmediateEscape(delta);
+        }
+
+        HandleStuckCheck(delta);
     }
 
     private void UpdateNaturalDirection(float delta)
@@ -201,8 +393,15 @@ public class VoidClone : MonoBehaviour
 
         directionTimer = 0f;
 
-        float randomAngle = Random.Range(-maximumTurnAngle, maximumTurnAngle);
-        Vector2 naturalDirection = RotateVector(desiredDirection, randomAngle).normalized;
+        float randomAngle = Random.Range(
+            -maximumTurnAngle,
+            maximumTurnAngle
+        );
+
+        Vector2 naturalDirection = RotateVector(
+            desiredDirection,
+            randomAngle
+        ).normalized;
 
         desiredDirection = Vector2.Lerp(
             naturalDirection,
@@ -213,60 +412,22 @@ public class VoidClone : MonoBehaviour
         ScheduleNextDirectionChange();
     }
 
-    private void ApplyObstacleAvoidance()
-    {
-        Vector2 moveDirection = currentVelocity.sqrMagnitude > 0.001f
-            ? currentVelocity.normalized
-            : desiredDirection;
-
-        if (moveDirection.sqrMagnitude <= 0.001f)
-            return;
-
-        int hitCount = cloneCollider.Cast(
-            moveDirection,
-            collisionFilter,
-            castResults,
-            avoidanceLookAhead
-        );
-
-        RaycastHit2D? closestHit = FindClosestValidHit(hitCount);
-
-        if (!closestHit.HasValue)
-            return;
-
-        RaycastHit2D hit = closestHit.Value;
-
-        Vector2 tangentA = new Vector2(-hit.normal.y, hit.normal.x);
-        Vector2 tangentB = -tangentA;
-
-        // Mevcut rotaya en yakın olan duvar paralelini seç.
-        Vector2 chosenTangent = Vector2.Dot(tangentA, moveDirection) >=
-                                Vector2.Dot(tangentB, moveDirection)
-            ? tangentA
-            : tangentB;
-
-        float proximity = 1f - Mathf.Clamp01(hit.distance / Mathf.Max(avoidanceLookAhead, 0.01f));
-        float steerAmount = Mathf.Clamp01(avoidanceStrength * (0.35f + proximity));
-
-        // Bir miktar yüzey normalini de ekleyerek duvardan uzaklaşmasını sağla.
-        Vector2 avoidanceDirection = (chosenTangent + hit.normal * 0.35f).normalized;
-
-        desiredDirection = Vector2.Lerp(
-            desiredDirection,
-            avoidanceDirection,
-            steerAmount
-        ).normalized;
-    }
-
     private void UpdateVelocity(float delta)
     {
-        Vector2 targetVelocity = desiredDirection * targetSpeed;
+        Vector2 targetVelocity =
+            desiredDirection * targetSpeed;
 
-        float angle = currentVelocity.sqrMagnitude > 0.001f
-            ? Vector2.Angle(currentVelocity, targetVelocity)
-            : 0f;
+        float angle =
+            currentVelocity.sqrMagnitude > 0.001f
+                ? Vector2.Angle(
+                    currentVelocity,
+                    targetVelocity
+                )
+                : 0f;
 
-        float rate = angle > 35f ? turnAcceleration : acceleration;
+        float rate = angle > 35f
+            ? turnAcceleration
+            : acceleration;
 
         currentVelocity = Vector2.MoveTowards(
             currentVelocity,
@@ -275,93 +436,160 @@ public class VoidClone : MonoBehaviour
         );
     }
 
-    private void MoveWithSliding(Vector2 displacement)
+    private void TryImmediateEscape(float delta)
     {
-        Vector2 remaining = displacement;
-        Vector2 position = rb.position;
+        Vector2 escapeDirection = GetEscapeDirection();
 
-        int iterations = Mathf.Max(1, movementIterations);
+        if (escapeDirection.sqrMagnitude <= 0.001f)
+            return;
 
-        for (int i = 0; i < iterations; i++)
-        {
-            float distance = remaining.magnitude;
+        float escapeSpeed = Mathf.Max(
+            targetSpeed,
+            currentVelocity.magnitude
+        );
 
-            if (distance <= 0.0001f)
-                break;
+        if (escapeSpeed <= 0.01f)
+            return;
 
-            Vector2 direction = remaining / distance;
+        currentVelocity =
+            escapeDirection * escapeSpeed;
 
-            int hitCount = cloneCollider.Cast(
-                direction,
-                collisionFilter,
-                castResults,
-                distance + collisionSkin
-            );
+        desiredDirection = escapeDirection;
 
-            RaycastHit2D? closestHit = FindClosestValidHit(hitCount);
+        rb.MovePosition(
+            rb.position +
+            escapeDirection *
+            escapeSpeed *
+            escapeSpeedMultiplier *
+            delta
+        );
 
-            if (!closestHit.HasValue)
-            {
-                position += remaining;
-                remaining = Vector2.zero;
-                break;
-            }
-
-            RaycastHit2D hit = closestHit.Value;
-            float safeDistance = Mathf.Max(0f, hit.distance - collisionSkin);
-
-            position += direction * safeDistance;
-
-            float unusedDistance = Mathf.Max(0f, distance - safeDistance);
-            Vector2 slideDirection = Vector2.Perpendicular(hit.normal);
-
-            if (Vector2.Dot(slideDirection, direction) < 0f)
-                slideDirection = -slideDirection;
-
-            remaining = slideDirection * unusedDistance;
-
-            // Top gibi geri sekmek yerine hızın duvara giren kısmını sil.
-            currentVelocity -= Vector2.Dot(currentVelocity, hit.normal) * hit.normal;
-
-            if (currentVelocity.sqrMagnitude > 0.001f)
-                desiredDirection = currentVelocity.normalized;
-            else
-                desiredDirection = (slideDirection + hit.normal * 0.25f).normalized;
-        }
-
-        rb.MovePosition(position);
+        UpdateFacing(currentVelocity);
+        ResetStuckCheck();
     }
 
-    private RaycastHit2D? FindClosestValidHit(int hitCount)
+    private void HandleStuckCheck(float delta)
     {
-        bool foundHit = false;
-        RaycastHit2D closestHit = default;
+        stuckTimer += delta;
+
+        if (stuckTimer < stuckCheckTime)
+            return;
+
+        float movedSqrDistance =
+            (rb.position - lastPosition).sqrMagnitude;
+
+        float stuckSqrDistance =
+            stuckDistance * stuckDistance;
+
+        if (movedSqrDistance < stuckSqrDistance)
+        {
+            Vector2 escapeDirection = GetEscapeDirection();
+
+            if (escapeDirection.sqrMagnitude > 0.001f)
+            {
+                float escapeSpeed = Mathf.Max(
+                    targetSpeed,
+                    0.1f
+                );
+
+                currentVelocity =
+                    escapeDirection * escapeSpeed;
+
+                desiredDirection = escapeDirection;
+
+                rb.MovePosition(
+                    rb.position +
+                    escapeDirection *
+                    escapeSpeed *
+                    escapeSpeedMultiplier *
+                    delta
+                );
+
+                obstacleAvoidanceSide =
+                    Random.value < 0.5f ? -1 : 1;
+            }
+        }
+
+        lastPosition = rb.position;
+        stuckTimer = 0f;
+    }
+
+    private Vector2 GetEscapeDirection()
+    {
+        int hitCount = Physics2D.OverlapCircle(
+            rb.position,
+            escapeCheckRadius,
+            navigationFilter,
+            escapeHits
+        );
+
+        if (hitCount <= 0)
+            return Vector2.zero;
+
+        Vector2 escapeDirection = Vector2.zero;
 
         for (int i = 0; i < hitCount; i++)
         {
-            RaycastHit2D hit = castResults[i];
+            Collider2D hit = escapeHits[i];
 
-            if (hit.collider == null || hit.collider == cloneCollider)
+            if (hit == null || hit == cloneCollider)
                 continue;
 
-            if (!foundHit || hit.distance < closestHit.distance)
+            if (hit.attachedRigidbody == rb)
+                continue;
+
+            Vector2 closestPoint =
+                hit.ClosestPoint(rb.position);
+
+            Vector2 awayFromObstacle =
+                rb.position - closestPoint;
+
+            if (awayFromObstacle.sqrMagnitude <= 0.001f)
             {
-                closestHit = hit;
-                foundHit = true;
+                awayFromObstacle =
+                    rb.position -
+                    (Vector2)hit.bounds.center;
+            }
+
+            if (awayFromObstacle.sqrMagnitude > 0.001f)
+            {
+                escapeDirection +=
+                    awayFromObstacle.normalized;
             }
         }
 
-        return foundHit ? closestHit : null;
+        return escapeDirection.sqrMagnitude > 0.001f
+            ? escapeDirection.normalized
+            : Vector2.zero;
+    }
+
+    private void ResetStuckCheck()
+    {
+        stuckTimer = 0f;
+        lastPosition = rb.position;
     }
 
     private void ScheduleNextDirectionChange()
     {
-        float minimum = Mathf.Min(directionChangeInterval.x, directionChangeInterval.y);
-        float maximum = Mathf.Max(directionChangeInterval.x, directionChangeInterval.y);
-        nextDirectionChange = Random.Range(minimum, maximum);
+        float minimum = Mathf.Min(
+            directionChangeInterval.x,
+            directionChangeInterval.y
+        );
+
+        float maximum = Mathf.Max(
+            directionChangeInterval.x,
+            directionChangeInterval.y
+        );
+
+        nextDirectionChange = Random.Range(
+            minimum,
+            maximum
+        );
     }
 
-    private static Vector2 RotateVector(Vector2 vector, float angle)
+    private static Vector2 RotateVector(
+        Vector2 vector,
+        float angle)
     {
         float radians = angle * Mathf.Deg2Rad;
         float sin = Mathf.Sin(radians);
@@ -393,10 +621,14 @@ public class VoidClone : MonoBehaviour
             return;
 
         Color color = spriteRenderer.color;
+
         color.a = Mathf.Lerp(
             minAlpha,
             maxAlpha,
-            Mathf.PingPong(Time.time * blinkSpeed, 1f)
+            Mathf.PingPong(
+                Time.time * blinkSpeed,
+                1f
+            )
         );
 
         spriteRenderer.color = color;
@@ -408,6 +640,7 @@ public class VoidClone : MonoBehaviour
             return;
 
         Vector3 scale = transform.localScale;
+
         scale.x = direction.x > 0f
             ? Mathf.Abs(originalScale.x)
             : -Mathf.Abs(originalScale.x);
@@ -433,10 +666,66 @@ public class VoidClone : MonoBehaviour
         targetSpeed = 0f;
         directionTimer = 0f;
         nextDirectionChange = 0f;
+        stuckTimer = 0f;
+    }
+
+    private void ClearClonedArmorVisual()
+    {
+        if (clonedArmorVisual == null)
+            return;
+
+        Destroy(clonedArmorVisual);
+        clonedArmorVisual = null;
     }
 
     private void OnDisable()
     {
         StopMovement();
+    }
+
+    private void OnDestroy()
+    {
+        ClearClonedArmorVisual();
+    }
+
+    private void OnValidate()
+    {
+        minimumMovementSpeed = Mathf.Max(
+            0f,
+            minimumMovementSpeed
+        );
+
+        avoidanceLookAhead = Mathf.Max(
+            0.05f,
+            avoidanceLookAhead
+        );
+
+        collisionSkin = Mathf.Max(
+            0f,
+            collisionSkin
+        );
+
+        stuckCheckTime = Mathf.Max(
+            0.1f,
+            stuckCheckTime
+        );
+
+        stuckDistance = Mathf.Max(
+            0.001f,
+            stuckDistance
+        );
+
+        escapeCheckRadius = Mathf.Max(
+            0.1f,
+            escapeCheckRadius
+        );
+
+        escapeSpeedMultiplier = Mathf.Max(
+            1f,
+            escapeSpeedMultiplier
+        );
+
+        if (Application.isPlaying)
+            RebuildNavigationFilter();
     }
 }
