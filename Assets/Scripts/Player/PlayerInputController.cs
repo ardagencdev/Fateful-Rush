@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.UI;
 
 public class PlayerInputController : MonoBehaviour
 {
@@ -10,12 +13,6 @@ public class PlayerInputController : MonoBehaviour
     [Header("Joystick")]
     public RectTransform joystickBG;
     public RectTransform joystickHandle;
-
-    [Tooltip(
-        "Optional larger invisible touch area. " +
-        "If empty, Joystick BG is used."
-    )]
-    public RectTransform joystickTouchArea;
 
     [Header("Joystick Feel")]
     [Min(1f)]
@@ -45,6 +42,20 @@ public class PlayerInputController : MonoBehaviour
     [Min(0f)]
     public float dynamicMaxCenterOffset = 45f;
 
+    [Header("Floating Joystick")]
+    [Tooltip(
+        "Parmak birakildiginda joystick'in tamamen kaybolma suresi. " +
+        "Gameplay input aninda kesilir; bu sadece gorseldir."
+    )]
+    [Min(0f)]
+    public float fadeOutDuration = 0.1f;
+
+    [Tooltip(
+        "Acikken Button/Slider gibi interaktif UI elemanlarinin ustune " +
+        "basmak joystick'i baslatmaz."
+    )]
+    public bool blockInteractiveUI = true;
+
     private enum ControlSource
     {
         None,
@@ -65,11 +76,15 @@ public class PlayerInputController : MonoBehaviour
     private Vector2 targetHandlePosition;
     private Vector2 visualHandlePosition;
 
-    private Vector2 originalBGAnchoredPosition;
-    private Vector2 targetBGAnchoredPosition;
+    private Vector2 targetBGLocalPosition;
+    private Vector2 visualBGLocalPosition;
 
     private RectTransform joystickParent;
     private Camera uiCamera;
+    private CanvasGroup joystickCanvasGroup;
+
+    private readonly List<RaycastResult> uiRaycastResults =
+        new List<RaycastResult>();
 
     private void Awake()
     {
@@ -77,12 +92,14 @@ public class PlayerInputController : MonoBehaviour
             playerMovement = GetComponent<PlayerMovement>();
 
         RefreshJoystickBasePosition();
+        SetJoystickVisibleInstant(false);
     }
 
     private void OnEnable()
     {
         EnhancedTouchSupport.Enable();
         RefreshJoystickBasePosition();
+        SetJoystickVisibleInstant(false);
     }
 
     private void OnDisable()
@@ -135,6 +152,7 @@ public class PlayerInputController : MonoBehaviour
         visualHandlePosition = Vector2.zero;
 
         ResetHandleInstant();
+        SetJoystickVisibleInstant(false);
 
         if (playerMovement != null)
             playerMovement.SetMoveInput(Vector2.zero);
@@ -148,17 +166,26 @@ public class PlayerInputController : MonoBehaviour
         uiCamera = GetUICamera();
         joystickParent = joystickBG.parent as RectTransform;
 
-        originalBGAnchoredPosition =
-            joystickBG.anchoredPosition;
+        EnsureJoystickCanvasGroup();
 
-        targetBGAnchoredPosition =
-            originalBGAnchoredPosition;
+        // A delayed UI layout refresh must never interrupt an active touch.
+        if (isPointerActive)
+            return;
+
+        Vector3 currentLocalPosition =
+            joystickBG.localPosition;
+
+        targetBGLocalPosition =
+            new Vector2(
+                currentLocalPosition.x,
+                currentLocalPosition.y
+            );
+
+        visualBGLocalPosition =
+            targetBGLocalPosition;
 
         joystickStartLocalPosition = Vector2.zero;
         joystickCenterLocalPosition = Vector2.zero;
-
-        joystickBG.anchoredPosition =
-            originalBGAnchoredPosition;
 
         ResetHandleInstant();
     }
@@ -312,6 +339,16 @@ public class PlayerInputController : MonoBehaviour
 
         rawInput = Vector2.zero;
         targetHandlePosition = Vector2.zero;
+        visualHandlePosition = Vector2.zero;
+
+        targetBGLocalPosition = localPosition;
+        visualBGLocalPosition = localPosition;
+
+        SetJoystickBGLocalPosition(localPosition);
+        ResetHandleInstant();
+
+        // Joystick appears immediately on touch. There is no fade-in delay.
+        SetJoystickVisibleInstant(true);
     }
 
     private void ReadJoystickInput(
@@ -436,40 +473,33 @@ public class PlayerInputController : MonoBehaviour
     {
         UpdateJoystickBGVisual();
         UpdateJoystickHandleVisual();
+        UpdateJoystickVisibilityVisual();
     }
 
     private void UpdateJoystickBGVisual()
     {
-        if (joystickBG == null)
+        if (joystickBG == null ||
+            !isPointerActive)
+        {
             return;
-
-        if (!isPointerActive ||
-            !enableDynamicJoystick)
-        {
-            targetBGAnchoredPosition =
-                originalBGAnchoredPosition;
         }
-        else
-        {
-            Vector2 centerOffset =
-                joystickCenterLocalPosition -
-                joystickStartLocalPosition;
 
-            targetBGAnchoredPosition =
-                originalBGAnchoredPosition +
-                centerOffset;
-        }
+        targetBGLocalPosition =
+            joystickCenterLocalPosition;
 
         float damping = GetDampingFactor(
             dynamicCenterFollowSpeed
         );
 
-        joystickBG.anchoredPosition =
-            Vector2.Lerp(
-                joystickBG.anchoredPosition,
-                targetBGAnchoredPosition,
-                damping
-            );
+        visualBGLocalPosition = Vector2.Lerp(
+            visualBGLocalPosition,
+            targetBGLocalPosition,
+            damping
+        );
+
+        SetJoystickBGLocalPosition(
+            visualBGLocalPosition
+        );
     }
 
     private void UpdateJoystickHandleVisual()
@@ -499,20 +529,44 @@ public class PlayerInputController : MonoBehaviour
             visualHandlePosition;
     }
 
+    private void UpdateJoystickVisibilityVisual()
+    {
+        EnsureJoystickCanvasGroup();
+
+        if (joystickCanvasGroup == null)
+            return;
+
+        if (isPointerActive)
+        {
+            joystickCanvasGroup.alpha = 1f;
+            return;
+        }
+
+        if (fadeOutDuration <= 0f)
+        {
+            joystickCanvasGroup.alpha = 0f;
+            return;
+        }
+
+        joystickCanvasGroup.alpha = Mathf.MoveTowards(
+            joystickCanvasGroup.alpha,
+            0f,
+            Time.unscaledDeltaTime / fadeOutDuration
+        );
+    }
+
     private void ReleaseJoystick()
     {
         controlSource = ControlSource.None;
         activeTouchId = -1;
         isPointerActive = false;
 
+        // Gameplay stops immediately. The short fade is visual only.
         rawInput = Vector2.zero;
         targetHandlePosition = Vector2.zero;
 
         joystickCenterLocalPosition =
             joystickStartLocalPosition;
-
-        targetBGAnchoredPosition =
-            originalBGAnchoredPosition;
     }
 
     private void ForceStopInput()
@@ -525,19 +579,11 @@ public class PlayerInputController : MonoBehaviour
         targetHandlePosition = Vector2.zero;
         visualHandlePosition = Vector2.zero;
 
-        targetBGAnchoredPosition =
-            originalBGAnchoredPosition;
-
-        if (joystickBG != null)
-        {
-            joystickBG.anchoredPosition =
-                originalBGAnchoredPosition;
-        }
-
         if (playerMovement != null)
             playerMovement.SetMoveInput(Vector2.zero);
 
         ResetHandleInstant();
+        SetJoystickVisibleInstant(false);
     }
 
     private void ResetHandleInstant()
@@ -556,20 +602,106 @@ public class PlayerInputController : MonoBehaviour
         Vector2 screenPosition
     )
     {
-        RectTransform touchArea =
-            joystickTouchArea != null
-                ? joystickTouchArea
-                : joystickBG;
-
-        if (touchArea == null)
+        if (!IsPointerOnConfiguredSide(screenPosition))
             return false;
 
-        return RectTransformUtility
-            .RectangleContainsScreenPoint(
-                touchArea,
-                screenPosition,
-                uiCamera
-            );
+        if (blockInteractiveUI &&
+            IsPointerOverInteractiveUI(screenPosition))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsPointerOnConfiguredSide(
+        Vector2 screenPosition
+    )
+    {
+        float screenMiddle = Screen.width * 0.5f;
+
+        ControlLayoutManager.JoystickSide side =
+            GetConfiguredJoystickSide();
+
+        if (side == ControlLayoutManager.JoystickSide.Left)
+            return screenPosition.x <= screenMiddle;
+
+        return screenPosition.x >= screenMiddle;
+    }
+
+    private ControlLayoutManager.JoystickSide
+        GetConfiguredJoystickSide()
+    {
+        if (ControlLayoutManager.Instance != null)
+            return ControlLayoutManager.Instance.CurrentSide;
+
+        int savedSide = PlayerPrefs.GetInt(
+            "JoystickSide",
+            (int)ControlLayoutManager.JoystickSide.Right
+        );
+
+        return savedSide ==
+               (int)ControlLayoutManager.JoystickSide.Left
+            ? ControlLayoutManager.JoystickSide.Left
+            : ControlLayoutManager.JoystickSide.Right;
+    }
+
+    private bool IsPointerOverInteractiveUI(
+        Vector2 screenPosition
+    )
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        PointerEventData eventData =
+            new PointerEventData(EventSystem.current)
+            {
+                position = screenPosition
+            };
+
+        uiRaycastResults.Clear();
+        EventSystem.current.RaycastAll(
+            eventData,
+            uiRaycastResults
+        );
+
+        for (int i = 0;
+             i < uiRaycastResults.Count;
+             i++)
+        {
+            GameObject hitObject =
+                uiRaycastResults[i].gameObject;
+
+            if (hitObject == null)
+                continue;
+
+            Transform hitTransform = hitObject.transform;
+
+            // The joystick's own visuals must never block a new touch.
+            if (joystickBG != null &&
+                (hitTransform == joystickBG ||
+                 hitTransform.IsChildOf(joystickBG)))
+            {
+                continue;
+            }
+
+            if (hitObject.GetComponentInParent<Selectable>() != null)
+                return true;
+
+            if (ExecuteEvents.GetEventHandler<IPointerClickHandler>(
+                    hitObject) != null)
+            {
+                return true;
+            }
+
+            if (ExecuteEvents.GetEventHandler<IBeginDragHandler>(
+                    hitObject) != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool TryGetPointerLocalPosition(
@@ -598,6 +730,52 @@ public class PlayerInputController : MonoBehaviour
                 uiCamera,
                 out localPosition
             );
+    }
+
+    private void SetJoystickBGLocalPosition(
+        Vector2 localPosition
+    )
+    {
+        if (joystickBG == null)
+            return;
+
+        Vector3 currentPosition =
+            joystickBG.localPosition;
+
+        joystickBG.localPosition = new Vector3(
+            localPosition.x,
+            localPosition.y,
+            currentPosition.z
+        );
+    }
+
+    private void EnsureJoystickCanvasGroup()
+    {
+        if (joystickBG == null ||
+            joystickCanvasGroup != null)
+        {
+            return;
+        }
+
+        joystickCanvasGroup =
+            joystickBG.GetComponent<CanvasGroup>();
+
+        if (joystickCanvasGroup == null)
+        {
+            joystickCanvasGroup =
+                joystickBG.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        joystickCanvasGroup.interactable = false;
+        joystickCanvasGroup.blocksRaycasts = false;
+    }
+
+    private void SetJoystickVisibleInstant(bool visible)
+    {
+        EnsureJoystickCanvasGroup();
+
+        if (joystickCanvasGroup != null)
+            joystickCanvasGroup.alpha = visible ? 1f : 0f;
     }
 
     private float GetDampingFactor(float speed)
@@ -645,5 +823,8 @@ public class PlayerInputController : MonoBehaviour
 
         dynamicMaxCenterOffset =
             Mathf.Max(0f, dynamicMaxCenterOffset);
+
+        fadeOutDuration =
+            Mathf.Max(0f, fadeOutDuration);
     }
 }

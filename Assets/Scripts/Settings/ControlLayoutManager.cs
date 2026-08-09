@@ -31,15 +31,6 @@ public class ControlLayoutManager : MonoBehaviour
     [SerializeField]
     private RectTransform cloneButton;
 
-    [Header("Joystick Positions")]
-    [SerializeField]
-    private Vector2 joystickLeftPos =
-        new Vector2(170f, 170f);
-
-    [SerializeField]
-    private Vector2 joystickRightPos =
-        new Vector2(-170f, 170f);
-
     [Header("Button Positions")]
     [SerializeField]
     private Vector2 dashLeftPos =
@@ -131,13 +122,10 @@ public class ControlLayoutManager : MonoBehaviour
                 .PrepareForJoystickLayoutChange();
         }
 
-        bool joystickOnLeft =
-            side == JoystickSide.Left;
-
         bool buttonsOnLeft =
-            !joystickOnLeft;
+            side == JoystickSide.Right;
 
-        ApplyJoystick(joystickOnLeft);
+        PrepareFloatingJoystickRect();
 
         ApplyButton(
             dashButton,
@@ -156,26 +144,21 @@ public class ControlLayoutManager : MonoBehaviour
         RefreshPlayerInputLayout();
     }
 
-    private void ApplyJoystick(bool left)
+    private void PrepareFloatingJoystickRect()
     {
         if (joystick == null)
             return;
 
-        Vector2 anchor =
-            left
-                ? Vector2.zero
-                : new Vector2(1f, 0f);
-
-        Vector2 position =
-            left
-                ? joystickLeftPos
-                : joystickRightPos;
+        // Floating joystick is positioned from the touch point at runtime.
+        // Keeping its anchor and pivot centered makes the pressed point the
+        // visual center of the joystick on every screen size/aspect ratio.
+        Vector2 center = new Vector2(0.5f, 0.5f);
 
         SetRect(
             joystick,
-            anchor,
-            anchor,
-            position
+            center,
+            center,
+            Vector2.zero
         );
     }
 
@@ -225,8 +208,6 @@ public class ControlLayoutManager : MonoBehaviour
         if (refreshRoutine != null)
             StopCoroutine(refreshRoutine);
 
-        // Refresh immediately so a paused PlayerInputController cannot write
-        // the old anchoredPosition back using the newly changed anchors/pivot.
         Canvas.ForceUpdateCanvases();
         ResolvePlayerInputController();
 
@@ -236,7 +217,6 @@ public class ControlLayoutManager : MonoBehaviour
                 .RefreshJoystickBasePosition();
         }
 
-        // Refresh once more after Unity has completed the full UI layout pass.
         refreshRoutine =
             StartCoroutine(
                 RefreshPlayerInputNextFrame()

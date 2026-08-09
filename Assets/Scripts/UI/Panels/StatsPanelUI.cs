@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StatsPanelUI : MonoBehaviour
 {
@@ -12,9 +13,12 @@ public class StatsPanelUI : MonoBehaviour
     [Header("Fade")]
     [SerializeField] private UIPanelFadeSwitcher fadeSwitcher;
 
-    [Header("Texts")]
-    [SerializeField] private TextMeshProUGUI generalText;
-    [SerializeField] private TextMeshProUGUI gameplayText;
+    [Header("Stats Scroll")]
+    [SerializeField] private ScrollRect statsScrollRect;
+
+    [Header("Text")]
+    [SerializeField] private TextMeshProUGUI statsText;
+
 
     private void Awake()
     {
@@ -24,12 +28,16 @@ public class StatsPanelUI : MonoBehaviour
         if (resetConfirmationPanel != null)
         {
             if (fadeSwitcher != null)
+            {
                 fadeSwitcher.SetInstant(
                     resetConfirmationPanel,
                     false
                 );
+            }
             else
+            {
                 resetConfirmationPanel.SetActive(false);
+            }
         }
     }
 
@@ -45,6 +53,8 @@ public class StatsPanelUI : MonoBehaviour
             optionsPanel,
             statsPanel
         );
+
+        ResetScrollToTop();
     }
 
     public void CloseStats()
@@ -67,7 +77,9 @@ public class StatsPanelUI : MonoBehaviour
 
         if (fadeSwitcher != null)
         {
-            fadeSwitcher.ShowPanel(resetConfirmationPanel);
+            fadeSwitcher.ShowPanel(
+                resetConfirmationPanel
+            );
             return;
         }
 
@@ -82,7 +94,9 @@ public class StatsPanelUI : MonoBehaviour
         if (fadeSwitcher != null &&
             resetConfirmationPanel.activeSelf)
         {
-            fadeSwitcher.HidePanel(resetConfirmationPanel);
+            fadeSwitcher.HidePanel(
+                resetConfirmationPanel
+            );
             return;
         }
 
@@ -95,6 +109,7 @@ public class StatsPanelUI : MonoBehaviour
 
         RefreshStats();
         HideResetConfirmation();
+        ResetScrollToTop();
     }
 
     private void Switch(
@@ -121,6 +136,9 @@ public class StatsPanelUI : MonoBehaviour
 
     private void RefreshStats()
     {
+        if (statsText == null)
+            return;
+
         int runs =
             StatsManager.GetTotalRuns();
 
@@ -135,35 +153,45 @@ public class StatsPanelUI : MonoBehaviour
                 ? wins / (float)runs * 100f
                 : 0f;
 
-        if (generalText != null)
+        statsText.text =
+            "GENERAL\n" +
+            $"Total Runs: {runs}\n" +
+            $"Total Wins: {wins}\n" +
+            $"Total Deaths: {deaths}\n" +
+            $"Win Rate: {winRate:F1}%\n" +
+            $"Total Play Time: {FormatTime(StatsManager.GetTotalPlayTime())}\n\n" +
+
+            "GAMEPLAY\n" +
+            $"Total Coins: {StatsManager.GetTotalCoins()}\n" +
+            $"Coins Earned: {StatsManager.GetTotalCoinValue()}\n" +
+            $"Normal Coins: {StatsManager.GetNormalCoins()}\n" +
+            $"Gold Coins: {StatsManager.GetGoldCoins()}\n" +
+            $"Rare Coins: {StatsManager.GetRareCoins()}\n\n" +
+
+            $"Dash Uses: {StatsManager.GetDashUses()}\n" +
+            $"Clone Uses: {StatsManager.GetCloneUses()}\n\n" +
+
+            $"Slow Buff Uses: {StatsManager.GetSlowBuffUses()}\n" +
+            $"Armor Buff Uses: {StatsManager.GetArmorBuffUses()}\n" +
+            $"Armor Saves: {StatsManager.GetArmorKills()}";
+    }
+
+    private void ResetScrollToTop()
+    {
+        if (statsScrollRect == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+
+        if (statsScrollRect.content != null)
         {
-            generalText.text =
-                "GENERAL\n" +
-                $"Total Runs: {runs}\n" +
-                $"Total Wins: {wins}\n" +
-                $"Total Deaths: {deaths}\n" +
-                $"Win Rate: {winRate:F1}%\n" +
-                $"Total Play Time:\n" +
-                FormatTime(
-                    StatsManager.GetTotalPlayTime()
-                );
+            LayoutRebuilder.ForceRebuildLayoutImmediate(
+                statsScrollRect.content
+            );
         }
 
-        if (gameplayText != null)
-        {
-            gameplayText.text =
-                "GAMEPLAY\n" +
-                $"Total Coins: {StatsManager.GetTotalCoins()}\n" +
-                $"Coins Earned: {StatsManager.GetTotalCoinValue()}\n" +
-                $"Normal Coins: {StatsManager.GetNormalCoins()}\n" +
-                $"Gold Coins: {StatsManager.GetGoldCoins()}\n" +
-                $"Rare Coins: {StatsManager.GetRareCoins()}\n\n" +
-                $"Dash Uses: {StatsManager.GetDashUses()}\n" +
-                $"Clone Uses: {StatsManager.GetCloneUses()}\n\n" +
-                $"Slow Buff Uses: {StatsManager.GetSlowBuffUses()}\n" +
-                $"Armor Buff Uses: {StatsManager.GetArmorBuffUses()}\n" +
-                $"Armor Saves: {StatsManager.GetArmorKills()}";
-        }
+        statsScrollRect.StopMovement();
+        statsScrollRect.verticalNormalizedPosition = 1f;
     }
 
     private static string FormatTime(
@@ -189,4 +217,5 @@ public class StatsPanelUI : MonoBehaviour
 
         return $"{minutes}m {secs}s";
     }
+
 }

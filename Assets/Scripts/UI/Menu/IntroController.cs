@@ -9,33 +9,51 @@ public class IntroController : MonoBehaviour
     [SerializeField]
     private string nextSceneName = "MainMenu";
 
-    [Header("Timing")]
+    [Header("Sequence Timing")]
     [SerializeField, Min(0f)]
-    private float startDelay = 0.35f;
+    private float openingBlackDuration = 0.30f;
 
     [SerializeField, Min(0f)]
-    private float fadeInDuration = 1.5f;
+    private float studioFadeInDuration = 0.35f;
 
     [SerializeField, Min(0f)]
-    private float holdDuration = 2.2f;
+    private float studioHoldDuration = 0.55f;
 
     [SerializeField, Min(0f)]
-    private float fadeOutDuration = 0.8f;
+    private float studioFadeOutDuration = 0.30f;
 
     [SerializeField, Min(0f)]
-    private float minimumSkipDelay = 0.6f;
+    private float transitionGapDuration = 0.12f;
 
-    [Header("Intro Sound")]
+    [SerializeField, Min(0f)]
+    private float glowPreRevealDuration = 0.20f;
+
+    [SerializeField, Min(0f)]
+    private float gameLogoRevealDuration = 0.45f;
+
+    [SerializeField, Min(0f)]
+    private float gameLogoHoldDuration = 1.15f;
+
+    [SerializeField, Min(0f)]
+    private float finalFadeOutDuration = 0.55f;
+
+    [SerializeField, Min(0f)]
+    private float minimumSkipDelay = 0.60f;
+
+    [Header("Studio Logo - YoungDev Studios")]
     [SerializeField]
-    private AudioSource introAudioSource;
+    private CanvasGroup studioLogoGroup;
 
     [SerializeField]
-    private AudioClip introSound;
+    private RectTransform studioLogoTransform;
 
-    [SerializeField]
-    private bool fadeOutSoundWhenSkipping = true;
+    [SerializeField, Min(0f)]
+    private float studioStartScale = 0.985f;
 
-    [Header("Logo")]
+    [SerializeField, Min(0f)]
+    private float studioEndScale = 1f;
+
+    [Header("Fateful Rush Logo")]
     [SerializeField]
     private CanvasGroup logoGroup;
 
@@ -43,36 +61,69 @@ public class IntroController : MonoBehaviour
     private RectTransform logoTransform;
 
     [SerializeField, Min(0f)]
-    private float startScale = 0.72f;
+    private float logoStartScale = 0.96f;
 
     [SerializeField, Min(0f)]
-    private float overshootScale = 1.04f;
+    private float logoEndScale = 1f;
 
     [SerializeField, Min(0f)]
-    private float endScale = 1f;
+    private float logoFadeOutScale = 0.985f;
 
-    [Header("Glow")]
+    [Header("Cosmic Backdrop - Optional")]
+    [Tooltip("Very subtle stars / nebula layer behind the Fateful Rush logo. Leave empty if unused.")]
+    [SerializeField]
+    private CanvasGroup gameBackdropGroup;
+
+    [SerializeField]
+    private RectTransform gameBackdropTransform;
+
+    [SerializeField, Range(0f, 1f)]
+    private float backdropMaxAlpha = 0.32f;
+
+    [SerializeField, Min(0f)]
+    private float backdropStartScale = 1.035f;
+
+    [SerializeField, Min(0f)]
+    private float backdropEndScale = 1f;
+
+    [Header("Divine / Void Glow - Optional")]
     [SerializeField]
     private CanvasGroup glowGroup;
 
     [SerializeField]
     private RectTransform glowTransform;
 
-    [SerializeField, Min(0f)]
-    private float glowStartScale = 0.95f;
-
-    [SerializeField, Min(0f)]
-    private float glowEndScale = 1.22f;
+    [SerializeField, Range(0f, 1f)]
+    private float glowPreRevealAlpha = 0.16f;
 
     [SerializeField, Range(0f, 1f)]
-    private float glowMaxAlpha = 0.45f;
-
-    [Header("Fade Out Animation")]
-    [SerializeField, Min(0f)]
-    private float logoFadeOutScale = 0.96f;
+    private float glowMaxAlpha = 0.38f;
 
     [SerializeField, Min(0f)]
-    private float glowFadeOutScale = 1.35f;
+    private float glowPreRevealStartScale = 1.24f;
+
+    [SerializeField, Min(0f)]
+    private float glowRevealScale = 0.93f;
+
+    [SerializeField, Min(0f)]
+    private float glowEndScale = 1.16f;
+
+    [SerializeField, Min(0f)]
+    private float glowFadeOutScale = 1.28f;
+
+    [Header("Intro SFX")]
+    [Tooltip("Played once immediately when the Intro scene starts.")]
+    [SerializeField]
+    private AudioSource introAudioSource;
+
+    [SerializeField]
+    private AudioClip introSound;
+
+    [SerializeField, Range(0f, 2f)]
+    private float introSoundVolume = 1f;
+
+    [SerializeField]
+    private bool fadeOutSoundWhenLeaving = true;
 
     [Header("Optional")]
     [SerializeField]
@@ -83,12 +134,14 @@ public class IntroController : MonoBehaviour
 
     private bool isLoading;
     private bool canSkip;
+    private bool introSoundPlayed;
 
     private float introStartTime;
 
     private void Awake()
     {
         RefreshReferences();
+        ConfigureIntroAudioSource();
         ConfigureCanvasGroups();
         ResetIntroVisuals();
     }
@@ -99,11 +152,12 @@ public class IntroController : MonoBehaviour
 
         introStartTime = Time.unscaledTime;
         canSkip = false;
+        introSoundPlayed = false;
 
+        // Intro SFX starts immediately when the Intro scene begins.
         PlayIntroSound();
 
-        introRoutine =
-            StartCoroutine(IntroRoutine());
+        introRoutine = StartCoroutine(IntroRoutine());
     }
 
     private void Update()
@@ -130,118 +184,212 @@ public class IntroController : MonoBehaviour
         StopActiveRoutines();
     }
 
-    private bool WasSkipInputPressed()
-    {
-        bool mousePressed =
-            Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame;
-
-        bool touchPressed =
-            Touchscreen.current != null &&
-            Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
-
-        bool keyboardPressed =
-            Keyboard.current != null &&
-            Keyboard.current.anyKey.wasPressedThisFrame;
-
-        return mousePressed ||
-               touchPressed ||
-               keyboardPressed;
-    }
-
-    private void PlayIntroSound()
-    {
-        if (introAudioSource == null ||
-            introSound == null)
-        {
-            return;
-        }
-
-        introAudioSource.clip = introSound;
-        introAudioSource.loop = false;
-        introAudioSource.ignoreListenerPause = true;
-
-        introAudioSource.volume =
-            Mathf.Clamp01(
-                SoundManager.SFXVolume
-            );
-
-        introAudioSource.Play();
-    }
-
     private IEnumerator IntroRoutine()
     {
         ResetIntroVisuals();
 
-        if (startDelay > 0f)
-        {
-            yield return new WaitForSecondsRealtime(
-                startDelay
-            );
-        }
+        if (openingBlackDuration > 0f)
+            yield return WaitRealtime(openingBlackDuration);
 
-        if (fadeInDuration <= 0f)
-        {
-            ApplyFullyVisibleState();
-        }
+        // 1) YoungDev Studios: clean, quiet and understated.
+        yield return FadeStudioLogo(0f, 1f, studioFadeInDuration);
+
+        if (studioHoldDuration > 0f)
+            yield return WaitRealtime(studioHoldDuration);
+
+        yield return FadeStudioLogo(1f, 0f, studioFadeOutDuration);
+
+        if (transitionGapDuration > 0f)
+            yield return WaitRealtime(transitionGapDuration);
+
+        // 2) A tiny inward glow contraction before the game identity appears.
+        if (glowPreRevealDuration > 0f)
+            yield return PreRevealGlowRoutine();
         else
-        {
-            yield return FadeInRoutine();
-        }
+            ApplyPreRevealGlowState();
+
+        // 3) Main Fateful Rush logo reveal.
+        if (gameLogoRevealDuration > 0f)
+            yield return GameLogoRevealRoutine();
+        else
+            ApplyGameLogoVisibleState();
 
         canSkip = true;
 
-        if (holdDuration > 0f)
-        {
-            yield return new WaitForSecondsRealtime(
-                holdDuration
-            );
-        }
+        if (gameLogoHoldDuration > 0f)
+            yield return WaitRealtime(gameLogoHoldDuration);
 
         introRoutine = null;
-
         BeginLoadingSequence();
     }
 
-    private IEnumerator FadeInRoutine()
+    private IEnumerator FadeStudioLogo(
+        float fromAlpha,
+        float toAlpha,
+        float duration)
     {
-        float elapsedTime = 0f;
-
-        while (elapsedTime < fadeInDuration)
+        if (duration <= 0f)
         {
-            elapsedTime += Time.unscaledDeltaTime;
+            SetAlpha(studioLogoGroup, toAlpha);
 
-            float progress =
-                Mathf.Clamp01(
-                    elapsedTime / fadeInDuration
-                );
+            if (studioLogoTransform != null)
+            {
+                studioLogoTransform.localScale =
+                    Vector3.one * studioEndScale;
+            }
 
-            float smoothProgress =
-                Smooth01(progress);
+            yield break;
+        }
 
-            float cubicProgress =
-                EaseOutCubic(progress);
+        float elapsed = 0f;
+        float startScale =
+            studioLogoTransform != null
+                ? studioLogoTransform.localScale.x
+                : studioStartScale;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(elapsed / duration);
+            float eased = Smooth01(progress);
 
             SetAlpha(
-                logoGroup,
-                smoothProgress
+                studioLogoGroup,
+                Mathf.Lerp(fromAlpha, toAlpha, eased)
+            );
+
+            if (studioLogoTransform != null)
+            {
+                float scale = Mathf.Lerp(
+                    startScale,
+                    studioEndScale,
+                    eased
+                );
+
+                studioLogoTransform.localScale =
+                    Vector3.one * scale;
+            }
+
+            yield return null;
+        }
+
+        SetAlpha(studioLogoGroup, toAlpha);
+    }
+
+    private IEnumerator PreRevealGlowRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < glowPreRevealDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsed / glowPreRevealDuration
+            );
+
+            float eased = EaseInOut(progress);
+
+            SetAlpha(
+                glowGroup,
+                Mathf.Lerp(0f, glowPreRevealAlpha, eased)
+            );
+
+            if (glowTransform != null)
+            {
+                float scale = Mathf.Lerp(
+                    glowPreRevealStartScale,
+                    glowRevealScale,
+                    eased
+                );
+
+                glowTransform.localScale =
+                    Vector3.one * scale;
+            }
+
+            yield return null;
+        }
+
+        ApplyPreRevealGlowState();
+    }
+
+    private IEnumerator GameLogoRevealRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < gameLogoRevealDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsed / gameLogoRevealDuration
+            );
+
+            float alphaProgress = Smooth01(progress);
+            float motionProgress = EaseOutCubic(progress);
+
+            SetAlpha(logoGroup, alphaProgress);
+
+            SetAlpha(
+                gameBackdropGroup,
+                Mathf.Lerp(
+                    0f,
+                    backdropMaxAlpha,
+                    alphaProgress
+                )
             );
 
             SetAlpha(
                 glowGroup,
                 Mathf.Lerp(
-                    0f,
+                    glowPreRevealAlpha,
                     glowMaxAlpha,
-                    smoothProgress
+                    alphaProgress
                 )
             );
 
+            if (logoTransform != null)
+            {
+                float scale = Mathf.Lerp(
+                    logoStartScale,
+                    logoEndScale,
+                    motionProgress
+                );
+
+                logoTransform.localScale =
+                    Vector3.one * scale;
+            }
+
+            if (gameBackdropTransform != null)
+            {
+                float scale = Mathf.Lerp(
+                    backdropStartScale,
+                    backdropEndScale,
+                    Smooth01(progress)
+                );
+
+                gameBackdropTransform.localScale =
+                    Vector3.one * scale;
+            }
+
+            if (glowTransform != null)
+            {
+                float scale = Mathf.Lerp(
+                    glowRevealScale,
+                    glowEndScale,
+                    motionProgress
+                );
+
+                glowTransform.localScale =
+                    Vector3.one * scale;
+            }
+
             if (tapToSkipGroup != null)
             {
-                float skipProgress =
-                    Mathf.Clamp01(
-                        (progress - 0.5f) / 0.5f
-                    );
+                float skipProgress = Mathf.Clamp01(
+                    (progress - 0.55f) / 0.45f
+                );
 
                 SetAlpha(
                     tapToSkipGroup,
@@ -249,73 +397,15 @@ public class IntroController : MonoBehaviour
                 );
             }
 
-            UpdateLogoScale(progress);
-            UpdateGlowScale(cubicProgress);
-
             yield return null;
         }
 
-        ApplyFullyVisibleState();
-    }
-
-    private void UpdateLogoScale(float progress)
-    {
-        if (logoTransform == null)
-            return;
-
-        const float overshootPoint = 0.75f;
-
-        float scale;
-
-        if (progress < overshootPoint)
-        {
-            float overshootProgress =
-                progress / overshootPoint;
-
-            scale = Mathf.Lerp(
-                startScale,
-                overshootScale,
-                EaseOutCubic(overshootProgress)
-            );
-        }
-        else
-        {
-            float settleProgress =
-                (progress - overshootPoint) /
-                (1f - overshootPoint);
-
-            scale = Mathf.Lerp(
-                overshootScale,
-                endScale,
-                EaseInOut(settleProgress)
-            );
-        }
-
-        logoTransform.localScale =
-            Vector3.one * scale;
-    }
-
-    private void UpdateGlowScale(float progress)
-    {
-        if (glowTransform == null)
-            return;
-
-        float scale = Mathf.Lerp(
-            glowStartScale,
-            glowEndScale,
-            progress
-        );
-
-        glowTransform.localScale =
-            Vector3.one * scale;
+        ApplyGameLogoVisibleState();
     }
 
     private void SkipIntro()
     {
-        if (isLoading)
-            return;
-
-        if (!canSkip)
+        if (isLoading || !canSkip)
             return;
 
         if (introRoutine != null)
@@ -333,30 +423,30 @@ public class IntroController : MonoBehaviour
             return;
 
         isLoading = true;
-
-        loadingRoutine =
-            StartCoroutine(LoadNextSceneRoutine());
+        loadingRoutine = StartCoroutine(LoadNextSceneRoutine());
     }
 
     private IEnumerator LoadNextSceneRoutine()
     {
-        float logoStartAlpha =
-            GetAlpha(logoGroup, 1f);
+        float studioStartAlpha = GetAlpha(studioLogoGroup, 0f);
+        float logoStartAlpha = GetAlpha(logoGroup, 0f);
+        float backdropStartAlpha = GetAlpha(gameBackdropGroup, 0f);
+        float glowStartAlpha = GetAlpha(glowGroup, 0f);
+        float skipStartAlpha = GetAlpha(tapToSkipGroup, 0f);
 
-        float glowStartAlpha =
-            GetAlpha(glowGroup, glowMaxAlpha);
-
-        float skipStartAlpha =
-            GetAlpha(tapToSkipGroup, 1f);
-
-        float soundStartVolume =
-            introAudioSource != null
-                ? introAudioSource.volume
-                : 0f;
+        Vector3 studioStartScaleValue =
+            studioLogoTransform != null
+                ? studioLogoTransform.localScale
+                : Vector3.one;
 
         Vector3 logoStartScaleValue =
             logoTransform != null
                 ? logoTransform.localScale
+                : Vector3.one;
+
+        Vector3 backdropStartScaleValue =
+            gameBackdropTransform != null
+                ? gameBackdropTransform.localScale
                 : Vector3.one;
 
         Vector3 glowStartScaleValue =
@@ -364,70 +454,63 @@ public class IntroController : MonoBehaviour
                 ? glowTransform.localScale
                 : Vector3.one;
 
-        if (fadeOutDuration <= 0f)
+        float soundStartVolume =
+            introAudioSource != null
+                ? introAudioSource.volume
+                : 0f;
+
+        if (finalFadeOutDuration <= 0f)
         {
             ApplyFullyHiddenState();
-
-            if (fadeOutSoundWhenSkipping &&
-                introAudioSource != null)
-            {
-                introAudioSource.volume = 0f;
-                introAudioSource.Stop();
-            }
-
+            StopIntroSoundImmediately();
             LoadNextScene();
             yield break;
         }
 
-        float elapsedTime = 0f;
+        float elapsed = 0f;
 
-        while (elapsedTime < fadeOutDuration)
+        while (elapsed < finalFadeOutDuration)
         {
-            elapsedTime += Time.unscaledDeltaTime;
+            elapsed += Time.unscaledDeltaTime;
 
-            float progress =
-                Mathf.Clamp01(
-                    elapsedTime / fadeOutDuration
-                );
+            float progress = Mathf.Clamp01(
+                elapsed / finalFadeOutDuration
+            );
 
-            float easedProgress =
-                EaseInOut(progress);
+            float eased = EaseInOut(progress);
+
+            SetAlpha(
+                studioLogoGroup,
+                Mathf.Lerp(studioStartAlpha, 0f, eased)
+            );
 
             SetAlpha(
                 logoGroup,
-                Mathf.Lerp(
-                    logoStartAlpha,
-                    0f,
-                    easedProgress
-                )
+                Mathf.Lerp(logoStartAlpha, 0f, eased)
+            );
+
+            SetAlpha(
+                gameBackdropGroup,
+                Mathf.Lerp(backdropStartAlpha, 0f, eased)
             );
 
             SetAlpha(
                 glowGroup,
-                Mathf.Lerp(
-                    glowStartAlpha,
-                    0f,
-                    easedProgress
-                )
+                Mathf.Lerp(glowStartAlpha, 0f, eased)
             );
 
             SetAlpha(
                 tapToSkipGroup,
-                Mathf.Lerp(
-                    skipStartAlpha,
-                    0f,
-                    easedProgress
-                )
+                Mathf.Lerp(skipStartAlpha, 0f, eased)
             );
 
-            if (fadeOutSoundWhenSkipping &&
-                introAudioSource != null)
+            if (studioLogoTransform != null)
             {
-                introAudioSource.volume =
-                    Mathf.Lerp(
-                        soundStartVolume,
-                        0f,
-                        easedProgress
+                studioLogoTransform.localScale =
+                    Vector3.LerpUnclamped(
+                        studioStartScaleValue,
+                        Vector3.one * studioEndScale,
+                        eased
                     );
             }
 
@@ -436,9 +519,18 @@ public class IntroController : MonoBehaviour
                 logoTransform.localScale =
                     Vector3.LerpUnclamped(
                         logoStartScaleValue,
-                        Vector3.one *
-                        logoFadeOutScale,
-                        easedProgress
+                        Vector3.one * logoFadeOutScale,
+                        eased
+                    );
+            }
+
+            if (gameBackdropTransform != null)
+            {
+                gameBackdropTransform.localScale =
+                    Vector3.LerpUnclamped(
+                        backdropStartScaleValue,
+                        Vector3.one,
+                        eased
                     );
             }
 
@@ -447,27 +539,64 @@ public class IntroController : MonoBehaviour
                 glowTransform.localScale =
                     Vector3.LerpUnclamped(
                         glowStartScaleValue,
-                        Vector3.one *
-                        glowFadeOutScale,
-                        easedProgress
+                        Vector3.one * glowFadeOutScale,
+                        eased
                     );
+            }
+
+            if (fadeOutSoundWhenLeaving &&
+                introAudioSource != null &&
+                introAudioSource.isPlaying)
+            {
+                introAudioSource.volume = Mathf.Lerp(
+                    soundStartVolume,
+                    0f,
+                    eased
+                );
             }
 
             yield return null;
         }
 
         ApplyFullyHiddenState();
+        StopIntroSoundImmediately();
 
-        if (fadeOutSoundWhenSkipping &&
-            introAudioSource != null)
+        loadingRoutine = null;
+        LoadNextScene();
+    }
+
+    private void PlayIntroSound()
+    {
+        if (introSoundPlayed)
+            return;
+
+        introSoundPlayed = true;
+
+        if (introAudioSource == null || introSound == null)
+            return;
+
+        introAudioSource.Stop();
+        introAudioSource.clip = introSound;
+        introAudioSource.loop = false;
+        introAudioSource.playOnAwake = false;
+        introAudioSource.ignoreListenerPause = true;
+        introAudioSource.volume =
+            Mathf.Clamp01(SoundManager.SFXVolume) *
+            Mathf.Max(0f, introSoundVolume);
+
+        introAudioSource.Play();
+    }
+
+    private void StopIntroSoundImmediately()
+    {
+        if (introAudioSource == null)
+            return;
+
+        if (fadeOutSoundWhenLeaving)
         {
             introAudioSource.volume = 0f;
             introAudioSource.Stop();
         }
-
-        loadingRoutine = null;
-
-        LoadNextScene();
     }
 
     private void LoadNextScene()
@@ -475,7 +604,7 @@ public class IntroController : MonoBehaviour
         if (string.IsNullOrWhiteSpace(nextSceneName))
         {
             Debug.LogError(
-                "[IntroController] Next Scene Name boş.",
+                "[IntroController] Next Scene Name is empty.",
                 this
             );
 
@@ -483,13 +612,11 @@ public class IntroController : MonoBehaviour
             return;
         }
 
-        if (!Application.CanStreamedLevelBeLoaded(
-                nextSceneName))
+        if (!Application.CanStreamedLevelBeLoaded(nextSceneName))
         {
             Debug.LogError(
-                $"[IntroController] Sahne bulunamadı veya " +
-                $"Build Profiles'a eklenmemiş: " +
-                $"'{nextSceneName}'",
+                $"[IntroController] Scene could not be loaded. " +
+                $"Check Build Profiles: '{nextSceneName}'",
                 this
             );
 
@@ -499,16 +626,13 @@ public class IntroController : MonoBehaviour
 
         if (SceneTransition.Instance != null)
         {
-            SceneTransition.Instance.LoadSceneWithFade(
-                nextSceneName
-            );
-
+            SceneTransition.Instance.LoadSceneWithFade(nextSceneName);
             return;
         }
 
         Debug.LogWarning(
-            "[IntroController] SceneTransition bulunamadı. " +
-            "Sahne doğrudan yükleniyor.",
+            "[IntroController] SceneTransition was not found. " +
+            "Loading the scene directly.",
             this
         );
 
@@ -517,33 +641,65 @@ public class IntroController : MonoBehaviour
 
     private void ResetIntroVisuals()
     {
+        SetAlpha(studioLogoGroup, 0f);
         SetAlpha(logoGroup, 0f);
+        SetAlpha(gameBackdropGroup, 0f);
         SetAlpha(glowGroup, 0f);
         SetAlpha(tapToSkipGroup, 0f);
+
+        if (studioLogoTransform != null)
+        {
+            studioLogoTransform.localScale =
+                Vector3.one * studioStartScale;
+        }
 
         if (logoTransform != null)
         {
             logoTransform.localScale =
-                Vector3.one * startScale;
+                Vector3.one * logoStartScale;
+        }
+
+        if (gameBackdropTransform != null)
+        {
+            gameBackdropTransform.localScale =
+                Vector3.one * backdropStartScale;
         }
 
         if (glowTransform != null)
         {
             glowTransform.localScale =
-                Vector3.one * glowStartScale;
+                Vector3.one * glowPreRevealStartScale;
         }
     }
 
-    private void ApplyFullyVisibleState()
+    private void ApplyPreRevealGlowState()
+    {
+        SetAlpha(glowGroup, glowPreRevealAlpha);
+
+        if (glowTransform != null)
+        {
+            glowTransform.localScale =
+                Vector3.one * glowRevealScale;
+        }
+    }
+
+    private void ApplyGameLogoVisibleState()
     {
         SetAlpha(logoGroup, 1f);
+        SetAlpha(gameBackdropGroup, backdropMaxAlpha);
         SetAlpha(glowGroup, glowMaxAlpha);
         SetAlpha(tapToSkipGroup, 1f);
 
         if (logoTransform != null)
         {
             logoTransform.localScale =
-                Vector3.one * endScale;
+                Vector3.one * logoEndScale;
+        }
+
+        if (gameBackdropTransform != null)
+        {
+            gameBackdropTransform.localScale =
+                Vector3.one * backdropEndScale;
         }
 
         if (glowTransform != null)
@@ -555,41 +711,41 @@ public class IntroController : MonoBehaviour
 
     private void ApplyFullyHiddenState()
     {
+        SetAlpha(studioLogoGroup, 0f);
         SetAlpha(logoGroup, 0f);
+        SetAlpha(gameBackdropGroup, 0f);
         SetAlpha(glowGroup, 0f);
         SetAlpha(tapToSkipGroup, 0f);
-
-        if (logoTransform != null)
-        {
-            logoTransform.localScale =
-                Vector3.one * logoFadeOutScale;
-        }
-
-        if (glowTransform != null)
-        {
-            glowTransform.localScale =
-                Vector3.one * glowFadeOutScale;
-        }
     }
 
     private void RefreshReferences()
     {
         if (introAudioSource == null)
-        {
-            introAudioSource =
-                GetComponent<AudioSource>();
-        }
+            introAudioSource = GetComponent<AudioSource>();
+    }
+
+    private void ConfigureIntroAudioSource()
+    {
+        if (introAudioSource == null)
+            return;
+
+        // Prevent Unity from auto-playing the assigned clip before Start().
+        // IntroController controls exactly when the sound is played.
+        introAudioSource.playOnAwake = false;
+        introAudioSource.loop = false;
+        introAudioSource.Stop();
     }
 
     private void ConfigureCanvasGroups()
     {
+        ConfigureCanvasGroup(studioLogoGroup);
         ConfigureCanvasGroup(logoGroup);
+        ConfigureCanvasGroup(gameBackdropGroup);
         ConfigureCanvasGroup(glowGroup);
         ConfigureCanvasGroup(tapToSkipGroup);
     }
 
-    private static void ConfigureCanvasGroup(
-        CanvasGroup group)
+    private static void ConfigureCanvasGroup(CanvasGroup group)
     {
         if (group == null)
             return;
@@ -613,107 +769,87 @@ public class IntroController : MonoBehaviour
         }
     }
 
-    private static void SetAlpha(
-        CanvasGroup group,
-        float value)
+    private bool WasSkipInputPressed()
     {
-        if (group != null)
-        {
-            group.alpha =
-                Mathf.Clamp01(value);
-        }
+        bool mousePressed =
+            Mouse.current != null &&
+            Mouse.current.leftButton.wasPressedThisFrame;
+
+        bool touchPressed =
+            Touchscreen.current != null &&
+            Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
+
+        bool keyboardPressed =
+            Keyboard.current != null &&
+            Keyboard.current.anyKey.wasPressedThisFrame;
+
+        return mousePressed || touchPressed || keyboardPressed;
     }
 
-    private static float GetAlpha(
-        CanvasGroup group,
-        float fallback)
+    private static WaitForSecondsRealtime WaitRealtime(float duration)
+    {
+        return new WaitForSecondsRealtime(Mathf.Max(0f, duration));
+    }
+
+    private static void SetAlpha(CanvasGroup group, float value)
+    {
+        if (group != null)
+            group.alpha = Mathf.Clamp01(value);
+    }
+
+    private static float GetAlpha(CanvasGroup group, float fallback)
     {
         return group != null
             ? group.alpha
-            : fallback;
+            : Mathf.Clamp01(fallback);
     }
 
     private static float Smooth01(float value)
     {
         value = Mathf.Clamp01(value);
-
-        return value *
-               value *
-               (3f - 2f * value);
+        return value * value * (3f - 2f * value);
     }
 
     private static float EaseOutCubic(float value)
     {
         value = Mathf.Clamp01(value);
-
         float inverse = 1f - value;
-
-        return 1f -
-               inverse *
-               inverse *
-               inverse;
+        return 1f - inverse * inverse * inverse;
     }
 
     private static float EaseInOut(float value)
     {
         value = Mathf.Clamp01(value);
 
-        if (value < 0.5f)
-        {
-            return 4f *
-                   value *
-                   value *
-                   value;
-        }
-
-        float inverse =
-            -2f * value + 2f;
-
-        return 1f -
-               inverse *
-               inverse *
-               inverse / 2f;
+        return value < 0.5f
+            ? 4f * value * value * value
+            : 1f - Mathf.Pow(-2f * value + 2f, 3f) / 2f;
     }
 
     private void OnValidate()
     {
-        startDelay =
-            Mathf.Max(0f, startDelay);
+        openingBlackDuration = Mathf.Max(0f, openingBlackDuration);
+        studioFadeInDuration = Mathf.Max(0f, studioFadeInDuration);
+        studioHoldDuration = Mathf.Max(0f, studioHoldDuration);
+        studioFadeOutDuration = Mathf.Max(0f, studioFadeOutDuration);
+        transitionGapDuration = Mathf.Max(0f, transitionGapDuration);
+        glowPreRevealDuration = Mathf.Max(0f, glowPreRevealDuration);
+        gameLogoRevealDuration = Mathf.Max(0f, gameLogoRevealDuration);
+        gameLogoHoldDuration = Mathf.Max(0f, gameLogoHoldDuration);
+        finalFadeOutDuration = Mathf.Max(0f, finalFadeOutDuration);
+        minimumSkipDelay = Mathf.Max(0f, minimumSkipDelay);
 
-        fadeInDuration =
-            Mathf.Max(0f, fadeInDuration);
-
-        holdDuration =
-            Mathf.Max(0f, holdDuration);
-
-        fadeOutDuration =
-            Mathf.Max(0f, fadeOutDuration);
-
-        minimumSkipDelay =
-            Mathf.Max(0f, minimumSkipDelay);
-
-        startScale =
-            Mathf.Max(0f, startScale);
-
-        overshootScale =
-            Mathf.Max(0f, overshootScale);
-
-        endScale =
-            Mathf.Max(0f, endScale);
-
-        glowStartScale =
-            Mathf.Max(0f, glowStartScale);
-
-        glowEndScale =
-            Mathf.Max(0f, glowEndScale);
-
-        glowMaxAlpha =
-            Mathf.Clamp01(glowMaxAlpha);
-
-        logoFadeOutScale =
-            Mathf.Max(0f, logoFadeOutScale);
-
-        glowFadeOutScale =
-            Mathf.Max(0f, glowFadeOutScale);
+        studioStartScale = Mathf.Max(0f, studioStartScale);
+        studioEndScale = Mathf.Max(0f, studioEndScale);
+        logoStartScale = Mathf.Max(0f, logoStartScale);
+        logoEndScale = Mathf.Max(0f, logoEndScale);
+        logoFadeOutScale = Mathf.Max(0f, logoFadeOutScale);
+        backdropStartScale = Mathf.Max(0f, backdropStartScale);
+        backdropEndScale = Mathf.Max(0f, backdropEndScale);
+        glowPreRevealStartScale = Mathf.Max(0f, glowPreRevealStartScale);
+        glowRevealScale = Mathf.Max(0f, glowRevealScale);
+        glowEndScale = Mathf.Max(0f, glowEndScale);
+        glowFadeOutScale = Mathf.Max(0f, glowFadeOutScale);
+        introSoundVolume = Mathf.Max(0f, introSoundVolume);
     }
 }

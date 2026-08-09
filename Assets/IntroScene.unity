@@ -563,7 +563,7 @@ RectTransform:
   m_GameObject: {fileID: 778798818}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.8, y: 1.8, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 906975151}
@@ -571,7 +571,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 400}
+  m_SizeDelta: {x: 600, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &778798820
 MonoBehaviour:
@@ -593,9 +593,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5917997935372504609, guid: ffb99c78b4a68d94cbc922249b317445, type: 3}
+  m_Sprite: {fileID: 1817976908759992544, guid: 475c43907670ed84e9e80713e1b5224b, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -704,6 +704,7 @@ RectTransform:
   - {fileID: 1145209735}
   - {fileID: 778798819}
   - {fileID: 913124900}
+  - {fileID: 1437520357}
   - {fileID: 1796521454}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -812,7 +813,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 400}
+  m_SizeDelta: {x: 600, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &913124901
 MonoBehaviour:
@@ -834,9 +835,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5917997935372504609, guid: ffb99c78b4a68d94cbc922249b317445, type: 3}
+  m_Sprite: {fileID: 1817976908759992544, guid: 475c43907670ed84e9e80713e1b5224b, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -939,6 +940,94 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1145209734}
   m_CullTransparentMesh: 1
+--- !u!1 &1437520356
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1437520357}
+  - component: {fileID: 1437520359}
+  - component: {fileID: 1437520358}
+  - component: {fileID: 1437520360}
+  m_Layer: 5
+  m_Name: StudioLogoImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1437520357
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437520356}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 906975151}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 600, y: 600}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1437520358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437520356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -3897506552816776187, guid: 16d758d33e0f01f4d9e27b423b054f49, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1437520359
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437520356}
+  m_CullTransparentMesh: 1
+--- !u!225 &1437520360
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437520356}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &1780783023
 GameObject:
   m_ObjectHideFlags: 0
@@ -970,26 +1059,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroController
   nextSceneName: MainMenu
-  startDelay: 0.35
-  fadeInDuration: 1.4
-  holdDuration: 2.2
-  fadeOutDuration: 0.8
-  minimumSkipDelay: 0.6
-  introAudioSource: {fileID: 1780783026}
-  introSound: {fileID: 8300000, guid: 3c08acb57fb6e224d9b7121b3cb5db6f, type: 3}
-  fadeOutSoundWhenSkipping: 1
+  openingBlackDuration: 0.45
+  studioFadeInDuration: 0.7
+  studioHoldDuration: 0.95
+  studioFadeOutDuration: 0.55
+  transitionGapDuration: 0.25
+  glowPreRevealDuration: 0.3
+  gameLogoRevealDuration: 0.7
+  gameLogoHoldDuration: 1.45
+  finalFadeOutDuration: 0.7
+  minimumSkipDelay: 0.75
+  studioLogoGroup: {fileID: 1437520360}
+  studioLogoTransform: {fileID: 1437520357}
+  studioStartScale: 0.97
+  studioEndScale: 1
   logoGroup: {fileID: 913124903}
   logoTransform: {fileID: 913124900}
-  startScale: 0.72
-  overshootScale: 1.04
-  endScale: 1
+  logoStartScale: 0.94
+  logoEndScale: 1
+  logoFadeOutScale: 0.97
+  gameBackdropGroup: {fileID: 0}
+  gameBackdropTransform: {fileID: 0}
+  backdropMaxAlpha: 0.32
+  backdropStartScale: 1.035
+  backdropEndScale: 1
   glowGroup: {fileID: 778798822}
   glowTransform: {fileID: 778798819}
-  glowStartScale: 1.05
-  glowEndScale: 1.25
+  glowPreRevealAlpha: 0.16
   glowMaxAlpha: 0.3
-  logoFadeOutScale: 0.96
+  glowPreRevealStartScale: 1.24
+  glowRevealScale: 0.93
+  glowEndScale: 1.25
   glowFadeOutScale: 1.35
+  introAudioSource: {fileID: 1780783026}
+  introSound: {fileID: 8300000, guid: 89251cb8df6ed814d848296291a5cc88, type: 3}
+  introSoundVolume: 1
+  fadeOutSoundWhenLeaving: 1
   tapToSkipGroup: {fileID: 1796521451}
 --- !u!4 &1780783025
 Transform:
@@ -1017,7 +1122,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 3c08acb57fb6e224d9b7121b3cb5db6f, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
