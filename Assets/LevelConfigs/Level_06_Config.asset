@@ -40,42 +40,51 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Gold Coins are worth 3 points. Take them when the route is safe; their value is not worth getting
-    trapped.
+  - Gold Coins are worth 3 points. Take them when the route is safe; their value
+    is not worth getting trapped.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 75
+  winScore: 65
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 0
-  dashDistance: 2.5
-  dashDuration: 0.12
-  dashCooldown: 3.25
-  cloneDuration: 3
-  cloneCooldown: 8
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 1
   armorImmuneDuration: 0.8
-  slowMultiplier: 0.4
+  slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.18
+  comboTimeLimit: 2.2
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.02
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 10
-    playerSpeedMultiplier: 1.04
+    coinsRequired: 6
+    playerSpeedMultiplier: 1.06
+  - comboMultiplier: 4
+    coinsRequired: 12
+    playerSpeedMultiplier: 1.09
+  - comboMultiplier: 5
+    coinsRequired: 15
+    playerSpeedMultiplier: 1.12
+  - comboMultiplier: 6
+    coinsRequired: 20
+    playerSpeedMultiplier: 1.15
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.39, g: 0.8, b: 1, a: 1}
   nearStarsSpeedMultiplier: 0.965
   nearStarsSizeMultiplier: 0.938
   starfieldDensityMultiplier: 0.814
   nearStarsEmissionRate: 30
-  coinSpawnInterval: 0.88
-  maxCoinCount: 7
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 78
   goldCoinChance: 22
   rareCoinChance: 0

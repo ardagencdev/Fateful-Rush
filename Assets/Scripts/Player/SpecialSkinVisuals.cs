@@ -5,6 +5,11 @@ using UnityEngine;
 ///
 /// Silver / Dark / Golden:
 /// - dash afterimages
+/// - level start / spawn pulse
+/// - death pulse
+///
+/// White / Blue / Cyan / Yellow / Orange / Red / Purple:
+/// - shared white coin collection sprite tinted with Armor Visual Color
 ///
 /// Dark:
 /// - unique sprite-based coin collection effect
@@ -12,7 +17,6 @@ using UnityEngine;
 /// Golden:
 /// - unique sprite-based coin collection effect
 ///
-/// Aura / wings were intentionally removed.
 /// No gameplay values are changed here.
 /// </summary>
 [DisallowMultipleComponent]
@@ -23,12 +27,16 @@ public class SpecialSkinVisuals : MonoBehaviour
     private const string GoldenSkinId = "golden";
 
     private const int BurstPoolSize = 10;
+    private const int PrestigePulsePoolSize = 4;
 
     private const string DarkCoinBurstResourcePath =
         "SpecialSkinVFX/DarkCoinBurst";
 
     private const string GoldenCoinBurstResourcePath =
         "SpecialSkinVFX/GoldenCoinBurst";
+
+    private const string StandardCoinBurstResourcePath =
+        "SpecialSkinVFX/StandardCoinBurst";
 
     [Header("Prestige Dash Afterimage")]
     [SerializeField, Min(0.01f)]
@@ -40,7 +48,29 @@ public class SpecialSkinVisuals : MonoBehaviour
     [SerializeField, Range(0f, 1f)]
     private float afterimageAlpha = 0.24f;
 
+    [Header("Prestige Spawn / Death")]
+    [SerializeField, Min(0.05f)]
+    private float spawnBurstDuration = 0.34f;
+
+    [SerializeField, Min(0.05f)]
+    private float deathBurstDuration = 0.40f;
+
+    [SerializeField, Range(0.05f, 1f)]
+    private float spawnPulseAlpha = 0.42f;
+
+    [SerializeField, Range(0.05f, 1f)]
+    private float deathPulseAlpha = 0.62f;
+
+
     [Header("Coin Collection Sprites")]
+    [Tooltip(
+        "White generic coin collect sprite used by every non-prestige skin. " +
+        "It is tinted automatically with that skin's Armor Visual Color. " +
+        "If empty, Resources/SpecialSkinVFX/StandardCoinBurst is loaded."
+    )]
+    [SerializeField]
+    private Sprite standardCoinBurstSprite;
+
     [Tooltip(
         "Optional. If empty, Resources/SpecialSkinVFX/DarkCoinBurst is loaded."
     )]
@@ -77,11 +107,19 @@ public class SpecialSkinVisuals : MonoBehaviour
     private SpriteRenderer playerRenderer;
 
     private string activeSkinId = string.Empty;
+    private Color activeDashColor = Color.white;
+    private Color activeArmorColor = Color.white;
+
     private float afterimageTimer;
+    private bool levelSpawnPlayed;
 
     private GameObject burstPoolRoot;
     private SpecialSkinCoinBurstSprite[] burstPool;
     private int burstPoolCursor;
+
+    private GameObject prestigePulsePoolRoot;
+    private SpecialSkinPulseSprite[] prestigePulsePool;
+    private int prestigePulsePoolCursor;
 
     public string ActiveSkinId => activeSkinId;
 
@@ -89,7 +127,7 @@ public class SpecialSkinVisuals : MonoBehaviour
     private bool IsDark => activeSkinId == DarkSkinId;
     private bool IsGolden => activeSkinId == GoldenSkinId;
 
-    private bool UsesPrestigeAfterimage =>
+    private bool UsesPrestigeEffects =>
         IsSilver || IsDark || IsGolden;
 
     private void Awake()
@@ -108,6 +146,7 @@ public class SpecialSkinVisuals : MonoBehaviour
 
     private void Update()
     {
+        TryPlayLevelSpawnEffect();
         UpdatePrestigeAfterimages();
     }
 
@@ -115,16 +154,46 @@ public class SpecialSkinVisuals : MonoBehaviour
     {
         if (burstPoolRoot != null)
             Destroy(burstPoolRoot);
+
+        // This root lives outside the player hierarchy so a death pulse can
+        // finish even if the player is destroyed immediately afterwards.
+        if (prestigePulsePoolRoot != null)
+            Destroy(prestigePulsePoolRoot, 1f);
     }
 
     public void ApplySkin(
         PlayerSkinCatalog.SkinEntry skin)
     {
-        activeSkinId =
+        string newSkinId =
             skin != null &&
             !string.IsNullOrWhiteSpace(skin.id)
                 ? skin.id.Trim().ToLowerInvariant()
                 : string.Empty;
+
+        bool skinChanged = activeSkinId != newSkinId;
+
+        activeSkinId = newSkinId;
+
+        if (skin != null)
+        {
+            activeDashColor = MakeVisibleColor(
+                skin.dashTrailColor,
+                Color.white
+            );
+
+            activeArmorColor = MakeVisibleColor(
+                skin.armorVisualColor,
+                activeDashColor
+            );
+        }
+        else
+        {
+            activeDashColor = Color.white;
+            activeArmorColor = Color.white;
+        }
+
+        if (skinChanged)
+            levelSpawnPlayed = false;
 
         afterimageTimer = 0f;
 
@@ -132,18 +201,59 @@ public class SpecialSkinVisuals : MonoBehaviour
         LoadOptionalSprites();
     }
 
+    public void PlayDeathEffect()
+    {
+        if (!UsesPrestigeEffects)
+            return;
+
+        FindPlayerRenderer();
+
+        Vector3 effectPosition =
+            playerRenderer != null
+                ? playerRenderer.transform.position
+                : transform.position;
+
+        PrestigeStyle style = GetPrestigeStyle();
+
+        PlayPrestigePulse(
+            effectPosition,
+            1.00f,
+            1.90f * style.pulseScaleMultiplier,
+            deathBurstDuration,
+            deathPulseAlpha,
+            style.secondaryColor
+        );
+
+    }
+
     public void PlayCoinCollectBurst(
         Vector3 worldPosition,
         int coinValue,
         float coinWorldSize)
     {
-        if (!IsDark && !IsGolden)
+        // Prestige skins keep their own treatment.
+        // Silver is intentionally excluded from the generic effect.
+        if (IsSilver)
             return;
 
-        Sprite selectedSprite =
-            IsDark
-                ? darkCoinBurstSprite
-                : goldenCoinBurstSprite;
+        Sprite selectedSprite;
+        Color burstColor;
+
+        if (IsDark)
+        {
+            selectedSprite = darkCoinBurstSprite;
+            burstColor = Color.white;
+        }
+        else if (IsGolden)
+        {
+            selectedSprite = goldenCoinBurstSprite;
+            burstColor = Color.white;
+        }
+        else
+        {
+            selectedSprite = standardCoinBurstSprite;
+            burstColor = activeArmorColor;
+        }
 
         if (selectedSprite == null)
             return;
@@ -154,8 +264,6 @@ public class SpecialSkinVisuals : MonoBehaviour
         float safeCoinSize =
             Mathf.Max(0.05f, coinWorldSize);
 
-        // Higher-value coins get slightly larger effects,
-        // but the burst always stays close to the coin.
         float valueScale =
             Mathf.Clamp(
                 1f + (safeValue - 1) * 0.10f,
@@ -178,11 +286,12 @@ public class SpecialSkinVisuals : MonoBehaviour
             startWorldSize,
             finalWorldSize,
             burstDuration,
-            burstAlpha
+            burstAlpha,
+            burstColor
         );
     }
 
-    // Compatibility overload for any older call sites.
+    // Compatibility overload for older call sites.
     public void PlayCoinCollectBurst(
         Vector3 worldPosition,
         int coinValue)
@@ -194,11 +303,41 @@ public class SpecialSkinVisuals : MonoBehaviour
         );
     }
 
+    private void TryPlayLevelSpawnEffect()
+    {
+        if (levelSpawnPlayed ||
+            !UsesPrestigeEffects ||
+            !GameStateManager.IsGameplayStarted)
+        {
+            return;
+        }
+
+        levelSpawnPlayed = true;
+
+        FindPlayerRenderer();
+
+        Vector3 effectPosition =
+            playerRenderer != null
+                ? playerRenderer.transform.position
+                : transform.position;
+
+        PrestigeStyle style = GetPrestigeStyle();
+
+        PlayPrestigePulse(
+            effectPosition,
+            0.58f,
+            1.55f * style.pulseScaleMultiplier,
+            spawnBurstDuration,
+            spawnPulseAlpha,
+            style.secondaryColor
+        );
+
+    }
+
     private void RefreshFromCurrentSkin()
     {
         if (skinApplier == null)
-            skinApplier =
-                GetComponent<PlayerSkinApplier>();
+            skinApplier = GetComponent<PlayerSkinApplier>();
 
         ApplySkin(
             skinApplier != null
@@ -209,6 +348,14 @@ public class SpecialSkinVisuals : MonoBehaviour
 
     private void LoadOptionalSprites()
     {
+        if (standardCoinBurstSprite == null)
+        {
+            standardCoinBurstSprite =
+                Resources.Load<Sprite>(
+                    StandardCoinBurstResourcePath
+                );
+        }
+
         if (darkCoinBurstSprite == null)
         {
             darkCoinBurstSprite =
@@ -251,8 +398,7 @@ public class SpecialSkinVisuals : MonoBehaviour
                     candidate.sprite ==
                     expectedSprite)
                 {
-                    playerRenderer =
-                        candidate;
+                    playerRenderer = candidate;
                     return;
                 }
             }
@@ -278,7 +424,7 @@ public class SpecialSkinVisuals : MonoBehaviour
 
     private void UpdatePrestigeAfterimages()
     {
-        if (!UsesPrestigeAfterimage ||
+        if (!UsesPrestigeEffects ||
             playerDash == null ||
             !playerDash.IsDashing)
         {
@@ -344,7 +490,6 @@ public class SpecialSkinVisuals : MonoBehaviour
         ghostRenderer.sortingOrder =
             playerRenderer.sortingOrder - 1;
 
-        // Preserve the actual skin colours.
         ghostRenderer.color =
             new Color(
                 1f,
@@ -364,13 +509,183 @@ public class SpecialSkinVisuals : MonoBehaviour
         );
     }
 
+    private void PlayPrestigePulse(
+        Vector3 worldPosition,
+        float startScaleMultiplier,
+        float finalScaleMultiplier,
+        float duration,
+        float alpha,
+        Color color)
+    {
+        FindPlayerRenderer();
+
+        if (playerRenderer == null ||
+            playerRenderer.sprite == null)
+        {
+            return;
+        }
+
+        SpecialSkinPulseSprite pulse =
+            GetPrestigePulse();
+
+        if (pulse == null)
+            return;
+
+        pulse.Play(
+            worldPosition,
+            playerRenderer.sprite,
+            playerRenderer.transform.rotation,
+            playerRenderer.transform.lossyScale,
+            playerRenderer.flipX,
+            playerRenderer.flipY,
+            startScaleMultiplier,
+            finalScaleMultiplier,
+            duration,
+            alpha,
+            color
+        );
+    }
+
+    private PrestigeStyle GetPrestigeStyle()
+    {
+        PrestigeStyle style = new PrestigeStyle
+        {
+            secondaryColor = activeArmorColor,
+            pulseScaleMultiplier = 1f
+        };
+
+        if (IsSilver)
+        {
+            style.pulseScaleMultiplier = 0.95f;
+        }
+        else if (IsDark)
+        {
+            style.pulseScaleMultiplier = 1.08f;
+        }
+        else if (IsGolden)
+        {
+            style.pulseScaleMultiplier = 1.12f;
+        }
+
+        return style;
+    }
+
+    private SpecialSkinPulseSprite
+        GetPrestigePulse()
+    {
+        EnsurePrestigePulsePool();
+
+        if (prestigePulsePool == null ||
+            prestigePulsePool.Length == 0)
+        {
+            return null;
+        }
+
+        for (int i = 0;
+             i < prestigePulsePool.Length;
+             i++)
+        {
+            int index =
+                (prestigePulsePoolCursor + i) %
+                prestigePulsePool.Length;
+
+            SpecialSkinPulseSprite candidate =
+                prestigePulsePool[index];
+
+            if (candidate != null &&
+                !candidate.gameObject.activeSelf)
+            {
+                prestigePulsePoolCursor =
+                    (index + 1) %
+                    prestigePulsePool.Length;
+
+                return candidate;
+            }
+        }
+
+        SpecialSkinPulseSprite fallback =
+            prestigePulsePool[
+                prestigePulsePoolCursor
+            ];
+
+        prestigePulsePoolCursor =
+            (prestigePulsePoolCursor + 1) %
+            prestigePulsePool.Length;
+
+        return fallback;
+    }
+
+    private void EnsurePrestigePulsePool()
+    {
+        if (prestigePulsePool != null &&
+            prestigePulsePool.Length ==
+            PrestigePulsePoolSize)
+        {
+            return;
+        }
+
+        if (prestigePulsePoolRoot == null)
+        {
+            prestigePulsePoolRoot =
+                new GameObject(
+                    "PrestigeSkinPulsePool"
+                );
+        }
+
+        FindPlayerRenderer();
+
+        int sortingLayerId =
+            playerRenderer != null
+                ? playerRenderer.sortingLayerID
+                : 0;
+
+        int sortingOrder =
+            playerRenderer != null
+                ? playerRenderer.sortingOrder + 2
+                : 29;
+
+        prestigePulsePool =
+            new SpecialSkinPulseSprite[
+                PrestigePulsePoolSize
+            ];
+
+        for (int i = 0;
+             i < prestigePulsePool.Length;
+             i++)
+        {
+            GameObject pulseObject =
+                new GameObject(
+                    $"PrestigePulse_{i}"
+                );
+
+            pulseObject.transform.SetParent(
+                prestigePulsePoolRoot.transform,
+                false
+            );
+
+            SpecialSkinPulseSprite pulse =
+                pulseObject.AddComponent<
+                    SpecialSkinPulseSprite
+                >();
+
+            pulse.Prepare(
+                sortingLayerId,
+                sortingOrder
+            );
+
+            pulseObject.SetActive(false);
+            prestigePulsePool[i] = pulse;
+        }
+    }
+
     private void CreateSpriteBurst(
         Vector3 worldPosition,
         Sprite sprite,
         float startWorldSize,
         float finalWorldSize,
         float duration,
-        float alpha)
+        float alpha,
+        Color tintColor)
     {
         EnsureBurstPool();
 
@@ -428,7 +743,8 @@ public class SpecialSkinVisuals : MonoBehaviour
             startWorldSize,
             finalWorldSize,
             duration,
-            alpha
+            alpha,
+            tintColor
         );
     }
 
@@ -491,9 +807,25 @@ public class SpecialSkinVisuals : MonoBehaviour
             );
 
             burstObject.SetActive(false);
-
             burstPool[i] = burst;
         }
+    }
+
+    private static Color MakeVisibleColor(
+        Color color,
+        Color fallback)
+    {
+        float maximumChannel =
+            Mathf.Max(
+                color.r,
+                Mathf.Max(color.g, color.b)
+            );
+
+        if (maximumChannel <= 0.001f)
+            color = fallback;
+
+        color.a = 1f;
+        return color;
     }
 
 #if UNITY_EDITOR
@@ -511,6 +843,19 @@ public class SpecialSkinVisuals : MonoBehaviour
                 afterimageLifetime
             );
 
+        spawnBurstDuration =
+            Mathf.Max(
+                0.05f,
+                spawnBurstDuration
+            );
+
+        deathBurstDuration =
+            Mathf.Max(
+                0.05f,
+                deathBurstDuration
+            );
+
+
         burstDuration =
             Mathf.Max(
                 0.05f,
@@ -524,6 +869,12 @@ public class SpecialSkinVisuals : MonoBehaviour
             );
     }
 #endif
+
+    private struct PrestigeStyle
+    {
+        public Color secondaryColor;
+        public float pulseScaleMultiplier;
+    }
 }
 
 /// <summary>
@@ -577,12 +928,138 @@ public class SilverAfterimageFade :
                     t
                 );
 
-            spriteRenderer.color =
-                color;
+            spriteRenderer.color = color;
         }
 
         if (elapsed >= lifetime)
             Destroy(gameObject);
+    }
+}
+
+/// <summary>
+/// A pooled tinted copy of the player's sprite used as the soft pulse layer
+/// for prestige spawn and death effects.
+/// </summary>
+public class SpecialSkinPulseSprite :
+    MonoBehaviour
+{
+    private SpriteRenderer spriteRenderer;
+
+    private float duration;
+    private float elapsed;
+    private float maximumAlpha;
+
+    private Vector3 startScale;
+    private Vector3 finalScale;
+    private Color pulseColor;
+
+    public void Prepare(
+        int sortingLayerId,
+        int sortingOrder)
+    {
+        spriteRenderer =
+            gameObject.AddComponent<SpriteRenderer>();
+
+        spriteRenderer.sortingLayerID =
+            sortingLayerId;
+
+        spriteRenderer.sortingOrder =
+            sortingOrder;
+
+        spriteRenderer.color = Color.clear;
+    }
+
+    public void Play(
+        Vector3 worldPosition,
+        Sprite sprite,
+        Quaternion rotation,
+        Vector3 playerWorldScale,
+        bool flipX,
+        bool flipY,
+        float startScaleMultiplier,
+        float finalScaleMultiplier,
+        float effectDuration,
+        float alpha,
+        Color color)
+    {
+        if (spriteRenderer == null ||
+            sprite == null)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        gameObject.SetActive(true);
+
+        spriteRenderer.sprite = sprite;
+        spriteRenderer.flipX = flipX;
+        spriteRenderer.flipY = flipY;
+
+        transform.position = worldPosition;
+        transform.rotation = rotation;
+
+        duration =
+            Mathf.Max(0.05f, effectDuration);
+
+        maximumAlpha =
+            Mathf.Clamp01(alpha);
+
+        pulseColor = color;
+        pulseColor.a = maximumAlpha;
+
+        elapsed = 0f;
+
+        startScale =
+            Vector3.Scale(
+                playerWorldScale,
+                Vector3.one *
+                Mathf.Max(0.01f, startScaleMultiplier)
+            );
+
+        finalScale =
+            Vector3.Scale(
+                playerWorldScale,
+                Vector3.one *
+                Mathf.Max(
+                    startScaleMultiplier,
+                    finalScaleMultiplier
+                )
+            );
+
+        transform.localScale = startScale;
+        spriteRenderer.color = pulseColor;
+    }
+
+    private void Update()
+    {
+        elapsed += Time.unscaledDeltaTime;
+
+        float t =
+            Mathf.Clamp01(
+                elapsed / duration
+            );
+
+        float eased =
+            1f - Mathf.Pow(1f - t, 3f);
+
+        transform.localScale =
+            Vector3.Lerp(
+                startScale,
+                finalScale,
+                eased
+            );
+
+        Color color = pulseColor;
+
+        color.a =
+            maximumAlpha *
+            Mathf.Pow(1f - t, 2f);
+
+        if (spriteRenderer != null)
+            spriteRenderer.color = color;
+
+        if (elapsed >= duration)
+            gameObject.SetActive(false);
     }
 }
 
@@ -604,6 +1081,7 @@ public class SpecialSkinCoinBurstSprite :
 
     private Vector3 startScale;
     private Vector3 finalScale;
+    private Color activeTintColor = Color.white;
 
     public void Prepare(
         int sortingLayerId,
@@ -633,7 +1111,8 @@ public class SpecialSkinCoinBurstSprite :
         float startWorldSize,
         float finalWorldSize,
         float effectDuration,
-        float alpha)
+        float alpha,
+        Color tintColor)
     {
         if (sprite == null ||
             spriteRenderer == null)
@@ -695,16 +1174,29 @@ public class SpecialSkinCoinBurstSprite :
         transform.localScale =
             startScale;
 
-        spriteRenderer.color =
-            new Color(
-                1f,
-                1f,
-                1f,
-                maxAlpha
-            );
+        activeTintColor = MakeRenderableTint(tintColor);
+
+        Color startColor = activeTintColor;
+        startColor.a = maxAlpha;
+        spriteRenderer.color = startColor;
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
+    }
+
+
+    private static Color MakeRenderableTint(Color color)
+    {
+        float maximumChannel = Mathf.Max(
+            color.r,
+            Mathf.Max(color.g, color.b)
+        );
+
+        if (maximumChannel <= 0.001f)
+            color = Color.white;
+
+        color.a = 1f;
+        return color;
     }
 
     private void Update()
@@ -717,7 +1209,6 @@ public class SpecialSkinCoinBurstSprite :
                 elapsed / duration
             );
 
-        // Fast opening, then soft finish.
         float expandT =
             1f -
             Mathf.Pow(
@@ -732,7 +1223,6 @@ public class SpecialSkinCoinBurstSprite :
                 expandT
             );
 
-        // Alpha continuously drops while the sprite expands.
         float fade =
             1f - t;
 
@@ -740,13 +1230,9 @@ public class SpecialSkinCoinBurstSprite :
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.color =
-                new Color(
-                    1f,
-                    1f,
-                    1f,
-                    maxAlpha * fade
-                );
+            Color color = activeTintColor;
+            color.a = maxAlpha * fade;
+            spriteRenderer.color = color;
         }
 
         if (elapsed >= duration)

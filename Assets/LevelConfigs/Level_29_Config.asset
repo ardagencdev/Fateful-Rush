@@ -50,17 +50,17 @@ MonoBehaviour:
   playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 1
-  dashDistance: 2.5
-  dashDuration: 0.12
-  dashCooldown: 1.95
-  cloneDuration: 3
-  cloneCooldown: 15
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 1
   armorImmuneDuration: 0.8
-  slowMultiplier: 0.42
-  slowDuration: 5.5
+  slowMultiplier: 0.5
+  slowDuration: 5
   comboEnabled: 0
-  comboTimeLimit: 1.75
+  comboTimeLimit: 2.2
   comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.97888, g: 0.23352, b: 0.51264, a: 1}
@@ -68,8 +68,8 @@ MonoBehaviour:
   nearStarsSizeMultiplier: 1.115
   starfieldDensityMultiplier: 1.109
   nearStarsEmissionRate: 52
-  coinSpawnInterval: 1
-  maxCoinCount: 8
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 70
   goldCoinChance: 25
   rareCoinChance: 5

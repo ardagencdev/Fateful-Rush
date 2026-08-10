@@ -44,38 +44,47 @@ MonoBehaviour:
     the extra score.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
-  winScore: 125
+  winScore: 120
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 0
-  dashDistance: 2.5
-  dashDuration: 0.12
-  dashCooldown: 2.1
-  cloneDuration: 3
-  cloneCooldown: 8
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 1
   armorImmuneDuration: 0.8
-  slowMultiplier: 0.4
+  slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.12
+  comboTimeLimit: 2.2
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.02
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 10
-    playerSpeedMultiplier: 1.045
+    coinsRequired: 6
+    playerSpeedMultiplier: 1.06
+  - comboMultiplier: 4
+    coinsRequired: 12
+    playerSpeedMultiplier: 1.09
+  - comboMultiplier: 5
+    coinsRequired: 15
+    playerSpeedMultiplier: 1.12
+  - comboMultiplier: 6
+    coinsRequired: 20
+    playerSpeedMultiplier: 1.15
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.45072, g: 0.43688, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1.15
   nearStarsSizeMultiplier: 1
   starfieldDensityMultiplier: 0.917
   nearStarsEmissionRate: 40
-  coinSpawnInterval: 0.85
-  maxCoinCount: 8
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 74
   goldCoinChance: 22
   rareCoinChance: 4

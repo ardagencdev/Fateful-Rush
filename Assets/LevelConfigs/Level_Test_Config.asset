@@ -41,7 +41,7 @@ MonoBehaviour:
   briefingObjectiveDescription: Exclusive for Tester
   briefingPages:
   - Mission information...
-  gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
+  gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
   winScore: 10000
   timeLimit: 30
@@ -49,32 +49,41 @@ MonoBehaviour:
   playerMoveSpeed: 6.5
   dashEnabled: 1
   cloneEnabled: 1
-  dashDistance: 2.5
-  dashDuration: 0.12
-  dashCooldown: 1.8
-  cloneDuration: 3
-  cloneCooldown: 7
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 3
   armorImmuneDuration: 2
-  slowMultiplier: 0.4
+  slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 1.5
+  comboTimeLimit: 2.2
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 2
-    playerSpeedMultiplier: 1.25
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 5
-    playerSpeedMultiplier: 1.5
+    coinsRequired: 6
+    playerSpeedMultiplier: 1.06
+  - comboMultiplier: 4
+    coinsRequired: 12
+    playerSpeedMultiplier: 1.09
+  - comboMultiplier: 5
+    coinsRequired: 15
+    playerSpeedMultiplier: 1.12
+  - comboMultiplier: 6
+    coinsRequired: 20
+    playerSpeedMultiplier: 1.15
   randomizeNearStarsColor: 1
   nearStarsColor: {r: 1, g: 1, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1
   nearStarsSizeMultiplier: 1
   starfieldDensityMultiplier: 1
   nearStarsEmissionRate: 30
-  coinSpawnInterval: 1
-  maxCoinCount: 8
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 70
   goldCoinChance: 25
   rareCoinChance: 5

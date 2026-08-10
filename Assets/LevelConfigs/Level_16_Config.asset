@@ -44,38 +44,47 @@ MonoBehaviour:
     to reset collapsing formations.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
-  winScore: 140
+  winScore: 135
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 1
-  dashDistance: 2.5
-  dashDuration: 0.12
-  dashCooldown: 2.1
-  cloneDuration: 3
-  cloneCooldown: 12
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 1
   armorImmuneDuration: 0.8
-  slowMultiplier: 0.4
+  slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.12
+  comboTimeLimit: 2.2
   comboSpeedStages:
   - comboMultiplier: 2
-    coinsRequired: 4
-    playerSpeedMultiplier: 1.02
+    coinsRequired: 3
+    playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 10
-    playerSpeedMultiplier: 1.045
+    coinsRequired: 6
+    playerSpeedMultiplier: 1.06
+  - comboMultiplier: 4
+    coinsRequired: 12
+    playerSpeedMultiplier: 1.09
+  - comboMultiplier: 5
+    coinsRequired: 15
+    playerSpeedMultiplier: 1.12
+  - comboMultiplier: 6
+    coinsRequired: 20
+    playerSpeedMultiplier: 1.15
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.5, g: 0.37, b: 1, a: 1}
   nearStarsSpeedMultiplier: 1.196
   nearStarsSizeMultiplier: 1.015
   starfieldDensityMultiplier: 0.942
   nearStarsEmissionRate: 38
-  coinSpawnInterval: 0.85
-  maxCoinCount: 8
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 74
   goldCoinChance: 22
   rareCoinChance: 4

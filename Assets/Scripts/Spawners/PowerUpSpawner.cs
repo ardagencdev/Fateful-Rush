@@ -40,6 +40,9 @@ public class PowerUpSpawner : MonoBehaviour
     [Min(0f)]
     public float checkRadius = 0.8f;
 
+    [Min(0f)]
+    public float playerSafeDistance = 4f;
+
     [Min(1)]
     public int maxAttempts = 50;
 
@@ -218,6 +221,15 @@ public class PowerUpSpawner : MonoBehaviour
         if (CameraWorldBounds.Instance == null)
             return false;
 
+        if (playerMovement == null)
+            RefreshPlayerReference();
+
+        // Safety guarantee: never spawn a power-up without a valid
+        // player reference, otherwise the minimum-distance rule
+        // could be bypassed.
+        if (playerMovement == null)
+            return false;
+
         for (int attempt = 0;
              attempt < maxAttempts;
              attempt++)
@@ -227,6 +239,9 @@ public class PowerUpSpawner : MonoBehaviour
                     .RandomPointInside(
                         spawnPadding
                     );
+
+            if (!IsFarEnoughFromPlayer(spawnPosition))
+                continue;
 
             if (!IsAreaClear(spawnPosition))
                 continue;
@@ -276,6 +291,22 @@ public class PowerUpSpawner : MonoBehaviour
 
         slowPowerUp.slowDuration =
             slowDuration;
+    }
+
+
+    private bool IsFarEnoughFromPlayer(Vector2 position)
+    {
+        if (playerMovement == null)
+            return false;
+
+        Vector2 playerPosition =
+            playerMovement.transform.position;
+
+        float safeDistance =
+            Mathf.Max(0f, playerSafeDistance);
+
+        return (position - playerPosition).sqrMagnitude >=
+               safeDistance * safeDistance;
     }
 
     private bool IsAreaClear(Vector2 position)
@@ -387,6 +418,12 @@ public class PowerUpSpawner : MonoBehaviour
             Mathf.Max(
                 0f,
                 checkRadius
+            );
+
+        playerSafeDistance =
+            Mathf.Max(
+                0f,
+                playerSafeDistance
             );
 
         maxAttempts =

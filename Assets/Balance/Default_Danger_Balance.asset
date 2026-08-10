@@ -16,8 +16,8 @@ MonoBehaviour:
   normalEnemyLevels:
   - minStartSpeed: 2.4
     maxStartSpeed: 3
-    maxSpeed: 5.5
-    speedIncreaseRate: 0.11
+    maxSpeed: 5.2
+    speedIncreaseRate: 0.1
     predictionEnabled: 1
     predictionDistanceThreshold: 3
     predictionTime: 0.28
@@ -27,8 +27,8 @@ MonoBehaviour:
     separationStrength: 0.72
   - minStartSpeed: 2.8
     maxStartSpeed: 3.5
-    maxSpeed: 5.7
-    speedIncreaseRate: 0.14
+    maxSpeed: 5.4
+    speedIncreaseRate: 0.1
     predictionEnabled: 1
     predictionDistanceThreshold: 3.3
     predictionTime: 0.32
@@ -38,8 +38,8 @@ MonoBehaviour:
     separationStrength: 0.78
   - minStartSpeed: 3.2
     maxStartSpeed: 4
-    maxSpeed: 5.9
-    speedIncreaseRate: 0.16
+    maxSpeed: 5.6
+    speedIncreaseRate: 0.1
     predictionEnabled: 1
     predictionDistanceThreshold: 3.6
     predictionTime: 0.36
@@ -49,8 +49,8 @@ MonoBehaviour:
     separationStrength: 0.84
   - minStartSpeed: 3.6
     maxStartSpeed: 4.4
-    maxSpeed: 6.1
-    speedIncreaseRate: 0.18
+    maxSpeed: 5.8
+    speedIncreaseRate: 0.1
     predictionEnabled: 1
     predictionDistanceThreshold: 3.9
     predictionTime: 0.4
@@ -60,8 +60,8 @@ MonoBehaviour:
     separationStrength: 0.9
   - minStartSpeed: 4
     maxStartSpeed: 4.8
-    maxSpeed: 6.3
-    speedIncreaseRate: 0.2
+    maxSpeed: 6
+    speedIncreaseRate: 0.1
     predictionEnabled: 1
     predictionDistanceThreshold: 4.2
     predictionTime: 0.44

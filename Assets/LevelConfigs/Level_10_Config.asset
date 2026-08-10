@@ -40,27 +40,27 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This is your first Survival mission. Preserve open space as Space Bombs accumulate and use Armor
-    only as a recovery tool.
+  - This is your first Survival mission. Preserve open space as Space Bombs accumulate
+    and use Armor only as a recovery tool.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 1
   winScore: 15
-  timeLimit: 45
+  timeLimit: 40
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 0
-  dashDistance: 2.5
-  dashDuration: 0.12
-  dashCooldown: 2.4
-  cloneDuration: 3
-  cloneCooldown: 8
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 1
   armorImmuneDuration: 1
-  slowMultiplier: 0.4
+  slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 0
-  comboTimeLimit: 2.05
+  comboTimeLimit: 2.2
   comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.36312, g: 0.58496, b: 1, a: 1}
@@ -68,8 +68,8 @@ MonoBehaviour:
   nearStarsSizeMultiplier: 0.969
   starfieldDensityMultiplier: 0.865
   nearStarsEmissionRate: 38
-  coinSpawnInterval: 1
-  maxCoinCount: 8
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 70
   goldCoinChance: 25
   rareCoinChance: 5
@@ -109,7 +109,7 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 3
+  normalEnemyCount: 2
   normalEnemySpawnInterval: 5.8
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
@@ -125,7 +125,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 1
+  projectileEnemyCount: 2
   projectileEnemySpawnInterval: 15
   projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0

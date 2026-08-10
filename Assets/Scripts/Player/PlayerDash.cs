@@ -52,6 +52,7 @@ public class PlayerDash : MonoBehaviour
     private float cooldownTimer;
     private float textRefreshTimer;
 
+
     private float trailStartAlpha = 1f;
     private float trailEndAlpha;
     private bool trailAlphaCached;
@@ -69,6 +70,7 @@ public class PlayerDash : MonoBehaviour
 
         if (soundManager == null)
             soundManager = FindAnyObjectByType<SoundManager>();
+
 
         CacheTrailAlpha();
         SetTrail(false);
@@ -142,6 +144,7 @@ public class PlayerDash : MonoBehaviour
 
         SetTrail(true);
 
+
         dashRoutine = StartCoroutine(
             DashRoutine(dashDirection.normalized)
         );
@@ -187,6 +190,7 @@ public class PlayerDash : MonoBehaviour
         }
 
         MovePlayer(targetPosition);
+
 
         isDashing = false;
         dashRoutine = null;

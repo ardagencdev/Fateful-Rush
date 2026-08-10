@@ -124,8 +124,8 @@ public class SliderValueText : MonoBehaviour,
             return;
 
         int percentage = Mathf.RoundToInt(
-            slider.normalizedValue * 100f
-        );
+           slider.value * 100f
+                  );
 
         valueText.SetText("{0}%", percentage);
     }

@@ -45,22 +45,22 @@ MonoBehaviour:
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
-  timeLimit: 70
+  timeLimit: 65
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 1
-  dashDistance: 2.6
-  dashDuration: 0.12
-  dashCooldown: 1.8
-  cloneDuration: 3.25
-  cloneCooldown: 15.5
+  dashDistance: 3
+  dashDuration: 0.15
+  dashCooldown: 3
+  cloneDuration: 4
+  cloneCooldown: 10
   cloneUses: 1
   armorImmuneDuration: 1
-  slowMultiplier: 0.4
+  slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 0
-  comboTimeLimit: 1.7
+  comboTimeLimit: 2.2
   comboSpeedStages: []
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 1, g: 0.23, b: 0.4, a: 1}
@@ -68,8 +68,8 @@ MonoBehaviour:
   nearStarsSizeMultiplier: 1.131
   starfieldDensityMultiplier: 1.135
   nearStarsEmissionRate: 50
-  coinSpawnInterval: 1
-  maxCoinCount: 8
+  coinSpawnInterval: 0.9
+  maxCoinCount: 10
   normalCoinChance: 70
   goldCoinChance: 25
   rareCoinChance: 5

@@ -218,6 +218,9 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
+  obstacleProbeDistance: 0.8
+  obstacleAvoidanceAttempts: 5
+  obstacleOutwardBias: 0.3
   escapeCheckRadius: 1.2
   escapeSpeedMultiplier: 2.2
   projectilePrefab: {fileID: 3103699471071135752, guid: 06a86fc2bab7ee843b238469a7cd406c, type: 3}
@@ -229,7 +232,7 @@ MonoBehaviour:
   stuckDistance: 0.05
   unstuckDuration: 0.35
   unstuckSideForce: 2
-  fireSound: {fileID: 8300000, guid: 6fec7ab44c9fe2144a0fbb06fdf6db46, type: 3}
+  fireSound: {fileID: 8300000, guid: 56b01a5d46f1a69478e7b7de0c8df811, type: 3}
   spawnEffectDuration: 0.15
 --- !u!1 &2194490060352627480
 GameObject:

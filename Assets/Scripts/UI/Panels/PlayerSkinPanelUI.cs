@@ -102,6 +102,10 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         StopPageAnimation();
         currentSkinIndex = FindSelectedSkinIndex();
+
+        MainMenuStarColorRandomizer.Instance?
+            .BeginSkinPreview();
+
         RefreshCurrentSkin();
         ResetPageVisuals();
 
@@ -116,6 +120,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         StopPageAnimation();
         ResetPageVisuals();
+
+        MainMenuStarColorRandomizer.Instance?
+            .EndSkinPreview();
 
         SoundManager.Instance?.PlayBackButtonSound();
         SwitchPanels(skinPanel, levelSelectPanel);
@@ -337,6 +344,11 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         bool unlocked = skinCatalog.IsUnlocked(skin);
         bool selected = skinCatalog.IsSelected(skin);
+
+        MainMenuStarColorRandomizer.Instance?
+            .ShowSkinPreviewColor(
+                skin.armorVisualColor
+            );
 
         if (skinImage != null)
         {

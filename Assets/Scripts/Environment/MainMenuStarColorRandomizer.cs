@@ -75,6 +75,12 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     private float originalVelocityYMultiplier;
     private float originalVelocityZMultiplier;
 
+    private bool skinPreviewActive;
+    private Color skinPreviewRestoreColor;
+    private float skinPreviewRestoreEmissionRate;
+    private float skinPreviewRestoreMaxParticles;
+    private float skinPreviewRestoreFlowMultiplier;
+
     private void Awake()
     {
         if (Instance != null &&
@@ -211,6 +217,58 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             originalEmissionRate,
             originalMaxParticles,
             1f
+        );
+    }
+
+    public void BeginSkinPreview()
+    {
+        if (nearStars == null || skinPreviewActive)
+            return;
+
+        if (transitionRoutine != null)
+        {
+            StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+        }
+
+        skinPreviewRestoreColor = currentColor;
+        skinPreviewRestoreEmissionRate = currentEmissionRate;
+        skinPreviewRestoreMaxParticles = currentMaxParticles;
+        skinPreviewRestoreFlowMultiplier = currentFlowMultiplier;
+        skinPreviewActive = true;
+    }
+
+    public void ShowSkinPreviewColor(Color skinColor)
+    {
+        if (nearStars == null)
+            return;
+
+        if (!skinPreviewActive)
+            BeginSkinPreview();
+
+        Color targetColor = NormalizePreviewColor(skinColor);
+        targetColor.a = currentColor.a;
+
+        ChangeState(
+            targetColor,
+            currentEmissionRate,
+            Mathf.RoundToInt(currentMaxParticles),
+            currentFlowMultiplier
+        );
+    }
+
+    public void EndSkinPreview()
+    {
+        if (!skinPreviewActive)
+            return;
+
+        skinPreviewActive = false;
+
+        ChangeState(
+            skinPreviewRestoreColor,
+            skinPreviewRestoreEmissionRate,
+            Mathf.RoundToInt(skinPreviewRestoreMaxParticles),
+            skinPreviewRestoreFlowMultiplier
         );
     }
 
@@ -461,6 +519,25 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
                 firstPageFlowMultiplier,
                 lastPageFlowMultiplier
             );
+    }
+
+    private static Color NormalizePreviewColor(Color color)
+    {
+        float highestChannel = Mathf.Max(
+            color.r,
+            color.g,
+            color.b
+        );
+
+        if (highestChannel > 1f)
+        {
+            color.r /= highestChannel;
+            color.g /= highestChannel;
+            color.b /= highestChannel;
+        }
+
+        color.a = 1f;
+        return color;
     }
 
     private static float EaseInOutCubic(

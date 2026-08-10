@@ -498,15 +498,29 @@ MonoBehaviour:
   combo1Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   combo2Color: {r: 1, g: 0.78, b: 0.1, a: 1}
   combo3Color: {r: 1, g: 0.15, b: 0.1, a: 1}
-  pulseScale: 1.25
-  pulseDuration: 0.15
-  maxComboShakeDuration: 0.18
-  maxComboShakeAmount: 8
-  maxComboScale: 1.4
+  combo4Color: {r: 1, g: 0.28, b: 0.1, a: 1}
+  combo5Color: {r: 0.95, g: 0.18, b: 0.52, a: 1}
+  combo6Color: {r: 0.72, g: 0.42, b: 1, a: 1}
+  pulseScale: 1.1
+  pulseDuration: 0.07
+  stageUpMinScale: 1.2
+  stageUpMaxScale: 1.36
+  stageUpDuration: 0.2
+  stageUpLift: 8
+  stageUpTilt: 3.5
+  stageUpShakeAmount: 2.5
+  maxComboShakeDuration: 0.24
+  maxComboShakeAmount: 7
+  maxComboScale: 1.48
+  maxComboSecondPulseScale: 1
+  maxComboFlashStrength: 0.8
   comboTimerBar: {fileID: 1044295408}
   timerFullColor: {r: 0, g: 1, b: 0, a: 1}
   timerLowColor: {r: 1, g: 0, b: 0, a: 1}
-  resetFadeDuration: 0.25
+  showFadeDuration: 0.16
+  showStartScale: 0.88
+  resetFadeDuration: 0.2
+  resetScale: 0.9
 --- !u!224 &28998268
 RectTransform:
   m_ObjectHideFlags: 0
@@ -525,7 +539,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 170, y: 20.000057}
+  m_AnchoredPosition: {x: -10, y: -40}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &29032524
@@ -16180,7 +16194,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 20, y: -140}
+  m_AnchoredPosition: {x: 20, y: -180}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &799240660

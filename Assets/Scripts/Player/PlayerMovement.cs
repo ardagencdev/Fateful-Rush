@@ -59,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody2D rb;
     private DeathFadeEffect deathFade;
+    private SpecialSkinVisuals specialSkinVisuals;
 
     private Vector2 moveInput;
     private Vector2 currentVelocity;
@@ -101,6 +102,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         deathFade = GetComponent<DeathFadeEffect>();
+        specialSkinVisuals = GetComponent<SpecialSkinVisuals>();
 
         if (coinCollector == null)
             coinCollector = GetComponent<PlayerCoinCollector>();
@@ -498,6 +500,11 @@ public class PlayerMovement : MonoBehaviour
             0.3f,
             0.7f
         );
+
+        if (specialSkinVisuals == null)
+            specialSkinVisuals = GetComponent<SpecialSkinVisuals>();
+
+        specialSkinVisuals?.PlayDeathEffect();
 
         if (deathFade != null)
             deathFade.Play();
