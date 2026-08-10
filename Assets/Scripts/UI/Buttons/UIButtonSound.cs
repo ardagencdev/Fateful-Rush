@@ -40,6 +40,13 @@ public class UIButtonSound : MonoBehaviour
         continueMainMenu = mainMenu;
     }
 
+    public void ConfigureAsPageNavigation()
+    {
+        // Next and Previous page buttons intentionally use the
+        // same navigation SFX.
+        soundType = ButtonSoundType.Previous;
+    }
+
     private void Awake()
     {
         button = GetComponent<Button>();

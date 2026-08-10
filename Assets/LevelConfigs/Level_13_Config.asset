@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Slow temporarily reduces every active enemy. Trigger it when the arena is crowded,
-    not while threats are still spawning.
-  - 'This is a survival mission: clone is not available yet, so bomb awareness and
-    central positioning decide the run.'
+  - Slow temporarily reduces game speed and gives you breathing room. Use it when several threats
+    overlap, not while the arena is calm.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 1
   winScore: 15

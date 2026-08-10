@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Reach the target before time expires. The reduced combo bonuses reward consistent
-    routes instead of runaway speed.
-  - Use armor to protect a valuable scoring line, but abandon the chain when the
-    arena closes around you.
+  - This is your first Timed Score mission. Build consistent combos, but abandon a chain when the arena
+    starts closing around you.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 2
   winScore: 80

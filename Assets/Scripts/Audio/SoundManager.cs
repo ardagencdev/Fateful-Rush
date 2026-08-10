@@ -42,7 +42,11 @@ public class SoundManager : MonoBehaviour
     public AudioClip missionSelectSound;
     public AudioClip optionButtonSound;
 
-    public AudioClip nextButtonSound;
+    [FormerlySerializedAs("nextButtonSound")]
+    [Tooltip("Uses the AudioClip that was previously assigned as Next Page SFX. Now used by the Skin Equip button.")]
+    public AudioClip skinEquipSound;
+
+    [Tooltip("Shared page-navigation SFX used by both Next and Previous page buttons.")]
     public AudioClip previousButtonSound;
     public AudioClip exitButtonSound;
 
@@ -167,10 +171,13 @@ public class SoundManager : MonoBehaviour
         PlaySound(optionButtonSound);
 
     public void PlayNextButtonSound() =>
-        PlaySound(nextButtonSound);
+        PlaySound(previousButtonSound);
 
     public void PlayPreviousButtonSound() =>
         PlaySound(previousButtonSound);
+
+    public void PlaySkinEquipSound() =>
+        PlaySound(skinEquipSound);
 
     public void PlayExitButtonSound() =>
         PlaySound(exitButtonSound);

@@ -40,9 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon, dual lasers and bombs now share a timed scoring mission.
-  - Treat each Beacon death as a scoring window. When it returns, stop forcing combo
-    and restore control first.
+  - A recurring Beacon, both Laser directions and Space Bombs share this Timed Score mission. Treat each
+    Beacon death as a scoring window.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 165

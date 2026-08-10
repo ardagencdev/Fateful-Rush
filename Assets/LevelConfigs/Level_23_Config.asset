@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon supports the pursuit. Remove it with Dash before it can keep
-    projectile and Hunter buffs active.
-  - The Beacon will return, so use the quiet interval after each kill to rebuild
-    score and reposition.
+  - A recurring Beacon supports the enemy wave. Destroy it with Dash, then use the quiet interval before
+    it returns to rebuild control.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 2
   winScore: 120

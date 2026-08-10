@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Every major arena hazard is active. Survive by preserving options, not by remaining
-    in one comfortable corner.
-  - Armor covers one failure; Clone creates one reset. Spend them on separate danger
-    peaks instead of together.
+  - Both Laser directions and Space Bombs combine in a long Survival mission. Keep Armor and Clone for
+    separate emergencies.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15

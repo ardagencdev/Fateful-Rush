@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - 'Final Challenge: survive 80 seconds against recurring Beacons, every hazard
-    type and a Boss entering at 55 seconds.'
-  - "Destroy Beacons with Dash to clear their buffs. Stagger Armor, Slow and Clone\u2014the
-    final 25 seconds require more than one answer."
+  - Final Challenge. Survive every major hazard with recurring Beacons and a Boss entering at 52
+    seconds. Stagger Armor, Slow and Clone carefully.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15

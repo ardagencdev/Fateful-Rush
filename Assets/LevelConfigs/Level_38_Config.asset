@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The highest pure score target combines severe enemies, bombs, a recurring Beacon
-    and five obstacles.
-  - Keep chains local. Remove the Beacon before committing to a high-value route
-    through the dark wreckage.
+  - A recurring Beacon, Space Bombs and five obstacles guard the highest pure score target. Keep combos
+    local and clear Beacon buffs first.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 0
   winScore: 260

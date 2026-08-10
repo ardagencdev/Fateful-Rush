@@ -40,9 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Dash is an escape tool, not permanent movement. Save it for blocked routes or
-    a pursuer entering collision range.
-  - Dashing through open space wastes the safest answer to a bad obstacle angle.
+  - Dash is now available. Save it for blocked routes or close threats instead of spending it in open
+    space.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 60

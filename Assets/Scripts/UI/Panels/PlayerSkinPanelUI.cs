@@ -158,9 +158,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
             return;
         }
 
-        // Açık veya zaten equipped olan skinlerde
-        // her tıklamada Option sesi gelsin.
-        SoundManager.Instance?.PlayOptionButtonSound();
+        // Unlocked/equipped skin clicks use the old Next Page SFX,
+        // which is now dedicated to Skin Equip.
+        SoundManager.Instance?.PlaySkinEquipSound();
         VibrationManager.Instance?.VibrateUI();
 
         if (skinCatalog.IsSelected(skin))
@@ -188,12 +188,16 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         if (previousSkinButton != null)
         {
+            ConfigurePageNavigationSound(previousSkinButton);
+
             previousSkinButton.onClick.RemoveListener(PreviousSkin);
             previousSkinButton.onClick.AddListener(PreviousSkin);
         }
 
         if (nextSkinButton != null)
         {
+            ConfigurePageNavigationSound(nextSkinButton);
+
             nextSkinButton.onClick.RemoveListener(NextSkin);
             nextSkinButton.onClick.AddListener(NextSkin);
         }
@@ -218,6 +222,24 @@ public class PlayerSkinPanelUI : MonoBehaviour
                     equipButton.GetComponentInChildren<TMP_Text>(true);
             }
         }
+    }
+
+    private static void ConfigurePageNavigationSound(Button button)
+    {
+        if (button == null)
+            return;
+
+        UIButtonSound buttonSound =
+            button.GetComponent<UIButtonSound>();
+
+        if (buttonSound == null)
+        {
+            buttonSound =
+                button.gameObject.AddComponent<UIButtonSound>();
+        }
+
+        buttonSound.enabled = true;
+        buttonSound.ConfigureAsPageNavigation();
     }
 
     private void PreparePageContainer()
@@ -387,7 +409,11 @@ public class PlayerSkinPanelUI : MonoBehaviour
             ? skinCatalog.Skins.Count
             : 0;
 
-        bool canNavigate = skinCount > 1;
+        // Sayfa gecis animasyonu devam ederken navigation butonlarini
+        // tekrar aktif etme. RefreshCurrentSkin() gecisin ortasinda
+        // cagrildigi icin aksi halde SFX calisirken NextSkin/PreviousSkin
+        // pageRoutine kontrolune takilip islemi reddedebiliyordu.
+        bool canNavigate = skinCount > 1 && pageRoutine == null;
 
         if (previousSkinButton != null)
         {

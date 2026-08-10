@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This long survival mission has no permanent safe lane. Clone cooldown begins
-    after its active time, leaving a real vulnerable gap.
-  - Rotate Armor, Slow and Clone across separate emergencies. Using two together
-    usually leaves the next wave unanswered.
+  - Both Laser directions and Space Bombs stay active through a long Survival mission. Rotate Armor,
+    Slow and Clone across separate emergencies.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15

@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - 'Survive Time ignores score: coins and combo will not save you. Your only objective
-    is to remain alive for 45 seconds.'
-  - Preserve open space as bombs accumulate. Armor is a recovery option, not a reason
-    to cross an armed bomb.
+  - This is your first Survival mission. Preserve open space as Space Bombs accumulate and use Armor
+    only as a recovery tool.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 1
   winScore: 15

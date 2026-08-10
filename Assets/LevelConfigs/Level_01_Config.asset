@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Learn the arena before the pursuit begins. Keep a clear route through the centre
-    instead of circling the boundary.
-  - Collect the nearest coins first. Clean movement matters more than speed in this
-    opening mission.
+  - First signal acquired. Begin your mission by learning movement and establishing
+    safe coin routes.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 15

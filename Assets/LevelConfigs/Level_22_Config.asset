@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Bomb pressure returns with faster projectile fire. Build score around the minefield
-    instead of cutting through its centre.
-  - Hunters punish predictable circles. Reverse direction only after their charge
-    line is committed.
+  - Space Bombs return without Armor or Slow support. Keep routes short and change direction only after
+    Hunter charges commit.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
   winScore: 165

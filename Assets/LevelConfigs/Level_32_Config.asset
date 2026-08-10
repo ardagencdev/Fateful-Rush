@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The timed target is balanced around a maximum 4x combo. Clean chains matter,
-    but extreme speed is no longer required.
-  - A recurring Beacon can destabilize the route. Remove it before attempting a long
-    scoring chain.
+  - A recurring Beacon and Space Bombs disrupt this Timed Score mission. Remove the Beacon before
+    committing to a long combo chain.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 2
   winScore: 150

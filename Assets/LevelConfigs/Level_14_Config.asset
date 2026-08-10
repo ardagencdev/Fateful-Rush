@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Rare coins can accelerate the objective, but their value does not justify entering
-    a sealed route.
-  - Five normal enemies create sustained pressure. Rotate the group around obstacles
-    before turning toward high-value coins.
+  - Rare Coins are worth 5 points. Take them when accessible, but never enter a sealed route just for
+    the extra score.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
   winScore: 125

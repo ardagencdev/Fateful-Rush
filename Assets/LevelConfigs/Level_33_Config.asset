@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This is the campaign's dedicated minefield score test. Bombs spawn quickly and
-    five obstacles restrict direct routes.
-  - Work from one open sector to the next. Never collect a coin that leaves an armed
-    bomb between you and the centre.
+  - Five obstacles and fast Space Bomb pressure turn this into a minefield score test. Move from one
+    open sector to the next.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
   winScore: 220

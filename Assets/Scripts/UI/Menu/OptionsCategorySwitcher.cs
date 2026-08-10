@@ -223,26 +223,35 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
             return;
         }
 
-        if (swipeDelta.x < 0f &&
-            currentCategory == OptionsCategory.Audio)
-        {
-            SwitchToCategory(OptionsCategory.Game);
-        }
-        else if (swipeDelta.x > 0f &&
-                 currentCategory == OptionsCategory.Game)
-        {
-            SwitchToCategory(OptionsCategory.Audio);
-        }
+        // There are only two pages, so a valid horizontal swipe in
+        // either direction switches to the other page. This makes
+        // page 2 reachable with both left and right swipes.
+        OptionsCategory targetCategory =
+            currentCategory == OptionsCategory.Audio
+                ? OptionsCategory.Game
+                : OptionsCategory.Audio;
+
+        // Keep the slide animation consistent with the swipe direction.
+        int swipeDirection = swipeDelta.x < 0f ? 1 : -1;
+
+        SwitchToCategory(
+            targetCategory,
+            swipeDirection
+        );
     }
 
     private void SwitchToCategory(
-        OptionsCategory targetCategory)
+        OptionsCategory targetCategory,
+        int? directionOverride = null)
     {
         if (transitionRoutine != null ||
             targetCategory == currentCategory)
         {
             return;
         }
+
+        if (switchCategoryButton != null)
+            switchCategoryButton.interactable = false;
 
         OptionsCategory previousCategory =
             currentCategory;
@@ -252,10 +261,10 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         UpdateSwitchButtonText();
         UpdatePageIndicator();
 
-        int direction =
-            targetCategory == OptionsCategory.Game
+        int direction = directionOverride ??
+            (targetCategory == OptionsCategory.Game
                 ? 1
-                : -1;
+                : -1);
 
         transitionRoutine = StartCoroutine(
             AnimateCategorySwitch(
@@ -288,6 +297,10 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         {
             ApplyCategoryInstant(targetCategory);
             transitionRoutine = null;
+
+            if (switchCategoryButton != null)
+                switchCategoryButton.interactable = true;
+
             yield break;
         }
 
@@ -351,6 +364,9 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         targetPage.gameObject.SetActive(true);
 
         transitionRoutine = null;
+
+        if (switchCategoryButton != null)
+            switchCategoryButton.interactable = true;
     }
 
     private void ApplyCategoryInstant(
@@ -546,11 +562,14 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
     private void StopTransition()
     {
-        if (transitionRoutine == null)
-            return;
+        if (transitionRoutine != null)
+        {
+            StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+        }
 
-        StopCoroutine(transitionRoutine);
-        transitionRoutine = null;
+        if (switchCategoryButton != null)
+            switchCategoryButton.interactable = true;
     }
 
     private void OnValidate()

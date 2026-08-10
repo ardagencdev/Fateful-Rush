@@ -40,13 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Armor absorbs one lethal hit and grants brief protection after it breaks. It
-    does not make a trapped route safe.
-  - Use the armor window to leave danger immediately; staying inside the same crossfire
-    will waste the protection.
+  - Armor absorbs one lethal hit and grants brief immunity after breaking. Use that window to escape
+    immediately.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 90
+  winScore: 85
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

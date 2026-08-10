@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Reach 180 score before time expires; the Boss arrives at 135 while projectile
-    and Hunter danger is near maximum.
-  - Enter the Boss phase with Armor or Slow available. Do not spend Dash on score
-    if it is needed to cross the Boss path.
+  - The Boss enters at 122 score while Vertical Lasers, Space Bombs, Hunters and Blasters pressure the
+    timer. Save a defensive option for that phase.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 180

@@ -278,32 +278,50 @@ public class MissionBriefingPanelUI : MonoBehaviour
     {
         pages.Clear();
 
-        // İlk sayfada oyuncuya doğrudan görev hedefi gösterilir.
-        // Başlık, oyun modu, zorluk ve en iyi süre panelin üst kısmında
-        // sabit olarak gösterildiği için burada tekrar edilmez.
-        pages.Add(levelConfig.GetEffectiveObjectiveDescription());
+        // Briefing artık tek sayfadır. Görev hedefi ile levela özel kısa bilgi
+        // aynı sayfada birleştirilir; böylece oyuncu başlamadan önce yalnızca
+        // gerçekten gerekli bilgiyi tek bakışta görür.
+        string combinedBriefing =
+            levelConfig.GetEffectiveObjectiveDescription();
 
-        if (levelConfig.briefingPages == null)
-            return;
-
-        foreach (string page in levelConfig.briefingPages)
+        if (levelConfig.briefingPages != null)
         {
-            if (string.IsNullOrWhiteSpace(page))
-                continue;
+            foreach (string page in levelConfig.briefingPages)
+            {
+                if (string.IsNullOrWhiteSpace(page))
+                    continue;
 
-            pages.Add(page.Trim());
+                string trimmedPage = page.Trim();
+
+                if (string.IsNullOrWhiteSpace(combinedBriefing))
+                {
+                    combinedBriefing = trimmedPage;
+                }
+                else
+                {
+                    combinedBriefing +=
+                        "\n\n" + trimmedPage;
+                }
+            }
         }
 
-        if (pages.Count == 0)
-            pages.Add("Complete the mission objective.");
+        if (string.IsNullOrWhiteSpace(combinedBriefing))
+            combinedBriefing = "Complete the mission objective.";
+
+        pages.Add(combinedBriefing.Trim());
     }
 
     private void RefreshMissionInformation(LevelConfig levelConfig)
     {
         if (levelTitleText != null)
         {
-            levelTitleText.text =
-                $"LEVEL {levelConfig.levelNumber}";
+            string levelName = string.IsNullOrWhiteSpace(levelConfig.levelName)
+                ? string.Empty
+                : levelConfig.levelName.Trim();
+
+            levelTitleText.text = string.IsNullOrEmpty(levelName)
+                ? $"LEVEL {levelConfig.levelNumber}"
+                : $"LEVEL {levelConfig.levelNumber} — {levelName.ToUpperInvariant()}";
         }
 
         if (modeText != null)
@@ -375,8 +393,18 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
         if (pageIndicatorText != null)
         {
-            pageIndicatorText.text =
-                $"{currentPageIndex + 1} / {pages.Count}";
+            bool showPageIndicator =
+                pages.Count > 1;
+
+            pageIndicatorText.gameObject.SetActive(
+                showPageIndicator
+            );
+
+            if (showPageIndicator)
+            {
+                pageIndicatorText.text =
+                    $"{currentPageIndex + 1} / {pages.Count}";
+            }
         }
 
         SetStartButtonInstant(

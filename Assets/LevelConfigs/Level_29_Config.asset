@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Three Hunters and a recurring Beacon turn this into a priority-target survival
-    mission.
-  - Dash through the Beacon when a safe line opens. Removing its buffs is often more
-    valuable than using Dash only to flee.
+  - A recurring Beacon and two Hunters create repeated pressure spikes. Destroy the Beacon whenever a
+    safe Dash line opens.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 1
   winScore: 15

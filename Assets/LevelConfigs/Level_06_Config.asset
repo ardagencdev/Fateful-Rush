@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Gold coins are worth more, but the route to them may be dangerous. Take them
-    only when your exit remains open.
-  - The normal enemies begin faster here; build score without letting all three approach
-    from different sides.
+  - Gold Coins are worth 3 points. Take them when the route is safe; their value is not worth getting
+    trapped.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 75

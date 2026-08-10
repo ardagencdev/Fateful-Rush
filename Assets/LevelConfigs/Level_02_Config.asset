@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Combos begin after consecutive pickups, but a Stalker is now active. Keep moving
-    while linking nearby coins; breaking your route gives it time to close in.
-  - Stalkers accelerate while they remain alive. Use tight turns and cross behind
-    them to create space without sacrificing the combo chain.
+  - Combos reward consecutive coin pickups, while the new Stalker relentlessly pursues you and
+    accelerates over time.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 30

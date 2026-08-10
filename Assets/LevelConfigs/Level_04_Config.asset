@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Static obstacles now shape the chase. Read both sides of an object before committing
-    to a narrow gap.
-  - Use obstacles to bend enemy paths, but leave yourself a second exit before the
-    pursuers arrive.
+  - Static obstacles now block routes. Use them to bend Stalker paths, but always leave yourself a
+    second exit.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 55

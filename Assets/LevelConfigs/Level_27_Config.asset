@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Three projectile enemies create sustained crossfire while bombs remove resting
-    positions.
-  - Do not dodge every bullet independently. Move in one deliberate arc, then break
-    direction after the nearest shots commit.
+  - Heavy Blaster and Hunter pressure combines with Space Bombs. Move in deliberate arcs and change
+    direction after nearby shots commit.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 0
   winScore: 195

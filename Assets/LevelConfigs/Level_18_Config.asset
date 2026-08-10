@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Beacon enemies amplify nearby threats. Destroy a Beacon by dashing into it while
-    Dash is active.
-  - Killing the Beacon instantly removes every buff it created, but a replacement
-    appears after a short delay.
+  - Beacons buff nearby enemies. Destroy a Beacon by dashing into it; its active buffs disappear
+    immediately, but another Beacon can return.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 110

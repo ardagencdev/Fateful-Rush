@@ -40,13 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Projectile enemies hold distance and lead their shots. Change direction after
-    a shot is fired, not before it commits.
-  - Enemy bullets pass through other enemies, including bosses. Never use an enemy
-    body as cover.
+  - Blasters keep their distance and fire predictive shots. Change direction after a shot commits, and
+    never use enemies as bullet cover.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 85
+  winScore: 80
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

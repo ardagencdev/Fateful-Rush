@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This checkpoint combines both laser directions, Space Bombs and a Boss before
-    the timed target is complete.
-  - Score early while the arena is clean. After the Boss arrives, protect the run
-    rather than forcing every coin chain.
+  - Both Laser directions, Space Bombs and a Boss at 85 score overlap here. Score early, then prioritize
+    survival once the arena fills.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 125

@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Boss and Beacon pressure overlap before the timed objective ends. The Beacon
-    is replaceable; the Boss remains.
-  - Destroy the Beacon to strip buffs, then route the Boss away from scoring space
-    during the respawn delay.
+  - A Beacon, Space Bombs and a Boss at 102 score overlap before the timer ends. Remove Beacon buffs
+    before forcing long scoring routes.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
   winScore: 150

@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both laser directions are active during a long survival window. Warning order
-    matters more than raw speed.
-  - Use Slow before Clone when possible. Save the decoy for a second hazard arriving
-    before the first escape is complete.
+  - Both Laser directions are active during a long Survival mission. Use Slow for one pressure spike and
+    save Clone for the next overlap.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 1
   winScore: 15

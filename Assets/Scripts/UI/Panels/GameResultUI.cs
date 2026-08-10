@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameResultUI : MonoBehaviour
 {
@@ -63,6 +64,7 @@ public class GameResultUI : MonoBehaviour
     private Vector2 loseSurvivedValueDefaultPosition;
 
     private bool metricLayoutCached;
+    private bool isSceneChangeRequested;
 
     private void Awake()
     {
@@ -545,6 +547,9 @@ public class GameResultUI : MonoBehaviour
 
     public void NextLevel()
     {
+        if (!TryBeginSceneChange())
+            return;
+
         PrepareForSceneChange();
 
         LevelConfig currentLevel =
@@ -557,7 +562,11 @@ public class GameResultUI : MonoBehaviour
 
         if (nextLevel == null)
         {
-            GoMenu();
+            SelectedLevelData.Clear();
+
+            if (!LoadScene("MainMenu"))
+                CancelSceneChangeRequest();
+
             return;
         }
 
@@ -565,27 +574,38 @@ public class GameResultUI : MonoBehaviour
             nextLevel
         );
 
-        LoadScene(gameSceneName);
+        if (!LoadScene(gameSceneName))
+            CancelSceneChangeRequest();
     }
 
     public void TryAgain()
     {
+        if (!TryBeginSceneChange())
+            return;
+
         PrepareForSceneChange();
 
-        LoadScene(
+        if (!LoadScene(
             SceneManager
                 .GetActiveScene()
                 .name
-        );
+        ))
+        {
+            CancelSceneChangeRequest();
+        }
     }
 
     public void GoMenu()
     {
+        if (!TryBeginSceneChange())
+            return;
+
         PrepareForSceneChange();
 
         SelectedLevelData.Clear();
 
-        LoadScene("MainMenu");
+        if (!LoadScene("MainMenu"))
+            CancelSceneChangeRequest();
     }
 
     public void Hide()
@@ -602,6 +622,9 @@ public class GameResultUI : MonoBehaviour
     {
         if (resultPanel == null)
             return;
+
+        isSceneChangeRequested = false;
+        SetSceneButtonsInteractable(true);
 
         resultPanel.SetActive(true);
         resultPanel.transform.SetAsLastSibling();
@@ -933,7 +956,58 @@ public class GameResultUI : MonoBehaviour
         RestorePhysics();
     }
 
-    private void LoadScene(string sceneName)
+    private bool TryBeginSceneChange()
+    {
+        if (isSceneChangeRequested)
+            return false;
+
+        if (SceneTransition.Instance != null &&
+            SceneTransition.Instance.IsTransitioning)
+        {
+            return false;
+        }
+
+        isSceneChangeRequested = true;
+        SetSceneButtonsInteractable(false);
+        return true;
+    }
+
+    private void CancelSceneChangeRequest()
+    {
+        isSceneChangeRequested = false;
+        SetSceneButtonsInteractable(true);
+    }
+
+    private void SetSceneButtonsInteractable(bool interactable)
+    {
+        SetButtonInteractable(nextLevelButton, interactable);
+        SetButtonInteractable(tryAgainButton, interactable);
+        SetButtonInteractable(menuButton, interactable);
+    }
+
+    private static void SetButtonInteractable(
+        GameObject buttonObject,
+        bool interactable)
+    {
+        if (buttonObject == null)
+            return;
+
+        Button button =
+            buttonObject.GetComponent<Button>();
+
+        if (button == null)
+        {
+            button =
+                buttonObject.GetComponentInChildren<Button>(
+                    true
+                );
+        }
+
+        if (button != null)
+            button.interactable = interactable;
+    }
+
+    private bool LoadScene(string sceneName)
     {
         if (string.IsNullOrWhiteSpace(sceneName))
         {
@@ -942,22 +1016,38 @@ public class GameResultUI : MonoBehaviour
                 this
             );
 
-            return;
+            return false;
+        }
+
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError(
+                $"[GameResultUI] Sahne yüklenemiyor: '{sceneName}'. " +
+                "Build Profiles ayarını kontrol et.",
+                this
+            );
+
+            return false;
         }
 
         if (SceneTransition.Instance != null)
         {
+            if (SceneTransition.Instance.IsTransitioning)
+                return false;
+
             SceneTransition.Instance
                 .LoadSceneWithFade(
                     sceneName
                 );
+
+            return true;
         }
-        else
-        {
-            SceneManager.LoadScene(
-                sceneName
-            );
-        }
+
+        SceneManager.LoadScene(
+            sceneName
+        );
+
+        return true;
     }
 
     private static string FormatTime(float time)

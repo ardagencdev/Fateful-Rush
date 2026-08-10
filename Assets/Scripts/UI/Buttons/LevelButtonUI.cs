@@ -147,6 +147,12 @@ public class LevelButtonUI : MonoBehaviour,
         if (config == null)
             return;
 
+        // Briefing zaten açılmışsa alttaki level butonlarına gelen
+        // ekstra tıklamaları tamamen yok say. Böylece aksiyon olmadan
+        // Mission Select SFX tekrar çalmaz.
+        if (panel != null && panel.IsMissionBriefingOpen)
+            return;
+
         if (!unlocked)
         {
             SoundManager.Instance?.PlayLockedLevelSound();

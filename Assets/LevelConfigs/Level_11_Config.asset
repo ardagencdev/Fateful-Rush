@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Horizontal Lasers announce their lane before firing. Leave the warning band early,
-    before enemies close the safe side.
-  - Projectiles and a laser can force opposite reactions. Prioritize the laser lane,
-    then dodge the committed shot.
+  - Horizontal Lasers warn their lane before firing. Leave the warning band early, then react to
+    incoming Blaster shots.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
   winScore: 110

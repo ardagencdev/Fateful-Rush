@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Dual Lasers control the arena, but the enemy wave is lighter than the previous
-    mission. Safe lanes still change often.
-  - Stay near the centre until a warning appears, then choose the side with fewer
-    enemies. Clone should solve only true overlaps.
+  - Both Laser directions remain active in this Survival mission. Stay central until a warning appears,
+    then move toward the cleaner side.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 1
   winScore: 15

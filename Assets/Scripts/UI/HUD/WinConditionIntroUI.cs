@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +14,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
     private RectTransform contentTransform;
     private TextMeshProUGUI levelText;
     private TextMeshProUGUI objectiveText;
+    private TextMeshProUGUI mechanicText;
     private TextMeshProUGUI inputHintText;
 
     public IEnumerator PlayAndWait(
@@ -32,6 +34,21 @@ public sealed class WinConditionIntroUI : MonoBehaviour
 
         objectiveText.text =
             BuildObjectiveText(level);
+
+        string introducedMechanics =
+            BuildIntroducedMechanicsText(level);
+
+        bool hasIntroducedMechanic =
+            !string.IsNullOrWhiteSpace(introducedMechanics);
+
+        mechanicText.text = introducedMechanics;
+        mechanicText.gameObject.SetActive(hasIntroducedMechanic);
+
+        inputHintText.rectTransform.anchoredPosition =
+            new Vector2(
+                0f,
+                hasIntroducedMechanic ? -180f : -142f
+            );
 
         inputHintText.text =
             Application.isMobilePlatform
@@ -278,7 +295,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
             Vector2.zero;
 
         contentTransform.sizeDelta =
-            new Vector2(1500f, 500f);
+            new Vector2(1500f, 600f);
 
         TMP_FontAsset sceneFont =
             FindSceneFont();
@@ -290,7 +307,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 sceneFont,
                 string.Empty,
                 25f,
-                new Vector2(0f, 150f),
+                new Vector2(0f, 180f),
                 new Vector2(1450f, 55f)
             );
 
@@ -307,7 +324,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 sceneFont,
                 "WIN CONDITION",
                 34f,
-                new Vector2(0f, 92f),
+                new Vector2(0f, 122f),
                 new Vector2(1450f, 70f)
             );
 
@@ -323,14 +340,33 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 sceneFont,
                 string.Empty,
                 68f,
-                new Vector2(0f, -8f),
-                new Vector2(1500f, 190f)
+                new Vector2(0f, 5f),
+                new Vector2(1500f, 170f)
             );
 
         objectiveText.enableAutoSizing = true;
         objectiveText.fontSizeMin = 34f;
         objectiveText.fontSizeMax = 68f;
         objectiveText.fontStyle = FontStyles.Bold;
+
+        mechanicText =
+            CreateText(
+                "New Mechanic",
+                contentTransform,
+                sceneFont,
+                string.Empty,
+                26f,
+                new Vector2(0f, -108f),
+                new Vector2(1450f, 50f)
+            );
+
+        mechanicText.enableAutoSizing = true;
+        mechanicText.fontSizeMin = 20f;
+        mechanicText.fontSizeMax = 26f;
+        mechanicText.fontStyle = FontStyles.Bold;
+        mechanicText.characterSpacing = 2.2f;
+        mechanicText.color =
+            new Color(0.78f, 0.72f, 1f, 0.92f);
 
         inputHintText =
             CreateText(
@@ -339,7 +375,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 sceneFont,
                 string.Empty,
                 23f,
-                new Vector2(0f, -132f),
+                new Vector2(0f, -180f),
                 new Vector2(1450f, 60f)
             );
 
@@ -467,11 +503,19 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         if (level == null)
             return string.Empty;
 
-        if (level.levelNumber > 0)
-            return $"LEVEL {level.levelNumber}";
+        string levelName = string.IsNullOrWhiteSpace(level.levelName)
+            ? string.Empty
+            : level.levelName.Trim().ToUpperInvariant();
 
-        if (!string.IsNullOrWhiteSpace(level.levelName))
-            return level.levelName.ToUpperInvariant();
+        if (level.levelNumber > 0)
+        {
+            return string.IsNullOrEmpty(levelName)
+                ? $"LEVEL {level.levelNumber}"
+                : $"LEVEL {level.levelNumber} — {levelName}";
+        }
+
+        if (!string.IsNullOrEmpty(levelName))
+            return levelName;
 
         return "MISSION";
     }
@@ -498,6 +542,160 @@ public sealed class WinConditionIntroUI : MonoBehaviour
 
             default:
                 return "COMPLETE THE MISSION";
+        }
+    }
+
+    private static string BuildIntroducedMechanicsText(
+        LevelConfig level)
+    {
+        if (level == null ||
+            level.mechanicProgression == null)
+        {
+            return string.Empty;
+        }
+
+        LevelMechanicProgression progression =
+            level.mechanicProgression;
+
+        List<string> introduced =
+            new List<string>();
+
+        AddIfIntroduced(
+            introduced,
+            progression.reachScoreMode,
+            "SCORE MODE"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.surviveTimeMode,
+            "SURVIVAL MODE"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.timedScoreMode,
+            "TIMED SCORE"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.dash,
+            "DASH"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.clone,
+            "CLONE"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.combo,
+            "COMBO"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.normalCoin,
+            "COINS"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.goldCoin,
+            "GOLD COINS"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.rareCoin,
+            "RARE COINS"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.staticObstacles,
+            "OBSTACLES"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.normalEnemy,
+            "STALKER"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.projectileEnemy,
+            "BLASTER"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.hunterEnemy,
+            "HUNTER"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.boss,
+            "BOSS"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.beaconEnemy,
+            "BEACON"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.armor,
+            "ARMOR"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.slow,
+            "SLOW"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.verticalLaser,
+            "VERTICAL LASER"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.horizontalLaser,
+            "HORIZONTAL LASER"
+        );
+
+        AddIfIntroduced(
+            introduced,
+            progression.spaceBomb,
+            "SPACE BOMB"
+        );
+
+        if (introduced.Count == 0)
+            return string.Empty;
+
+        return "NEW  •  " +
+               string.Join("  •  ", introduced);
+    }
+
+    private static void AddIfIntroduced(
+        List<string> target,
+        MechanicProgressionStatus status,
+        string label)
+    {
+        if (status ==
+            MechanicProgressionStatus.IntroducedHere)
+        {
+            target.Add(label);
         }
     }
 
@@ -601,6 +799,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         contentTransform = null;
         levelText = null;
         objectiveText = null;
+        mechanicText = null;
         inputHintText = null;
     }
 

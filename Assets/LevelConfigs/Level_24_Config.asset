@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This survival mission combines vertical lasers, stronger bombs and two Hunters.
-    Movement space will shrink over time.
-  - Armor can forgive one mistake; it cannot reopen a sealed lane. Change zones before
-    the next bomb finishes arming.
+  - Vertical Lasers, Space Bombs and Hunters steadily reduce safe space. Move zones before a Bomb
+    finishes arming instead of escaping late.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 1
   winScore: 15

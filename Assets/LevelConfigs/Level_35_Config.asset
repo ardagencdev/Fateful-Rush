@@ -40,9 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss arrives at 165 score under severe enemy pressure and faster bomb placement.
-  - Build most of the target before the Boss enters. After the split, use obstacles
-    to separate the two mini-boss paths.
+  - The Boss enters at 169 score while Space Bombs keep shrinking safe routes. Build most of the target
+    before the Boss phase.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
   winScore: 235

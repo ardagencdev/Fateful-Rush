@@ -14,7 +14,7 @@ public class OptionsUI : MonoBehaviour
     private const int DefaultFPS = 60;
 
     private const float SelectedAlpha = 1f;
-    private const float UnselectedAlpha = 0.4f;
+    private const float UnselectedAlpha = 0.35f;
 
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;

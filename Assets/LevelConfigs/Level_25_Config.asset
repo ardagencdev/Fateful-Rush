@@ -40,9 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 125 score while horizontal lasers control escape lanes.
-  - Reach the Boss threshold with Dash ready. Pull the Boss away from the next coin
-    route before continuing the objective.
+  - The Boss enters at 130 score while Horizontal Lasers restrict exits. Reach that phase with Dash
+    ready and keep scoring routes clear.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
   winScore: 180

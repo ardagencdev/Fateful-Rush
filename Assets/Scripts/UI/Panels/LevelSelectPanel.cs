@@ -163,8 +163,15 @@ public class LevelSelectPanel : MonoBehaviour
         );
     }
 
+    public bool IsMissionBriefingOpen =>
+        missionBriefingPanel != null &&
+        missionBriefingPanel.IsOpen;
+
     public void ShowMissionBriefing(LevelConfig config)
     {
+        if (IsMissionBriefingOpen)
+            return;
+
         if (config == null)
         {
             Debug.LogWarning(
@@ -324,6 +331,8 @@ public class LevelSelectPanel : MonoBehaviour
     {
         if (previousPageButton != null)
         {
+            ConfigurePageNavigationSound(previousPageButton);
+
             previousPageButton.onClick.RemoveListener(
                 PreviousPage
             );
@@ -337,6 +346,8 @@ public class LevelSelectPanel : MonoBehaviour
 
         if (nextPageButton != null)
         {
+            ConfigurePageNavigationSound(nextPageButton);
+
             nextPageButton.onClick.RemoveListener(
                 NextPage
             );
@@ -353,6 +364,24 @@ public class LevelSelectPanel : MonoBehaviour
 
         nextPageGroup =
             GetOrAddCanvasGroup(nextPageButton);
+    }
+
+    private static void ConfigurePageNavigationSound(Button button)
+    {
+        if (button == null)
+            return;
+
+        UIButtonSound buttonSound =
+            button.GetComponent<UIButtonSound>();
+
+        if (buttonSound == null)
+        {
+            buttonSound =
+                button.gameObject.AddComponent<UIButtonSound>();
+        }
+
+        buttonSound.enabled = true;
+        buttonSound.ConfigureAsPageNavigation();
     }
 
     private static CanvasGroup GetOrAddCanvasGroup(

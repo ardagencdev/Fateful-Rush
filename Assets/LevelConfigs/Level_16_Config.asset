@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Clone redirects active enemies for a limited duration. Its cooldown begins only
-    after the clone disappears.
-  - Use the decoy to reset a collapsing formation, then reposition before enemies
-    return to you.
+  - Clone redirects enemies for a short time. Its cooldown begins after the Clone disappears, so use it
+    to reset collapsing formations.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
   winScore: 140

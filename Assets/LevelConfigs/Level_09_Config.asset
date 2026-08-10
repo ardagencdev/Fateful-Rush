@@ -40,13 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Space Bombs enter the arena here. A newly placed bomb is briefly safe, then becomes
-    a permanent lethal zone.
-  - Track the growing minefield while collecting. Do not let coins pull you into
-    a route with no return path.
+  - Space Bombs arm after a short delay and then become lethal zones. Track the minefield before
+    committing to a coin route.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 100
+  winScore: 90
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -118,7 +116,7 @@ MonoBehaviour:
   randomObstacleCount: 2
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 4.7
+  normalEnemySpawnInterval: 5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:

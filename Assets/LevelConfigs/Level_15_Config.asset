@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Hunters warn, lock a line, then charge. Step out late enough to commit the charge,
-    then cross behind it.
-  - Two Hunters can stagger their attacks. Watch both warning lines before spending
-    Dash on the first one.
+  - Hunters show a warning line before charging. Let the line commit, sidestep the charge, and watch
+    both Hunters before using Dash.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 2
   winScore: 95

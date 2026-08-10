@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Stalker is no longer a tutorial threat. It stays on you longer and punishes
-    straight, predictable routes.
-  - Keep the pursuer on one side of the arena, then cut across open space for coins.
-    Short, controlled routes are safer than long chases.
+  - Two Stalkers now pressure you at once. Keep them grouped to one side, then cut across open space for
+    coins.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 45

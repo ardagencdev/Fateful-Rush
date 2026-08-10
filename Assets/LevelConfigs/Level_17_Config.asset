@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Vertical Lasers are introduced here. Their warning column can divide the arena
-    while Hunters prepare a charge.
-  - Do not deploy Clone at the first warning. Keep it for overlapping laser, projectile
-    and Hunter pressure.
+  - Vertical Lasers warn a column before firing. Move out early and save Clone for overlaps with Hunters
+    or Blaster fire.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 1
   winScore: 15

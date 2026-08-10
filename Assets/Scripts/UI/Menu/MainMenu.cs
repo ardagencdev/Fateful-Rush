@@ -37,6 +37,7 @@ public class MainMenu : MonoBehaviour
 
     private Coroutine quitRoutine;
     private CanvasGroup continueButtonGroup;
+    private CanvasGroup mainMenuCanvasGroup;
     private LevelConfig continueTargetLevel;
 
     private bool isStartingGame;
@@ -80,6 +81,7 @@ public class MainMenu : MonoBehaviour
         isStartingGame = false;
         isQuitting = false;
 
+        SetMainMenuInteraction(true);
         RefreshContinueState();
     }
 
@@ -146,6 +148,7 @@ public class MainMenu : MonoBehaviour
             return;
 
         isStartingGame = true;
+        SetMainMenuInteraction(false);
         Time.timeScale = 1f;
 
         SelectedLevelData.SetMission(
@@ -190,6 +193,7 @@ public class MainMenu : MonoBehaviour
             return;
 
         isStartingGame = true;
+        SetMainMenuInteraction(false);
         Time.timeScale = 1f;
 
         SelectedLevelData.SetDevRoom(devRoomConfig);
@@ -203,6 +207,7 @@ public class MainMenu : MonoBehaviour
             return;
 
         isQuitting = true;
+        SetMainMenuInteraction(false);
         Time.timeScale = 1f;
 
         if (SceneTransition.Instance != null)
@@ -380,6 +385,28 @@ public class MainMenu : MonoBehaviour
             levelSelectPanel = candidate;
             return;
         }
+    }
+
+
+    private void SetMainMenuInteraction(bool interactable)
+    {
+        if (mainMenuPanel == null)
+            return;
+
+        if (mainMenuCanvasGroup == null)
+        {
+            mainMenuCanvasGroup =
+                mainMenuPanel.GetComponent<CanvasGroup>();
+
+            if (mainMenuCanvasGroup == null)
+            {
+                mainMenuCanvasGroup =
+                    mainMenuPanel.AddComponent<CanvasGroup>();
+            }
+        }
+
+        mainMenuCanvasGroup.interactable = interactable;
+        mainMenuCanvasGroup.blocksRaycasts = interactable;
     }
 
     private void LoadGameScene()

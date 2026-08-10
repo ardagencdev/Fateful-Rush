@@ -40,10 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The laser grid can create consecutive horizontal and vertical exclusions during
-    a timed score run.
-  - Collect from the safe quadrant and abandon distant coins as soon as the second
-    warning appears.
+  - Both Laser directions can chain together during this Timed Score mission. Collect from the safe
+    quadrant and abandon distant coins early.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
   winScore: 135

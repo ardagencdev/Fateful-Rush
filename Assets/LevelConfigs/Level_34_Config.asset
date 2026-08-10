@@ -40,9 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Beacon buffs, vertical lasers and three Hunters create repeated survival spikes.
-  - Kill the Beacon before using Slow when possible; otherwise part of the power-up
-    duration is spent fighting amplified enemies.
+  - Beacon buffs, a Vertical Laser and Hunters create repeated Survival spikes. Remove the Beacon before
+    spending Slow when possible.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
