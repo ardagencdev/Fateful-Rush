@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class LevelButtonUI : MonoBehaviour,
+    IUIScheduledVisual,
     IPointerEnterHandler,
     IPointerExitHandler,
     IPointerDownHandler,
@@ -35,6 +36,9 @@ public class LevelButtonUI : MonoBehaviour,
         new Color32(255, 200, 70, 255);
 
     [Header("Scale")]
+    [Tooltip("Optional. If left empty, this level button's own RectTransform is animated.")]
+    [SerializeField] private RectTransform scaleTarget;
+
     [Min(0f)]
     public float hoverScale = 1.08f;
 
@@ -43,6 +47,9 @@ public class LevelButtonUI : MonoBehaviour,
 
     [Min(0f)]
     public float transitionSpeed = 10f;
+
+    [SerializeField, Min(0.000001f)]
+    private float settleThreshold = 0.00005f;
 
     private LevelConfig config;
     private LevelSelectPanel panel;
@@ -53,44 +60,39 @@ public class LevelButtonUI : MonoBehaviour,
     private bool pressing;
 
     private Vector3 originalScale;
-    private Vector3 targetScale;
 
     private void Awake()
     {
-        RefreshReferences();
+        ResolveReferences();
 
-        originalScale = transform.localScale;
-        targetScale = originalScale;
-    }
+        originalScale = scaleTarget != null
+            ? scaleTarget.localScale
+            : Vector3.one;
 
-    private void Update()
-    {
-        if (transitionSpeed <= 0f)
-        {
-            transform.localScale = targetScale;
-            return;
-        }
-
-        transform.localScale = Vector3.Lerp(
-            transform.localScale,
-            targetScale,
-            transitionSpeed * Time.unscaledDeltaTime
-        );
+        if (levelText != null)
+            levelText.raycastTarget = false;
     }
 
     private void OnDisable()
     {
+        UIScaleTweenRunner.CancelScheduledVisual(this);
+
         hovering = false;
         pressing = false;
 
-        targetScale = originalScale;
-        transform.localScale = originalScale;
+        UIScaleTweenRunner.CancelAndSnap(
+            scaleTarget,
+            originalScale
+        );
 
         ApplyNormalSprite();
     }
 
     private void OnDestroy()
     {
+        UIScaleTweenRunner.CancelScheduledVisual(this);
+        UIScaleTweenRunner.Cancel(scaleTarget);
+
         if (button != null)
             button.onClick.RemoveListener(PlayLevel);
     }
@@ -102,7 +104,7 @@ public class LevelButtonUI : MonoBehaviour,
         config = levelConfig;
         panel = owner;
 
-        RefreshReferences();
+        ResolveReferences();
 
         if (button != null)
         {
@@ -126,20 +128,21 @@ public class LevelButtonUI : MonoBehaviour,
             1
         );
 
-        unlocked =
-            config.levelNumber <= unlockedLevel;
+        unlocked = config.levelNumber <= unlockedLevel;
 
         completed = PlayerPrefs.GetInt(
             CompletedLevelKeyPrefix + config.levelNumber,
             0
         ) == 1;
 
-        if (button != null)
+        // Locked buttons intentionally remain interactable so the game can
+        // play its locked SFX/vibration feedback when the player presses one.
+        if (button != null && !button.interactable)
             button.interactable = true;
 
         ApplyCurrentSprite();
         RefreshLevelText();
-        RefreshTargetScale();
+        AnimateToCurrentState();
     }
 
     private void PlayLevel()
@@ -147,9 +150,6 @@ public class LevelButtonUI : MonoBehaviour,
         if (config == null)
             return;
 
-        // Briefing zaten açılmışsa alttaki level butonlarına gelen
-        // ekstra tıklamaları tamamen yok say. Böylece aksiyon olmadan
-        // Mission Select SFX tekrar çalmaz.
         if (panel != null && panel.IsMissionBriefingOpen)
             return;
 
@@ -182,20 +182,29 @@ public class LevelButtonUI : MonoBehaviour,
 
         if (!unlocked)
         {
-            levelText.text = string.Empty;
-            levelText.alpha = 0f;
+            if (!string.IsNullOrEmpty(levelText.text))
+                levelText.text = string.Empty;
+
+            if (levelText.alpha != 0f)
+                levelText.alpha = 0f;
+
             return;
         }
 
-        levelText.SetText(
-            "{0}",
-            config.levelNumber
-        );
+        string desiredText = config.levelNumber.ToString();
 
-        levelText.alpha = 1f;
-        levelText.color = completed
+        if (levelText.text != desiredText)
+            levelText.text = desiredText;
+
+        if (levelText.alpha != 1f)
+            levelText.alpha = 1f;
+
+        Color desiredColor = completed
             ? completedTextColor
             : unlockedTextColor;
+
+        if (levelText.color != desiredColor)
+            levelText.color = desiredColor;
     }
 
     private void ApplyCurrentSprite()
@@ -211,23 +220,22 @@ public class LevelButtonUI : MonoBehaviour,
         if (buttonImage == null)
             return;
 
+        Sprite desiredSprite;
+
         if (!unlocked)
         {
-            buttonImage.sprite = lockedNormalSprite;
-            return;
+            desiredSprite = lockedNormalSprite;
         }
-
-        if (completed &&
-            completedNormalSprite != null)
+        else if (completed && completedNormalSprite != null)
         {
-            buttonImage.sprite =
-                completedNormalSprite;
-
-            return;
+            desiredSprite = completedNormalSprite;
+        }
+        else
+        {
+            desiredSprite = unlockedNormalSprite;
         }
 
-        buttonImage.sprite =
-            unlockedNormalSprite;
+        SetButtonSpriteIfChanged(desiredSprite);
     }
 
     private void ApplyHighlightedSprite()
@@ -235,47 +243,67 @@ public class LevelButtonUI : MonoBehaviour,
         if (buttonImage == null)
             return;
 
+        Sprite desiredSprite;
+
         if (!unlocked)
         {
-            buttonImage.sprite =
-                lockedHighlightedSprite != null
-                    ? lockedHighlightedSprite
-                    : lockedNormalSprite;
-
-            return;
+            desiredSprite = lockedHighlightedSprite != null
+                ? lockedHighlightedSprite
+                : lockedNormalSprite;
         }
-
-        if (completed)
+        else if (completed)
         {
-            buttonImage.sprite =
-                completedHighlightedSprite != null
-                    ? completedHighlightedSprite
-                    : completedNormalSprite != null
-                        ? completedNormalSprite
-                        : unlockedNormalSprite;
-
-            return;
+            desiredSprite = completedHighlightedSprite != null
+                ? completedHighlightedSprite
+                : completedNormalSprite != null
+                    ? completedNormalSprite
+                    : unlockedNormalSprite;
         }
-
-        buttonImage.sprite =
-            unlockedHighlightedSprite != null
+        else
+        {
+            desiredSprite = unlockedHighlightedSprite != null
                 ? unlockedHighlightedSprite
                 : unlockedNormalSprite;
-    }
-
-    private void RefreshTargetScale()
-    {
-        if (pressing)
-        {
-            targetScale =
-                originalScale * clickScale;
-
-            return;
         }
 
-        targetScale = hovering
-            ? originalScale * hoverScale
-            : originalScale;
+        SetButtonSpriteIfChanged(desiredSprite);
+    }
+
+    private void SetButtonSpriteIfChanged(Sprite desiredSprite)
+    {
+        if (buttonImage == null || desiredSprite == null)
+            return;
+
+        if (buttonImage.sprite != desiredSprite)
+            buttonImage.sprite = desiredSprite;
+    }
+
+    private void AnimateToCurrentState()
+    {
+        if (scaleTarget == null)
+            return;
+
+        Vector3 desiredScale;
+
+        if (pressing)
+        {
+            desiredScale = originalScale * clickScale;
+        }
+        else if (hovering)
+        {
+            desiredScale = originalScale * hoverScale;
+        }
+        else
+        {
+            desiredScale = originalScale;
+        }
+
+        UIScaleTweenRunner.TweenTo(
+            scaleTarget,
+            desiredScale,
+            transitionSpeed,
+            settleThreshold
+        );
     }
 
     private void SetInvalidState()
@@ -288,87 +316,97 @@ public class LevelButtonUI : MonoBehaviour,
 
         if (levelText != null)
         {
-            levelText.text = string.Empty;
-            levelText.alpha = 0f;
+            if (!string.IsNullOrEmpty(levelText.text))
+                levelText.text = string.Empty;
+
+            if (levelText.alpha != 0f)
+                levelText.alpha = 0f;
         }
 
         ApplyNormalSprite();
-        RefreshTargetScale();
+        AnimateToCurrentState();
     }
 
-    private void RefreshReferences()
+    private void ResolveReferences()
     {
         if (button == null)
             button = GetComponent<Button>();
 
-        if (buttonImage == null &&
-            button != null)
-        {
-            buttonImage =
-                button.targetGraphic as Image;
-        }
+        if (scaleTarget == null)
+            scaleTarget = transform as RectTransform;
+
+        if (buttonImage == null && button != null)
+            buttonImage = button.targetGraphic as Image;
+
+        if (buttonImage == null)
+            buttonImage = GetComponent<Image>();
 
         if (levelText == null)
-        {
-            levelText =
-                GetComponentInChildren<TMP_Text>(true);
-        }
+            levelText = GetComponentInChildren<TMP_Text>(true);
+
+        if (levelText != null)
+            levelText.raycastTarget = false;
     }
 
-    public void OnPointerEnter(
-        PointerEventData eventData)
+    public void ApplyScheduledVisualState()
     {
+        ApplyCurrentSprite();
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (hovering)
+            return;
+
         hovering = true;
-
-        ApplyHighlightedSprite();
-        RefreshTargetScale();
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
-    public void OnPointerExit(
-        PointerEventData eventData)
+    public void OnPointerExit(PointerEventData eventData)
     {
+        if (!hovering && !pressing)
+            return;
+
         hovering = false;
         pressing = false;
 
-        ApplyNormalSprite();
-        RefreshTargetScale();
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
-    public void OnPointerDown(
-        PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button !=
-            PointerEventData.InputButton.Left)
-        {
+        if (eventData.button != PointerEventData.InputButton.Left)
             return;
-        }
+
+        if (button != null && !button.interactable)
+            return;
+
+        if (pressing)
+            return;
 
         pressing = true;
-        RefreshTargetScale();
+        AnimateToCurrentState();
     }
 
-    public void OnPointerUp(
-        PointerEventData eventData)
+    public void OnPointerUp(PointerEventData eventData)
     {
-        if (eventData.button !=
-            PointerEventData.InputButton.Left)
-        {
+        if (eventData.button != PointerEventData.InputButton.Left)
             return;
-        }
+
+        if (!pressing)
+            return;
 
         pressing = false;
-        RefreshTargetScale();
+        AnimateToCurrentState();
     }
 
     private void OnValidate()
     {
-        hoverScale =
-            Mathf.Max(0f, hoverScale);
-
-        clickScale =
-            Mathf.Max(0f, clickScale);
-
-        transitionSpeed =
-            Mathf.Max(0f, transitionSpeed);
+        hoverScale = Mathf.Max(0f, hoverScale);
+        clickScale = Mathf.Max(0f, clickScale);
+        transitionSpeed = Mathf.Max(0f, transitionSpeed);
+        settleThreshold = Mathf.Max(0.000001f, settleThreshold);
     }
 }

@@ -70,6 +70,13 @@ public class EnemyFollow : MonoBehaviour
     [Header("Spawn Effect")]
     public float spawnEffectDuration = 0.15f;
 
+    [Header("Boss Absorption")]
+    [Min(0f)] public float bossAbsorptionSpeed = 8f;
+    [Min(0f)] public float bossAbsorptionDistance = 0.3f;
+    [Min(0f)] public float bossAbsorptionShrinkDuration = 0.12f;
+
+    public bool IsBeingAbsorbed => isBeingAbsorbed;
+
     [Header("Stuck Fix")]
     public float stuckCheckTime = 0.5f;
     public float stuckDistance = 0.08f;
@@ -96,6 +103,11 @@ public class EnemyFollow : MonoBehaviour
     private Vector2 lastPosition;
 
     private bool isSpawning;
+    private bool isBeingAbsorbed;
+    private bool isFinishingAbsorption;
+    private bool absorptionNotified;
+    private BossEnemyFollow absorptionBoss;
+    private Vector3 absorptionStartScale;
 
     private float stuckTimer;
     private float unstuckTimer;
@@ -106,6 +118,7 @@ public class EnemyFollow : MonoBehaviour
     private ContactFilter2D navigationFilter;
 
     private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[12];
+    private readonly RaycastHit2D[] absorptionPathHits = new RaycastHit2D[8];
     private readonly Collider2D[] escapeHits = new Collider2D[16];
     private readonly Collider2D[] separationHits = new Collider2D[16];
 
@@ -156,6 +169,12 @@ public class EnemyFollow : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isBeingAbsorbed)
+        {
+            AbsorbIntoBoss();
+            return;
+        }
+
         FindPlayerIfNeeded();
         UpdateTarget();
 
@@ -211,6 +230,385 @@ public class EnemyFollow : MonoBehaviour
 
         playerMovement = foundPlayer.GetComponent<PlayerMovement>();
         targetRigidbody = foundPlayer.GetComponent<Rigidbody2D>();
+    }
+
+
+    public bool BeginBossAbsorption(BossEnemyFollow boss)
+    {
+        if (boss == null || isBeingAbsorbed)
+            return false;
+
+        absorptionBoss = boss;
+        isBeingAbsorbed = true;
+        isFinishingAbsorption = false;
+        absorptionNotified = false;
+
+        StopAllCoroutines();
+        isSpawning = false;
+
+        if (transform.localScale == Vector3.zero)
+            transform.localScale = spawnTargetScale == Vector3.zero
+                ? Vector3.one
+                : spawnTargetScale;
+
+        absorptionStartScale = transform.localScale;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            lastPosition = rb.position;
+        }
+
+        stuckTimer = 0f;
+        unstuckTimer = 0f;
+
+        if (obstacleAvoidanceSide == 0)
+            obstacleAvoidanceSide =
+                Random.Range(0, 2) == 0 ? -1 : 1;
+
+        if (col != null)
+            col.isTrigger = true;
+
+        return true;
+    }
+
+    private void AbsorbIntoBoss()
+    {
+        if (isFinishingAbsorption)
+            return;
+
+        if (absorptionBoss == null)
+        {
+            NotifyAbsorptionComplete();
+            Destroy(gameObject);
+            return;
+        }
+
+        Vector2 current = rb != null
+            ? rb.position
+            : (Vector2)transform.position;
+
+        Vector2 target =
+            absorptionBoss.transform.position;
+
+        Vector2 toBoss =
+            target - current;
+
+        float distance =
+            toBoss.magnitude;
+
+        float finishDistance =
+            Mathf.Max(
+                0.01f,
+                bossAbsorptionDistance
+            );
+
+        Vector2 targetDirection =
+            toBoss.sqrMagnitude > 0.001f
+                ? toBoss.normalized
+                : Vector2.zero;
+
+        // Boss cok yakinda olsa bile arada obstacle varsa shrink/finish
+        // fazina GECME. Once normal Stalker obstacle steering ile dolan.
+        bool directPathClear =
+            distance <= finishDistance &&
+            EnemyObstacleSteering2D.IsPathClear(
+                col,
+                targetDirection,
+                navigationFilter,
+                absorptionPathHits,
+                distance,
+                0.02f
+            );
+
+        if (distance <= finishDistance &&
+            directPathClear)
+        {
+            StartCoroutine(
+                FinishBossAbsorption()
+            );
+            return;
+        }
+
+        if (targetDirection.sqrMagnitude <= 0.001f)
+            return;
+
+        float absorptionStep =
+            Mathf.Max(
+                0f,
+                bossAbsorptionSpeed
+            ) *
+            Time.fixedDeltaTime;
+
+        // Player chase'de kullanilan AYNI steering sistemi.
+        // Stalker Boss'a giderken de collider'i ile ileri bakar,
+        // obstacle'i gorur ve uygun taraftan dolanir.
+        Vector2 steeredDirection =
+            EnemyObstacleSteering2D.GetSteeredDirection(
+                col,
+                targetDirection,
+                targetDirection,
+                navigationFilter,
+                avoidanceHits,
+                obstacleProbeDistance,
+                absorptionStep,
+                0.03f,
+                obstacleAvoidanceAttempts,
+                obstacleOutwardBias,
+                ref obstacleAvoidanceSide
+            );
+
+        bool moved = false;
+
+        if (steeredDirection.sqrMagnitude > 0.001f)
+        {
+            Vector2 next =
+                current +
+                steeredDirection.normalized *
+                absorptionStep;
+
+            if (rb != null)
+                rb.MovePosition(next);
+            else
+                transform.position = next;
+
+            FlipSprite(
+                steeredDirection.normalized
+            );
+
+            moved = true;
+        }
+
+        HandleAbsorptionStuck(
+            distance,
+            moved
+        );
+    }
+
+    private void HandleAbsorptionStuck(
+        float distanceToBoss,
+        bool attemptedMove)
+    {
+        if (rb == null)
+            return;
+
+        if (distanceToBoss <=
+            Mathf.Max(
+                0.15f,
+                bossAbsorptionDistance
+            ))
+        {
+            ResetStuckCheck();
+            return;
+        }
+
+        stuckTimer +=
+            Time.fixedDeltaTime;
+
+        if (stuckTimer < stuckCheckTime)
+            return;
+
+        float movedSqrDistance =
+            (rb.position - lastPosition)
+            .sqrMagnitude;
+
+        float stuckSqrDistance =
+            stuckDistance *
+            stuckDistance;
+
+        if (!attemptedMove ||
+            movedSqrDistance < stuckSqrDistance)
+        {
+            Vector2 escapeDirection =
+                GetEscapeDirection();
+
+            if (escapeDirection.sqrMagnitude <= 0.001f &&
+                absorptionBoss != null)
+            {
+                Vector2 bossDirection =
+                    (Vector2)absorptionBoss.transform.position -
+                    rb.position;
+
+                if (bossDirection.sqrMagnitude > 0.001f)
+                {
+                    bossDirection.Normalize();
+
+                    Vector2 sideDirection =
+                        new Vector2(
+                            -bossDirection.y,
+                            bossDirection.x
+                        ) *
+                        obstacleAvoidanceSide;
+
+                    escapeDirection =
+                        sideDirection.normalized;
+                }
+            }
+
+            if (escapeDirection.sqrMagnitude > 0.001f)
+            {
+                float escapeDistance =
+                    Mathf.Max(
+                        0f,
+                        bossAbsorptionSpeed
+                    ) *
+                    escapeSpeedMultiplier *
+                    Time.fixedDeltaTime;
+
+                Vector2 steeredEscape =
+                    EnemyObstacleSteering2D.GetSteeredDirection(
+                        col,
+                        escapeDirection,
+                        absorptionBoss != null
+                            ? ((Vector2)absorptionBoss.transform.position -
+                               rb.position).normalized
+                            : escapeDirection,
+                        navigationFilter,
+                        avoidanceHits,
+                        obstacleProbeDistance,
+                        escapeDistance,
+                        0.03f,
+                        obstacleAvoidanceAttempts,
+                        obstacleOutwardBias,
+                        ref obstacleAvoidanceSide
+                    );
+
+                if (steeredEscape.sqrMagnitude > 0.001f)
+                {
+                    rb.MovePosition(
+                        rb.position +
+                        steeredEscape.normalized *
+                        escapeDistance
+                    );
+                }
+            }
+
+            obstacleAvoidanceSide *= -1;
+            unstuckTimer = unstuckDuration;
+        }
+
+        lastPosition = rb.position;
+        stuckTimer = 0f;
+    }
+
+    private IEnumerator FinishBossAbsorption()
+    {
+        if (isFinishingAbsorption)
+            yield break;
+
+        isFinishingAbsorption = true;
+
+        float duration =
+            Mathf.Max(
+                0f,
+                bossAbsorptionShrinkDuration
+            );
+
+        float timer = 0f;
+
+        Vector3 startScale =
+            transform.localScale;
+
+        while (timer < duration &&
+               absorptionBoss != null)
+        {
+            Vector2 current =
+                rb != null
+                    ? rb.position
+                    : (Vector2)transform.position;
+
+            Vector2 target =
+                absorptionBoss.transform.position;
+
+            Vector2 toBoss =
+                target - current;
+
+            float distance =
+                toBoss.magnitude;
+
+            Vector2 direction =
+                toBoss.sqrMagnitude > 0.001f
+                    ? toBoss.normalized
+                    : Vector2.zero;
+
+            // Moving obstacle son anda araya girerse artik transform.Lerp ile
+            // obstacle'in icinden gecme. Finish iptal olur ve FixedUpdate'ta
+            // tekrar normal absorption steering'e doner.
+            if (distance > 0.001f &&
+                !EnemyObstacleSteering2D.IsPathClear(
+                    col,
+                    direction,
+                    navigationFilter,
+                    absorptionPathHits,
+                    distance,
+                    0.01f
+                ))
+            {
+                isFinishingAbsorption = false;
+                absorptionStartScale =
+                    transform.localScale;
+
+                yield break;
+            }
+
+            timer += Time.deltaTime;
+
+            float t =
+                duration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        timer / duration
+                    );
+
+            float smoothT =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
+
+            Vector2 nextPosition =
+                Vector2.Lerp(
+                    current,
+                    target,
+                    smoothT
+                );
+
+            if (rb != null)
+                rb.MovePosition(nextPosition);
+            else
+                transform.position = nextPosition;
+
+            transform.localScale =
+                Vector3.Lerp(
+                    startScale,
+                    Vector3.zero,
+                    smoothT
+                );
+
+            yield return null;
+        }
+
+        NotifyAbsorptionComplete();
+        Destroy(gameObject);
+    }
+
+    private void NotifyAbsorptionComplete()
+    {
+        if (absorptionNotified)
+            return;
+
+        absorptionNotified = true;
+
+        if (absorptionBoss != null)
+            absorptionBoss.NotifyStalkerAbsorbed(this);
+    }
+
+    private void OnDestroy()
+    {
+        if (isBeingAbsorbed)
+            NotifyAbsorptionComplete();
     }
 
     public void ConfigurePursuitRole(

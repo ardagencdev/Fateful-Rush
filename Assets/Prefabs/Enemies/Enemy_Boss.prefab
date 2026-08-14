@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 4980380022393150848}
   - component: {fileID: 1848007035685701733}
   - component: {fileID: -1950158677199587590}
-  - component: {fileID: 2337878572153857630}
   m_Layer: 10
   m_Name: Enemy_Boss
   m_TagString: Enemy
@@ -32,14 +31,14 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 1}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1830563482537863327
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -96,6 +95,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!114 &-6617762221300101255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,24 +110,65 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossEnemyFollow
   player: {fileID: 0}
   speed: 4.5
-  shakeAmount: 0.15
+  normalShakeAmount: 0.015
+  directionSmoothness: 7
   solidLayers:
     serializedVersion: 2
     m_Bits: 2112
   castSkin: 0.05
+  obstacleProbeDistance: 1
+  obstacleOutwardBias: 0.3
+  slideDirectionAttempts: 4
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   escapeCheckRadius: 1.2
   escapeSpeedMultiplier: 1.6
+  aoeEnabled: 1
+  firstAoeDelay: 1.5
+  aoeCooldown: 6
+  aoeChargeDuration: 3
+  aoeMaxShakeAmount: 0.18
+  aoeCoverLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  powerUpScaleMultiplier: 1.12
+  powerUpPreviewFlashes: 2
+  powerUpPreviewOnDuration: 0.055
+  powerUpPreviewOffDuration: 0.035
+  powerUpPreviewAlpha: 0.55
+  powerUpGrowDuration: 0.12
+  powerUpSfx: {fileID: 8300000, guid: 00b9e23689729fb44aca28494306704d, type: 3}
+  dangerPreviewColor: {r: 1, g: 0, b: 0, a: 0.42}
+  dangerStrikeWaveDuration: 0.38
+  dangerStrikeWaveWidth: 0.09
+  dangerStrikeWaveBoost: 1.55
+  dangerPreviewFadeOutDuration: 0.6
+  dangerPreviewInnerPadding: 0.16
+  dangerPreviewInnerAlphaMultiplier: 0.22
+  dangerPreviewWaveFrontWidth: 0.12
+  dangerPreviewWaveFrontBoost: 0.75
+  dangerPreviewInnerBrightness: 0.55
+  dangerPreviewRadialSegments: 14
+  dangerPreviewEdgeSmoothingPasses: 2
+  dangerPreviewRayCount: 360
+  dangerPreviewShader: {fileID: 4800000, guid: 816c1249d7195ad4faf14a6513792531, type: 3}
+  dangerPreviewVisibilityRefreshRate: 15
+  dangerPreviewCoverFeather: 0.08
+  dangerPreviewSortingOrder: 20000
+  aoeSfx: {fileID: 8300000, guid: d22d204260651ed4e874922fc648327b, type: 3}
   miniBossPrefab: {fileID: 1296000383712174403, guid: f581813ab4c1ebc47b1add79b227bae8, type: 3}
   canSplit: 1
   miniBossSpeed: 2.5
   splitDelay: 0.8
   splitDistance: 1.2
   splitShakeAmount: 0.18
-  splitFlashColor: {r: 0.45, g: 0, b: 0, a: 1}
+  splitFlashColor: {r: 0.45, g: 0, b: 0, a: 0.39215687}
   flashSpeed: 0.08
+  miniBossAoeStagger: 1.25
+  splitScaleMin: 0.92
+  splitScaleMax: 1.08
+  splitDisappearDuration: 0.12
   stuckCheckTime: 0.25
   stuckDistance: 0.05
   unstuckDuration: 0.35
@@ -209,17 +250,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeathFadeEffect
   fadeDuration: 0.45
   destroyAfterFade: 1
---- !u!114 &2337878572153857630
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1296000383712174403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b33ce4aae080ca643846f5cbd982347a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyBuffTarget
-  buffAura: {fileID: 6099007908082724627, guid: 2117862331d8974469256066eebb22c1, type: 3}
-  buffDuration: 15

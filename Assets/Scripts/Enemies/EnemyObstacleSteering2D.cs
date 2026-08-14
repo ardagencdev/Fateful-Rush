@@ -224,6 +224,83 @@ public static class EnemyObstacleSteering2D
         }
     }
 
+    /// <summary>
+    /// Returns true when the collider can travel the requested distance in
+    /// the given direction without hitting the configured navigation layers.
+    /// Uses the same shape-cast rules as GetSteeredDirection.
+    /// </summary>
+    /// <summary>
+    /// Returns the free travel distance for the collider in a direction,
+    /// using the exact same shape-cast rules as local steering.
+    /// Useful for long-range route planning without duplicating physics code.
+    /// </summary>
+    public static float GetPathClearance(
+        Collider2D selfCollider,
+        Vector2 direction,
+        ContactFilter2D solidFilter,
+        RaycastHit2D[] hitBuffer,
+        float distance)
+    {
+        if (distance <= 0f)
+            return 0f;
+
+        if (direction.sqrMagnitude <= MinimumDirectionSqr)
+            return 0f;
+
+        if (selfCollider == null ||
+            hitBuffer == null ||
+            hitBuffer.Length == 0)
+        {
+            return distance;
+        }
+
+        return GetClearance(
+            selfCollider,
+            direction.normalized,
+            solidFilter,
+            hitBuffer,
+            distance,
+            out _
+        );
+    }
+
+    public static bool IsPathClear(
+        Collider2D selfCollider,
+        Vector2 direction,
+        ContactFilter2D solidFilter,
+        RaycastHit2D[] hitBuffer,
+        float distance,
+        float castSkin = 0f)
+    {
+        if (distance <= 0f)
+            return true;
+
+        if (direction.sqrMagnitude <= MinimumDirectionSqr)
+            return true;
+
+        if (selfCollider == null ||
+            hitBuffer == null ||
+            hitBuffer.Length == 0)
+        {
+            return true;
+        }
+
+        float requiredDistance =
+            Mathf.Max(0f, distance) +
+            Mathf.Max(0f, castSkin);
+
+        float clearance = GetClearance(
+            selfCollider,
+            direction.normalized,
+            solidFilter,
+            hitBuffer,
+            requiredDistance,
+            out _
+        );
+
+        return clearance >= requiredDistance - 0.001f;
+    }
+
     private static float GetClearance(
         Collider2D selfCollider,
         Vector2 direction,

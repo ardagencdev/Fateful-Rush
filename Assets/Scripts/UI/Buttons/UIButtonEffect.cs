@@ -1,8 +1,10 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UIButtonEffect : MonoBehaviour,
+    IUIScheduledVisual,
     IPointerEnterHandler,
     IPointerExitHandler,
     IPointerDownHandler,
@@ -13,6 +15,9 @@ public class UIButtonEffect : MonoBehaviour,
     public Sprite highlightedSprite;
 
     [Header("Scale")]
+    [Tooltip("Optional. If left empty, this button's own RectTransform is animated.")]
+    [SerializeField] private RectTransform scaleTarget;
+
     [Min(0f)]
     public float hoverScale = 1.08f;
 
@@ -30,10 +35,13 @@ public class UIButtonEffect : MonoBehaviour,
     [Min(0f)]
     public float transitionSpeed = 10f;
 
-    private Image image;
+    [SerializeField, Min(0.000001f)]
+    private float settleThreshold = 0.00005f;
 
+    [SerializeField] private Image spriteTarget;
+
+    private Button cachedButton;
     private Vector3 originalScale;
-    private Vector3 targetScale;
 
     private bool isHovering;
     private bool isPressed;
@@ -41,44 +49,36 @@ public class UIButtonEffect : MonoBehaviour,
 
     private void Awake()
     {
-        RefreshReferences();
+        ResolveReferences();
 
-        originalScale = transform.localScale;
-        targetScale = GetRestingScale();
+        originalScale = scaleTarget != null
+            ? scaleTarget.localScale
+            : Vector3.one;
 
+        DisableNonInteractiveTextRaycasts();
         ApplyCurrentSprite();
-    }
-
-    private void Update()
-    {
-        if (transitionSpeed <= 0f)
-        {
-            transform.localScale = targetScale;
-            return;
-        }
-
-        transform.localScale = Vector3.Lerp(
-            transform.localScale,
-            targetScale,
-            Time.unscaledDeltaTime * transitionSpeed
-        );
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        isHovering = true;
+        if (isHovering)
+            return;
 
-        ApplyCurrentSprite();
-        RefreshTargetScale();
+        isHovering = true;
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (!isHovering && !isPressed)
+            return;
+
         isHovering = false;
         isPressed = false;
 
-        ApplyCurrentSprite();
-        RefreshTargetScale();
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -86,10 +86,15 @@ public class UIButtonEffect : MonoBehaviour,
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
-        isPressed = true;
+        if (cachedButton != null && !cachedButton.interactable)
+            return;
 
-        ApplyCurrentSprite();
-        RefreshTargetScale();
+        if (isPressed)
+            return;
+
+        isPressed = true;
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -97,21 +102,23 @@ public class UIButtonEffect : MonoBehaviour,
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
-        isPressed = false;
+        if (!isPressed)
+            return;
 
-        ApplyCurrentSprite();
-        RefreshTargetScale();
+        isPressed = false;
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
     public void SetSelected(bool selected)
     {
-        if (!usePersistentSelectedState)
+        if (!usePersistentSelectedState || isSelected == selected)
             return;
 
         isSelected = selected;
 
-        ApplyCurrentSprite();
-        RefreshTargetScale();
+        UIScaleTweenRunner.ScheduleVisual(this);
+        AnimateToCurrentState();
     }
 
     public void ResetButtonVisual()
@@ -121,25 +128,38 @@ public class UIButtonEffect : MonoBehaviour,
 
         ApplyCurrentSprite();
 
-        targetScale = GetRestingScale();
-        transform.localScale = targetScale;
+        UIScaleTweenRunner.CancelAndSnap(
+            scaleTarget,
+            GetRestingScale()
+        );
     }
 
-    private void RefreshTargetScale()
+    private void AnimateToCurrentState()
     {
+        if (scaleTarget == null)
+            return;
+
+        Vector3 desiredScale;
+
         if (isPressed)
         {
-            targetScale = originalScale * clickScale;
-            return;
+            desiredScale = originalScale * clickScale;
         }
-
-        if (isHovering)
+        else if (isHovering)
         {
-            targetScale = originalScale * hoverScale;
-            return;
+            desiredScale = originalScale * hoverScale;
+        }
+        else
+        {
+            desiredScale = GetRestingScale();
         }
 
-        targetScale = GetRestingScale();
+        UIScaleTweenRunner.TweenTo(
+            scaleTarget,
+            desiredScale,
+            transitionSpeed,
+            settleThreshold
+        );
     }
 
     private Vector3 GetRestingScale()
@@ -150,36 +170,67 @@ public class UIButtonEffect : MonoBehaviour,
         return originalScale;
     }
 
+    public void ApplyScheduledVisualState()
+    {
+        ApplyCurrentSprite();
+    }
+
     private void ApplyCurrentSprite()
     {
         bool shouldHighlight = isHovering || isPressed;
-        SetHighlighted(shouldHighlight);
-    }
 
-    private void SetHighlighted(bool highlighted)
-    {
-        if (image == null)
+        Sprite desiredSprite = shouldHighlight && highlightedSprite != null
+            ? highlightedSprite
+            : normalSprite;
+
+        if (spriteTarget == null || desiredSprite == null)
             return;
 
-        if (highlighted && highlightedSprite != null)
+        // Avoid even a redundant property assignment on a Graphic.
+        if (spriteTarget.sprite != desiredSprite)
+            spriteTarget.sprite = desiredSprite;
+    }
+
+    private void ResolveReferences()
+    {
+        if (cachedButton == null)
+            cachedButton = GetComponent<Button>();
+
+        if (scaleTarget == null)
+            scaleTarget = transform as RectTransform;
+
+        if (spriteTarget != null)
+            return;
+
+        if (cachedButton != null && cachedButton.targetGraphic is Image targetImage)
         {
-            image.sprite = highlightedSprite;
+            spriteTarget = targetImage;
             return;
         }
 
-        if (normalSprite != null)
-            image.sprite = normalSprite;
+        spriteTarget = GetComponent<Image>();
     }
 
-    private void RefreshReferences()
+    private void DisableNonInteractiveTextRaycasts()
     {
-        if (image == null)
-            image = GetComponent<Image>();
+        // Unity recommends disabling Raycast Target on non-interactive text
+        // inside buttons. The Button's target Graphic already handles input.
+        TMP_Text[] texts = GetComponentsInChildren<TMP_Text>(true);
+
+        for (int i = 0; i < texts.Length; i++)
+            texts[i].raycastTarget = false;
     }
 
     private void OnDisable()
     {
+        UIScaleTweenRunner.CancelScheduledVisual(this);
         ResetButtonVisual();
+    }
+
+    private void OnDestroy()
+    {
+        UIScaleTweenRunner.CancelScheduledVisual(this);
+        UIScaleTweenRunner.Cancel(scaleTarget);
     }
 
     private void OnValidate()
@@ -188,5 +239,6 @@ public class UIButtonEffect : MonoBehaviour,
         clickScale = Mathf.Max(0f, clickScale);
         selectedScale = Mathf.Max(0f, selectedScale);
         transitionSpeed = Mathf.Max(0f, transitionSpeed);
+        settleThreshold = Mathf.Max(0.000001f, settleThreshold);
     }
 }

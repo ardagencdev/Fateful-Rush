@@ -66,16 +66,16 @@ MonoBehaviour:
     coinsRequired: 3
     playerSpeedMultiplier: 1.03
   - comboMultiplier: 3
-    coinsRequired: 6
+    coinsRequired: 7
     playerSpeedMultiplier: 1.06
   - comboMultiplier: 4
-    coinsRequired: 12
+    coinsRequired: 14
     playerSpeedMultiplier: 1.09
   - comboMultiplier: 5
-    coinsRequired: 15
+    coinsRequired: 18
     playerSpeedMultiplier: 1.12
   - comboMultiplier: 6
-    coinsRequired: 20
+    coinsRequired: 22
     playerSpeedMultiplier: 1.15
   randomizeNearStarsColor: 0
   nearStarsColor: {r: 0.99272, g: 0.21856, b: 0.37296, a: 1}

@@ -62,6 +62,17 @@ public class PlayerCollisionHandler : MonoBehaviour
         if (danger == null)
             return;
 
+        EnemyFollow absorbingStalker =
+            danger.GetComponentInParent<EnemyFollow>();
+
+        // Stalkers being pulled into the Boss are no longer active threats.
+        // They may pass through the player while travelling to the Boss.
+        if (absorbingStalker != null &&
+            absorbingStalker.IsBeingAbsorbed)
+        {
+            return;
+        }
+
         // EnemyProjectile owns player-projectile collision handling.
         // Skipping it here prevents armor from returning a pooled projectile
         // while this component simultaneously destroys the same object.

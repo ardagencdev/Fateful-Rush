@@ -410,6 +410,11 @@ public class EnemySpawner : MonoBehaviour
 
     private void HandleNormalEnemySpawn()
     {
+        // Once the Boss phase begins, Stalkers are intentionally removed
+        // from the encounter and no new Stalker is allowed to spawn.
+        if (bossSpawned)
+            return;
+
         if (spawnedNormal >= normalEnemyCount)
             return;
 
@@ -503,6 +508,9 @@ public class EnemySpawner : MonoBehaviour
 
     private bool TrySpawnNormalEnemy()
     {
+        if (bossSpawned)
+            return false;
+
         if (!TryCreateEnemy(
                 normalEnemyPrefab,
                 out GameObject enemy))

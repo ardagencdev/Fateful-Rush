@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class PlayerSkinPanelUI : MonoBehaviour
 {
     [Header("Panels")]
-    [SerializeField] private GameObject levelSelectPanel;
+    [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject skinPanel;
     [SerializeField] private UIPanelFadeSwitcher fadeSwitcher;
 
@@ -54,6 +54,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     private CanvasGroup pageCanvasGroup;
     private Coroutine pageRoutine;
+
+    private UIButtonSound previousSkinSound;
+    private UIButtonSound nextSkinSound;
 
     public bool IsOpen =>
         skinPanel != null && skinPanel.activeSelf;
@@ -110,12 +113,12 @@ public class PlayerSkinPanelUI : MonoBehaviour
         ResetPageVisuals();
 
         SoundManager.Instance?.PlayOptionButtonSound();
-        SwitchPanels(levelSelectPanel, skinPanel);
+        SwitchPanels(mainMenuPanel, skinPanel);
     }
 
     public void ClosePanel()
     {
-        if (levelSelectPanel == null || skinPanel == null)
+        if (mainMenuPanel == null || skinPanel == null)
             return;
 
         StopPageAnimation();
@@ -125,7 +128,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
             .EndSkinPreview();
 
         SoundManager.Instance?.PlayBackButtonSound();
-        SwitchPanels(skinPanel, levelSelectPanel);
+        SwitchPanels(skinPanel, mainMenuPanel);
     }
 
     public void NextSkin()
@@ -136,6 +139,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
         int nextSkinIndex =
             (currentSkinIndex + 1) % skinCatalog.Skins.Count;
 
+        nextSkinSound?.PlayConfiguredSound();
         StartSkinTransition(nextSkinIndex, 1);
     }
 
@@ -148,6 +152,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
             (currentSkinIndex - 1 + skinCatalog.Skins.Count) %
             skinCatalog.Skins.Count;
 
+        previousSkinSound?.PlayConfiguredSound();
         StartSkinTransition(previousSkinIndex, -1);
     }
 
@@ -183,19 +188,24 @@ public class PlayerSkinPanelUI : MonoBehaviour
     {
         if (openButton != null)
         {
+            DisableAutomaticButtonSound(openButton);
+
             openButton.onClick.RemoveListener(OpenPanel);
             openButton.onClick.AddListener(OpenPanel);
         }
 
         if (closeButton != null)
         {
+            DisableAutomaticButtonSound(closeButton);
+
             closeButton.onClick.RemoveListener(ClosePanel);
             closeButton.onClick.AddListener(ClosePanel);
         }
 
         if (previousSkinButton != null)
         {
-            ConfigurePageNavigationSound(previousSkinButton);
+            previousSkinSound =
+                ConfigurePageNavigationSound(previousSkinButton);
 
             previousSkinButton.onClick.RemoveListener(PreviousSkin);
             previousSkinButton.onClick.AddListener(PreviousSkin);
@@ -203,7 +213,8 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         if (nextSkinButton != null)
         {
-            ConfigurePageNavigationSound(nextSkinButton);
+            nextSkinSound =
+                ConfigurePageNavigationSound(nextSkinButton);
 
             nextSkinButton.onClick.RemoveListener(NextSkin);
             nextSkinButton.onClick.AddListener(NextSkin);
@@ -218,7 +229,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
                 equipButton.GetComponent<UIButtonSound>();
 
             if (automaticButtonSound != null)
-                automaticButtonSound.enabled = false;
+                automaticButtonSound.SetAutomaticPlayback(false);
 
             equipButton.onClick.RemoveListener(EquipCurrentSkin);
             equipButton.onClick.AddListener(EquipCurrentSkin);
@@ -231,10 +242,10 @@ public class PlayerSkinPanelUI : MonoBehaviour
         }
     }
 
-    private static void ConfigurePageNavigationSound(Button button)
+    private static UIButtonSound ConfigurePageNavigationSound(Button button)
     {
         if (button == null)
-            return;
+            return null;
 
         UIButtonSound buttonSound =
             button.GetComponent<UIButtonSound>();
@@ -246,7 +257,20 @@ public class PlayerSkinPanelUI : MonoBehaviour
         }
 
         buttonSound.enabled = true;
-        buttonSound.ConfigureAsPageNavigation();
+        buttonSound.ConfigureAsPageNavigation(manualPlayback: true);
+        return buttonSound;
+    }
+
+    private static void DisableAutomaticButtonSound(Button button)
+    {
+        if (button == null)
+            return;
+
+        UIButtonSound buttonSound =
+            button.GetComponent<UIButtonSound>();
+
+        if (buttonSound != null)
+            buttonSound.SetAutomaticPlayback(false);
     }
 
     private void PreparePageContainer()
@@ -269,6 +293,8 @@ public class PlayerSkinPanelUI : MonoBehaviour
         if (pageRoutine != null)
             return;
 
+        SetControlsInteractable(false);
+
         pageRoutine = StartCoroutine(
             SkinTransitionRoutine(targetIndex, direction)
         );
@@ -276,8 +302,6 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     private IEnumerator SkinTransitionRoutine(int targetIndex, int direction)
     {
-        SetControlsInteractable(false);
-
         if (skinPageContainer == null || pageCanvasGroup == null)
         {
             currentSkinIndex = targetIndex;
@@ -593,10 +617,10 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     private bool ValidateReferences()
     {
-        if (levelSelectPanel == null || skinPanel == null)
+        if (mainMenuPanel == null || skinPanel == null)
         {
             Debug.LogError(
-                "PlayerSkinPanelUI panel references are missing.",
+                "PlayerSkinPanelUI Main Menu or Skin Panel reference is missing.",
                 this
             );
             return false;

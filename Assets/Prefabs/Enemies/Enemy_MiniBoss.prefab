@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 1848007035685701733}
   - component: {fileID: 2096743325358198739}
   - component: {fileID: 2656740657223815581}
-  - component: {fileID: -7262868114165307541}
   m_Layer: 3
   m_Name: Enemy_MiniBoss
   m_TagString: Enemy
@@ -32,14 +31,14 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1830563482537863327
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -96,6 +95,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!50 &4980380022393150848
 Rigidbody2D:
   serializedVersion: 5
@@ -173,20 +173,61 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MiniBossFollow
   player: {fileID: 0}
   speed: 4.5
-  shakeAmount: 0.08
+  normalShakeAmount: 0.01
+  directionSmoothness: 8
+  pursuitRole: 0
+  interceptorLeadDistance: 2.6
+  predictionTime: 0.25
+  maxPredictionDistance: 1.5
+  tacticalOffsetFadeDistance: 3.4
+  minSideMoveAmount: 0.18
+  maxSideMoveAmount: 0.35
+  minSideMoveSpeed: 1.5
+  maxSideMoveSpeed: 3
   solidLayers:
     serializedVersion: 2
     m_Bits: 2112
   castSkin: 0.05
+  obstacleProbeDistance: 0.9
+  obstacleOutwardBias: 0.3
+  slideDirectionAttempts: 4
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
   escapeCheckRadius: 1.2
   escapeSpeedMultiplier: 2.2
+  aoeEnabled: 1
+  aoeInitialCooldown: 2
+  aoeCooldown: 4.5
+  aoeTriggerDistance: 5
+  aoeRadius: 5.5
+  aoeChargeDuration: 0.9
+  aoeMaxShakeAmount: 0.12
+  aoeCoverLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  dangerPreviewColor: {r: 1, g: 0, b: 0, a: 0.42}
+  dangerStrikeWaveDuration: 0.3
+  dangerStrikeWaveWidth: 0.11
+  dangerStrikeWaveBoost: 1.45
+  dangerPreviewFadeOutDuration: 0.45
+  dangerPreviewInnerPadding: 0.1
+  dangerPreviewInnerAlphaMultiplier: 0.22
+  dangerPreviewWaveFrontWidth: 0.12
+  dangerPreviewWaveFrontBoost: 0.75
+  dangerPreviewInnerBrightness: 0.55
+  dangerPreviewRayCount: 360
+  dangerPreviewShader: {fileID: 4800000, guid: 816c1249d7195ad4faf14a6513792531, type: 3}
+  dangerPreviewVisibilityRefreshRate: 15
+  dangerPreviewCoverFeather: 0.08
+  dangerPreviewSortingOrder: 20000
+  aoeSfx: {fileID: 8300000, guid: d22d204260651ed4e874922fc648327b, type: 3}
   stuckCheckTime: 0.25
   stuckDistance: 0.05
   unstuckDuration: 0.35
   unstuckSideForce: 3
+  canTargetClone: 0
+  aoeBalanceVersion: 1
 --- !u!114 &2656740657223815581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,17 +242,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeathFadeEffect
   fadeDuration: 0.45
   destroyAfterFade: 1
---- !u!114 &-7262868114165307541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1296000383712174403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b33ce4aae080ca643846f5cbd982347a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyBuffTarget
-  buffAura: {fileID: 6099007908082724627, guid: 2117862331d8974469256066eebb22c1, type: 3}
-  buffDuration: 15

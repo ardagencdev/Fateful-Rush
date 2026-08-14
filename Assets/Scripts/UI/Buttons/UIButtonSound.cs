@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
+[DisallowMultipleComponent]
 public class UIButtonSound : MonoBehaviour
 {
     public enum ButtonSoundType
@@ -31,8 +32,16 @@ public class UIButtonSound : MonoBehaviour
     [SerializeField]
     private AudioClip customSound;
 
+    [Header("Anti Spam")]
+    [Tooltip("Aynı butonun SFX'inin çok kısa aralıkta tekrar çalmasını engeller. " +
+             "Farklı butonların seslerini etkilemez.")]
+    [SerializeField, Min(0f)]
+    private float minimumRepeatInterval = 0.075f;
+
     private Button button;
     private MainMenu continueMainMenu;
+    private bool automaticPlayback = true;
+    private float lastPlayTime = float.NegativeInfinity;
 
     public void ConfigureAsContinue(MainMenu mainMenu)
     {
@@ -40,11 +49,23 @@ public class UIButtonSound : MonoBehaviour
         continueMainMenu = mainMenu;
     }
 
-    public void ConfigureAsPageNavigation()
+    public void ConfigureAsPageNavigation(bool manualPlayback = false)
     {
         // Next and Previous page buttons intentionally use the
         // same navigation SFX.
         soundType = ButtonSoundType.Previous;
+        SetAutomaticPlayback(!manualPlayback);
+    }
+
+    public void SetAutomaticPlayback(bool enabled)
+    {
+        automaticPlayback = enabled;
+        RefreshClickListener();
+    }
+
+    public bool PlayConfiguredSound()
+    {
+        return TryPlayClickSound();
     }
 
     private void Awake()
@@ -57,8 +78,7 @@ public class UIButtonSound : MonoBehaviour
         if (button == null)
             button = GetComponent<Button>();
 
-        button.onClick.RemoveListener(PlayClickSound);
-        button.onClick.AddListener(PlayClickSound);
+        RefreshClickListener();
     }
 
     private void OnDisable()
@@ -67,12 +87,41 @@ public class UIButtonSound : MonoBehaviour
             button.onClick.RemoveListener(PlayClickSound);
     }
 
+    private void RefreshClickListener()
+    {
+        if (button == null)
+            button = GetComponent<Button>();
+
+        if (button == null)
+            return;
+
+        // Always remove first so enable/disable or runtime configuration
+        // can never stack the same listener.
+        button.onClick.RemoveListener(PlayClickSound);
+
+        if (automaticPlayback && isActiveAndEnabled)
+            button.onClick.AddListener(PlayClickSound);
+    }
+
     private void PlayClickSound()
+    {
+        TryPlayClickSound();
+    }
+
+    private bool TryPlayClickSound()
     {
         // Equip butonunun kilit/açık sesini PlayerSkinPanelUI yönetiyor.
         // Burada tekrar çalınırsa çift ses oluşur.
         if (soundType == ButtonSoundType.SkinEquip)
-            return;
+            return false;
+
+        float now = Time.unscaledTime;
+
+        if (minimumRepeatInterval > 0f &&
+            now - lastPlayTime < minimumRepeatInterval)
+        {
+            return false;
+        }
 
         SoundManager soundManager = SoundManager.Instance;
 
@@ -82,8 +131,10 @@ public class UIButtonSound : MonoBehaviour
         if (soundManager == null)
         {
             Debug.LogWarning("UIButtonSound: Sahnedeki SoundManager bulunamadı.", this);
-            return;
+            return false;
         }
+
+        lastPlayTime = now;
 
         switch (soundType)
         {
@@ -129,6 +180,7 @@ public class UIButtonSound : MonoBehaviour
         }
 
         VibrationManager.Instance?.VibrateUI();
+        return true;
     }
 
     private void PlayContinueSound(SoundManager soundManager)

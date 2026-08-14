@@ -8003,11 +8003,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &312114300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15270,11 +15273,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &693777072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15792,11 +15798,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &766521560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16211,11 +16220,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 0}
   highlightedSprite: {fileID: 0}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &799240661
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24051,11 +24063,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!222 &1119875426
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -24153,11 +24168,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1175529237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24876,11 +24894,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 0}
   highlightedSprite: {fileID: 0}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.03
   clickScale: 0.98
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!1 &1252622766
 GameObject:
   m_ObjectHideFlags: 0
@@ -25382,6 +25403,7 @@ MonoBehaviour:
   slowDuration: 5
   spawnPadding: 0.8
   checkRadius: 0.6
+  playerSafeDistance: 4
   maxAttempts: 50
   playerMovement: {fileID: 1118182838}
 --- !u!4 &1272588393
@@ -26240,11 +26262,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!1001 &1414743315
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26816,11 +26841,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!222 &1472432466
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -26967,11 +26995,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1528949893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27359,11 +27390,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1557053850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27761,11 +27795,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1672707851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27959,11 +27996,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 0}
   highlightedSprite: {fileID: 0}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.03
   clickScale: 0.98
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1686932947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33699,11 +33739,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1900544690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33867,11 +33910,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1924886480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34442,11 +34488,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &1996056623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34710,11 +34759,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &2011239679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35264,11 +35316,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &2039041042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35614,7 +35669,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 100, y: 100}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 275, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &2040246003
 MonoBehaviour:
@@ -35630,11 +35685,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 0
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &2040246004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35812,11 +35870,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
   normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
   highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   usePersistentSelectedState: 1
   selectedScale: 1.05
   transitionSpeed: 10
+  settleThreshold: 0.00005
+  spriteTarget: {fileID: 0}
 --- !u!114 &2046742923
 MonoBehaviour:
   m_ObjectHideFlags: 0

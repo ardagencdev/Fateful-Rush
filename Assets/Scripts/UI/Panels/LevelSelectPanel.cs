@@ -62,6 +62,9 @@ public class LevelSelectPanel : MonoBehaviour
     private Coroutine previousButtonRoutine;
     private Coroutine nextButtonRoutine;
 
+    private UIButtonSound previousPageSound;
+    private UIButtonSound nextPageSound;
+
     private void Awake()
     {
         PrepareContainer();
@@ -282,11 +285,15 @@ public class LevelSelectPanel : MonoBehaviour
 
     public void NextPage()
     {
-        if (pageRoutine != null || totalPageCount <= 1)
+        if (!CanNavigatePages())
             return;
 
         int nextPageIndex =
             (currentPageIndex + 1) % totalPageCount;
+
+        // Play only after the navigation request is accepted.
+        // Rejected spam clicks therefore stay silent.
+        nextPageSound?.PlayConfiguredSound();
 
         StartPageTransition(
             nextPageIndex,
@@ -296,16 +303,28 @@ public class LevelSelectPanel : MonoBehaviour
 
     public void PreviousPage()
     {
-        if (pageRoutine != null || totalPageCount <= 1)
+        if (!CanNavigatePages())
             return;
 
         int previousPageIndex =
             (currentPageIndex - 1 + totalPageCount) % totalPageCount;
 
+        // Play only after the navigation request is accepted.
+        previousPageSound?.PlayConfiguredSound();
+
         StartPageTransition(
             previousPageIndex,
             1
         );
+    }
+
+    private bool CanNavigatePages()
+    {
+        return pageRoutine == null &&
+               totalPageCount > 1 &&
+               levelSelectPanel != null &&
+               levelSelectPanel.activeSelf &&
+               !IsMissionBriefingOpen;
     }
 
     private void PrepareContainer()
@@ -331,7 +350,8 @@ public class LevelSelectPanel : MonoBehaviour
     {
         if (previousPageButton != null)
         {
-            ConfigurePageNavigationSound(previousPageButton);
+            previousPageSound =
+                ConfigurePageNavigationSound(previousPageButton);
 
             previousPageButton.onClick.RemoveListener(
                 PreviousPage
@@ -346,7 +366,8 @@ public class LevelSelectPanel : MonoBehaviour
 
         if (nextPageButton != null)
         {
-            ConfigurePageNavigationSound(nextPageButton);
+            nextPageSound =
+                ConfigurePageNavigationSound(nextPageButton);
 
             nextPageButton.onClick.RemoveListener(
                 NextPage
@@ -366,10 +387,10 @@ public class LevelSelectPanel : MonoBehaviour
             GetOrAddCanvasGroup(nextPageButton);
     }
 
-    private static void ConfigurePageNavigationSound(Button button)
+    private static UIButtonSound ConfigurePageNavigationSound(Button button)
     {
         if (button == null)
-            return;
+            return null;
 
         UIButtonSound buttonSound =
             button.GetComponent<UIButtonSound>();
@@ -381,7 +402,12 @@ public class LevelSelectPanel : MonoBehaviour
         }
 
         buttonSound.enabled = true;
-        buttonSound.ConfigureAsPageNavigation();
+
+        // Page navigation owns its SFX. UIButtonSound must not also
+        // auto-play from Button.onClick or the same click can sound twice.
+        buttonSound.ConfigureAsPageNavigation(manualPlayback: true);
+
+        return buttonSound;
     }
 
     private static CanvasGroup GetOrAddCanvasGroup(
@@ -520,6 +546,9 @@ public class LevelSelectPanel : MonoBehaviour
         if (!gameObject.activeInHierarchy)
             return;
 
+        // Lock immediately, before any transition animation can start.
+        SetPageButtonsInteractable(false);
+
         pageRoutine = StartCoroutine(
             PageTransitionRoutine(
                 newPageIndex,
@@ -534,7 +563,6 @@ public class LevelSelectPanel : MonoBehaviour
     )
     {
         isDragging = false;
-        SetPageButtonsInteractable(false);
 
         float timer = 0f;
 
@@ -764,9 +792,13 @@ public class LevelSelectPanel : MonoBehaviour
         button.transform.localScale =
             targetScale;
 
-        button.interactable = show;
-        group.interactable = show;
-        group.blocksRaycasts = show;
+        bool canInteract =
+            show &&
+            pageRoutine == null;
+
+        button.interactable = canInteract;
+        group.interactable = canInteract;
+        group.blocksRaycasts = canInteract;
 
         if (!show)
             button.gameObject.SetActive(false);

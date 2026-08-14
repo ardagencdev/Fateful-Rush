@@ -6,7 +6,6 @@ public class StatsPanelUI : MonoBehaviour
 {
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private GameObject optionsPanel;
     [SerializeField] private GameObject statsPanel;
     [SerializeField] private GameObject resetConfirmationPanel;
 
@@ -43,6 +42,9 @@ public class StatsPanelUI : MonoBehaviour
 
     public void OpenStats()
     {
+        if (mainMenuPanel == null || statsPanel == null)
+            return;
+
         HideResetConfirmation();
         RefreshStats();
 
@@ -50,7 +52,7 @@ public class StatsPanelUI : MonoBehaviour
             .ShowStatsColor();
 
         Switch(
-            optionsPanel,
+            mainMenuPanel,
             statsPanel
         );
 
@@ -59,14 +61,17 @@ public class StatsPanelUI : MonoBehaviour
 
     public void CloseStats()
     {
+        if (mainMenuPanel == null || statsPanel == null)
+            return;
+
         HideResetConfirmation();
 
         MainMenuStarColorRandomizer.Instance?
-            .ShowOptionsColor();
+            .ShowMainMenuColor();
 
         Switch(
             statsPanel,
-            optionsPanel
+            mainMenuPanel
         );
     }
 
