@@ -174,11 +174,11 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 0
+  bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 75
+  bossSpawnScore: 80
   bossSpawnTime: 30
-  bossDanger: 1
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -249,10 +249,10 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   beaconRespawnDelay: 6
-  armorEnabled: 0
+  armorEnabled: 1
   slowEnabled: 1
-  armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
+  armorMinSpawnTime: 16
+  armorMaxSpawnTime: 24
   slowMinSpawnTime: 28
   slowMaxSpawnTime: 36
   verticalLaserEnabled: 0

@@ -112,7 +112,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
         RefreshCurrentSkin();
         ResetPageVisuals();
 
-        SoundManager.Instance?.PlayOptionButtonSound();
+        SoundManager.Instance?.PlayOptionButtonSound(openButton != null ? openButton.transform as RectTransform : transform as RectTransform);
         SwitchPanels(mainMenuPanel, skinPanel);
     }
 
@@ -127,7 +127,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
         MainMenuStarColorRandomizer.Instance?
             .EndSkinPreview();
 
-        SoundManager.Instance?.PlayBackButtonSound();
+        SoundManager.Instance?.PlayBackButtonSound(closeButton != null ? closeButton.transform as RectTransform : transform as RectTransform);
         SwitchPanels(skinPanel, mainMenuPanel);
     }
 
@@ -165,14 +165,14 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         if (!skinCatalog.IsUnlocked(skin))
         {
-            SoundManager.Instance?.PlayLockedLevelSound();
+            SoundManager.Instance?.PlayLockedLevelSound(equipButton != null ? equipButton.transform as RectTransform : transform as RectTransform);
             VibrationManager.Instance?.VibrateUI();
             return;
         }
 
         // Unlocked/equipped skin clicks use the old Next Page SFX,
         // which is now dedicated to Skin Equip.
-        SoundManager.Instance?.PlaySkinEquipSound();
+        SoundManager.Instance?.PlaySkinEquipSound(equipButton != null ? equipButton.transform as RectTransform : transform as RectTransform);
         VibrationManager.Instance?.VibrateUI();
 
         if (skinCatalog.IsSelected(skin))

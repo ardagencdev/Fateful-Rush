@@ -249,7 +249,7 @@ public class VoidCloneAbility : MonoBehaviour
         // PointerDown uzerinden calistigi icin mobilde parmak kaldirilmasini
         // beklemeden clone ve SFX ayni anda baslar.
         if (soundManager != null)
-            soundManager.PlayVoidCloneSound();
+            soundManager.PlayVoidCloneSound(transform.position);
 
         VibrationManager.Instance?.VibrateClone();
 

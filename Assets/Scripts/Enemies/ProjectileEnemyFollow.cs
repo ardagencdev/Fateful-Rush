@@ -126,6 +126,8 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        SoundManager.ConfigureAsWorld3D(audioSource);
         audioSource.volume = SoundManager.SFXVolume;
     }
 

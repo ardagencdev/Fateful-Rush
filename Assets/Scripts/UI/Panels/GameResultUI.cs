@@ -41,6 +41,10 @@ public class GameResultUI : MonoBehaviour
 
     [Header("Skin Unlock Animation")]
     [SerializeField, Min(0f)] private float skinUnlockDelay = 0.25f;
+
+    [Tooltip("New Skin panelinin Victory SFX bitmeden ne kadar once gelmeye baslayacagi.")]
+    [SerializeField, Min(0f)] private float skinUnlockWinSoundTailOverlap = 0.65f;
+
     [SerializeField, Min(0.05f)] private float skinUnlockAnimationDuration = 0.42f;
     [SerializeField, Min(0f)] private float skinUnlockSlideDistance = 180f;
 
@@ -778,16 +782,38 @@ public class GameResultUI : MonoBehaviour
 
         PrepareSkinUnlockUI();
 
-        if (skinUnlockDelay > 0f)
+        float effectiveUnlockDelay =
+            Mathf.Max(0f, skinUnlockDelay);
+
+        SoundManager soundManager = SoundManager.Instance;
+
+        if (soundManager != null &&
+            soundManager.WinSoundDuration > 0f)
+        {
+            float delayFromWinSound = Mathf.Max(
+                0f,
+                soundManager.WinSoundDuration -
+                skinUnlockWinSoundTailOverlap
+            );
+
+            effectiveUnlockDelay = Mathf.Max(
+                effectiveUnlockDelay,
+                delayFromWinSound
+            );
+        }
+
+        if (effectiveUnlockDelay > 0f)
         {
             yield return
                 new WaitForSecondsRealtime(
-                    skinUnlockDelay
+                    effectiveUnlockDelay
                 );
         }
 
         if (skinUnlockUI == null)
             yield break;
+
+        SoundManager.Instance?.PlayNewSkinUnlockedSound(skinUnlockRect);
 
         if (!skinUnlockPositionCached)
             CacheSkinUnlockRestPosition();

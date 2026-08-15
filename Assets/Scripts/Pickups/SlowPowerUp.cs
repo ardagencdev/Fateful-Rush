@@ -46,7 +46,7 @@ public class SlowPowerUp : MonoBehaviour
         StatsManager.AddSlowBuffUse();
 
         if (soundManager != null)
-            soundManager.PlaySlowCollectSound();
+            soundManager.PlaySlowCollectSound(transform.position);
 
         isSlowActive = true;
         currentSlowMultiplier = slowMultiplier;

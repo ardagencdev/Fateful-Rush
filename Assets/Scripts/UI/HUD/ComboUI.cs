@@ -181,6 +181,9 @@ public class ComboUI : MonoBehaviour
 
         UpdateCombo(safeCombo);
 
+        if (stageIncreased)
+            SoundManager.Instance?.PlayComboStageSound(comboText.rectTransform);
+
         Color targetColor = GetComboColor(safeCombo);
 
         if (reachedMaxCombo)

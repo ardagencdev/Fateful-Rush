@@ -29,6 +29,7 @@ public class LaserWarning : MonoBehaviour
 
         for (int i = 0; i < safeBlinkCount; i++)
         {
+            PlayWarningPulse();
             SetVisible(true);
             yield return new WaitForSeconds(singleBlinkTime);
 
@@ -37,6 +38,16 @@ public class LaserWarning : MonoBehaviour
         }
 
         SetVisible(false);
+    }
+
+    private void PlayWarningPulse()
+    {
+        SoundManager soundManager = SoundManager.Instance;
+
+        if (soundManager == null)
+            soundManager = FindAnyObjectByType<SoundManager>();
+
+        soundManager?.PlayLaserWarningSound(transform.position);
     }
 
     private void SetVisible(bool visible)

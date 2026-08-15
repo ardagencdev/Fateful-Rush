@@ -66,7 +66,7 @@ public class EnemyProjectile : MonoBehaviour
 
         audioSource.playOnAwake = false;
         audioSource.loop = false;
-        audioSource.spatialBlend = 0f;
+        SoundManager.ConfigureAsWorld3D(audioSource);
 
         spriteRenderers =
             GetComponentsInChildren<SpriteRenderer>(true);

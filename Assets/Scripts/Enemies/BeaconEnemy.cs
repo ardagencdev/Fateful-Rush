@@ -196,7 +196,7 @@ public class BeaconEnemy : MonoBehaviour
         active = true;
 
         if (soundManager != null)
-            soundManager.PlayBeaconActivationWaveSound();
+            soundManager.PlayBeaconActivationWaveSound(transform.position);
 
         if (activationWavePrefab != null)
         {
@@ -224,7 +224,7 @@ public class BeaconEnemy : MonoBehaviour
             if (loopWavePrefab == null) continue;
 
             if (soundManager != null)
-                soundManager.PlayBeaconLoopWaveSound();
+                soundManager.PlayBeaconLoopWaveSound(transform.position);
 
             GameObject wave = RuntimeObjectPool.Spawn(
                 loopWavePrefab,
@@ -550,7 +550,7 @@ public class BeaconEnemy : MonoBehaviour
         NotifySpawnerOnce();
 
         if (soundManager != null)
-            soundManager.PlayBeaconDeathSound();
+            soundManager.PlayBeaconDeathSound(transform.position);
 
         Destroy(gameObject);
     }

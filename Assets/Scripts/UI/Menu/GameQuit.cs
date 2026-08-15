@@ -76,7 +76,7 @@ public class GameQuit : MonoBehaviour
         IsPaused = true;
         Time.timeScale = 0f;
 
-        SoundManager.Instance?.PlayPremiumInterfaceSound();
+        SoundManager.Instance?.PlayPremiumInterfaceSound(pausePanel != null ? pausePanel.transform as RectTransform : transform as RectTransform);
 
         FadeGameplayMusicOut();
 
@@ -91,7 +91,7 @@ public class GameQuit : MonoBehaviour
 
         IsPaused = false;
 
-        SoundManager.Instance?.PlayPremiumInterfaceSound();
+        SoundManager.Instance?.PlayPremiumInterfaceSound(pausePanel != null ? pausePanel.transform as RectTransform : transform as RectTransform);
 
         if (pausePanel != null)
             pausePanel.SetActive(false);

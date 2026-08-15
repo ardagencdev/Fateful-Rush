@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 169 score while Space Bombs keep shrinking safe routes. Build most of the target
+  - The Boss enters at 120 score while Space Bombs keep shrinking safe routes. Build momentum
     before the Boss phase.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
@@ -176,7 +176,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 169
+  bossSpawnScore: 120
   bossSpawnTime: 30
   bossDanger: 4
   bossCustomOverride: 0

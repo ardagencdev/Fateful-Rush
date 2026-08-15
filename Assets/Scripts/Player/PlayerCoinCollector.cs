@@ -203,8 +203,14 @@ public class PlayerCoinCollector : MonoBehaviour
                         ? playerSkinApplier.CurrentSkin.id
                         : string.Empty;
 
+            Vector3 coinSoundPosition =
+                coinCollider != null
+                    ? coinCollider.transform.position
+                    : transform.position;
+
             soundManager.PlayCoinSound(
-                activeSkinId
+                activeSkinId,
+                coinSoundPosition
             );
         }
 

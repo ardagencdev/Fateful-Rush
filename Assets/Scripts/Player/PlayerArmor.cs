@@ -200,7 +200,7 @@ public class PlayerArmor : MonoBehaviour
         StatsManager.AddArmorSave();
 
         if (soundManager != null)
-            soundManager.PlayArmorBreakSound();
+            soundManager.PlayArmorBreakSound(transform.position);
 
         VibrationManager.Instance?.VibrateArmorBreak();
 

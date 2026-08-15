@@ -113,9 +113,19 @@ public static class EnemyAreaStrikeUtility
         if (clip == null)
             return;
 
-        if (SoundManager.Instance != null)
-        {
-            SoundManager.Instance.PlayCustomSound(clip);
-        }
+        SoundManager.Instance?.PlayCustomSound(clip);
+    }
+
+    public static void PlaySound(
+        AudioClip clip,
+        Vector3 worldPosition)
+    {
+        if (clip == null)
+            return;
+
+        SoundManager.Instance?.PlayCustomSoundAtWorld(
+            clip,
+            worldPosition
+        );
     }
 }

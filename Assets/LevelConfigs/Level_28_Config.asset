@@ -174,11 +174,11 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 0
+  bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 75
+  bossSpawnScore: 68
   bossSpawnTime: 30
-  bossDanger: 1
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

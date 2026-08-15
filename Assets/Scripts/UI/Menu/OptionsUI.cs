@@ -47,6 +47,13 @@ public class OptionsUI : MonoBehaviour
     [Header("Gameplay UI")]
     [SerializeField] private Slider hudOpacitySlider;
 
+    [Header("Mobile Slider Touch")]
+    [Tooltip("Slider hitbox'ina iki yandan eklenecek yatay dokunma payi.")]
+    [SerializeField, Min(0f)] private float sliderTouchPaddingX = 24f;
+
+    [Tooltip("Slider hitbox'ina ustten ve alttan eklenecek dikey dokunma payi.")]
+    [SerializeField, Min(0f)] private float sliderTouchPaddingY = 38f;
+
     private readonly Dictionary<Button, CanvasGroup> buttonCanvasGroups =
         new Dictionary<Button, CanvasGroup>();
 
@@ -59,6 +66,7 @@ public class OptionsUI : MonoBehaviour
     {
         RefreshReferences();
         CacheButtonCanvasGroups();
+        SetupMobileSliderTouchAreas();
     }
 
     private void Start()
@@ -440,6 +448,77 @@ public class OptionsUI : MonoBehaviour
         buttonCanvasGroups[button] = canvasGroup;
 
         return canvasGroup;
+    }
+
+
+    private void SetupMobileSliderTouchAreas()
+    {
+        EnsureExpandedSliderTouchArea(musicSlider);
+        EnsureExpandedSliderTouchArea(sfxSlider);
+        EnsureExpandedSliderTouchArea(hudOpacitySlider);
+    }
+
+    private void EnsureExpandedSliderTouchArea(Slider slider)
+    {
+        if (slider == null)
+            return;
+
+        const string touchAreaName = "MobileTouchArea";
+
+        Transform existing =
+            slider.transform.Find(touchAreaName);
+
+        GameObject touchAreaObject;
+
+        if (existing != null)
+        {
+            touchAreaObject = existing.gameObject;
+        }
+        else
+        {
+            touchAreaObject = new GameObject(
+                touchAreaName,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(LayoutElement)
+            );
+
+            touchAreaObject.transform.SetParent(
+                slider.transform,
+                false
+            );
+        }
+
+        RectTransform touchRect =
+            touchAreaObject.GetComponent<RectTransform>();
+
+        touchRect.anchorMin = Vector2.zero;
+        touchRect.anchorMax = Vector2.one;
+        touchRect.pivot = new Vector2(0.5f, 0.5f);
+        touchRect.offsetMin = new Vector2(
+            -sliderTouchPaddingX,
+            -sliderTouchPaddingY
+        );
+        touchRect.offsetMax = new Vector2(
+            sliderTouchPaddingX,
+            sliderTouchPaddingY
+        );
+
+        Image touchImage =
+            touchAreaObject.GetComponent<Image>();
+
+        touchImage.color = new Color(0f, 0f, 0f, 0f);
+        touchImage.raycastTarget = true;
+
+        LayoutElement layoutElement =
+            touchAreaObject.GetComponent<LayoutElement>();
+
+        layoutElement.ignoreLayout = true;
+
+        // Slider'in kendi gorunur grafiklerinin arkasinda kalsin.
+        // Sadece mevcut slider rect'inin disindaki ek alan dokunmayi yakalar.
+        touchAreaObject.transform.SetAsFirstSibling();
     }
 
     private void CacheButtonCanvasGroups()

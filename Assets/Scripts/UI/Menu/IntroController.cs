@@ -137,6 +137,7 @@ public class IntroController : MonoBehaviour
     private bool introSoundPlayed;
 
     private float introStartTime;
+    private GameObject spatialIntroAudioObject;
 
     private void Awake()
     {
@@ -729,11 +730,64 @@ public class IntroController : MonoBehaviour
         if (introAudioSource == null)
             return;
 
-        // Prevent Unity from auto-playing the assigned clip before Start().
-        // IntroController controls exactly when the sound is played.
+        AudioSource templateSource = introAudioSource;
+
+        spatialIntroAudioObject =
+            new GameObject("IntroSpatialSFX");
+
+        introAudioSource =
+            spatialIntroAudioObject.AddComponent<AudioSource>();
+
+        introAudioSource.outputAudioMixerGroup =
+            templateSource.outputAudioMixerGroup;
+
+        introAudioSource.priority = templateSource.priority;
+        introAudioSource.bypassEffects = templateSource.bypassEffects;
+        introAudioSource.bypassListenerEffects = templateSource.bypassListenerEffects;
+        introAudioSource.bypassReverbZones = templateSource.bypassReverbZones;
+        introAudioSource.ignoreListenerPause = true;
+        introAudioSource.ignoreListenerVolume = templateSource.ignoreListenerVolume;
+
         introAudioSource.playOnAwake = false;
         introAudioSource.loop = false;
         introAudioSource.Stop();
+
+        SoundManager.ConfigureAsWorld3D(introAudioSource);
+        PositionIntroAudioAtListenerCenter();
+    }
+
+    private void PositionIntroAudioAtListenerCenter()
+    {
+        if (introAudioSource == null)
+            return;
+
+        AudioListener listener =
+            FindAnyObjectByType<AudioListener>();
+
+        if (listener != null)
+        {
+            Transform listenerTransform = listener.transform;
+            introAudioSource.transform.position =
+                listenerTransform.position +
+                listenerTransform.forward * 1.5f;
+
+            return;
+        }
+
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera != null)
+        {
+            introAudioSource.transform.position =
+                mainCamera.transform.position +
+                mainCamera.transform.forward * 1.5f;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (spatialIntroAudioObject != null)
+            Destroy(spatialIntroAudioObject);
     }
 
     private void ConfigureCanvasGroups()

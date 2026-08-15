@@ -21,7 +21,8 @@ public class UIButtonSound : MonoBehaviour
 
         Custom = 8,
         Exit = 9,
-        Continue = 10
+        Continue = 10,
+        Restart = 11
     }
 
     [SerializeField]
@@ -139,43 +140,47 @@ public class UIButtonSound : MonoBehaviour
         switch (soundType)
         {
             case ButtonSoundType.Menu:
-                soundManager.PlayMenuButtonSound();
+                soundManager.PlayMenuButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Back:
-                soundManager.PlayBackButtonSound();
+                soundManager.PlayBackButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Option:
-                soundManager.PlayOptionButtonSound();
+                soundManager.PlayOptionButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Start:
-                soundManager.PlayStartButtonSound();
+                soundManager.PlayStartButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Locked:
-                soundManager.PlayLockedLevelSound();
+                soundManager.PlayLockedLevelSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Next:
-                soundManager.PlayNextButtonSound();
+                soundManager.PlayNextButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Previous:
-                soundManager.PlayPreviousButtonSound();
+                soundManager.PlayPreviousButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Exit:
-                soundManager.PlayExitButtonSound();
+                soundManager.PlayExitButtonSound(transform as RectTransform);
                 break;
 
             case ButtonSoundType.Continue:
                 PlayContinueSound(soundManager);
                 break;
 
+            case ButtonSoundType.Restart:
+                soundManager.PlayRestartButtonSound(transform as RectTransform);
+                break;
+
             case ButtonSoundType.Custom:
-                soundManager.PlayCustomSound(customSound);
+                soundManager.PlayCustomSoundAtUI(customSound, transform as RectTransform);
                 break;
         }
 
@@ -191,11 +196,11 @@ public class UIButtonSound : MonoBehaviour
         if (continueMainMenu != null &&
             continueMainMenu.IsContinueAvailable)
         {
-            soundManager.PlayStartButtonSound();
+            soundManager.PlayStartButtonSound(transform as RectTransform);
         }
         else
         {
-            soundManager.PlayLockedLevelSound();
+            soundManager.PlayLockedLevelSound(transform as RectTransform);
         }
     }
 }

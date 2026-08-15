@@ -707,7 +707,7 @@ public class MiniBossFollow : MonoBehaviour
         if (player == null || playerMovement == null)
             return;
 
-        EnemyAreaStrikeUtility.PlaySound(aoeSfx);
+        EnemyAreaStrikeUtility.PlaySound(aoeSfx, transform.position);
 
         EnemyAreaStrikeUtility.ExecuteStrike(
             transform,

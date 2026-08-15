@@ -159,7 +159,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
         briefingPanel.SetActive(true);
 
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayMissionBriefingOpenSound();
+            SoundManager.Instance.PlayMissionBriefingOpenSound(panelRect);
 
         if (panelGroup != null)
         {
@@ -757,7 +757,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
     Action<LevelConfig> callback)
     {
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayStartButtonSound();
+            SoundManager.Instance.PlayStartButtonSound(startButton != null ? startButton.transform as RectTransform : panelRect);
 
         float startAlpha =
             panelGroup != null

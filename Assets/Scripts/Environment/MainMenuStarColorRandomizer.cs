@@ -13,6 +13,10 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     [SerializeField]
     private ParticleSystem nearStars;
 
+    [Tooltip("Boş bırakılırsa Main Camera otomatik kullanılır.")]
+    [SerializeField]
+    private Camera nearStarsCamera;
+
     [Header("Panel Colors")]
     [SerializeField]
     private Color mainMenuColor =
@@ -30,6 +34,13 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     private Color statsColor =
         new Color(1f, 0.75f, 0.2f, 0.9f);
 
+    [Header("Base Panel Density")]
+    [SerializeField, Min(0f)]
+    private float basePanelEmissionRate = 1.5f;
+
+    [SerializeField, Min(1)]
+    private int basePanelMaxParticles = 50;
+
     [Header("Level Page Progression")]
     [SerializeField]
     private Color firstLevelPageColor =
@@ -39,17 +50,19 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     private Color lastLevelPageColor =
         new Color(1f, 0.08f, 0.08f, 0.9f);
 
+    [Tooltip("Screen-edge sisteminde eski Volume emission değerlerinden daha düşük tutulmalı.")]
     [SerializeField, Min(0f)]
-    private float firstPageEmissionRate = 12f;
+    private float firstPageEmissionRate = 4.25f;
 
+    [Tooltip("Son level sayfasına doğru NearStars yoğunluğu artar.")]
     [SerializeField, Min(0f)]
-    private float lastPageEmissionRate = 32f;
+    private float lastPageEmissionRate = 8.5f;
 
     [SerializeField, Min(1)]
-    private int firstPageMaxParticles = 80;
+    private int firstPageMaxParticles = 140;
 
     [SerializeField, Min(1)]
-    private int lastPageMaxParticles = 200;
+    private int lastPageMaxParticles = 260;
 
     [SerializeField, Min(0f)]
     private float firstPageFlowMultiplier = 0.7f;
@@ -57,9 +70,34 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     [SerializeField, Min(0f)]
     private float lastPageFlowMultiplier = 1.75f;
 
+    [Header("Screen Edge Near Stars")]
+    [Tooltip("NearStars ekrana giriş yapan kenarlardan doğar ve karşı kenardan tamamen çıktıktan sonra silinir.")]
+    [SerializeField]
+    private bool useScreenEdgeNearStars = true;
+
+    [Tooltip("Lifetime görünürlük süresini belirlemez; yıldız karşı kenardan çıkınca script siler. Bu sadece güvenlik payıdır.")]
+    [SerializeField]
+    private Vector2 nearStarsLifetimeRange =
+        new Vector2(90f, 120f);
+
+    [Tooltip("Yıldızların ekranın biraz dışından doğması için dünya birimi cinsinden pay.")]
+    [SerializeField, Min(0f)]
+    private float nearStarsSpawnPadding = 0.35f;
+
+    [Tooltip("Yıldız tamamen ekran dışına çıktıktan sonra silinmesi için pay.")]
+    [SerializeField, Min(0f)]
+    private float nearStarsExitPadding = 0.65f;
+
+    [Tooltip("Main Menu açıldığında NearStars'ın hemen dolu görünmesi için başlangıç doluluk oranı.")]
+    [SerializeField, Range(0f, 1f)]
+    private float nearStarsInitialFill = 0.65f;
+
     [Header("Transition")]
     [SerializeField, Min(0.01f)]
     private float transitionDuration = 0.45f;
+
+    [SerializeField, HideInInspector]
+    private int screenEdgeSettingsVersion;
 
     private ParticleSystem.Particle[] particles;
     private Coroutine transitionRoutine;
@@ -71,15 +109,27 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
     private float originalEmissionRate;
     private int originalMaxParticles;
-    private float originalVelocityXMultiplier;
-    private float originalVelocityYMultiplier;
-    private float originalVelocityZMultiplier;
+    private ParticleSystem.MinMaxCurve originalVelocityX;
+    private ParticleSystem.MinMaxCurve originalVelocityY;
+    private ParticleSystem.MinMaxCurve originalVelocityZ;
 
     private bool skinPreviewActive;
     private Color skinPreviewRestoreColor;
     private float skinPreviewRestoreEmissionRate;
     private float skinPreviewRestoreMaxParticles;
     private float skinPreviewRestoreFlowMultiplier;
+
+    private float nearEmissionAccumulator;
+    private bool nearFlowInitialized;
+
+    private struct CameraBounds2D
+    {
+        public float left;
+        public float right;
+        public float bottom;
+        public float top;
+        public float planeZ;
+    }
 
     private void Awake()
     {
@@ -95,11 +145,13 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         if (nearStars == null)
             nearStars = GetComponent<ParticleSystem>();
 
+        MigrateLegacySettingsIfNeeded();
         CacheOriginalParticleSettings();
+        ConfigureScreenEdgeFlow();
 
         currentColor = mainMenuColor;
-        currentEmissionRate = originalEmissionRate;
-        currentMaxParticles = originalMaxParticles;
+        currentEmissionRate = basePanelEmissionRate;
+        currentMaxParticles = basePanelMaxParticles;
         currentFlowMultiplier = 1f;
 
         ApplyStateInstant(
@@ -108,6 +160,29 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             Mathf.RoundToInt(currentMaxParticles),
             currentFlowMultiplier
         );
+    }
+
+    private void Start()
+    {
+        InitializeScreenEdgeFlow();
+    }
+
+    private void Update()
+    {
+        if (!useScreenEdgeNearStars ||
+            !nearFlowInitialized ||
+            nearStars == null)
+        {
+            return;
+        }
+
+        ResolveCamera();
+
+        if (nearStarsCamera == null)
+            return;
+
+        CullExitedNearStars();
+        EmitNearStars(Time.unscaledDeltaTime);
     }
 
     private void OnDestroy()
@@ -120,8 +195,8 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     {
         ChangeState(
             mainMenuColor,
-            originalEmissionRate,
-            originalMaxParticles,
+            basePanelEmissionRate,
+            basePanelMaxParticles,
             1f
         );
     }
@@ -194,8 +269,8 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     {
         ChangeState(
             missionBriefingColor,
-            originalEmissionRate,
-            originalMaxParticles,
+            basePanelEmissionRate,
+            basePanelMaxParticles,
             1f
         );
     }
@@ -204,8 +279,8 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     {
         ChangeState(
             optionsColor,
-            originalEmissionRate,
-            originalMaxParticles,
+            basePanelEmissionRate,
+            basePanelMaxParticles,
             1f
         );
     }
@@ -214,8 +289,8 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     {
         ChangeState(
             statsColor,
-            originalEmissionRate,
-            originalMaxParticles,
+            basePanelEmissionRate,
+            basePanelMaxParticles,
             1f
         );
     }
@@ -391,20 +466,34 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         ParticleSystem.EmissionModule emission =
             nearStars.emission;
 
-        emission.rateOverTime =
-            Mathf.Max(0f, emissionRate);
+        if (useScreenEdgeNearStars)
+        {
+            emission.enabled = false;
+        }
+        else
+        {
+            emission.enabled = true;
+            emission.rateOverTime =
+                Mathf.Max(0f, emissionRate);
+        }
 
         ParticleSystem.VelocityOverLifetimeModule velocity =
             nearStars.velocityOverLifetime;
 
-        velocity.xMultiplier =
-            originalVelocityXMultiplier * flowMultiplier;
+        velocity.x = ScaleCurve(
+            originalVelocityX,
+            flowMultiplier
+        );
 
-        velocity.yMultiplier =
-            originalVelocityYMultiplier * flowMultiplier;
+        velocity.y = ScaleCurve(
+            originalVelocityY,
+            flowMultiplier
+        );
 
-        velocity.zMultiplier =
-            originalVelocityZMultiplier * flowMultiplier;
+        velocity.z = ScaleCurve(
+            originalVelocityZ,
+            flowMultiplier
+        );
 
         ApplyColorToLivingParticles(
             color,
@@ -412,35 +501,547 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         );
     }
 
+    private void ConfigureScreenEdgeFlow()
+    {
+        if (!useScreenEdgeNearStars || nearStars == null)
+            return;
+
+        float minLifetime = Mathf.Max(
+            1f,
+            Mathf.Min(
+                nearStarsLifetimeRange.x,
+                nearStarsLifetimeRange.y
+            )
+        );
+
+        float maxLifetime = Mathf.Max(
+            minLifetime,
+            Mathf.Max(
+                nearStarsLifetimeRange.x,
+                nearStarsLifetimeRange.y
+            )
+        );
+
+        ParticleSystem.MainModule main =
+            nearStars.main;
+
+        main.startLifetime =
+            new ParticleSystem.MinMaxCurve(
+                minLifetime,
+                maxLifetime
+            );
+
+        main.prewarm = false;
+
+        ParticleSystem.EmissionModule emission =
+            nearStars.emission;
+
+        emission.enabled = false;
+
+        ParticleSystem.ShapeModule shape =
+            nearStars.shape;
+
+        shape.enabled = false;
+    }
+
+    private void InitializeScreenEdgeFlow()
+    {
+        if (!useScreenEdgeNearStars || nearStars == null)
+            return;
+
+        ResolveCamera();
+
+        if (nearStarsCamera == null)
+            return;
+
+        ConfigureScreenEdgeFlow();
+
+        nearStars.Clear(true);
+
+        if (!nearStars.isPlaying)
+            nearStars.Play(true);
+
+        EnsureParticleBuffer();
+        SeedInitialNearStars();
+
+        nearEmissionAccumulator = 0f;
+        nearFlowInitialized = true;
+    }
+
+    private void ResolveCamera()
+    {
+        if (nearStarsCamera == null)
+            nearStarsCamera = Camera.main;
+    }
+
+    private void EmitNearStars(float deltaTime)
+    {
+        if (deltaTime <= 0f ||
+            currentEmissionRate <= 0f)
+        {
+            return;
+        }
+
+        nearEmissionAccumulator +=
+            currentEmissionRate * deltaTime;
+
+        int emitCount =
+            Mathf.FloorToInt(nearEmissionAccumulator);
+
+        if (emitCount <= 0)
+            return;
+
+        nearEmissionAccumulator -= emitCount;
+
+        int availableSlots = Mathf.Max(
+            0,
+            nearStars.main.maxParticles -
+            nearStars.particleCount
+        );
+
+        emitCount =
+            Mathf.Min(emitCount, availableSlots);
+
+        emitCount =
+            Mathf.Min(emitCount, 32);
+
+        if (emitCount <= 0)
+            return;
+
+        CameraBounds2D bounds =
+            GetCameraBounds();
+
+        Vector2 flow =
+            GetNearStarsWorldFlow();
+
+        for (int i = 0; i < emitCount; i++)
+        {
+            Vector3 worldPosition =
+                GetRandomEntryPosition(
+                    bounds,
+                    flow
+                );
+
+            EmitNearStarAtWorldPosition(
+                worldPosition
+            );
+        }
+    }
+
+    private void SeedInitialNearStars()
+    {
+        int targetCount =
+            Mathf.RoundToInt(
+                nearStars.main.maxParticles *
+                nearStarsInitialFill
+            );
+
+        if (targetCount <= 0)
+            return;
+
+        CameraBounds2D bounds =
+            GetCameraBounds();
+
+        for (int i = 0; i < targetCount; i++)
+        {
+            Vector3 worldPosition =
+                new Vector3(
+                    Random.Range(
+                        bounds.left,
+                        bounds.right
+                    ),
+                    Random.Range(
+                        bounds.bottom,
+                        bounds.top
+                    ),
+                    bounds.planeZ
+                );
+
+            EmitNearStarAtWorldPosition(
+                worldPosition
+            );
+        }
+    }
+
+    private void EmitNearStarAtWorldPosition(
+        Vector3 worldPosition
+    )
+    {
+        ParticleSystem.EmitParams emitParams =
+            new ParticleSystem.EmitParams
+            {
+                position =
+                    WorldToSimulationPosition(
+                        worldPosition
+                    ),
+                applyShapeToPosition = false
+            };
+
+        nearStars.Emit(emitParams, 1);
+    }
+
+    private Vector3 GetRandomEntryPosition(
+        CameraBounds2D bounds,
+        Vector2 flow
+    )
+    {
+        bool hasHorizontalFlow =
+            Mathf.Abs(flow.x) > 0.0001f;
+
+        bool hasVerticalFlow =
+            Mathf.Abs(flow.y) > 0.0001f;
+
+        if (!hasHorizontalFlow &&
+            !hasVerticalFlow)
+        {
+            return new Vector3(
+                Random.Range(
+                    bounds.left,
+                    bounds.right
+                ),
+                bounds.top +
+                nearStarsSpawnPadding,
+                bounds.planeZ
+            );
+        }
+
+        bool useVerticalEdge;
+
+        if (!hasHorizontalFlow)
+        {
+            useVerticalEdge = true;
+        }
+        else if (!hasVerticalFlow)
+        {
+            useVerticalEdge = false;
+        }
+        else
+        {
+            float width = Mathf.Max(
+                0.01f,
+                bounds.right - bounds.left
+            );
+
+            float height = Mathf.Max(
+                0.01f,
+                bounds.top - bounds.bottom
+            );
+
+            float verticalWeight =
+                width * Mathf.Abs(flow.y);
+
+            float horizontalWeight =
+                height * Mathf.Abs(flow.x);
+
+            float totalWeight =
+                verticalWeight +
+                horizontalWeight;
+
+            useVerticalEdge =
+                Random.value <
+                verticalWeight /
+                Mathf.Max(
+                    0.0001f,
+                    totalWeight
+                );
+        }
+
+        if (useVerticalEdge)
+        {
+            float y =
+                flow.y < 0f
+                    ? bounds.top +
+                      nearStarsSpawnPadding
+                    : bounds.bottom -
+                      nearStarsSpawnPadding;
+
+            return new Vector3(
+                Random.Range(
+                    bounds.left,
+                    bounds.right
+                ),
+                y,
+                bounds.planeZ
+            );
+        }
+
+        float x =
+            flow.x > 0f
+                ? bounds.left -
+                  nearStarsSpawnPadding
+                : bounds.right +
+                  nearStarsSpawnPadding;
+
+        return new Vector3(
+            x,
+            Random.Range(
+                bounds.bottom,
+                bounds.top
+            ),
+            bounds.planeZ
+        );
+    }
+
+    private void CullExitedNearStars()
+    {
+        EnsureParticleBuffer();
+
+        int count =
+            nearStars.GetParticles(
+                particles
+            );
+
+        if (count <= 0)
+            return;
+
+        CameraBounds2D bounds =
+            GetCameraBounds();
+
+        Vector2 flow =
+            GetNearStarsWorldFlow();
+
+        bool changed = false;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 worldPosition =
+                SimulationToWorldPosition(
+                    particles[i].position
+                );
+
+            bool exited = false;
+
+            if (flow.x > 0.0001f &&
+                worldPosition.x >
+                bounds.right +
+                nearStarsExitPadding)
+            {
+                exited = true;
+            }
+            else if (
+                flow.x < -0.0001f &&
+                worldPosition.x <
+                bounds.left -
+                nearStarsExitPadding)
+            {
+                exited = true;
+            }
+
+            if (flow.y < -0.0001f &&
+                worldPosition.y <
+                bounds.bottom -
+                nearStarsExitPadding)
+            {
+                exited = true;
+            }
+            else if (
+                flow.y > 0.0001f &&
+                worldPosition.y >
+                bounds.top +
+                nearStarsExitPadding)
+            {
+                exited = true;
+            }
+
+            if (!exited)
+                continue;
+
+            particles[i].remainingLifetime = 0f;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            nearStars.SetParticles(
+                particles,
+                count
+            );
+        }
+    }
+
+    private CameraBounds2D GetCameraBounds()
+    {
+        float planeZ =
+            nearStars != null
+                ? nearStars.transform.position.z
+                : 0f;
+
+        float depth = Mathf.Abs(
+            planeZ -
+            nearStarsCamera.transform.position.z
+        );
+
+        Vector3 bottomLeft =
+            nearStarsCamera.ViewportToWorldPoint(
+                new Vector3(
+                    0f,
+                    0f,
+                    depth
+                )
+            );
+
+        Vector3 topRight =
+            nearStarsCamera.ViewportToWorldPoint(
+                new Vector3(
+                    1f,
+                    1f,
+                    depth
+                )
+            );
+
+        return new CameraBounds2D
+        {
+            left =
+                Mathf.Min(
+                    bottomLeft.x,
+                    topRight.x
+                ),
+            right =
+                Mathf.Max(
+                    bottomLeft.x,
+                    topRight.x
+                ),
+            bottom =
+                Mathf.Min(
+                    bottomLeft.y,
+                    topRight.y
+                ),
+            top =
+                Mathf.Max(
+                    bottomLeft.y,
+                    topRight.y
+                ),
+            planeZ = planeZ
+        };
+    }
+
+    private Vector2 GetNearStarsWorldFlow()
+    {
+        ParticleSystem.VelocityOverLifetimeModule velocity =
+            nearStars.velocityOverLifetime;
+
+        Vector3 flow =
+            new Vector3(
+                GetRepresentativeCurveValue(
+                    velocity.x
+                ),
+                GetRepresentativeCurveValue(
+                    velocity.y
+                ),
+                GetRepresentativeCurveValue(
+                    velocity.z
+                )
+            );
+
+        if (velocity.space ==
+            ParticleSystemSimulationSpace.Local)
+        {
+            flow =
+                nearStars.transform.TransformVector(
+                    flow
+                );
+        }
+        else if (
+            velocity.space ==
+            ParticleSystemSimulationSpace.Custom)
+        {
+            ParticleSystem.MainModule main =
+                nearStars.main;
+
+            if (main.customSimulationSpace != null)
+            {
+                flow =
+                    main.customSimulationSpace.TransformVector(
+                        flow
+                    );
+            }
+        }
+
+        return new Vector2(
+            flow.x,
+            flow.y
+        );
+    }
+
+    private Vector3 WorldToSimulationPosition(
+        Vector3 worldPosition
+    )
+    {
+        ParticleSystem.MainModule main =
+            nearStars.main;
+
+        switch (main.simulationSpace)
+        {
+            case ParticleSystemSimulationSpace.Local:
+                return nearStars.transform
+                    .InverseTransformPoint(
+                        worldPosition
+                    );
+
+            case ParticleSystemSimulationSpace.Custom:
+                if (main.customSimulationSpace != null)
+                {
+                    return main.customSimulationSpace
+                        .InverseTransformPoint(
+                            worldPosition
+                        );
+                }
+
+                return worldPosition;
+
+            default:
+                return worldPosition;
+        }
+    }
+
+    private Vector3 SimulationToWorldPosition(
+        Vector3 simulationPosition
+    )
+    {
+        ParticleSystem.MainModule main =
+            nearStars.main;
+
+        switch (main.simulationSpace)
+        {
+            case ParticleSystemSimulationSpace.Local:
+                return nearStars.transform
+                    .TransformPoint(
+                        simulationPosition
+                    );
+
+            case ParticleSystemSimulationSpace.Custom:
+                if (main.customSimulationSpace != null)
+                {
+                    return main.customSimulationSpace
+                        .TransformPoint(
+                            simulationPosition
+                        );
+                }
+
+                return simulationPosition;
+
+            default:
+                return simulationPosition;
+        }
+    }
+
     private void ApplyColorToLivingParticles(
         Color color,
         int maxParticles
     )
     {
-        int requiredSize = Mathf.Max(
-            1,
-            Mathf.Max(
-                maxParticles,
-                nearStars.particleCount
-            )
-        );
-
-        if (particles == null ||
-            particles.Length < requiredSize)
-        {
-            particles =
-                new ParticleSystem.Particle[
-                    requiredSize
-                ];
-        }
+        EnsureParticleBuffer();
 
         int particleCount =
-            nearStars.GetParticles(particles);
+            nearStars.GetParticles(
+                particles
+            );
 
-        particleCount = Mathf.Min(
-            particleCount,
-            maxParticles
-        );
+        particleCount =
+            Mathf.Min(
+                particleCount,
+                maxParticles
+            );
 
         for (int i = 0;
              i < particleCount;
@@ -453,6 +1054,29 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             particles,
             particleCount
         );
+    }
+
+    private void EnsureParticleBuffer()
+    {
+        if (nearStars == null)
+            return;
+
+        int requiredSize = Mathf.Max(
+            1,
+            Mathf.Max(
+                nearStars.main.maxParticles,
+                nearStars.particleCount
+            )
+        );
+
+        if (particles == null ||
+            particles.Length < requiredSize)
+        {
+            particles =
+                new ParticleSystem.Particle[
+                    requiredSize
+                ];
+        }
     }
 
     private void CacheOriginalParticleSettings()
@@ -470,55 +1094,128 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             nearStars.velocityOverLifetime;
 
         originalEmissionRate =
-            emission.rateOverTime.constant;
+            GetRepresentativeCurveValue(
+                emission.rateOverTime
+            );
 
         originalMaxParticles =
-            Mathf.Max(1, main.maxParticles);
+            Mathf.Max(
+                1,
+                main.maxParticles
+            );
 
-        originalVelocityXMultiplier =
-            velocity.xMultiplier;
-
-        originalVelocityYMultiplier =
-            velocity.yMultiplier;
-
-        originalVelocityZMultiplier =
-            velocity.zMultiplier;
+        originalVelocityX = velocity.x;
+        originalVelocityY = velocity.y;
+        originalVelocityZ = velocity.z;
     }
 
-    private void OnValidate()
+    private static ParticleSystem.MinMaxCurve ScaleCurve(
+        ParticleSystem.MinMaxCurve source,
+        float multiplier
+    )
     {
-        if (nearStars == null)
-            nearStars = GetComponent<ParticleSystem>();
-
-        transitionDuration =
-            Mathf.Max(0.01f, transitionDuration);
-
-        firstPageEmissionRate =
-            Mathf.Max(0f, firstPageEmissionRate);
-
-        lastPageEmissionRate =
+        multiplier =
             Mathf.Max(
-                firstPageEmissionRate,
-                lastPageEmissionRate
+                0f,
+                multiplier
             );
 
-        firstPageMaxParticles =
-            Mathf.Max(1, firstPageMaxParticles);
+        switch (source.mode)
+        {
+            case ParticleSystemCurveMode.Constant:
+                return new ParticleSystem.MinMaxCurve(
+                    source.constant *
+                    multiplier
+                );
 
-        lastPageMaxParticles =
-            Mathf.Max(
-                firstPageMaxParticles,
-                lastPageMaxParticles
-            );
+            case ParticleSystemCurveMode.TwoConstants:
+                return new ParticleSystem.MinMaxCurve(
+                    source.constantMin *
+                    multiplier,
+                    source.constantMax *
+                    multiplier
+                );
 
-        firstPageFlowMultiplier =
-            Mathf.Max(0f, firstPageFlowMultiplier);
+            case ParticleSystemCurveMode.Curve:
+                return new ParticleSystem.MinMaxCurve(
+                    source.curveMultiplier *
+                    multiplier,
+                    source.curve
+                );
 
-        lastPageFlowMultiplier =
-            Mathf.Max(
-                firstPageFlowMultiplier,
-                lastPageFlowMultiplier
-            );
+            case ParticleSystemCurveMode.TwoCurves:
+                return new ParticleSystem.MinMaxCurve(
+                    source.curveMultiplier *
+                    multiplier,
+                    source.curveMin,
+                    source.curveMax
+                );
+
+            default:
+                return source;
+        }
+    }
+
+    private static float GetRepresentativeCurveValue(
+        ParticleSystem.MinMaxCurve curve
+    )
+    {
+        switch (curve.mode)
+        {
+            case ParticleSystemCurveMode.Constant:
+                return curve.constant;
+
+            case ParticleSystemCurveMode.TwoConstants:
+                return (
+                    curve.constantMin +
+                    curve.constantMax
+                ) * 0.5f;
+
+            case ParticleSystemCurveMode.Curve:
+                return curve.curve != null
+                    ? curve.curve.Evaluate(0.5f) *
+                      curve.curveMultiplier
+                    : 0f;
+
+            case ParticleSystemCurveMode.TwoCurves:
+                float minValue =
+                    curve.curveMin != null
+                        ? curve.curveMin.Evaluate(0.5f)
+                        : 0f;
+
+                float maxValue =
+                    curve.curveMax != null
+                        ? curve.curveMax.Evaluate(0.5f)
+                        : 0f;
+
+                return (
+                    minValue +
+                    maxValue
+                ) * 0.5f *
+                curve.curveMultiplier;
+
+            default:
+                return 0f;
+        }
+    }
+
+    private void MigrateLegacySettingsIfNeeded()
+    {
+        if (screenEdgeSettingsVersion >= 2)
+            return;
+
+        if (screenEdgeSettingsVersion < 1)
+        {
+            firstPageEmissionRate = 4.25f;
+            lastPageEmissionRate = 8.5f;
+            firstPageMaxParticles = 140;
+            lastPageMaxParticles = 260;
+        }
+
+        basePanelEmissionRate = 1.5f;
+        basePanelMaxParticles = 50;
+
+        screenEdgeSettingsVersion = 2;
     }
 
     private static Color NormalizePreviewColor(Color color)
@@ -557,5 +1254,103 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
                inverse *
                inverse /
                2f;
+    }
+
+    private void OnValidate()
+    {
+        if (nearStars == null)
+            nearStars = GetComponent<ParticleSystem>();
+
+        MigrateLegacySettingsIfNeeded();
+
+        transitionDuration =
+            Mathf.Max(
+                0.01f,
+                transitionDuration
+            );
+
+        basePanelEmissionRate =
+            Mathf.Max(
+                0f,
+                basePanelEmissionRate
+            );
+
+        basePanelMaxParticles =
+            Mathf.Max(
+                1,
+                basePanelMaxParticles
+            );
+
+        firstPageEmissionRate =
+            Mathf.Max(
+                0f,
+                firstPageEmissionRate
+            );
+
+        lastPageEmissionRate =
+            Mathf.Max(
+                firstPageEmissionRate,
+                lastPageEmissionRate
+            );
+
+        firstPageMaxParticles =
+            Mathf.Max(
+                1,
+                firstPageMaxParticles
+            );
+
+        lastPageMaxParticles =
+            Mathf.Max(
+                firstPageMaxParticles,
+                lastPageMaxParticles
+            );
+
+        firstPageFlowMultiplier =
+            Mathf.Max(
+                0f,
+                firstPageFlowMultiplier
+            );
+
+        lastPageFlowMultiplier =
+            Mathf.Max(
+                firstPageFlowMultiplier,
+                lastPageFlowMultiplier
+            );
+
+        nearStarsSpawnPadding =
+            Mathf.Max(
+                0f,
+                nearStarsSpawnPadding
+            );
+
+        nearStarsExitPadding =
+            Mathf.Max(
+                0f,
+                nearStarsExitPadding
+            );
+
+        float minLifetime =
+            Mathf.Max(
+                1f,
+                Mathf.Min(
+                    nearStarsLifetimeRange.x,
+                    nearStarsLifetimeRange.y
+                )
+            );
+
+        float maxLifetime =
+            Mathf.Max(
+                minLifetime,
+                Mathf.Max(
+                    nearStarsLifetimeRange.x,
+                    nearStarsLifetimeRange.y
+                )
+            );
+
+        nearStarsLifetimeRange =
+            new Vector2(
+                minLifetime,
+                maxLifetime
+            );
     }
 }

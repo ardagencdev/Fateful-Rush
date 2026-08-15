@@ -178,6 +178,8 @@ public class SpaceBombSpawner : MonoBehaviour
             checkRadius
         );
 
+        SoundManager.Instance?.PlaySpaceBombSpawnSound(bomb.transform.position);
+
         return true;
     }
 

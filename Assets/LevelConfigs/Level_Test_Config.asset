@@ -115,7 +115,7 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 2
+  normalEnemyCount: 0
   normalEnemySpawnInterval: 2.5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
@@ -257,7 +257,7 @@ MonoBehaviour:
     width: 5.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 1
+  horizontalLaserDanger: 3
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 5
@@ -266,7 +266,7 @@ MonoBehaviour:
     lifeTime: 1.5
     width: 5.5
     sizeExtra: 1
-  bombTrapEnabled: 0
+  bombTrapEnabled: 1
   bombDanger: 2
   bombCustomOverride: 0
   bombOverride:

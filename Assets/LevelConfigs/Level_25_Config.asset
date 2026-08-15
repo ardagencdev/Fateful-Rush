@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 130 score while Horizontal Lasers restrict exits. Reach that phase with Dash
+  - The Boss enters at 98 score while Horizontal Lasers restrict exits. Reach that phase with Dash
     ready and keep scoring routes clear.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
@@ -176,7 +176,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 130
+  bossSpawnScore: 98
   bossSpawnTime: 30
   bossDanger: 2
   bossCustomOverride: 0

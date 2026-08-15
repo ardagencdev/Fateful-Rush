@@ -134,7 +134,7 @@ public class PlayerDash : MonoBehaviour
             ShowCooldownUI();
 
         if (soundManager != null)
-            soundManager.PlayDashSound();
+            soundManager.PlayDashSound(transform.position);
 
         VibrationManager.Instance?.VibrateDash();
         StatsManager.AddDashUse();

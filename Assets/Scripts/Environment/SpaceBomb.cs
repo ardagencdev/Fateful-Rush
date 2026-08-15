@@ -85,11 +85,21 @@ public class SpaceBomb : MonoBehaviour
 
         if (explosionSound != null)
         {
-            AudioSource.PlayClipAtPoint(
-                explosionSound,
-                transform.position,
-                SoundManager.SFXVolume
-            );
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlayCustomSoundAtWorld(
+                    explosionSound,
+                    transform.position
+                );
+            }
+            else
+            {
+                AudioSource.PlayClipAtPoint(
+                    explosionSound,
+                    transform.position,
+                    SoundManager.SFXVolume
+                );
+            }
         }
 
         Destroy(gameObject);

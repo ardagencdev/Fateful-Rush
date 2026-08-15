@@ -1255,7 +1255,7 @@ public class BossEnemyFollow : MonoBehaviour
             yield break;
         }
 
-        EnemyAreaStrikeUtility.PlaySound(powerUpSfx);
+        EnemyAreaStrikeUtility.PlaySound(powerUpSfx, transform.position);
 
         Vector3 startMagnitude = currentScaleMagnitude;
         Vector3 targetMagnitude =
@@ -1426,6 +1426,8 @@ public class BossEnemyFollow : MonoBehaviour
         ShowGlobalDangerPreview();
         UpdateGlobalDangerPreviewAlpha(0f);
 
+        SoundManager.Instance?.PlayBossAoeWarningSound(transform.position);
+
         while (timer < duration)
         {
             if (stopped ||
@@ -1588,7 +1590,7 @@ public class BossEnemyFollow : MonoBehaviour
         if (player == null || playerMovement == null)
             return;
 
-        EnemyAreaStrikeUtility.PlaySound(aoeSfx);
+        EnemyAreaStrikeUtility.PlaySound(aoeSfx, transform.position);
 
         EnemyAreaStrikeUtility.ExecuteStrike(
             transform,
@@ -2546,9 +2548,22 @@ public class BossEnemyFollow : MonoBehaviour
         }
 
         float safeFlashSpeed = Mathf.Max(flashSpeed, 0.01f);
+
+        // Armor Break must finish first. The boss keeps shaking during that
+        // time, then the actual split cue plays exactly when the split happens.
+        float armorBreakDuration =
+            SoundManager.Instance != null
+                ? SoundManager.Instance.ArmorBreakSoundDuration
+                : 0f;
+
+        float effectiveSplitDelay = Mathf.Max(
+            splitDelay,
+            armorBreakDuration
+        );
+
         float timer = 0f;
 
-        while (timer < splitDelay)
+        while (timer < effectiveSplitDelay)
         {
             if (playerMovement != null &&
                 playerMovement.IsGameOver)
@@ -2596,6 +2611,7 @@ public class BossEnemyFollow : MonoBehaviour
         if (spriteRenderer != null)
             spriteRenderer.color = splitStartColor;
 
+        SoundManager.Instance?.PlayBossSplitSound(transform.position);
         SpawnMiniBosses(splitCenter);
 
         if (splitDisappearDuration > 0f)

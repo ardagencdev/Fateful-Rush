@@ -155,12 +155,12 @@ public class LevelButtonUI : MonoBehaviour,
 
         if (!unlocked)
         {
-            SoundManager.Instance?.PlayLockedLevelSound();
+            SoundManager.Instance?.PlayLockedLevelSound(button != null ? button.transform as RectTransform : transform as RectTransform);
             VibrationManager.Instance?.VibrateUI();
             return;
         }
 
-        SoundManager.Instance?.PlayMissionSelectSound();
+        SoundManager.Instance?.PlayMissionSelectSound(button != null ? button.transform as RectTransform : transform as RectTransform);
 
         if (panel != null)
         {

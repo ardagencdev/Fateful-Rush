@@ -49,7 +49,7 @@ public class ArmorPowerUp : MonoBehaviour
         StatsManager.AddArmorBuffUse();
 
         if (soundManager != null)
-            soundManager.PlayArmorCollectSound();
+            soundManager.PlayArmorCollectSound(transform.position);
 
         if (spawnEffect != null)
             spawnEffect.Collect();

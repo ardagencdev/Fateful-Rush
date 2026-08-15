@@ -339,7 +339,6 @@ public class GameTimer : MonoBehaviour
     private void TryPlayCountdownTick()
     {
         if (countdownTickSound == null ||
-            countdownAudioSource == null ||
             levelConfig == null)
         {
             return;
@@ -378,9 +377,27 @@ public class GameTimer : MonoBehaviour
             countdownTickVolume +
             finalSecondsVolumeBoost * urgency;
 
-        countdownAudioSource.pitch =
+        float targetPitch =
             1f + finalSecondsPitchBoost * urgency;
 
+        SoundManager soundManager = SoundManager.Instance;
+
+        if (soundManager != null)
+        {
+            soundManager.PlayCustomSoundAtUI(
+                countdownTickSound,
+                timerRectTransform,
+                Mathf.Clamp01(volumeMultiplier),
+                targetPitch
+            );
+
+            return;
+        }
+
+        if (countdownAudioSource == null)
+            return;
+
+        countdownAudioSource.pitch = targetPitch;
         countdownAudioSource.PlayOneShot(
             countdownTickSound,
             Mathf.Clamp01(volumeMultiplier)
@@ -474,7 +491,7 @@ public class GameTimer : MonoBehaviour
 
         countdownAudioSource.playOnAwake = false;
         countdownAudioSource.loop = false;
-        countdownAudioSource.spatialBlend = 0f;
+        SoundManager.ConfigureAsWorld3D(countdownAudioSource);
     }
 
     private void RestoreTimerPosition()

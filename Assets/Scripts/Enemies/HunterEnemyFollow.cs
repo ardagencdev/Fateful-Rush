@@ -89,7 +89,7 @@ public class HunterEnemyFollow : MonoBehaviour
 
         audioSource.playOnAwake = false;
         audioSource.loop = false;
-        audioSource.spatialBlend = 0f;
+        SoundManager.ConfigureAsWorld3D(audioSource);
 
         if (spriteRenderer == null)
         {

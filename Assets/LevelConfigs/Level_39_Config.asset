@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 122 score while Vertical Lasers, Space Bombs, Hunters and Blasters pressure the
+  - The Boss enters at 96 score while Vertical Lasers, Space Bombs, Hunters and Blasters pressure the
     timer. Save a defensive option for that phase.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
@@ -176,7 +176,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 122
+  bossSpawnScore: 96
   bossSpawnTime: 30
   bossDanger: 5
   bossCustomOverride: 0

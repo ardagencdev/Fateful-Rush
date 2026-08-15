@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class LaserWall : MonoBehaviour
@@ -11,8 +12,13 @@ public class LaserWall : MonoBehaviour
     [Range(0f, 1f)]
     public float volume = 1f;
 
+    [Tooltip("Laser yok olmadan hemen önce sesin smooth şekilde kapanma süresi.")]
+    [Min(0f)]
+    public float fadeOutDuration = 0.25f;
+
     private AudioSource audioSource;
     private bool soundWasPaused;
+    private Coroutine lifetimeRoutine;
 
     private void Start()
     {
@@ -24,7 +30,7 @@ public class LaserWall : MonoBehaviour
             return;
         }
 
-        Destroy(gameObject, lifeTime);
+        lifetimeRoutine = StartCoroutine(LifetimeRoutine());
     }
 
     private void SetupAudio()
@@ -42,11 +48,65 @@ public class LaserWall : MonoBehaviour
         audioSource.volume =
             Mathf.Clamp01(volume) * SoundManager.SFXVolume;
 
-        // Mevcut gameplay davranışını koruyoruz.
         audioSource.loop = false;
         audioSource.spatialBlend = 1f;
 
         audioSource.Play();
+    }
+
+    private IEnumerator LifetimeRoutine()
+    {
+        float safeLifeTime = Mathf.Max(0f, lifeTime);
+        float safeFadeDuration = Mathf.Clamp(
+            fadeOutDuration,
+            0f,
+            safeLifeTime
+        );
+
+        float waitBeforeFade =
+            Mathf.Max(0f, safeLifeTime - safeFadeDuration);
+
+        if (waitBeforeFade > 0f)
+            yield return new WaitForSeconds(waitBeforeFade);
+
+        if (audioSource != null &&
+            audioSource.isPlaying &&
+            safeFadeDuration > 0f)
+        {
+            float startVolume = audioSource.volume;
+            float elapsed = 0f;
+
+            while (elapsed < safeFadeDuration)
+            {
+                elapsed += Time.deltaTime;
+
+                float t = Mathf.Clamp01(
+                    elapsed / safeFadeDuration
+                );
+
+                // SmoothStep ile son kısım daha doğal kapanır.
+                float smoothT = t * t * (3f - 2f * t);
+
+                audioSource.volume =
+                    Mathf.Lerp(
+                        startVolume,
+                        0f,
+                        smoothT
+                    );
+
+                yield return null;
+            }
+
+            audioSource.volume = 0f;
+        }
+        else if (safeFadeDuration > 0f)
+        {
+            // Ses yoksa bile laser'ın toplam lifetime'ını koru.
+            yield return new WaitForSeconds(safeFadeDuration);
+        }
+
+        Destroy(gameObject);
+        lifetimeRoutine = null;
     }
 
     public void FreezeLaser()
@@ -89,5 +149,6 @@ public class LaserWall : MonoBehaviour
     {
         lifeTime = Mathf.Max(0f, lifeTime);
         volume = Mathf.Clamp01(volume);
+        fadeOutDuration = Mathf.Max(0f, fadeOutDuration);
     }
 }

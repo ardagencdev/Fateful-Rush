@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A Beacon, Space Bombs and a Boss at 102 score overlap before the timer ends. Remove Beacon buffs
+  - A Beacon, Space Bombs and a Boss at 74 score overlap before the timer ends. Remove Beacon buffs
     before forcing long scoring routes.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
@@ -176,7 +176,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 102
+  bossSpawnScore: 74
   bossSpawnTime: 30
   bossDanger: 3
   bossCustomOverride: 0
