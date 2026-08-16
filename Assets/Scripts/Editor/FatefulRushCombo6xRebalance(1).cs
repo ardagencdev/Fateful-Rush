@@ -15,7 +15,7 @@ public static class FatefulRushCombo6xRebalance
 
     private static readonly int[] CoinsRequired =
     {
-        3, 6, 9, 15, 20
+        3, 7, 14, 18, 22
     };
 
     private static readonly float[] PlayerSpeedMultipliers =

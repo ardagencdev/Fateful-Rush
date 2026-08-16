@@ -40,12 +40,12 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Beacons buff nearby enemies. Destroy a Beacon by dashing into it; its active buffs disappear
-    immediately, but another Beacon can return.
+  - Beacons buff nearby enemies. Destroy a Beacon by dashing into it; its active
+    buffs disappear immediately, but another Beacon can return.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 90
-  timeLimit: 50
+  timeLimit: 45
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -54,7 +54,7 @@ MonoBehaviour:
   dashDuration: 0.15
   dashCooldown: 3
   cloneDuration: 4
-  cloneCooldown: 10
+  cloneCooldown: 9
   cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.5
@@ -85,9 +85,9 @@ MonoBehaviour:
   nearStarsEmissionRate: 42
   coinSpawnInterval: 0.9
   maxCoinCount: 10
-  normalCoinChance: 74
-  goldCoinChance: 22
-  rareCoinChance: 4
+  normalCoinChance: 70
+  goldCoinChance: 25
+  rareCoinChance: 5
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5

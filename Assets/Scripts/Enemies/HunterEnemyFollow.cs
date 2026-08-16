@@ -89,6 +89,7 @@ public class HunterEnemyFollow : MonoBehaviour
 
         audioSource.playOnAwake = false;
         audioSource.loop = false;
+        audioSource.volume = 1f;
         SoundManager.ConfigureAsWorld3D(audioSource);
 
         if (spriteRenderer == null)
@@ -1198,10 +1199,10 @@ public class HunterEnemyFollow : MonoBehaviour
             return;
         }
 
+        audioSource.volume = SoundManager.SFXVolume;
         audioSource.PlayOneShot(
             clip,
-            soundVolume *
-            SoundManager.SFXVolume
+            soundVolume
         );
     }
 }

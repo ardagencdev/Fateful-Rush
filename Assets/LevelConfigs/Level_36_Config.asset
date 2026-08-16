@@ -40,8 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon, both Laser directions and Space Bombs share this Timed Score mission. Treat each
-    Beacon death as a scoring window.
+  - A recurring Beacon, both Laser directions and Space Bombs share this Timed Score
+    mission. Treat each Beacon death as a scoring window.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 160
@@ -54,9 +54,9 @@ MonoBehaviour:
   dashDuration: 0.15
   dashCooldown: 3
   cloneDuration: 4
-  cloneCooldown: 10
+  cloneCooldown: 9
   cloneUses: 1
-  armorImmuneDuration: 0.8
+  armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
@@ -85,9 +85,9 @@ MonoBehaviour:
   nearStarsEmissionRate: 56
   coinSpawnInterval: 0.9
   maxCoinCount: 10
-  normalCoinChance: 72
-  goldCoinChance: 22
-  rareCoinChance: 6
+  normalCoinChance: 70
+  goldCoinChance: 25
+  rareCoinChance: 5
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5

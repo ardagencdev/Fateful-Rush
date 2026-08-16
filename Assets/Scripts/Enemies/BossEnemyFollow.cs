@@ -82,6 +82,9 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale <= 0f)
+            return;
+
         RefreshVisibility(false);
     }
 
@@ -797,6 +800,10 @@ public class BossEnemyFollow : MonoBehaviour
     [Tooltip("Rota seciminde mevcut commit edilen tarafa verilen bonus. Yuksek deger sag-sol kararsizligini azaltir.")]
     [Range(0f, 1f)] public float routeSideCommitment = 0.35f;
 
+    [Header("Spawn Effect")]
+    [Tooltip("Diger enemyler gibi Boss da 0 scale'dan kendi boyutuna smooth sekilde gelir.")]
+    [Min(0f)] public float spawnEffectDuration = 0.15f;
+
     [Header("Boss Global AOE")]
     public bool aoeEnabled = true;
 
@@ -934,6 +941,12 @@ public class BossEnemyFollow : MonoBehaviour
 
     private bool isSplitting;
     private bool stopped;
+    private bool isSpawning;
+    private Coroutine spawnRoutine;
+
+    private AudioSource bossSfxSource;
+    private bool bossSfxPausedByGame;
+    private float bossSfxVolumeMultiplier = 1f;
 
     private Color originalColor;
     private Vector3 originalScale;
@@ -1002,6 +1015,8 @@ public class BossEnemyFollow : MonoBehaviour
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
 
+        CreateBossSfxSource();
+
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.collisionDetectionMode =
@@ -1023,13 +1038,69 @@ public class BossEnemyFollow : MonoBehaviour
         committedRouteSide = unstuckDirection;
         routeCommitTimer = 0f;
 
-        BeginAbsorptionOfCurrentStalkers();
+        spawnRoutine = StartCoroutine(SpawnEffectRoutine());
 
         // Eski BossScreenEffect spawn oldugunda surekli pulse yapiyordu.
         // Yeni sistemde kirmizi warning yalnizca AOE charge sirasinda kullaniliyor.
         StopLegacyBossScreenEffect();
         legacyScreenEffectStopRoutine =
             StartCoroutine(StopLegacyBossScreenEffectNextFrame());
+    }
+
+    private IEnumerator SpawnEffectRoutine()
+    {
+        isSpawning = true;
+
+        Vector3 targetScale = new Vector3(
+            currentScaleMagnitude.x * facingSign,
+            currentScaleMagnitude.y * scaleSignY,
+            currentScaleMagnitude.z * scaleSignZ
+        );
+
+        transform.localScale = Vector3.zero;
+
+        float duration = Mathf.Max(0f, spawnEffectDuration);
+
+        if (duration > 0f)
+        {
+            float timer = 0f;
+
+            while (timer < duration)
+            {
+                if (stopped || isSplitting)
+                {
+                    spawnRoutine = null;
+                    yield break;
+                }
+
+                timer += Time.deltaTime;
+
+                float t = Mathf.Clamp01(
+                    timer / duration
+                );
+
+                // EnemyFollow / ProjectileEnemyFollow ile ayni smooth-step giris.
+                t = t * t * (3f - 2f * t);
+
+                transform.localScale = Vector3.Lerp(
+                    Vector3.zero,
+                    targetScale,
+                    t
+                );
+
+                yield return null;
+            }
+        }
+
+        ApplyCurrentScaleMagnitude();
+
+        isSpawning = false;
+        spawnRoutine = null;
+
+        ResetStuckCheck();
+
+        if (!stopped && !isSplitting)
+            BeginAbsorptionOfCurrentStalkers();
     }
 
     private IEnumerator StopLegacyBossScreenEffectNextFrame()
@@ -1050,7 +1121,9 @@ public class BossEnemyFollow : MonoBehaviour
 
     private void Update()
     {
-        if (stopped || isSplitting)
+        UpdateBossSfxState();
+
+        if (stopped || isSplitting || isSpawning)
             return;
 
         FindPlayerIfNeeded();
@@ -1085,7 +1158,7 @@ public class BossEnemyFollow : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (stopped || isSplitting)
+        if (stopped || isSplitting || isSpawning)
             return;
 
         FindPlayerIfNeeded();
@@ -1177,7 +1250,25 @@ public class BossEnemyFollow : MonoBehaviour
         }
 
         if (pendingStalkerAbsorptions <= 0)
-            CompleteAbsorptionPhase();
+        {
+            // Boss sahneye geldiginde emilecek Stalker yoksa power-up
+            // animasyonu/SFX'i oynatma. Boss direkt AOE kullanmaya hazir olsun.
+            UnlockAoeImmediatelyWithoutPowerUp();
+        }
+    }
+
+    private void UnlockAoeImmediatelyWithoutPowerUp()
+    {
+        if (aoeUnlocked || stopped || isSplitting)
+            return;
+
+        DestroyPowerUpPreviewGhost();
+
+        aoeUnlocked = true;
+
+        // Stalker yoksa sadece absorption/power-up asamasini atla.
+        // Ilk AOE zamanlamasi normal sekilde firstAoeDelay kullanmaya devam eder.
+        aoeCooldownTimer = Mathf.Max(0f, firstAoeDelay);
     }
 
     public void NotifyStalkerAbsorbed(EnemyFollow stalker)
@@ -1255,7 +1346,7 @@ public class BossEnemyFollow : MonoBehaviour
             yield break;
         }
 
-        EnemyAreaStrikeUtility.PlaySound(powerUpSfx, transform.position);
+        PlayBossSfx(powerUpSfx);
 
         Vector3 startMagnitude = currentScaleMagnitude;
         Vector3 targetMagnitude =
@@ -1426,7 +1517,16 @@ public class BossEnemyFollow : MonoBehaviour
         ShowGlobalDangerPreview();
         UpdateGlobalDangerPreviewAlpha(0f);
 
-        SoundManager.Instance?.PlayBossAoeWarningSound(transform.position);
+        SoundManager soundManager = SoundManager.Instance;
+
+        PlayBossSfx(
+            soundManager != null
+                ? soundManager.bossAoeWarningSound
+                : null,
+            soundManager != null
+                ? soundManager.bossAoeWarningVolume
+                : 1f
+        );
 
         while (timer < duration)
         {
@@ -1479,7 +1579,9 @@ public class BossEnemyFollow : MonoBehaviour
 
         while (strikeWaveTimer < strikeWaveDuration)
         {
-            if (stopped || isSplitting)
+            if (stopped ||
+                isSplitting ||
+                (playerMovement != null && playerMovement.IsGameOver))
             {
                 CancelAoeCharge();
                 yield break;
@@ -1516,7 +1618,9 @@ public class BossEnemyFollow : MonoBehaviour
 
         while (fadeTimer < fadeDuration)
         {
-            if (stopped || isSplitting)
+            if (stopped ||
+                isSplitting ||
+                (playerMovement != null && playerMovement.IsGameOver))
             {
                 CancelAoeCharge();
                 yield break;
@@ -1590,7 +1694,7 @@ public class BossEnemyFollow : MonoBehaviour
         if (player == null || playerMovement == null)
             return;
 
-        EnemyAreaStrikeUtility.PlaySound(aoeSfx, transform.position);
+        PlayBossSfx(aoeSfx);
 
         EnemyAreaStrikeUtility.ExecuteStrike(
             transform,
@@ -2432,7 +2536,7 @@ public class BossEnemyFollow : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (stopped || isSplitting)
+        if (stopped || isSplitting || isSpawning)
             return;
 
         if (collision == null)
@@ -2519,6 +2623,7 @@ public class BossEnemyFollow : MonoBehaviour
         }
 
         StopLegacyBossScreenEffect();
+        StopBossSfx();
         DestroyPowerUpPreviewGhost();
         HideDangerPreview();
 
@@ -2611,7 +2716,17 @@ public class BossEnemyFollow : MonoBehaviour
         if (spriteRenderer != null)
             spriteRenderer.color = splitStartColor;
 
-        SoundManager.Instance?.PlayBossSplitSound(transform.position);
+        SoundManager soundManager = SoundManager.Instance;
+
+        PlayBossSfx(
+            soundManager != null
+                ? soundManager.bossSplitSound
+                : null,
+            soundManager != null
+                ? soundManager.bossSplitVolume
+                : 1f
+        );
+
         SpawnMiniBosses(splitCenter);
 
         if (splitDisappearDuration > 0f)
@@ -2620,6 +2735,18 @@ public class BossEnemyFollow : MonoBehaviour
                 splitStartScale,
                 splitStartColor
             );
+        }
+
+        // Split SFX Boss objesiyle birlikte yarida kesilmesin.
+        // Pause sirasinda source Pause olur; resume'da kaldigi yerden devam eder.
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = false;
+
+        while (bossSfxSource != null &&
+               (bossSfxSource.isPlaying ||
+                bossSfxPausedByGame))
+        {
+            yield return null;
         }
 
         Destroy(gameObject);
@@ -2813,6 +2940,139 @@ public class BossEnemyFollow : MonoBehaviour
         miniScript.AddInitialAoeDelay(extraAoeDelay);
     }
 
+    private void CreateBossSfxSource()
+    {
+        bossSfxSource = gameObject.AddComponent<AudioSource>();
+        bossSfxSource.playOnAwake = false;
+        bossSfxSource.loop = false;
+        bossSfxSource.volume = SoundManager.SFXVolume;
+
+        SoundManager manager = SoundManager.Instance;
+
+        if (manager != null)
+        {
+            manager.ConfigureWorldAudioSource(bossSfxSource);
+
+            AudioSource template = manager.sfxSource;
+
+            if (template != null)
+            {
+                bossSfxSource.outputAudioMixerGroup =
+                    template.outputAudioMixerGroup;
+
+                bossSfxSource.priority =
+                    template.priority;
+
+                bossSfxSource.bypassEffects =
+                    template.bypassEffects;
+
+                bossSfxSource.bypassListenerEffects =
+                    template.bypassListenerEffects;
+
+                bossSfxSource.bypassReverbZones =
+                    template.bypassReverbZones;
+
+                bossSfxSource.ignoreListenerVolume =
+                    template.ignoreListenerVolume;
+            }
+        }
+        else
+        {
+            SoundManager.ConfigureAsWorld3D(
+                bossSfxSource
+            );
+        }
+
+        // Boss gameplay SFX'leri pause'dan muaf olmamali.
+        bossSfxSource.ignoreListenerPause = false;
+    }
+
+    private void PlayBossSfx(
+        AudioClip clip,
+        float volumeMultiplier = 1f)
+    {
+        if (clip == null ||
+            GameStateManager.IsGameplayEnded)
+        {
+            return;
+        }
+
+        if (bossSfxSource == null)
+            CreateBossSfxSource();
+
+        bossSfxVolumeMultiplier =
+            Mathf.Max(0f, volumeMultiplier);
+
+        bossSfxPausedByGame = false;
+
+        bossSfxSource.Stop();
+        bossSfxSource.clip = clip;
+        bossSfxSource.pitch = 1f;
+        ApplyBossSfxVolume();
+        bossSfxSource.Play();
+
+        if (Time.timeScale <= 0f)
+        {
+            bossSfxSource.Pause();
+            bossSfxPausedByGame = true;
+        }
+    }
+
+    private void UpdateBossSfxState()
+    {
+        if (bossSfxSource == null)
+            return;
+
+        ApplyBossSfxVolume();
+
+        if (GameStateManager.IsGameplayEnded)
+        {
+            StopBossSfx();
+            return;
+        }
+
+        bool shouldPause =
+            Time.timeScale <= 0f;
+
+        if (shouldPause)
+        {
+            if (!bossSfxPausedByGame &&
+                bossSfxSource.isPlaying)
+            {
+                bossSfxSource.Pause();
+                bossSfxPausedByGame = true;
+            }
+
+            return;
+        }
+
+        if (bossSfxPausedByGame)
+        {
+            bossSfxSource.UnPause();
+            bossSfxPausedByGame = false;
+        }
+    }
+
+    private void ApplyBossSfxVolume()
+    {
+        if (bossSfxSource == null)
+            return;
+
+        bossSfxSource.volume =
+            SoundManager.SFXVolume *
+            bossSfxVolumeMultiplier;
+    }
+
+    private void StopBossSfx()
+    {
+        if (bossSfxSource == null)
+            return;
+
+        bossSfxSource.Stop();
+        bossSfxSource.clip = null;
+        bossSfxPausedByGame = false;
+    }
+
     private void ZeroVelocity()
     {
         if (rb == null)
@@ -2828,6 +3088,11 @@ public class BossEnemyFollow : MonoBehaviour
         ZeroVelocity();
     }
 
+    public void StopForGameEnd()
+    {
+        StopBoss();
+    }
+
     private void StopBoss()
     {
         if (stopped)
@@ -2835,6 +3100,13 @@ public class BossEnemyFollow : MonoBehaviour
 
         stopped = true;
         isSplitting = false;
+        isSpawning = false;
+
+        if (spawnRoutine != null)
+        {
+            StopCoroutine(spawnRoutine);
+            spawnRoutine = null;
+        }
 
         if (aoeRoutine != null)
         {
@@ -2855,6 +3127,7 @@ public class BossEnemyFollow : MonoBehaviour
         }
 
         StopLegacyBossScreenEffect();
+        StopBossSfx();
         DestroyPowerUpPreviewGhost();
         HideDangerPreview();
 
@@ -2873,10 +3146,50 @@ public class BossEnemyFollow : MonoBehaviour
         enabled = false;
     }
 
+    private void OnDisable()
+    {
+        if (!stopped)
+        {
+            if (spawnRoutine != null)
+            {
+                StopCoroutine(spawnRoutine);
+                spawnRoutine = null;
+            }
+
+            if (aoeRoutine != null)
+            {
+                StopCoroutine(aoeRoutine);
+                aoeRoutine = null;
+            }
+
+            if (powerUpRoutine != null)
+            {
+                StopCoroutine(powerUpRoutine);
+                powerUpRoutine = null;
+            }
+
+            if (legacyScreenEffectStopRoutine != null)
+            {
+                StopCoroutine(legacyScreenEffectStopRoutine);
+                legacyScreenEffectStopRoutine = null;
+            }
+
+            StopBossSfx();
+            DestroyPowerUpPreviewGhost();
+            HideDangerPreview();
+
+            isSpawning = false;
+            isAoeFadingOut = false;
+            isChargingAoe = false;
+            aoeChargeProgress = 0f;
+        }
+    }
+
     private void OnValidate()
     {
         speed = Mathf.Max(0f, speed);
         normalShakeAmount = Mathf.Max(0f, normalShakeAmount);
+        spawnEffectDuration = Mathf.Max(0f, spawnEffectDuration);
         aoeCooldown = Mathf.Max(0f, aoeCooldown);
         firstAoeDelay = Mathf.Max(0f, firstAoeDelay);
         aoeChargeDuration = Mathf.Max(3f, aoeChargeDuration);

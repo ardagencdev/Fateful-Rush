@@ -42,10 +42,16 @@ public class PlayerArmor : MonoBehaviour
     public float immuneDuration = 0.8f;
 
     [Range(0f, 1f)]
-    public float immuneMinimumAlpha = 0.3f;
+    [Tooltip("Dokunulmazlik pulse'inda Player'in inecegi minimum alpha. Dusuk deger daha guclu ve belirgin pulse verir.")]
+    public float immuneMinimumAlpha = 0.18f;
 
     [Min(0.01f)]
+    [Tooltip("Dokunulmazlik alpha pulse hizi. 12 degeri yaklasik saniyede 6 tam pulse verir.")]
     public float immuneBlinkSpeed = 12f;
+
+    [Range(1f, 4f)]
+    [Tooltip("Pulse'un dusuk alpha bolgesini ne kadar vurgulayacagi. Yuksek deger Player'i daha belirgin sekilde yanip sonuyor gibi gosterir.")]
+    public float immunePulseStrength = 2.2f;
 
     private Vector3 shieldOriginalScale;
     private float playerOriginalAlpha = 1f;
@@ -245,17 +251,38 @@ public class PlayerArmor : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            float blink =
-                Mathf.PingPong(
+            // 1 -> 0 -> 1 seklinde hizli ama smooth bir pulse.
+            // Pow uygulanarak dusuk alpha bolgesi daha uzun ve daha belirgin
+            // tutulur; bu sayede armor kirildiktan sonraki dokunulmazlik
+            // mobil ekranda bile kolayca okunur.
+            float pulse =
+                1f - Mathf.PingPong(
                     timer * immuneBlinkSpeed,
                     1f
                 );
 
+            pulse = Mathf.SmoothStep(
+                0f,
+                1f,
+                pulse
+            );
+
+            pulse = Mathf.Pow(
+                pulse,
+                Mathf.Max(1f, immunePulseStrength)
+            );
+
+            float minimumAlpha =
+                Mathf.Min(
+                    Mathf.Clamp01(immuneMinimumAlpha),
+                    playerOriginalAlpha
+                );
+
             float alpha =
                 Mathf.Lerp(
-                    immuneMinimumAlpha,
+                    minimumAlpha,
                     playerOriginalAlpha,
-                    blink
+                    pulse
                 );
 
             SetPlayerAlpha(alpha);
@@ -364,6 +391,24 @@ public class PlayerArmor : MonoBehaviour
                 armorVisualIntensity,
                 0.1f,
                 1.5f
+            );
+
+        immuneMinimumAlpha =
+            Mathf.Clamp01(
+                immuneMinimumAlpha
+            );
+
+        immuneBlinkSpeed =
+            Mathf.Max(
+                0.01f,
+                immuneBlinkSpeed
+            );
+
+        immunePulseStrength =
+            Mathf.Clamp(
+                immunePulseStrength,
+                1f,
+                4f
             );
 
         maximumTintChannel =

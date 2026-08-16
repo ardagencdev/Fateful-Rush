@@ -40,12 +40,12 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 96 score while Vertical Lasers, Space Bombs, Hunters and Blasters pressure the
-    timer. Save a defensive option for that phase.
+  - The Boss enters at 96 score while Vertical Lasers, Space Bombs, Hunters and Blasters
+    pressure the timer. Save a defensive option for that phase.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 175
-  timeLimit: 68
+  timeLimit: 70
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -54,9 +54,9 @@ MonoBehaviour:
   dashDuration: 0.15
   dashCooldown: 3
   cloneDuration: 4
-  cloneCooldown: 10
+  cloneCooldown: 9
   cloneUses: 1
-  armorImmuneDuration: 1
+  armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
@@ -85,9 +85,9 @@ MonoBehaviour:
   nearStarsEmissionRate: 62
   coinSpawnInterval: 0.9
   maxCoinCount: 10
-  normalCoinChance: 72
-  goldCoinChance: 22
-  rareCoinChance: 6
+  normalCoinChance: 70
+  goldCoinChance: 25
+  rareCoinChance: 5
   normalCoinValue: 1
   goldCoinValue: 3
   rareCoinValue: 5

@@ -17,6 +17,8 @@ public class GameQuit : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioSource gameplayMusicSource;
 
+    private GameplayMusicFade gameplayMusicController;
+
     [SerializeField, Min(0f)]
     private float musicFadeDuration = 0.25f;
 
@@ -177,6 +179,15 @@ public class GameQuit : MonoBehaviour
 
     private void FadeGameplayMusicOut()
     {
+        if (gameplayMusicController != null)
+        {
+            StopMusicFade();
+            gameplayMusicController.FadeOutAndPause(
+                musicFadeDuration
+            );
+            return;
+        }
+
         if (gameplayMusicSource == null)
             return;
 
@@ -195,6 +206,15 @@ public class GameQuit : MonoBehaviour
 
     private void FadeGameplayMusicIn()
     {
+        if (gameplayMusicController != null)
+        {
+            StopMusicFade();
+            gameplayMusicController.ResumeFromPause(
+                musicFadeDuration
+            );
+            return;
+        }
+
         if (gameplayMusicSource == null)
             return;
 
@@ -292,6 +312,9 @@ public class GameQuit : MonoBehaviour
 
     private float GetTargetGameplayMusicVolume()
     {
+        if (gameplayMusicController != null)
+            return gameplayMusicController.CurrentTargetVolume;
+
         bool soundEnabled =
             PlayerPrefs.GetInt(SoundEnabledKey, 1) == 1;
 
@@ -332,6 +355,26 @@ public class GameQuit : MonoBehaviour
         {
             optionsUI =
                 FindAnyObjectByType<OptionsUI>();
+        }
+
+        if (gameplayMusicController == null &&
+            gameplayMusicSource != null)
+        {
+            gameplayMusicController =
+                gameplayMusicSource.GetComponent<GameplayMusicFade>();
+        }
+
+        if (gameplayMusicController == null)
+        {
+            gameplayMusicController =
+                FindAnyObjectByType<GameplayMusicFade>();
+        }
+
+        if (gameplayMusicSource == null &&
+            gameplayMusicController != null)
+        {
+            gameplayMusicSource =
+                gameplayMusicController.GetComponent<AudioSource>();
         }
     }
 

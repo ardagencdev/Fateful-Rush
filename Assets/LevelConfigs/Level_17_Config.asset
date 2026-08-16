@@ -40,8 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Vertical Lasers warn a column before firing. Move out early and save Clone for overlaps with Hunters
-    or Blaster fire.
+  - Vertical Lasers warn a column before firing. Move out early and save Clone for
+    overlaps with Hunters or Blaster fire.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 1
   winScore: 15
@@ -54,9 +54,9 @@ MonoBehaviour:
   dashDuration: 0.15
   dashCooldown: 3
   cloneDuration: 4
-  cloneCooldown: 10
+  cloneCooldown: 9
   cloneUses: 1
-  armorImmuneDuration: 1
+  armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   beaconHunterStunMultiplier: 0.8
   beaconRespawnDelay: 6
   armorEnabled: 1
-  slowEnabled: 0
+  slowEnabled: 1
   armorMinSpawnTime: 16
   armorMaxSpawnTime: 24
   slowMinSpawnTime: 8

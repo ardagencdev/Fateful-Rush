@@ -85,8 +85,8 @@ MonoBehaviour:
   nearStarsEmissionRate: 36
   coinSpawnInterval: 0.9
   maxCoinCount: 10
-  normalCoinChance: 78
-  goldCoinChance: 22
+  normalCoinChance: 75
+  goldCoinChance: 25
   rareCoinChance: 0
   normalCoinValue: 1
   goldCoinValue: 3

@@ -136,7 +136,9 @@ public class SoundManager : MonoBehaviour
             if (!soundOn)
                 return 0f;
 
-            return PlayerPrefs.GetFloat("SFXVolume", 1f);
+            return Mathf.Clamp01(
+                PlayerPrefs.GetFloat("SFXVolume", 1f)
+            );
         }
     }
 
@@ -169,6 +171,20 @@ public class SoundManager : MonoBehaviour
     {
         if (Instance == this)
             Instance = null;
+    }
+
+    public void StopAllSfx()
+    {
+        if (sfxSource != null)
+            sfxSource.Stop();
+
+        for (int i = 0; i < spatialSources.Count; i++)
+        {
+            AudioSource source = spatialSources[i];
+
+            if (source != null)
+                source.Stop();
+        }
     }
 
     public void ApplySFXVolume()

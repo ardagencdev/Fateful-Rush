@@ -586,7 +586,8 @@ public class MiniBossFollow : MonoBehaviour
 
         while (strikeWaveTimer < strikeWaveDuration)
         {
-            if (stopped)
+            if (stopped ||
+                (playerMovement != null && playerMovement.IsGameOver))
             {
                 CancelAoeCharge();
                 yield break;
@@ -625,7 +626,8 @@ public class MiniBossFollow : MonoBehaviour
 
         while (fadeTimer < fadeDuration)
         {
-            if (stopped)
+            if (stopped ||
+                (playerMovement != null && playerMovement.IsGameOver))
             {
                 CancelAoeCharge();
                 yield break;
@@ -1136,6 +1138,11 @@ public class MiniBossFollow : MonoBehaviour
         rb.angularVelocity = 0f;
     }
 
+    public void StopForGameEnd()
+    {
+        StopMiniBoss();
+    }
+
     private void StopMiniBoss()
     {
         if (stopped)
@@ -1158,6 +1165,19 @@ public class MiniBossFollow : MonoBehaviour
         isChargingAoe = false;
         ZeroVelocity();
         enabled = false;
+    }
+
+    private void OnDisable()
+    {
+        if (aoeRoutine != null)
+        {
+            StopCoroutine(aoeRoutine);
+            aoeRoutine = null;
+        }
+
+        HideDangerPreview();
+        isAoeFadingOut = false;
+        isChargingAoe = false;
     }
 
     private void ApplyAoeBalanceMigration()

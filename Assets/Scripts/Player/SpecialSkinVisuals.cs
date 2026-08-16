@@ -28,6 +28,7 @@ public class SpecialSkinVisuals : MonoBehaviour
 
     private const int BurstPoolSize = 10;
     private const int PrestigePulsePoolSize = 4;
+    private const int AfterimagePoolSize = 6;
 
     private const string DarkCoinBurstResourcePath =
         "SpecialSkinVFX/DarkCoinBurst";
@@ -113,6 +114,10 @@ public class SpecialSkinVisuals : MonoBehaviour
     private float afterimageTimer;
     private bool levelSpawnPlayed;
 
+    private GameObject afterimagePoolRoot;
+    private SilverAfterimageFade[] afterimagePool;
+    private int afterimagePoolCursor;
+
     private GameObject burstPoolRoot;
     private SpecialSkinCoinBurstSprite[] burstPool;
     private int burstPoolCursor;
@@ -152,6 +157,9 @@ public class SpecialSkinVisuals : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (afterimagePoolRoot != null)
+            Destroy(afterimagePoolRoot);
+
         if (burstPoolRoot != null)
             Destroy(burstPoolRoot);
 
@@ -458,10 +466,17 @@ public class SpecialSkinVisuals : MonoBehaviour
             return;
         }
 
-        GameObject ghost =
-            new GameObject(
-                "PrestigeDashAfterimage"
-            );
+        SilverAfterimageFade fade =
+            GetAfterimageFromPool();
+
+        if (fade == null)
+            return;
+
+        GameObject ghost = fade.gameObject;
+        SpriteRenderer ghostRenderer = fade.Renderer;
+
+        if (ghostRenderer == null)
+            return;
 
         ghost.transform.position =
             playerRenderer.transform.position;
@@ -471,9 +486,6 @@ public class SpecialSkinVisuals : MonoBehaviour
 
         ghost.transform.localScale =
             playerRenderer.transform.lossyScale;
-
-        SpriteRenderer ghostRenderer =
-            ghost.AddComponent<SpriteRenderer>();
 
         ghostRenderer.sprite =
             playerRenderer.sprite;
@@ -498,15 +510,93 @@ public class SpecialSkinVisuals : MonoBehaviour
                 afterimageAlpha
             );
 
-        SilverAfterimageFade fade =
-            ghost.AddComponent<
-                SilverAfterimageFade
-            >();
-
         fade.Initialize(
             ghostRenderer,
             afterimageLifetime
         );
+
+        ghost.SetActive(true);
+    }
+
+    private SilverAfterimageFade GetAfterimageFromPool()
+    {
+        EnsureAfterimagePool();
+
+        if (afterimagePool == null ||
+            afterimagePool.Length == 0)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < afterimagePool.Length; i++)
+        {
+            int index =
+                (afterimagePoolCursor + i) %
+                afterimagePool.Length;
+
+            SilverAfterimageFade candidate =
+                afterimagePool[index];
+
+            if (candidate != null &&
+                !candidate.gameObject.activeSelf)
+            {
+                afterimagePoolCursor =
+                    (index + 1) % afterimagePool.Length;
+
+                return candidate;
+            }
+        }
+
+        SilverAfterimageFade fallback =
+            afterimagePool[afterimagePoolCursor];
+
+        afterimagePoolCursor =
+            (afterimagePoolCursor + 1) % afterimagePool.Length;
+
+        return fallback;
+    }
+
+    private void EnsureAfterimagePool()
+    {
+        if (afterimagePool != null &&
+            afterimagePool.Length == AfterimagePoolSize)
+        {
+            return;
+        }
+
+        if (afterimagePoolRoot == null)
+        {
+            afterimagePoolRoot =
+                new GameObject(
+                    "PrestigeDashAfterimagePool"
+                );
+        }
+
+        afterimagePool =
+            new SilverAfterimageFade[AfterimagePoolSize];
+
+        for (int i = 0; i < afterimagePool.Length; i++)
+        {
+            GameObject ghost =
+                new GameObject(
+                    $"PrestigeDashAfterimage_{i}"
+                );
+
+            ghost.transform.SetParent(
+                afterimagePoolRoot.transform,
+                false
+            );
+
+            SpriteRenderer ghostRenderer =
+                ghost.AddComponent<SpriteRenderer>();
+
+            SilverAfterimageFade fade =
+                ghost.AddComponent<SilverAfterimageFade>();
+
+            fade.Prepare(ghostRenderer);
+            ghost.SetActive(false);
+            afterimagePool[i] = fade;
+        }
     }
 
     private void PlayPrestigePulse(
@@ -889,11 +979,19 @@ public class SilverAfterimageFade :
     private float elapsed;
     private Color startColor;
 
+    public SpriteRenderer Renderer => spriteRenderer;
+
+    public void Prepare(SpriteRenderer renderer)
+    {
+        spriteRenderer = renderer;
+    }
+
     public void Initialize(
         SpriteRenderer renderer,
         float duration)
     {
         spriteRenderer = renderer;
+        elapsed = 0f;
 
         lifetime =
             Mathf.Max(
@@ -932,7 +1030,12 @@ public class SilverAfterimageFade :
         }
 
         if (elapsed >= lifetime)
-            Destroy(gameObject);
+            gameObject.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        elapsed = 0f;
     }
 }
 

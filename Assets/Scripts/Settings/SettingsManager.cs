@@ -20,6 +20,12 @@ public class SettingsManager : MonoBehaviour
     [SerializeField]
     private CanvasGroup hudCanvasGroup;
 
+    private MenuMusicApply cachedMenuMusic;
+    private GameplayMusicFade[] cachedGameplayMusic;
+    private SoundManager cachedSoundManager;
+    private AudioSettingsApply[] cachedAudioAppliers;
+    private bool prefsDirty;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -30,6 +36,11 @@ public class SettingsManager : MonoBehaviour
 
         Instance = this;
 
+        CacheAudioReferences();
+    }
+
+    private void Start()
+    {
         ApplyAllSettings();
     }
 
@@ -37,6 +48,7 @@ public class SettingsManager : MonoBehaviour
     {
         ApplySound();
         ApplyMenuMusic();
+        ApplyGameplayMusic();
         ApplySFX();
         ApplyVibration();
         ApplyFPS();
@@ -57,6 +69,7 @@ public class SettingsManager : MonoBehaviour
 
         ApplySound();
         ApplyMenuMusic();
+        ApplyGameplayMusic();
         ApplySFX();
         ApplyAudioAppliers();
     }
@@ -108,9 +121,10 @@ public class SettingsManager : MonoBehaviour
             value
         );
 
-        PlayerPrefs.Save();
+        prefsDirty = true;
 
         ApplyMenuMusic();
+        ApplyGameplayMusic();
         ApplyAudioAppliers();
     }
 
@@ -126,11 +140,35 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplyMenuMusic()
     {
-        MenuMusicApply menuMusic =
-            FindAnyObjectByType<MenuMusicApply>();
+        if (cachedMenuMusic == null)
+        {
+            cachedMenuMusic =
+                FindAnyObjectByType<MenuMusicApply>();
+        }
 
-        if (menuMusic != null)
-            menuMusic.ApplyMusicVolume();
+        if (cachedMenuMusic != null)
+            cachedMenuMusic.ApplyMusicVolume();
+    }
+
+    private void ApplyGameplayMusic()
+    {
+        if (cachedGameplayMusic == null ||
+            cachedGameplayMusic.Length == 0)
+        {
+            cachedGameplayMusic =
+                FindObjectsByType<GameplayMusicFade>(
+                    FindObjectsInactive.Exclude
+                );
+        }
+
+        for (int i = 0; i < cachedGameplayMusic.Length; i++)
+        {
+            GameplayMusicFade gameplayMusic =
+                cachedGameplayMusic[i];
+
+            if (gameplayMusic != null)
+                gameplayMusic.RefreshVolume();
+        }
     }
 
     #endregion
@@ -146,7 +184,7 @@ public class SettingsManager : MonoBehaviour
             value
         );
 
-        PlayerPrefs.Save();
+        prefsDirty = true;
 
         ApplySFX();
         ApplyAudioAppliers();
@@ -164,25 +202,66 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplySFX()
     {
-        SoundManager soundManager =
-            FindAnyObjectByType<SoundManager>();
+        if (cachedSoundManager == null)
+        {
+            cachedSoundManager =
+                SoundManager.Instance != null
+                    ? SoundManager.Instance
+                    : FindAnyObjectByType<SoundManager>();
+        }
 
-        if (soundManager != null)
-            soundManager.ApplySFXVolume();
+        if (cachedSoundManager != null)
+            cachedSoundManager.ApplySFXVolume();
     }
 
     private void ApplyAudioAppliers()
     {
-        AudioSettingsApply[] audioAppliers =
-    FindObjectsByType<AudioSettingsApply>(
-        FindObjectsInactive.Exclude
-    );
-
-        foreach (AudioSettingsApply applier in audioAppliers)
+        if (cachedAudioAppliers == null)
         {
+            cachedAudioAppliers =
+                FindObjectsByType<AudioSettingsApply>(
+                FindObjectsInactive.Exclude
+            );
+        }
+
+        for (int i = 0; i < cachedAudioAppliers.Length; i++)
+        {
+            AudioSettingsApply applier =
+                cachedAudioAppliers[i];
+
             if (applier != null)
                 applier.Apply();
         }
+    }
+
+    private void CacheAudioReferences()
+    {
+        cachedMenuMusic =
+            FindAnyObjectByType<MenuMusicApply>();
+
+        cachedGameplayMusic =
+            FindObjectsByType<GameplayMusicFade>(
+                FindObjectsInactive.Exclude
+            );
+
+        cachedSoundManager =
+            SoundManager.Instance != null
+                ? SoundManager.Instance
+                : FindAnyObjectByType<SoundManager>();
+
+        cachedAudioAppliers =
+            FindObjectsByType<AudioSettingsApply>(
+                FindObjectsInactive.Exclude
+            );
+    }
+
+    private void FlushPendingPrefs()
+    {
+        if (!prefsDirty)
+            return;
+
+        PlayerPrefs.Save();
+        prefsDirty = false;
     }
 
     #endregion
@@ -345,7 +424,7 @@ public class SettingsManager : MonoBehaviour
             value
         );
 
-        PlayerPrefs.Save();
+        prefsDirty = true;
 
         ApplyHUDOpacity();
     }
@@ -418,8 +497,26 @@ public class SettingsManager : MonoBehaviour
 
     #endregion
 
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused)
+            FlushPendingPrefs();
+    }
+
+    private void OnApplicationQuit()
+    {
+        FlushPendingPrefs();
+    }
+
+    private void OnDisable()
+    {
+        FlushPendingPrefs();
+    }
+
     private void OnDestroy()
     {
+        FlushPendingPrefs();
+
         if (Instance == this)
             Instance = null;
     }

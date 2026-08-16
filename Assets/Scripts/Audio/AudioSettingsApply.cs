@@ -14,10 +14,27 @@ public class AudioSettingsApply : MonoBehaviour
     [Header("References")]
     [SerializeField] private AudioSource audioSource;
 
+    private float baseVolume = 1f;
+    private bool isManagedByDedicatedController;
+
     private void Awake()
     {
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            return;
+
+        baseVolume = Mathf.Clamp01(audioSource.volume);
+
+        // These systems already own their AudioSource volume and include
+        // their own authored/base gain. Applying the raw slider value here
+        // would overwrite that gain and cause volume jumps.
+        isManagedByDedicatedController =
+            audioSource.GetComponent<GameplayMusicFade>() != null ||
+            audioSource.GetComponent<MenuMusicApply>() != null ||
+            audioSource.GetComponent<SoundManager>() != null ||
+            audioSource.GetComponent<LaserWall>() != null;
     }
 
     private void Start()
@@ -29,16 +46,28 @@ public class AudioSettingsApply : MonoBehaviour
     {
         if (audioSource == null)
         {
-            Debug.LogWarning($"{gameObject.name} üzerinde AudioSource yok.");
+            Debug.LogWarning(
+                $"{gameObject.name} üzerinde AudioSource yok.",
+                this
+            );
+
             return;
         }
 
-        bool soundOn = PlayerPrefs.GetInt("SoundOn", 1) == 1;
+        if (isManagedByDedicatedController)
+            return;
 
-        float volume = soundType == SoundType.Music
+        bool soundOn =
+            PlayerPrefs.GetInt("SoundOn", 1) == 1;
+
+        float userVolume = soundType == SoundType.Music
             ? PlayerPrefs.GetFloat("MusicVolume", 1f)
             : PlayerPrefs.GetFloat("SFXVolume", 1f);
 
-        audioSource.volume = soundOn ? volume : 0f;
+        userVolume = Mathf.Clamp01(userVolume);
+
+        audioSource.volume = soundOn
+            ? baseVolume * userVolume
+            : 0f;
     }
 }

@@ -398,6 +398,9 @@ public class GameTimer : MonoBehaviour
             return;
 
         countdownAudioSource.pitch = targetPitch;
+        countdownAudioSource.volume =
+            SoundManager.SFXVolume;
+
         countdownAudioSource.PlayOneShot(
             countdownTickSound,
             Mathf.Clamp01(volumeMultiplier)

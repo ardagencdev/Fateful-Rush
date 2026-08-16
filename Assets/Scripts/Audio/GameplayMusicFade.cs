@@ -20,6 +20,7 @@ public class GameplayMusicFade : MonoBehaviour
     private float clipTransitionDuration = 0.8f;
 
     public float FadeOutDuration => fadeOutDuration;
+    public float CurrentTargetVolume => GetTargetVolume();
 
     private AudioSource source;
     private Coroutine fadeRoutine;
@@ -125,6 +126,53 @@ public class GameplayMusicFade : MonoBehaviour
         );
     }
 
+
+    public void FadeOutAndPause(float duration)
+    {
+        if (source == null || source.clip == null)
+            return;
+
+        StopCurrentFade();
+
+        fadeRoutine = StartCoroutine(
+            FadeOutAndPauseRoutine(duration)
+        );
+    }
+
+    public void ResumeFromPause(float duration)
+    {
+        if (source == null || source.clip == null)
+            return;
+
+        StopCurrentFade();
+
+        source.UnPause();
+
+        if (!source.isPlaying)
+            source.Play();
+
+        FadeTo(
+            GetTargetVolume(),
+            duration
+        );
+    }
+
+    private IEnumerator FadeOutAndPauseRoutine(float duration)
+    {
+        yield return FadeVolumeRoutine(
+            0f,
+            duration
+        );
+
+        if (source != null)
+        {
+            source.volume = 0f;
+            source.Pause();
+        }
+
+        fadeRoutine = null;
+    }
+
     public void StopImmediately()
     {
         StopCurrentFade();
@@ -136,7 +184,7 @@ public class GameplayMusicFade : MonoBehaviour
 
     public void RefreshVolume()
     {
-        if (!source.isPlaying)
+        if (source == null || !source.isPlaying)
             return;
 
         FadeTo(
@@ -194,11 +242,12 @@ public class GameplayMusicFade : MonoBehaviour
         if (!soundOn || !gameplayMusicOn)
             return 0f;
 
-        float userMusicVolume =
+        float userMusicVolume = Mathf.Clamp01(
             PlayerPrefs.GetFloat(
                 "MusicVolume",
                 1f
-            );
+            )
+        );
 
         return userMusicVolume *
                gameplayMusicBaseVolume;

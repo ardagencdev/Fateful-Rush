@@ -58,13 +58,15 @@ public class OptionsUI : MonoBehaviour
         new Dictionary<Button, CanvasGroup>();
 
     private SettingsManager settings;
-    private SoundManager soundManager;
     private VibrationManager vibrationManager;
     private ControlLayoutManager controlLayoutManager;
 
     private void Awake()
     {
         RefreshReferences();
+        ConfigureNormalizedSlider(musicSlider);
+        ConfigureNormalizedSlider(sfxSlider);
+        ConfigureNormalizedSlider(hudOpacitySlider);
         CacheButtonCanvasGroups();
         SetupMobileSliderTouchAreas();
     }
@@ -73,8 +75,6 @@ public class OptionsUI : MonoBehaviour
     {
         if (settings != null)
             settings.ApplyAllSettings();
-
-        Application.targetFrameRate = GetSavedFPS();
 
         LoadSettingsToUI();
         SetInitialPanelState();
@@ -180,7 +180,9 @@ public class OptionsUI : MonoBehaviour
     {
         RefreshReferences();
 
-        if (controlLayoutManager != null)
+        if (settings != null)
+            settings.SetJoystickLeft();
+        else if (controlLayoutManager != null)
             controlLayoutManager.SetJoystickLeft();
 
         RefreshButtonStates();
@@ -190,7 +192,9 @@ public class OptionsUI : MonoBehaviour
     {
         RefreshReferences();
 
-        if (controlLayoutManager != null)
+        if (settings != null)
+            settings.SetJoystickRight();
+        else if (controlLayoutManager != null)
             controlLayoutManager.SetJoystickRight();
 
         RefreshButtonStates();
@@ -225,52 +229,79 @@ public class OptionsUI : MonoBehaviour
 
     private void SetMasterSound(bool enabled)
     {
-        PlayerPrefs.SetInt(
-            SoundEnabledKey,
-            enabled ? 1 : 0
-        );
-
-        PlayerPrefs.Save();
-
-        AudioListener.volume = enabled ? 1f : 0f;
-
         RefreshReferences();
 
-        if (soundManager != null)
-            soundManager.ApplySFXVolume();
+        if (settings != null)
+        {
+            settings.SetSound(enabled);
+        }
+        else
+        {
+            PlayerPrefs.SetInt(
+                SoundEnabledKey,
+                enabled ? 1 : 0
+            );
+
+            PlayerPrefs.Save();
+            AudioListener.volume = enabled ? 1f : 0f;
+        }
 
         RefreshButtonStates();
     }
 
     private void SetVibration(bool enabled)
     {
-        PlayerPrefs.SetInt(
-            VibrationEnabledKey,
-            enabled ? 1 : 0
-        );
-
-        PlayerPrefs.Save();
-
         RefreshReferences();
 
-        if (vibrationManager != null)
-            vibrationManager.SetVibration(enabled);
+        if (settings != null)
+        {
+            settings.SetVibration(enabled);
+        }
+        else
+        {
+            PlayerPrefs.SetInt(
+                VibrationEnabledKey,
+                enabled ? 1 : 0
+            );
+
+            PlayerPrefs.Save();
+
+            if (vibrationManager != null)
+                vibrationManager.SetVibration(enabled);
+        }
 
         RefreshButtonStates();
     }
 
     private void SetFPS(int targetFPS)
     {
-        PlayerPrefs.SetInt(FPSModeKey, targetFPS);
-        PlayerPrefs.Save();
+        RefreshReferences();
 
-        Application.targetFrameRate = targetFPS;
+        if (settings != null)
+        {
+            if (targetFPS == 30)
+                settings.SetFPS30();
+            else
+                settings.SetFPS60();
+        }
+        else
+        {
+            int validatedFPS = targetFPS == 30 ? 30 : 60;
+            PlayerPrefs.SetInt(FPSModeKey, validatedFPS);
+            PlayerPrefs.Save();
+            Application.targetFrameRate = validatedFPS;
+        }
 
         RefreshButtonStates();
     }
 
     private int GetSavedFPS()
     {
+        RefreshReferences();
+
+        if (settings != null)
+            return settings.GetFPS();
+
         int savedFPS = PlayerPrefs.GetInt(
             FPSModeKey,
             DefaultFPS
@@ -325,10 +356,12 @@ public class OptionsUI : MonoBehaviour
         RefreshReferences();
 
         bool soundEnabled =
-            PlayerPrefs.GetInt(
-                SoundEnabledKey,
-                DefaultSoundState
-            ) == 1;
+            settings != null
+                ? settings.GetSound()
+                : PlayerPrefs.GetInt(
+                    SoundEnabledKey,
+                    DefaultSoundState
+                ) == 1;
 
         SetButtonState(
             soundOnButton,
@@ -357,10 +390,12 @@ public class OptionsUI : MonoBehaviour
         }
 
         bool vibrationEnabled =
-            PlayerPrefs.GetInt(
-                VibrationEnabledKey,
-                DefaultVibrationState
-            ) == 1;
+            settings != null
+                ? settings.GetVibration()
+                : PlayerPrefs.GetInt(
+                    VibrationEnabledKey,
+                    DefaultVibrationState
+                ) == 1;
 
         SetButtonState(
             vibrationOnButton,
@@ -594,14 +629,6 @@ public class OptionsUI : MonoBehaviour
                 FindAnyObjectByType<SettingsManager>();
         }
 
-        if (soundManager == null)
-        {
-            soundManager =
-                SoundManager.Instance != null
-                    ? SoundManager.Instance
-                    : FindAnyObjectByType<SoundManager>();
-        }
-
         if (vibrationManager == null)
         {
             vibrationManager =
@@ -613,6 +640,17 @@ public class OptionsUI : MonoBehaviour
             controlLayoutManager =
                 FindAnyObjectByType<ControlLayoutManager>();
         }
+    }
+
+
+    private static void ConfigureNormalizedSlider(Slider slider)
+    {
+        if (slider == null)
+            return;
+
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.wholeNumbers = false;
     }
 
     private static void UpdatePercentText(

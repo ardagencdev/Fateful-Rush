@@ -31,6 +31,15 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private GameObject tryAgainButton;
     [SerializeField] private GameObject menuButton;
 
+    [Header("Main Menu Confirmation")]
+    [SerializeField] private GameObject menuConfirmationPanel;
+
+    [SerializeField, Min(0.05f)]
+    private float menuConfirmationAnimationDuration = 0.18f;
+
+    [SerializeField, Range(0.8f, 1f)]
+    private float menuConfirmationStartScale = 0.94f;
+
     [Header("Skin Unlock Reward")]
     [SerializeField] private PlayerSkinCatalog playerSkinCatalog;
     [SerializeField] private GameObject skinUnlockUI;
@@ -70,6 +79,11 @@ public class GameResultUI : MonoBehaviour
     private bool metricLayoutCached;
     private bool isSceneChangeRequested;
 
+    private Coroutine menuConfirmationRoutine;
+    private CanvasGroup menuConfirmationCanvasGroup;
+    private Vector3 menuConfirmationRestScale = Vector3.one;
+    private bool menuConfirmationScaleCached;
+
     private void Awake()
     {
         levelManager =
@@ -97,7 +111,9 @@ public class GameResultUI : MonoBehaviour
         CacheMetricLayout();
 
         PrepareSkinUnlockUI();
+        PrepareMenuConfirmationUI();
         HideSkinUnlockImmediate();
+        HideMenuConfirmationImmediate();
         Hide();
     }
 
@@ -601,20 +617,65 @@ public class GameResultUI : MonoBehaviour
 
     public void GoMenu()
     {
+        if (menuConfirmationPanel == null)
+        {
+            Debug.LogWarning(
+                "[GameResultUI] Menu Confirmation Panel atanmamış. " +
+                "Main Menu'ye doğrudan dönülüyor.",
+                this
+            );
+
+            ConfirmGoMenu();
+            return;
+        }
+
+        if (isSceneChangeRequested)
+            return;
+
+        SetSceneButtonsInteractable(false);
+        StartMenuConfirmationAnimation(true);
+    }
+
+    public void ConfirmGoMenu()
+    {
         if (!TryBeginSceneChange())
             return;
 
-        PrepareForSceneChange();
+        StopMenuConfirmationRoutine();
+        menuConfirmationRoutine =
+            StartCoroutine(
+                ConfirmGoMenuRoutine()
+            );
+    }
 
+    public void CancelGoMenu()
+    {
+        if (isSceneChangeRequested)
+            return;
+
+        StartMenuConfirmationAnimation(false);
+        SetSceneButtonsInteractable(true);
+    }
+
+    private IEnumerator ConfirmGoMenuRoutine()
+    {
+        yield return AnimateMenuConfirmation(false);
+
+        menuConfirmationRoutine = null;
+
+        PrepareForSceneChange();
         SelectedLevelData.Clear();
 
         if (!LoadScene("MainMenu"))
+        {
             CancelSceneChangeRequest();
+        }
     }
 
     public void Hide()
     {
         HideSkinUnlockImmediate();
+        HideMenuConfirmationImmediate();
 
         if (resultPanel != null)
         {
@@ -628,6 +689,7 @@ public class GameResultUI : MonoBehaviour
             return;
 
         isSceneChangeRequested = false;
+        HideMenuConfirmationImmediate();
         SetSceneButtonsInteractable(true);
 
         resultPanel.SetActive(true);
@@ -652,6 +714,204 @@ public class GameResultUI : MonoBehaviour
         {
             menuButton.SetActive(true);
         }
+    }
+
+    private void PrepareMenuConfirmationUI()
+    {
+        if (menuConfirmationPanel == null)
+            return;
+
+        menuConfirmationCanvasGroup =
+            menuConfirmationPanel.GetComponent<CanvasGroup>();
+
+        if (menuConfirmationCanvasGroup == null)
+        {
+            menuConfirmationCanvasGroup =
+                menuConfirmationPanel.AddComponent<CanvasGroup>();
+        }
+
+        if (!menuConfirmationScaleCached)
+        {
+            menuConfirmationRestScale =
+                menuConfirmationPanel.transform.localScale;
+
+            if (menuConfirmationRestScale == Vector3.zero)
+                menuConfirmationRestScale = Vector3.one;
+
+            menuConfirmationScaleCached = true;
+        }
+    }
+
+    private void StartMenuConfirmationAnimation(bool show)
+    {
+        if (menuConfirmationPanel == null)
+            return;
+
+        StopMenuConfirmationRoutine();
+
+        menuConfirmationRoutine =
+            StartCoroutine(
+                MenuConfirmationAnimationRoutine(show)
+            );
+    }
+
+    private IEnumerator MenuConfirmationAnimationRoutine(bool show)
+    {
+        yield return AnimateMenuConfirmation(show);
+        menuConfirmationRoutine = null;
+    }
+
+    private IEnumerator AnimateMenuConfirmation(bool show)
+    {
+        if (menuConfirmationPanel == null)
+            yield break;
+
+        PrepareMenuConfirmationUI();
+
+        if (menuConfirmationCanvasGroup == null)
+            yield break;
+
+        if (show)
+        {
+            menuConfirmationPanel.SetActive(true);
+            menuConfirmationPanel.transform.SetAsLastSibling();
+        }
+        else if (!menuConfirmationPanel.activeSelf)
+        {
+            yield break;
+        }
+
+        menuConfirmationCanvasGroup.interactable = false;
+        menuConfirmationCanvasGroup.blocksRaycasts = false;
+
+        float safeDuration =
+            Mathf.Max(
+                0.05f,
+                menuConfirmationAnimationDuration
+            );
+
+        float startAlpha =
+            show
+                ? Mathf.Clamp01(menuConfirmationCanvasGroup.alpha)
+                : menuConfirmationCanvasGroup.alpha;
+
+        float targetAlpha = show ? 1f : 0f;
+
+        Vector3 hiddenScale =
+            menuConfirmationRestScale *
+            Mathf.Clamp(
+                menuConfirmationStartScale,
+                0.8f,
+                1f
+            );
+
+        Vector3 startScale =
+            show
+                ? hiddenScale
+                : menuConfirmationPanel.transform.localScale;
+
+        Vector3 targetScale =
+            show
+                ? menuConfirmationRestScale
+                : hiddenScale;
+
+        if (show && startAlpha <= 0.001f)
+        {
+            menuConfirmationCanvasGroup.alpha = 0f;
+            menuConfirmationPanel.transform.localScale = hiddenScale;
+            startAlpha = 0f;
+            startScale = hiddenScale;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < safeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / safeDuration
+                );
+
+            float eased =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            menuConfirmationCanvasGroup.alpha =
+                Mathf.Lerp(
+                    startAlpha,
+                    targetAlpha,
+                    eased
+                );
+
+            menuConfirmationPanel.transform.localScale =
+                Vector3.LerpUnclamped(
+                    startScale,
+                    targetScale,
+                    eased
+                );
+
+            yield return null;
+        }
+
+        menuConfirmationCanvasGroup.alpha = targetAlpha;
+
+        if (show)
+        {
+            menuConfirmationPanel.transform.localScale =
+                menuConfirmationRestScale;
+
+            menuConfirmationCanvasGroup.interactable = true;
+            menuConfirmationCanvasGroup.blocksRaycasts = true;
+        }
+        else
+        {
+            menuConfirmationCanvasGroup.interactable = false;
+            menuConfirmationCanvasGroup.blocksRaycasts = false;
+
+            menuConfirmationPanel.transform.localScale =
+                menuConfirmationRestScale;
+
+            menuConfirmationPanel.SetActive(false);
+        }
+    }
+
+    private void StopMenuConfirmationRoutine()
+    {
+        if (menuConfirmationRoutine == null)
+            return;
+
+        StopCoroutine(menuConfirmationRoutine);
+        menuConfirmationRoutine = null;
+    }
+
+    private void HideMenuConfirmationImmediate()
+    {
+        StopMenuConfirmationRoutine();
+
+        if (menuConfirmationPanel == null)
+            return;
+
+        PrepareMenuConfirmationUI();
+
+        if (menuConfirmationCanvasGroup != null)
+        {
+            menuConfirmationCanvasGroup.alpha = 0f;
+            menuConfirmationCanvasGroup.interactable = false;
+            menuConfirmationCanvasGroup.blocksRaycasts = false;
+        }
+
+        if (menuConfirmationScaleCached)
+        {
+            menuConfirmationPanel.transform.localScale =
+                menuConfirmationRestScale;
+        }
+
+        menuConfirmationPanel.SetActive(false);
     }
 
     private void PrepareSkinUnlockUI()
@@ -1100,8 +1360,33 @@ public class GameResultUI : MonoBehaviour
         }
     }
 
+    private void OnValidate()
+    {
+        menuConfirmationAnimationDuration =
+            Mathf.Max(
+                0.05f,
+                menuConfirmationAnimationDuration
+            );
+
+        menuConfirmationStartScale =
+            Mathf.Clamp(
+                menuConfirmationStartScale,
+                0.8f,
+                1f
+            );
+
+        skinUnlockDelay = Mathf.Max(0f, skinUnlockDelay);
+        skinUnlockWinSoundTailOverlap =
+            Mathf.Max(0f, skinUnlockWinSoundTailOverlap);
+        skinUnlockAnimationDuration =
+            Mathf.Max(0.05f, skinUnlockAnimationDuration);
+        skinUnlockSlideDistance =
+            Mathf.Max(0f, skinUnlockSlideDistance);
+    }
+
     private void OnDisable()
     {
         HideSkinUnlockImmediate();
+        HideMenuConfirmationImmediate();
     }
 }

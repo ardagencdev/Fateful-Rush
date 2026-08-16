@@ -12,7 +12,8 @@ public static class EnemyAreaStrikeUtility
         float radius,
         string deathCause)
     {
-        if (attacker == null ||
+        if (GameStateManager.IsGameplayEnded ||
+            attacker == null ||
             player == null ||
             playerMovement == null ||
             playerMovement.IsGameOver)
@@ -110,8 +111,11 @@ public static class EnemyAreaStrikeUtility
 
     public static void PlaySound(AudioClip clip)
     {
-        if (clip == null)
+        if (GameStateManager.IsGameplayEnded ||
+            clip == null)
+        {
             return;
+        }
 
         SoundManager.Instance?.PlayCustomSound(clip);
     }
@@ -120,8 +124,11 @@ public static class EnemyAreaStrikeUtility
         AudioClip clip,
         Vector3 worldPosition)
     {
-        if (clip == null)
+        if (GameStateManager.IsGameplayEnded ||
+            clip == null)
+        {
             return;
+        }
 
         SoundManager.Instance?.PlayCustomSoundAtWorld(
             clip,

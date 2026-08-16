@@ -66,6 +66,7 @@ public class EnemyProjectile : MonoBehaviour
 
         audioSource.playOnAwake = false;
         audioSource.loop = false;
+        audioSource.volume = 1f;
         SoundManager.ConfigureAsWorld3D(audioSource);
 
         spriteRenderers =
@@ -551,9 +552,9 @@ public class EnemyProjectile : MonoBehaviour
             return;
         }
 
+        audioSource.volume = SoundManager.SFXVolume;
         audioSource.PlayOneShot(
             environmentHitSound,
-            SoundManager.SFXVolume *
             environmentHitSoundVolume
         );
     }

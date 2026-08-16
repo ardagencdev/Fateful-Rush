@@ -582,11 +582,12 @@ public class MenuMusicApply : MonoBehaviour
         if (!soundOn || !menuMusicOn)
             return 0f;
 
-        float musicVolume =
+        float musicVolume = Mathf.Clamp01(
             PlayerPrefs.GetFloat(
                 "MusicVolume",
                 1f
-            );
+            )
+        );
 
         return musicVolume *
                menuMusicBaseVolume;

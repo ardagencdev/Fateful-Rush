@@ -111,10 +111,10 @@ public class ComboSpeedStage
     public int comboMultiplier = 2;
 
     [Min(1)]
-    public int coinsRequired = 2;
+    public int coinsRequired = 3;
 
     [Min(1f)]
-    public float playerSpeedMultiplier = 1.25f;
+    public float playerSpeedMultiplier = 1.03f;
 }
 
 [CreateAssetMenu(
@@ -247,14 +247,32 @@ public class LevelConfig : ScriptableObject
         new ComboSpeedStage
         {
             comboMultiplier = 2,
-            coinsRequired = 2,
-            playerSpeedMultiplier = 1.25f
+            coinsRequired = 3,
+            playerSpeedMultiplier = 1.03f
         },
         new ComboSpeedStage
         {
             comboMultiplier = 3,
-            coinsRequired = 5,
-            playerSpeedMultiplier = 1.5f
+            coinsRequired = 7,
+            playerSpeedMultiplier = 1.06f
+        },
+        new ComboSpeedStage
+        {
+            comboMultiplier = 4,
+            coinsRequired = 14,
+            playerSpeedMultiplier = 1.09f
+        },
+        new ComboSpeedStage
+        {
+            comboMultiplier = 5,
+            coinsRequired = 18,
+            playerSpeedMultiplier = 1.12f
+        },
+        new ComboSpeedStage
+        {
+            comboMultiplier = 6,
+            coinsRequired = 22,
+            playerSpeedMultiplier = 1.15f
         }
     };
 

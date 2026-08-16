@@ -40,12 +40,12 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions can chain together during this Timed Score mission. Collect from the safe
-    quadrant and abandon distant coins early.
+  - Both Laser directions can chain together during this Timed Score mission. Collect
+    from the safe quadrant and abandon distant coins early.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
   winScore: 125
-  timeLimit: 58
+  timeLimit: 55
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -54,9 +54,9 @@ MonoBehaviour:
   dashDuration: 0.15
   dashCooldown: 3
   cloneDuration: 4
-  cloneCooldown: 10
+  cloneCooldown: 9
   cloneUses: 1
-  armorImmuneDuration: 1
+  armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
@@ -85,8 +85,8 @@ MonoBehaviour:
   nearStarsEmissionRate: 50
   coinSpawnInterval: 0.9
   maxCoinCount: 10
-  normalCoinChance: 73
-  goldCoinChance: 22
+  normalCoinChance: 70
+  goldCoinChance: 25
   rareCoinChance: 5
   normalCoinValue: 1
   goldCoinValue: 3

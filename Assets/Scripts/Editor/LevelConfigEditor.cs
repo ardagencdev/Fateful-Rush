@@ -6,6 +6,16 @@ using UnityEngine;
 [CustomEditor(typeof(LevelConfig))]
 public class LevelConfigEditor : Editor
 {
+    private static readonly int[] DefaultComboCoins =
+    {
+        3, 7, 14, 18, 22
+    };
+
+    private static readonly float[] DefaultComboSpeedMultipliers =
+    {
+        1.03f, 1.06f, 1.09f, 1.12f, 1.15f
+    };
+
     private enum EditorViewMode
     {
         Basic,
@@ -872,12 +882,23 @@ public class LevelConfigEditor : Editor
                 comboMultiplier.intValue = index + 2;
 
             if (coinsRequired != null)
-                coinsRequired.intValue = index == 0
-                    ? 2
-                    : Mathf.Max(2, index * 3 + 2);
+            {
+                coinsRequired.intValue =
+                    index < DefaultComboCoins.Length
+                        ? DefaultComboCoins[index]
+                        : DefaultComboCoins[DefaultComboCoins.Length - 1] +
+                          (index - DefaultComboCoins.Length + 1) * 4;
+            }
 
             if (speedMultiplier != null)
-                speedMultiplier.floatValue = 1f + ((index + 1) * 0.25f);
+            {
+                speedMultiplier.floatValue =
+                    index < DefaultComboSpeedMultipliers.Length
+                        ? DefaultComboSpeedMultipliers[index]
+                        : DefaultComboSpeedMultipliers[
+                            DefaultComboSpeedMultipliers.Length - 1
+                          ];
+            }
         }
 
         EditorGUILayout.EndVertical();

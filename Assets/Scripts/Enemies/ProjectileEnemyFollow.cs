@@ -128,7 +128,9 @@ public class ProjectileEnemyFollow : MonoBehaviour
         audioSource.playOnAwake = false;
         audioSource.loop = false;
         SoundManager.ConfigureAsWorld3D(audioSource);
-        audioSource.volume = SoundManager.SFXVolume;
+        // User SFX volume is applied once through AudioSource.volume.
+        // Keeping the initial source gain at 1 prevents accidental double scaling.
+        audioSource.volume = 1f;
     }
 
     private void Start()
@@ -823,9 +825,10 @@ public class ProjectileEnemyFollow : MonoBehaviour
         if (fireSound != null &&
             audioSource != null)
         {
+            audioSource.volume = SoundManager.SFXVolume;
             audioSource.PlayOneShot(
                 fireSound,
-                SoundManager.SFXVolume
+                1f
             );
         }
     }

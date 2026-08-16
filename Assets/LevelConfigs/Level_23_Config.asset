@@ -54,9 +54,9 @@ MonoBehaviour:
   dashDuration: 0.15
   dashCooldown: 3
   cloneDuration: 4
-  cloneCooldown: 10
+  cloneCooldown: 9
   cloneUses: 1
-  armorImmuneDuration: 0.8
+  armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
@@ -85,8 +85,8 @@ MonoBehaviour:
   nearStarsEmissionRate: 46
   coinSpawnInterval: 0.9
   maxCoinCount: 10
-  normalCoinChance: 73
-  goldCoinChance: 22
+  normalCoinChance: 70
+  goldCoinChance: 25
   rareCoinChance: 5
   normalCoinValue: 1
   goldCoinValue: 3

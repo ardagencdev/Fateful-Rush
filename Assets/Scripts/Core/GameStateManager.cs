@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameStateManager : MonoBehaviour
 {
     public static bool IsGameplayStarted { get; private set; }
+    public static bool IsGameplayEnded { get; private set; }
 
     [Header("References")]
     public PlayerMovement playerMovement;
@@ -74,6 +75,7 @@ public class GameStateManager : MonoBehaviour
         Time.timeScale = 1f;
 
         IsGameplayStarted = false;
+        IsGameplayEnded = false;
         gameFrozen = false;
         gameEnded = false;
         gameTimer = 0f;
@@ -348,6 +350,7 @@ public class GameStateManager : MonoBehaviour
 
         gameEnded = true;
         IsGameplayStarted = false;
+        IsGameplayEnded = true;
 
         Time.timeScale = 1f;
 
@@ -413,7 +416,7 @@ public class GameStateManager : MonoBehaviour
         StatsManager.SaveIfDirty();
 
         SetHUD(false);
-        StopLaserSystems();
+        StopGameplayImmediately();
 
         if (gameResultUI != null)
         {
@@ -435,7 +438,6 @@ public class GameStateManager : MonoBehaviour
 
         VibrationManager.Instance?.VibrateSuccess();
 
-        StartCoroutine(FreezeGameRoutine());
     }
 
     public void GameOver(int score)
@@ -455,6 +457,7 @@ public class GameStateManager : MonoBehaviour
 
         gameEnded = true;
         IsGameplayStarted = false;
+        IsGameplayEnded = true;
 
         Time.timeScale = 1f;
 
@@ -481,7 +484,7 @@ public class GameStateManager : MonoBehaviour
         );
 
         SetHUD(false);
-        StopLaserSystems();
+        StopGameplayImmediately();
 
         if (gameResultUI != null)
         {
@@ -502,7 +505,6 @@ public class GameStateManager : MonoBehaviour
 
         VibrationManager.Instance?.VibrateFailure();
 
-        StartCoroutine(FreezeGameRoutine());
     }
 
     private void SaveBestTime()
@@ -538,25 +540,82 @@ public class GameStateManager : MonoBehaviour
         return "BestTime_DevRoom";
     }
 
-    private IEnumerator FreezeGameRoutine()
+    private void StopGameplayImmediately()
     {
         if (gameFrozen)
-            yield break;
+            return;
 
         gameFrozen = true;
 
-        yield return
-            new WaitForSecondsRealtime(0.35f);
-
+        // Result ekranı görünür görünmez gameplay'in yeni frame üretmesini durdur.
+        // UI/scene geçişleri unscaled time kullandığı için çalışmaya devam eder.
         Time.timeScale = 0f;
 
+        StopLaserSystems();
+        StopBossAoeSystems();
+        StopActiveGameplayAudio();
+        FreezeActiveRigidbodies();
+    }
+
+    private static void StopBossAoeSystems()
+    {
+        BossEnemyFollow[] bosses =
+            FindObjectsByType<BossEnemyFollow>(
+                FindObjectsInactive.Exclude
+            );
+
+        for (int i = 0; i < bosses.Length; i++)
+        {
+            if (bosses[i] != null)
+                bosses[i].StopForGameEnd();
+        }
+
+        MiniBossFollow[] miniBosses =
+            FindObjectsByType<MiniBossFollow>(
+                FindObjectsInactive.Exclude
+            );
+
+        for (int i = 0; i < miniBosses.Length; i++)
+        {
+            if (miniBosses[i] != null)
+                miniBosses[i].StopForGameEnd();
+        }
+    }
+
+    private void StopActiveGameplayAudio()
+    {
+        soundManager?.StopAllSfx();
+
+        // Hunter/projectile/laser gibi kendi AudioSource'unu kullanan gameplay
+        // objeleri de sonuç ekranından sonra ses üretmeye devam etmesin.
+        AudioSource[] activeSources =
+            FindObjectsByType<AudioSource>(
+                FindObjectsInactive.Exclude
+            );
+
+        for (int i = 0; i < activeSources.Length; i++)
+        {
+            AudioSource source = activeSources[i];
+
+            if (source != null && source.isPlaying)
+                source.Stop();
+        }
+    }
+
+    private static void FreezeActiveRigidbodies()
+    {
         Rigidbody2D[] bodies =
             FindObjectsByType<Rigidbody2D>(
                 FindObjectsInactive.Exclude
             );
 
-        foreach (Rigidbody2D body in bodies)
+        for (int i = 0; i < bodies.Length; i++)
         {
+            Rigidbody2D body = bodies[i];
+
+            if (body == null)
+                continue;
+
             body.linearVelocity = Vector2.zero;
             body.angularVelocity = 0f;
             body.simulated = false;
@@ -660,6 +719,7 @@ public class GameStateManager : MonoBehaviour
     public void RestartGame()
     {
         IsGameplayStarted = false;
+        IsGameplayEnded = false;
         Time.timeScale = 0f;
 
         if (SceneTransition.Instance != null)
@@ -769,5 +829,6 @@ public class GameStateManager : MonoBehaviour
     private void OnDestroy()
     {
         IsGameplayStarted = false;
+        IsGameplayEnded = false;
     }
 }
