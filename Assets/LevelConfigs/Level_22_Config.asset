@@ -249,7 +249,7 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   beaconRespawnDelay: 6
-  armorEnabled: 1
+  armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 16
   armorMaxSpawnTime: 24

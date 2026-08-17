@@ -40,12 +40,12 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions, Space Bombs and a Boss at 55 score overlap here. Score
+  - Both Laser directions, Space Bombs and a Boss at 50 score overlap here. Score
     early, then prioritize survival once the arena fills.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
-  winScore: 100
-  timeLimit: 50
+  winScore: 125
+  timeLimit: 45
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1

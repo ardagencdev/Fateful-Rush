@@ -41,11 +41,11 @@ MonoBehaviour:
   briefingObjectiveDescription: 
   briefingPages:
   - Final Challenge. Survive every major hazard with recurring Beacons and a Boss
-    entering at 34 seconds. Stagger Armor, Slow and Clone carefully.
+    entering at 30 seconds. Stagger Armor, Slow and Clone carefully.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
-  timeLimit: 80
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -110,7 +110,7 @@ MonoBehaviour:
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 7.4
+  normalEnemySpawnInterval: 10
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -162,7 +162,7 @@ MonoBehaviour:
   bossEnabled: 1
   bossSpawnCondition: 1
   bossSpawnScore: 75
-  bossSpawnTime: 34
+  bossSpawnTime: 30
   bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
@@ -236,10 +236,10 @@ MonoBehaviour:
   beaconRespawnDelay: 6
   armorEnabled: 1
   slowEnabled: 1
-  armorMinSpawnTime: 18
-  armorMaxSpawnTime: 24
-  slowMinSpawnTime: 32
-  slowMaxSpawnTime: 38
+  armorMinSpawnTime: 10
+  armorMaxSpawnTime: 20
+  slowMinSpawnTime: 20
+  slowMaxSpawnTime: 35
   verticalLaserEnabled: 1
   verticalLaserDanger: 5
   verticalLaserCustomOverride: 0

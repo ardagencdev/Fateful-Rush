@@ -44,8 +44,8 @@ MonoBehaviour:
     buffs disappear immediately, but another Beacon can return.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
-  winScore: 90
-  timeLimit: 45
+  winScore: 100
+  timeLimit: 40
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1

@@ -50,6 +50,78 @@ public class HUDIntroAnimator : MonoBehaviour
         Play(null);
     }
 
+    public void RegisterRuntimeItem(
+        GameObject target,
+        float delay = -1f)
+    {
+        if (target == null)
+            return;
+
+        if (hudItems != null)
+        {
+            for (int i = 0; i < hudItems.Length; i++)
+            {
+                HUDItem existingItem = hudItems[i];
+
+                if (existingItem != null &&
+                    existingItem.target == target)
+                {
+                    return;
+                }
+            }
+        }
+
+        int oldLength =
+            hudItems != null
+                ? hudItems.Length
+                : 0;
+
+        HUDItem[] expandedItems =
+            new HUDItem[oldLength + 1];
+
+        for (int i = 0; i < oldLength; i++)
+            expandedItems[i] = hudItems[i];
+
+        float resolvedDelay =
+            ResolveRuntimeItemDelay(delay);
+
+        expandedItems[oldLength] =
+            new HUDItem
+            {
+                target = target,
+                delay = resolvedDelay
+            };
+
+        hudItems = expandedItems;
+
+        ResetItem(
+            target,
+            false,
+            startScale
+        );
+    }
+
+    private float ResolveRuntimeItemDelay(float delay)
+    {
+        if (delay >= 0f)
+            return delay;
+
+        if (hudItems == null)
+            return 0f;
+
+        for (int i = hudItems.Length - 1; i >= 0; i--)
+        {
+            HUDItem item = hudItems[i];
+
+            if (!HasValidTarget(item))
+                continue;
+
+            return Mathf.Max(0f, item.delay);
+        }
+
+        return 0f;
+    }
+
     public void Play(Func<GameObject, bool> shouldAnimate)
     {
         StopActiveRoutine();

@@ -37,6 +37,15 @@ public class PlayerDash : MonoBehaviour
     [Header("Visual")]
     public TrailRenderer trail;
 
+    [Header("Dash Hit Detection")]
+    [Min(0.05f)]
+    [Tooltip("Dash boyunca Beacon kontrolü için kullanılan örnekleme aralığı.")]
+    public float beaconHitSampleSpacing = 0.15f;
+
+    [Min(0.05f)]
+    [Tooltip("Player collider bulunamazsa Beacon kontrolünde kullanılacak yarıçap.")]
+    public float beaconHitFallbackRadius = 0.35f;
+
     [Header("UI")]
     public Image cooldownFill;
     public TMP_Text cooldownText;
@@ -57,6 +66,10 @@ public class PlayerDash : MonoBehaviour
     private float trailEndAlpha;
     private bool trailAlphaCached;
 
+    private Collider2D playerCollider;
+    private ContactFilter2D dashHitFilter;
+    private readonly Collider2D[] dashHitResults = new Collider2D[16];
+
     public bool IsDashing => isDashing;
     public bool CanDash => canDash && !isDashing;
 
@@ -71,6 +84,9 @@ public class PlayerDash : MonoBehaviour
         if (soundManager == null)
             soundManager = FindAnyObjectByType<SoundManager>();
 
+        playerCollider = GetComponent<Collider2D>();
+
+        dashHitFilter = ContactFilter2D.noFilter;
 
         CacheTrailAlpha();
         SetTrail(false);
@@ -184,12 +200,17 @@ public class PlayerDash : MonoBehaviour
                 curvedTime
             );
 
+            Vector2 previousPosition = GetCurrentPosition();
+
             MovePlayer(nextPosition);
+            TryHitBeaconsAlongDash(previousPosition, nextPosition);
 
             yield return CachedWaitForFixedUpdate;
         }
 
+        Vector2 finalPreviousPosition = GetCurrentPosition();
         MovePlayer(targetPosition);
+        TryHitBeaconsAlongDash(finalPreviousPosition, targetPosition);
 
 
         isDashing = false;
@@ -287,6 +308,98 @@ public class PlayerDash : MonoBehaviour
         }
 
         transform.position = position;
+    }
+
+    private void TryHitBeaconsAlongDash(
+        Vector2 fromPosition,
+        Vector2 toPosition)
+    {
+        if (!isDashing)
+            return;
+
+        float radius = GetDashHitRadius();
+        float distance = Vector2.Distance(
+            fromPosition,
+            toPosition
+        );
+
+        float spacing = Mathf.Max(
+            0.05f,
+            beaconHitSampleSpacing
+        );
+
+        int sampleCount = Mathf.Max(
+            1,
+            Mathf.CeilToInt(distance / spacing)
+        );
+
+        for (int sampleIndex = 0;
+             sampleIndex <= sampleCount;
+             sampleIndex++)
+        {
+            float t = sampleCount <= 0
+                ? 1f
+                : (float)sampleIndex / sampleCount;
+
+            Vector2 samplePosition = Vector2.Lerp(
+                fromPosition,
+                toPosition,
+                t
+            );
+
+            int hitCount = Physics2D.OverlapCircle(
+                samplePosition,
+                radius,
+                dashHitFilter,
+                dashHitResults
+            );
+
+            for (int hitIndex = 0;
+                 hitIndex < hitCount;
+                 hitIndex++)
+            {
+                Collider2D hit = dashHitResults[hitIndex];
+                dashHitResults[hitIndex] = null;
+
+                if (hit == null || hit == playerCollider)
+                    continue;
+
+                BeaconEnemy beacon =
+                    hit.GetComponent<BeaconEnemy>();
+
+                if (beacon == null)
+                {
+                    beacon =
+                        hit.GetComponentInParent<BeaconEnemy>();
+                }
+
+                if (beacon != null)
+                    beacon.TryDieFromDash(this);
+            }
+        }
+    }
+
+    private float GetDashHitRadius()
+    {
+        if (playerCollider == null)
+        {
+            return Mathf.Max(
+                0.05f,
+                beaconHitFallbackRadius
+            );
+        }
+
+        Bounds bounds = playerCollider.bounds;
+
+        float colliderRadius = Mathf.Max(
+            bounds.extents.x,
+            bounds.extents.y
+        );
+
+        return Mathf.Max(
+            0.05f,
+            colliderRadius
+        );
     }
 
     private Vector2 ClampToBounds(Vector2 position)

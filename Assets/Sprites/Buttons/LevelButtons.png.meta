@@ -124,12 +124,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 48
     textureCompression: 1
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -172,50 +172,6 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: LevelButtons_1
-      rect:
-        serializedVersion: 2
-        x: 122
-        y: 421
-        width: 575
-        height: 223
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 18c72f0f736db6780800000000000000
-      internalID: -8688615520327271295
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelButtons_2
-      rect:
-        serializedVersion: 2
-        x: 486
-        y: 643
-        width: 20
-        height: 6
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 59d5e1f7ddf738810800000000000000
-      internalID: 1766396068156562837
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: LevelButtons_3
       rect:
         serializedVersion: 2
@@ -233,116 +189,6 @@ TextureImporter:
       bones: []
       spriteID: aa30c0b2941020b20800000000000000
       internalID: 3099040907350770602
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelButtons_4
-      rect:
-        serializedVersion: 2
-        x: 990
-        y: 643
-        width: 11
-        height: 6
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 850e65994bd6e2e10800000000000000
-      internalID: 2174796292500676696
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelButtons_5
-      rect:
-        serializedVersion: 2
-        x: 1023
-        y: 643
-        width: 28
-        height: 6
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b6b16de3cb963c3d0800000000000000
-      internalID: -3187587854019191957
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelButtons_6
-      rect:
-        serializedVersion: 2
-        x: 1080
-        y: 643
-        width: 21
-        height: 6
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fe67a62d7e223f5c0800000000000000
-      internalID: -4182961249834076433
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelButtons_7
-      rect:
-        serializedVersion: 2
-        x: 1411
-        y: 608
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7cb68c9b490226590800000000000000
-      internalID: -7682542191196476473
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelButtons_8
-      rect:
-        serializedVersion: 2
-        x: 994
-        y: 24
-        width: 6
-        height: 8
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 71a09f615d1a2b670800000000000000
-      internalID: 8553076578915518999
       vertices: []
       indices: 
       edges: []

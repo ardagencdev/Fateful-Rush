@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The first Boss enters at 82 score. Armor can absorb its hit; when that happens,
+  - The first Boss enters at 90 score. Armor can absorb its hit; when that happens,
     the Boss splits into two Mini-Bosses.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0

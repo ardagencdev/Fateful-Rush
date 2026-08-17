@@ -113,6 +113,10 @@ public class LevelButtonUI : MonoBehaviour,
         }
 
         Refresh();
+
+        // Level buttons are instantiated when the panel opens, so apply
+        // the currently equipped skin theme immediately.
+        SkinUIButtonThemeController.ApplyButtonTheme(button);
     }
 
     public void Refresh()

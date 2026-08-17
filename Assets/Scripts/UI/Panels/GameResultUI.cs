@@ -71,6 +71,22 @@ public class GameResultUI : MonoBehaviour
     private RectTransform loseSurvivedLabelRect;
     private RectTransform loseSurvivedValueRect;
 
+    private TextMeshProUGUI winTimeLabel;
+    private TextMeshProUGUI loseSurvivedLabel;
+    private string winTimeLabelDefaultText;
+    private string loseSurvivedLabelDefaultText;
+
+    private Color winTimeLabelDefaultColor;
+    private Color winTimeValueDefaultColor;
+    private Color loseSurvivedLabelDefaultColor;
+    private Color loseSurvivedValueDefaultColor;
+
+    private static readonly Color SurviveWinColor =
+        new Color32(70, 255, 120, 255);
+
+    private static readonly Color SurviveLoseColor =
+        new Color32(255, 70, 70, 255);
+
     private Vector2 winTimeLabelDefaultPosition;
     private Vector2 winTimeValueDefaultPosition;
     private Vector2 loseSurvivedLabelDefaultPosition;
@@ -83,6 +99,8 @@ public class GameResultUI : MonoBehaviour
     private CanvasGroup menuConfirmationCanvasGroup;
     private Vector3 menuConfirmationRestScale = Vector3.one;
     private bool menuConfirmationScaleCached;
+    private bool menuConfirmationOpenedFromPause;
+    private bool pauseConfirmationActivatedResultPanel;
 
     private void Awake()
     {
@@ -135,7 +153,6 @@ public class GameResultUI : MonoBehaviour
     {
         ShowPanel();
         SetResultState(true);
-        ApplyMetricVisibility();
 
         if (winScoreValue != null)
         {
@@ -149,6 +166,7 @@ public class GameResultUI : MonoBehaviour
                 FormatTime(time);
         }
 
+        ApplyMetricVisibility(true);
         UpdateNextLevelButton();
 
         UpdateSkinUnlockReward(
@@ -173,7 +191,6 @@ public class GameResultUI : MonoBehaviour
     {
         ShowPanel();
         SetResultState(false);
-        ApplyMetricVisibility();
 
         if (destroyedByText != null)
         {
@@ -195,6 +212,8 @@ public class GameResultUI : MonoBehaviour
                 FormatTime(time);
         }
 
+        ApplyMetricVisibility(false);
+
         if (nextLevelButton != null)
         {
             nextLevelButton.SetActive(false);
@@ -203,25 +222,16 @@ public class GameResultUI : MonoBehaviour
         HideSkinUnlockImmediate();
     }
 
-    private void ApplyMetricVisibility()
+    private void ApplyMetricVisibility(bool won)
     {
         LevelConfig currentLevel = GetCurrentLevel();
 
-        // Game Result UI rules:
-        // Reach Score             -> Score + Survived Time
-        // Survive Time            -> Survived Time only
-        // Reach Score Within Time -> Score + Survived Time
-        //
-        // If no LevelConfig exists (debug/non-level launch), keep both visible.
-        bool showScore = true;
-        bool showTime = true;
+        bool isSurviveTime =
+            currentLevel != null &&
+            currentLevel.winCondition ==
+            WinConditionType.SurviveTime;
 
-        if (currentLevel != null)
-        {
-            showScore =
-                currentLevel.winCondition !=
-                WinConditionType.SurviveTime;
-        }
+        bool showScore = !isSurviveTime;
 
         SetMetricVisible(
             winScoreValue,
@@ -237,23 +247,120 @@ public class GameResultUI : MonoBehaviour
             "SCORE"
         );
 
-        SetMetricVisible(
-            winTimeValue,
-            winUI,
-            showTime,
-            "TIME",
-            "SURVIVED"
-        );
+        RestoreTimeMetricLabels();
+        RestoreTimeMetricColors();
 
-        SetMetricVisible(
-            loseSurvivedValue,
-            loseUI,
-            showTime,
-            "SURVIVED",
-            "TIME"
-        );
+        if (isSurviveTime)
+        {
+            if (won)
+            {
+                ApplySurviveWinMetric();
+            }
+            else
+            {
+                ApplySurviveLoseMetric();
+            }
+        }
+        else
+        {
+            SetTimeMetricVisibility(
+                winTimeValue,
+                winTimeLabel,
+                true
+            );
+
+            SetTimeMetricVisibility(
+                loseSurvivedValue,
+                loseSurvivedLabel,
+                true
+            );
+        }
 
         ApplyMetricLayout(currentLevel);
+    }
+
+    private void ApplySurviveWinMetric()
+    {
+        if (winTimeLabel != null)
+            winTimeLabel.gameObject.SetActive(false);
+
+        if (winTimeValue != null)
+        {
+            winTimeValue.gameObject.SetActive(true);
+            winTimeValue.text = "YOU SURVIVED";
+            SetMetricColor(winTimeValue, SurviveWinColor);
+        }
+    }
+
+    private void ApplySurviveLoseMetric()
+    {
+        if (loseSurvivedLabel != null)
+        {
+            loseSurvivedLabel.text = "YOU SURVIVED FOR";
+            loseSurvivedLabel.gameObject.SetActive(true);
+            SetMetricColor(loseSurvivedLabel, SurviveLoseColor);
+        }
+
+        if (loseSurvivedValue != null)
+        {
+            loseSurvivedValue.gameObject.SetActive(true);
+            SetMetricColor(loseSurvivedValue, SurviveLoseColor);
+        }
+    }
+
+    private static void SetTimeMetricVisibility(
+        TextMeshProUGUI valueText,
+        TextMeshProUGUI labelText,
+        bool visible)
+    {
+        if (valueText != null)
+            valueText.gameObject.SetActive(visible);
+
+        if (labelText != null)
+            labelText.gameObject.SetActive(visible);
+    }
+
+    private void RestoreTimeMetricLabels()
+    {
+        if (winTimeLabel != null &&
+            !string.IsNullOrEmpty(winTimeLabelDefaultText))
+        {
+            winTimeLabel.text = winTimeLabelDefaultText;
+        }
+
+        if (loseSurvivedLabel != null &&
+            !string.IsNullOrEmpty(loseSurvivedLabelDefaultText))
+        {
+            loseSurvivedLabel.text =
+                loseSurvivedLabelDefaultText;
+        }
+    }
+
+    private void RestoreTimeMetricColors()
+    {
+        if (winTimeLabel != null)
+            winTimeLabel.color = winTimeLabelDefaultColor;
+
+        if (winTimeValue != null)
+            winTimeValue.color = winTimeValueDefaultColor;
+
+        if (loseSurvivedLabel != null)
+            loseSurvivedLabel.color = loseSurvivedLabelDefaultColor;
+
+        if (loseSurvivedValue != null)
+            loseSurvivedValue.color = loseSurvivedValueDefaultColor;
+    }
+
+    private static void SetMetricColor(
+        TextMeshProUGUI text,
+        Color targetColor)
+    {
+        if (text == null)
+            return;
+
+        Color currentColor = text.color;
+        targetColor.a = currentColor.a;
+        text.color = targetColor;
     }
 
     private void CacheMetricLayout()
@@ -268,7 +375,7 @@ public class GameResultUI : MonoBehaviour
                 ? loseSurvivedValue.rectTransform
                 : null;
 
-        TextMeshProUGUI winTimeLabel =
+        winTimeLabel =
             FindMetricLabel(
                 winTimeValue,
                 winUI,
@@ -276,7 +383,7 @@ public class GameResultUI : MonoBehaviour
                 "SURVIVED"
             );
 
-        TextMeshProUGUI loseSurvivedLabel =
+        loseSurvivedLabel =
             FindMetricLabel(
                 loseSurvivedValue,
                 loseUI,
@@ -293,6 +400,36 @@ public class GameResultUI : MonoBehaviour
             loseSurvivedLabel != null
                 ? loseSurvivedLabel.rectTransform
                 : null;
+
+        winTimeLabelDefaultText =
+            winTimeLabel != null
+                ? winTimeLabel.text
+                : string.Empty;
+
+        loseSurvivedLabelDefaultText =
+            loseSurvivedLabel != null
+                ? loseSurvivedLabel.text
+                : string.Empty;
+
+        winTimeLabelDefaultColor =
+            winTimeLabel != null
+                ? winTimeLabel.color
+                : Color.white;
+
+        winTimeValueDefaultColor =
+            winTimeValue != null
+                ? winTimeValue.color
+                : Color.white;
+
+        loseSurvivedLabelDefaultColor =
+            loseSurvivedLabel != null
+                ? loseSurvivedLabel.color
+                : Color.white;
+
+        loseSurvivedValueDefaultColor =
+            loseSurvivedValue != null
+                ? loseSurvivedValue.color
+                : Color.white;
 
         if (winTimeLabelRect != null)
         {
@@ -617,6 +754,9 @@ public class GameResultUI : MonoBehaviour
 
     public void GoMenu()
     {
+        menuConfirmationOpenedFromPause = false;
+        pauseConfirmationActivatedResultPanel = false;
+
         if (menuConfirmationPanel == null)
         {
             Debug.LogWarning(
@@ -634,6 +774,46 @@ public class GameResultUI : MonoBehaviour
 
         SetSceneButtonsInteractable(false);
         StartMenuConfirmationAnimation(true);
+    }
+
+    public bool ShowPauseMenuConfirmation()
+    {
+        if (menuConfirmationPanel == null)
+            return false;
+
+        if (isSceneChangeRequested)
+            return true;
+
+        menuConfirmationOpenedFromPause = true;
+
+        pauseConfirmationActivatedResultPanel =
+            resultPanel != null &&
+            !resultPanel.activeSelf;
+
+        if (resultPanel != null)
+        {
+            resultPanel.SetActive(true);
+            resultPanel.transform.SetAsLastSibling();
+        }
+
+        if (winUI != null)
+            winUI.SetActive(false);
+
+        if (loseUI != null)
+            loseUI.SetActive(false);
+
+        if (nextLevelButton != null)
+            nextLevelButton.SetActive(false);
+
+        if (tryAgainButton != null)
+            tryAgainButton.SetActive(false);
+
+        if (menuButton != null)
+            menuButton.SetActive(false);
+
+        SetSceneButtonsInteractable(false);
+        StartMenuConfirmationAnimation(true);
+        return true;
     }
 
     public void ConfirmGoMenu()
@@ -663,6 +843,9 @@ public class GameResultUI : MonoBehaviour
 
         menuConfirmationRoutine = null;
 
+        menuConfirmationOpenedFromPause = false;
+        pauseConfirmationActivatedResultPanel = false;
+
         PrepareForSceneChange();
         SelectedLevelData.Clear();
 
@@ -689,6 +872,8 @@ public class GameResultUI : MonoBehaviour
             return;
 
         isSceneChangeRequested = false;
+        menuConfirmationOpenedFromPause = false;
+        pauseConfirmationActivatedResultPanel = false;
         HideMenuConfirmationImmediate();
         SetSceneButtonsInteractable(true);
 
@@ -759,6 +944,11 @@ public class GameResultUI : MonoBehaviour
     {
         yield return AnimateMenuConfirmation(show);
         menuConfirmationRoutine = null;
+
+        if (!show && menuConfirmationOpenedFromPause)
+        {
+            RestoreAfterPauseMenuConfirmation();
+        }
     }
 
     private IEnumerator AnimateMenuConfirmation(bool show)
@@ -887,6 +1077,21 @@ public class GameResultUI : MonoBehaviour
 
         StopCoroutine(menuConfirmationRoutine);
         menuConfirmationRoutine = null;
+    }
+
+    private void RestoreAfterPauseMenuConfirmation()
+    {
+        bool shouldHideResultPanel =
+            pauseConfirmationActivatedResultPanel;
+
+        menuConfirmationOpenedFromPause = false;
+        pauseConfirmationActivatedResultPanel = false;
+
+        if (shouldHideResultPanel &&
+            resultPanel != null)
+        {
+            resultPanel.SetActive(false);
+        }
     }
 
     private void HideMenuConfirmationImmediate()

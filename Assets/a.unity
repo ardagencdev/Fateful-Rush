@@ -992,8 +992,8 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
-  m_Antialiasing: 0
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 1
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -2094,7 +2094,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 200, y: 0}
-  m_SizeDelta: {x: 260, y: 40}
+  m_SizeDelta: {x: 500, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &216341149
 MonoBehaviour:
@@ -7971,7 +7971,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8001,8 +8001,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -15418,8 +15418,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -15448,7 +15448,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -15946,8 +15946,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -15976,7 +15976,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -16377,7 +16377,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -7701588184116248290, guid: 28d7f4b604b6ddc4f8ad564c21abad8d, type: 3}
+  m_Sprite: {fileID: -8058238013378682249, guid: 42b94303c59e93145b3aaa9c8ceda321, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -24390,7 +24390,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -24427,8 +24427,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -24533,8 +24533,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -24563,7 +24563,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -25016,6 +25016,8 @@ MonoBehaviour:
   tryAgainButton: {fileID: 2011239673}
   menuButton: {fileID: 1672707847}
   menuConfirmationPanel: {fileID: 1588835770}
+  menuConfirmationAnimationDuration: 0.18
+  menuConfirmationStartScale: 0.94
   playerSkinCatalog: {fileID: 11400000, guid: 6a94e3ee225b5934ba73c6c7b9674c3f, type: 2}
   skinUnlockUI: {fileID: 963824595}
   skinUnlockedTitleText: {fileID: 227252629}
@@ -25094,8 +25096,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -25124,7 +25126,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -26574,8 +26576,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -26604,7 +26606,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -26966,7 +26968,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -26996,8 +26998,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -27539,7 +27541,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -27576,8 +27578,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -27730,8 +27732,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -27816,7 +27818,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28127,8 +28129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -28157,7 +28159,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28610,8 +28612,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -28696,7 +28698,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28965,7 +28967,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.98039216}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -29489,7 +29491,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -30}
+  m_AnchoredPosition: {x: 0, y: -40}
   m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1827781983
@@ -29776,8 +29778,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -29806,7 +29808,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -29948,8 +29950,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -30034,7 +30036,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -30527,8 +30529,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -30613,7 +30615,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -30768,7 +30770,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -30798,8 +30800,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -31357,8 +31359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -31387,7 +31389,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -31726,8 +31728,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -31756,7 +31758,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -31913,8 +31915,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0738d4d81eeaff84dbf115eb2a8f753a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonEffect
-  normalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  highlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  normalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  highlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
@@ -31943,7 +31945,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  m_Sprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -32524,7 +32526,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 01518e100999ae24485b1960235e2e50, type: 3}
     - target: {fileID: 66808903290035563, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_WasSpriteAssigned
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1058027815251072158, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: playerDash

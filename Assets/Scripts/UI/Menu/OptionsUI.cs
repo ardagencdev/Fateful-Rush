@@ -66,7 +66,7 @@ public class OptionsUI : MonoBehaviour
         RefreshReferences();
         ConfigureNormalizedSlider(musicSlider);
         ConfigureNormalizedSlider(sfxSlider);
-        ConfigureNormalizedSlider(hudOpacitySlider);
+        ConfigureHUDOpacitySlider(hudOpacitySlider);
         CacheButtonCanvasGroups();
         SetupMobileSliderTouchAreas();
     }
@@ -202,7 +202,11 @@ public class OptionsUI : MonoBehaviour
 
     public void ChangeHUDOpacity(float value)
     {
-        value = Mathf.Clamp01(value);
+        value = Mathf.Clamp(
+            value,
+            SettingsManager.MinimumHUDOpacity,
+            SettingsManager.MaximumHUDOpacity
+        );
 
         RefreshReferences();
 
@@ -651,6 +655,21 @@ public class OptionsUI : MonoBehaviour
         slider.minValue = 0f;
         slider.maxValue = 1f;
         slider.wholeNumbers = false;
+    }
+
+    private static void ConfigureHUDOpacitySlider(Slider slider)
+    {
+        if (slider == null)
+            return;
+
+        slider.minValue = SettingsManager.MinimumHUDOpacity;
+        slider.maxValue = SettingsManager.MaximumHUDOpacity;
+        slider.wholeNumbers = false;
+
+        if (slider.value < slider.minValue)
+        {
+            slider.SetValueWithoutNotify(slider.minValue);
+        }
     }
 
     private static void UpdatePercentText(

@@ -48,6 +48,8 @@ public class GameStateManager : MonoBehaviour
     private GameTimer gameTimerComponent;
     private BossScreenEffect bossScreenEffect;
     private WinConditionIntroUI winConditionIntroUI;
+    private CurrentLevelHUD currentLevelHUD;
+    private HUDPlayerOcclusionController hudPlayerOcclusion;
 
     private bool gameFrozen;
     private bool gameEnded;
@@ -105,6 +107,9 @@ public class GameStateManager : MonoBehaviour
             currentLevel = levelManager.currentLevel;
         }
 
+        EnsureCurrentLevelHUD(currentLevel);
+        EnsureHUDPlayerOcclusion();
+
         gameplayMusic?.PlayClipAndFadeIn(
             currentLevel != null
                 ? currentLevel.gameplayMusic
@@ -120,6 +125,7 @@ public class GameStateManager : MonoBehaviour
 
         if (hudIntroAnimator != null)
         {
+            RegisterCurrentLevelHUDForIntro();
             hudIntroAnimator.HideInstant();
 
             yield return
@@ -649,6 +655,7 @@ public class GameStateManager : MonoBehaviour
             SetHUDObject(dashHUD, false);
             SetHUDObject(cloneHUD, false);
             SetHUDObject(pauseButtonHUD, false);
+            SetCurrentLevelHUDVisible(false);
             return;
         }
 
@@ -675,6 +682,245 @@ public class GameStateManager : MonoBehaviour
         );
 
         SetHUDObject(pauseButtonHUD, true);
+        SetCurrentLevelHUDVisible(true);
+    }
+
+    private void EnsureCurrentLevelHUD(
+        LevelConfig level)
+    {
+        if (currentLevelHUD != null ||
+            level == null ||
+            level.levelNumber <= 0)
+        {
+            return;
+        }
+
+        Canvas hudCanvas = FindHUDCanvas();
+
+        if (hudCanvas == null)
+        {
+            Debug.LogWarning(
+                "[GameStateManager] Current Level HUD için Canvas bulunamadı.",
+                this
+            );
+            return;
+        }
+
+        PlayerSkinApplier skinApplier = null;
+
+        if (playerMovement != null)
+        {
+            skinApplier =
+                playerMovement.GetComponent
+                    <PlayerSkinApplier>();
+
+            if (skinApplier == null)
+            {
+                skinApplier =
+                    playerMovement.GetComponentInChildren
+                        <PlayerSkinApplier>(true);
+            }
+        }
+
+        int siblingIndex =
+            GetHUDInsertSiblingIndex(hudCanvas);
+
+        currentLevelHUD =
+            CurrentLevelHUD.Create(
+                level,
+                skinApplier,
+                hudCanvas,
+                siblingIndex
+            );
+    }
+
+    private void EnsureHUDPlayerOcclusion()
+    {
+        if (playerMovement == null)
+            return;
+
+        Canvas hudCanvas = FindHUDCanvas();
+
+        if (hudCanvas == null)
+            return;
+
+        if (hudPlayerOcclusion == null)
+        {
+            hudPlayerOcclusion =
+                GetComponent<HUDPlayerOcclusionController>();
+
+            if (hudPlayerOcclusion == null)
+            {
+                hudPlayerOcclusion =
+                    gameObject.AddComponent
+                        <HUDPlayerOcclusionController>();
+            }
+        }
+
+        hudPlayerOcclusion.Configure(
+            playerMovement.transform,
+            hudCanvas,
+            hudIntroAnimator,
+            scoreHUD,
+            timeHUD,
+            joystickHUD,
+            dashHUD,
+            cloneHUD,
+            pauseButtonHUD,
+            currentLevelHUD != null
+                ? currentLevelHUD.gameObject
+                : null
+        );
+
+        // Root referanslarının yanında gerçek TMP componentlerini de doğrudan
+        // kaydet. Böylece sahne hiyerarşisi değişse bile Score / Timer kesin
+        // olarak aynı occlusion sistemine girer.
+        if (playerCoinCollector != null &&
+            playerCoinCollector.scoreText != null)
+        {
+            hudPlayerOcclusion.RegisterHUDRoot(
+                playerCoinCollector.scoreText.gameObject
+            );
+        }
+
+        if (gameTimerComponent != null &&
+            gameTimerComponent.timerText != null)
+        {
+            hudPlayerOcclusion.RegisterHUDRoot(
+                gameTimerComponent.timerText.gameObject
+            );
+        }
+
+        if (currentLevelHUD != null)
+        {
+            hudPlayerOcclusion.RegisterHUDRoot(
+                currentLevelHUD.gameObject
+            );
+        }
+    }
+
+    private void RegisterCurrentLevelHUDForIntro()
+    {
+        if (hudIntroAnimator == null ||
+            currentLevelHUD == null)
+        {
+            return;
+        }
+
+        hudIntroAnimator.RegisterRuntimeItem(
+            currentLevelHUD.gameObject
+        );
+    }
+
+    private Canvas FindHUDCanvas()
+    {
+        GameObject[] hudObjects =
+        {
+            scoreHUD,
+            timeHUD,
+            joystickHUD,
+            dashHUD,
+            cloneHUD,
+            pauseButtonHUD
+        };
+
+        for (int i = 0;
+             i < hudObjects.Length;
+             i++)
+        {
+            GameObject hudObject = hudObjects[i];
+
+            if (hudObject == null)
+                continue;
+
+            Canvas canvas =
+                hudObject.GetComponentInParent
+                    <Canvas>(true);
+
+            if (canvas != null)
+                return canvas;
+        }
+
+        return FindAnyObjectByType<Canvas>();
+    }
+
+    private int GetHUDInsertSiblingIndex(
+        Canvas hudCanvas)
+    {
+        if (hudCanvas == null)
+            return 0;
+
+        GameObject[] hudObjects =
+        {
+            scoreHUD,
+            timeHUD,
+            joystickHUD,
+            dashHUD,
+            cloneHUD,
+            pauseButtonHUD
+        };
+
+        int highestHudSiblingIndex = -1;
+
+        for (int i = 0;
+             i < hudObjects.Length;
+             i++)
+        {
+            Transform topLevelHudTransform =
+                GetTopLevelChildUnderCanvas(
+                    hudObjects[i],
+                    hudCanvas.transform
+                );
+
+            if (topLevelHudTransform == null)
+                continue;
+
+            highestHudSiblingIndex =
+                Mathf.Max(
+                    highestHudSiblingIndex,
+                    topLevelHudTransform.GetSiblingIndex()
+                );
+        }
+
+        if (highestHudSiblingIndex < 0)
+            return hudCanvas.transform.childCount;
+
+        return Mathf.Min(
+            highestHudSiblingIndex + 1,
+            hudCanvas.transform.childCount
+        );
+    }
+
+    private static Transform GetTopLevelChildUnderCanvas(
+        GameObject hudObject,
+        Transform canvasTransform)
+    {
+        if (hudObject == null ||
+            canvasTransform == null)
+        {
+            return null;
+        }
+
+        Transform current = hudObject.transform;
+
+        while (current != null &&
+               current.parent != null &&
+               current.parent != canvasTransform)
+        {
+            current = current.parent;
+        }
+
+        return current != null &&
+               current.parent == canvasTransform
+            ? current
+            : null;
+    }
+
+    private void SetCurrentLevelHUDVisible(
+        bool visible)
+    {
+        if (currentLevelHUD != null)
+            currentLevelHUD.SetVisible(visible);
     }
 
     private static void SetHUDObject(

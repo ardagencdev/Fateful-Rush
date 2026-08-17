@@ -19,6 +19,8 @@ MonoBehaviour:
     dashTrailColor: {r: 1.380546, g: 1.4392927, b: 1.4980392, a: 0}
     armorVisualColor: {r: 1.4980392, g: 1.4980392, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 1, b: 1, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 0
   - id: blue
     displayName: BLUE
@@ -26,6 +28,8 @@ MonoBehaviour:
     dashTrailColor: {r: 0.14686659, g: 0.6168397, b: 1.4980392, a: 0}
     armorVisualColor: {r: 0.38185316, g: 0.7930796, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 0.25490198, g: 0.52941178, b: 1, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 4
   - id: cyan
     displayName: CYAN
@@ -33,6 +37,8 @@ MonoBehaviour:
     dashTrailColor: {r: 0.46997312, g: 1.3217994, b: 1.4980392, a: 0}
     armorVisualColor: {r: 0.93994623, g: 1.4099193, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 0.62745102, g: 0.94117651, b: 1, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 8
   - id: yellow
     displayName: YELLOW
@@ -40,6 +46,8 @@ MonoBehaviour:
     dashTrailColor: {r: 1.4980392, g: 1.4392927, b: 0.23498656, a: 0}
     armorVisualColor: {r: 1.4980392, g: 1.468666, b: 0.70495963, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.98039224, b: 0.47058824, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 12
   - id: orange
     displayName: ORANGE
@@ -47,6 +55,8 @@ MonoBehaviour:
     dashTrailColor: {r: 1.4980392, g: 0.6168397, b: 0.088119954, a: 0}
     armorVisualColor: {r: 1.4980392, g: 0.9105729, b: 0.3231065, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.60784317, b: 0.21568628, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 16
   - id: red
     displayName: RED
@@ -54,6 +64,8 @@ MonoBehaviour:
     dashTrailColor: {r: 1.4980392, g: 0.20561324, b: 0.26435986, a: 0}
     armorVisualColor: {r: 1.4980392, g: 0.14267041, b: 0.2140056, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.095238102, b: 0.14285714, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 20
   - id: purple
     displayName: PURPLE
@@ -61,6 +73,8 @@ MonoBehaviour:
     dashTrailColor: {r: 0.9693195, g: 0.26435986, b: 1.4980392, a: 0}
     armorVisualColor: {r: 1.1455594, g: 0.58746636, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 0.76470589, g: 0.39215687, b: 1, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 24
   - id: silver
     displayName: SILVER
@@ -68,13 +82,17 @@ MonoBehaviour:
     dashTrailColor: {r: 1.1651417, g: 1.3648803, b: 1.4980394, a: 0}
     armorVisualColor: {r: 1.345178, g: 1.4368947, b: 1.4980391, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 0.89795921, g: 0.95918371, b: 1, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 28
   - id: dark
     displayName: DARK
     playerSprite: {fileID: 622316905666471184, guid: 5a3f18844f3cb674185d20a5bd6990c5, type: 3}
-    dashTrailColor: {r: 1.6470587, g: 0.057068165, b: 0.17254901, a: 0}
-    armorVisualColor: {r: 0.98039216, g: 0.015686275, b: 0.09411765, a: 1}
-    armorVisualColorVersion: 2
+    dashTrailColor: {r: 0.72, g: 0.02, b: 0.07, a: 0}
+    armorVisualColor: {r: 0.58, g: 0.03, b: 0.08, a: 1}
+    armorVisualColorVersion: 3
+    uiThemeColor: {r: 0.56862745, g: 0.031372549, b: 0.094117647, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 32
   - id: golden
     displayName: GOLDEN
@@ -82,5 +100,7 @@ MonoBehaviour:
     dashTrailColor: {r: 2, g: 1.8039216, b: 0.98039216, a: 0}
     armorVisualColor: {r: 2, g: 1.8980392, b: 1.4509804, a: 1}
     armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.9490196, b: 0.7254902, a: 1}
+    uiThemeColorVersion: 1
     requiredCompletedLevel: 40
   defaultSkinIndex: 0

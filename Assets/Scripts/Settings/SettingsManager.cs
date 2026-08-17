@@ -13,6 +13,9 @@ public class SettingsManager : MonoBehaviour
     private const string HUDOpacityKey = "HUDOpacity";
     private const string LanguageKey = "Language";
 
+    public const float MinimumHUDOpacity = 0.25f;
+    public const float MaximumHUDOpacity = 1f;
+
     private const int DefaultFPS = 60;
     private const string DefaultLanguage = "EN";
 
@@ -417,7 +420,11 @@ public class SettingsManager : MonoBehaviour
 
     public void SetHUDOpacity(float value)
     {
-        value = Mathf.Clamp01(value);
+        value = Mathf.Clamp(
+            value,
+            MinimumHUDOpacity,
+            MaximumHUDOpacity
+        );
 
         PlayerPrefs.SetFloat(
             HUDOpacityKey,
@@ -431,11 +438,13 @@ public class SettingsManager : MonoBehaviour
 
     public float GetHUDOpacity()
     {
-        return Mathf.Clamp01(
+        return Mathf.Clamp(
             PlayerPrefs.GetFloat(
                 HUDOpacityKey,
-                1f
-            )
+                MaximumHUDOpacity
+            ),
+            MinimumHUDOpacity,
+            MaximumHUDOpacity
         );
     }
 

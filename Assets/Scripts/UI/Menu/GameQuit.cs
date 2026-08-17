@@ -139,6 +139,25 @@ public class GameQuit : MonoBehaviour
 
     public void BackToMainMenu()
     {
+        if (IsPaused)
+        {
+            GameResultUI resultUI =
+                FindAnyObjectByType<GameResultUI>(
+                    FindObjectsInactive.Include
+                );
+
+            if (resultUI != null &&
+                resultUI.ShowPauseMenuConfirmation())
+            {
+                return;
+            }
+        }
+
+        LoadMainMenuImmediately();
+    }
+
+    private void LoadMainMenuImmediately()
+    {
         PrepareForSceneChange();
 
         if (SceneTransition.Instance != null)

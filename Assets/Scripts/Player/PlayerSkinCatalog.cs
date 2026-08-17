@@ -8,6 +8,10 @@ using UnityEngine;
 )]
 public class PlayerSkinCatalog : ScriptableObject
 {
+    public static PlayerSkinCatalog LoadedInstance { get; private set; }
+
+    public static event Action SelectedSkinChanged;
+
     public const string SelectedSkinKey =
         "SelectedPlayerSkinId";
 
@@ -18,6 +22,8 @@ public class PlayerSkinCatalog : ScriptableObject
         "CompletedLevel_";
 
     private const int CurrentArmorColorVersion = 2;
+    private const int CurrentDarkVisualColorVersion = 3;
+    private const int CurrentUIThemeColorVersion = 1;
 
     [Serializable]
     public class SkinEntry
@@ -36,6 +42,15 @@ public class PlayerSkinCatalog : ScriptableObject
 
         [HideInInspector]
         public int armorVisualColorVersion;
+
+        [ColorUsage(false, false)]
+        [Tooltip(
+            "Menu, panel title and non-HUD button accent color for this skin."
+        )]
+        public Color uiThemeColor = Color.white;
+
+        [HideInInspector]
+        public int uiThemeColorVersion;
 
         [Min(0)]
         [Tooltip(
@@ -88,7 +103,10 @@ public class PlayerSkinCatalog : ScriptableObject
 
     private void OnEnable()
     {
+        LoadedInstance = this;
         EnsureArmorVisualColors();
+        EnsureDarkSkinVisualColors();
+        EnsureUIThemeColors();
     }
 
     public SkinEntry GetSelectedSkin()
@@ -233,9 +251,35 @@ public class PlayerSkinCatalog : ScriptableObject
 #endif
     }
 
+    public Color GetSelectedUIThemeColor()
+    {
+        SkinEntry selectedSkin = GetSelectedSkin();
+
+        return selectedSkin != null
+            ? GetUIThemeColor(selectedSkin)
+            : Color.white;
+    }
+
+    public static Color GetUIThemeColor(SkinEntry skin)
+    {
+        if (skin == null)
+            return Color.white;
+
+        if (skin.uiThemeColorVersion >= CurrentUIThemeColorVersion)
+            return NormalizeUIThemeColor(skin.uiThemeColor);
+
+        return GetDefaultUIThemeColor(skin);
+    }
+
     public static void ClearSavedSelection()
     {
+        bool hadSelection = PlayerPrefs.HasKey(SelectedSkinKey);
+
         PlayerPrefs.DeleteKey(SelectedSkinKey);
+        PlayerPrefs.Save();
+
+        if (hadSelection)
+            SelectedSkinChanged?.Invoke();
     }
 
     private SkinEntry GetFallbackSkin()
@@ -268,12 +312,26 @@ public class PlayerSkinCatalog : ScriptableObject
             return;
         }
 
+        string previousSkinId = PlayerPrefs.GetString(
+            SelectedSkinKey,
+            string.Empty
+        );
+
+        bool changed = !string.Equals(
+            previousSkinId,
+            skin.id,
+            StringComparison.Ordinal
+        );
+
         PlayerPrefs.SetString(
             SelectedSkinKey,
             skin.id
         );
 
         PlayerPrefs.Save();
+
+        if (changed)
+            SelectedSkinChanged?.Invoke();
     }
 
     private void EnsureArmorVisualColors()
@@ -298,6 +356,91 @@ public class PlayerSkinCatalog : ScriptableObject
             skin.armorVisualColorVersion =
                 CurrentArmorColorVersion;
         }
+    }
+
+    private void EnsureDarkSkinVisualColors()
+    {
+        if (skins == null)
+            return;
+
+        for (int i = 0; i < skins.Count; i++)
+        {
+            SkinEntry skin = skins[i];
+
+            if (skin == null ||
+                !IsDarkSkinId(skin.id) ||
+                skin.armorVisualColorVersion >=
+                CurrentDarkVisualColorVersion)
+            {
+                continue;
+            }
+
+            // Dark is intentionally a deep crimson instead of sharing
+            // Red skin's bright red treatment.
+            skin.dashTrailColor =
+                new Color(0.72f, 0.02f, 0.07f, 0f);
+
+            skin.armorVisualColor =
+                new Color(0.58f, 0.03f, 0.08f, 1f);
+
+            skin.armorVisualColorVersion =
+                CurrentDarkVisualColorVersion;
+        }
+    }
+
+    private void EnsureUIThemeColors()
+    {
+        if (skins == null)
+            return;
+
+        for (int i = 0; i < skins.Count; i++)
+        {
+            SkinEntry skin = skins[i];
+
+            if (skin == null ||
+                skin.uiThemeColorVersion >=
+                CurrentUIThemeColorVersion)
+            {
+                continue;
+            }
+
+            skin.uiThemeColor =
+                GetDefaultUIThemeColor(skin);
+
+            skin.uiThemeColorVersion =
+                CurrentUIThemeColorVersion;
+        }
+    }
+
+    private static Color GetDefaultUIThemeColor(
+        SkinEntry skin
+    )
+    {
+        if (skin == null)
+            return Color.white;
+
+        if (IsDarkSkinId(skin.id))
+            return new Color32(145, 8, 24, 255);
+
+        return NormalizeUIThemeColor(
+            NormalizeHdrColor(skin.armorVisualColor)
+        );
+    }
+
+    private static bool IsDarkSkinId(string skinId)
+    {
+        if (string.IsNullOrWhiteSpace(skinId))
+            return false;
+
+        string normalizedId = skinId
+            .Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(" ", string.Empty);
+
+        return normalizedId == "dark" ||
+               normalizedId == "black";
     }
 
     private static Color GetDefaultArmorVisualColor(
@@ -343,7 +486,7 @@ public class PlayerSkinCatalog : ScriptableObject
 
             case "dark":
             case "black":
-                return new Color32(78, 96, 108, 255);
+                return new Color32(148, 8, 20, 255);
 
             case "silver":
             case "gray":
@@ -359,6 +502,15 @@ public class PlayerSkinCatalog : ScriptableObject
                     skin.dashTrailColor
                 );
         }
+    }
+
+    private static Color NormalizeUIThemeColor(Color color)
+    {
+        color.r = Mathf.Clamp01(color.r);
+        color.g = Mathf.Clamp01(color.g);
+        color.b = Mathf.Clamp01(color.b);
+        color.a = 1f;
+        return color;
     }
 
     private static Color NormalizeHdrColor(Color color)
@@ -387,6 +539,8 @@ public class PlayerSkinCatalog : ScriptableObject
             return;
 
         EnsureArmorVisualColors();
+        EnsureDarkSkinVisualColors();
+        EnsureUIThemeColors();
 
         defaultSkinIndex = Mathf.Clamp(
             defaultSkinIndex,

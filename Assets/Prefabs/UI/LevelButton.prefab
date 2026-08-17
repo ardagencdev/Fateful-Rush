@@ -137,17 +137,19 @@ MonoBehaviour:
   button: {fileID: 5729418071965797755}
   buttonImage: {fileID: 2593184219193535137}
   levelText: {fileID: 8237936095822999438}
-  unlockedNormalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  unlockedHighlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  lockedNormalSprite: {fileID: -8688615520327271295, guid: 99aa578c524804549ad9b1bccd3bfa0a, type: 3}
-  lockedHighlightedSprite: {fileID: -8688615520327271295, guid: 99aa578c524804549ad9b1bccd3bfa0a, type: 3}
-  completedNormalSprite: {fileID: 1299393010207879128, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
-  completedHighlightedSprite: {fileID: -4830407771534234146, guid: 839af318f8260cf4a89dc5748338140a, type: 3}
+  unlockedNormalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  unlockedHighlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
+  lockedNormalSprite: {fileID: -3846330120125846787, guid: 806201a29ba817c4e8d9e0036dc1fd3f, type: 3}
+  lockedHighlightedSprite: {fileID: -3846330120125846787, guid: 806201a29ba817c4e8d9e0036dc1fd3f, type: 3}
+  completedNormalSprite: {fileID: -8527568592950175283, guid: 6f2a57c08603839438e8d8093edd047e, type: 3}
+  completedHighlightedSprite: {fileID: 2984047796886772026, guid: 2f95131d6a5467341bbe2da284178444, type: 3}
   unlockedTextColor: {r: 1, g: 1, b: 1, a: 1}
   completedTextColor: {r: 0.09158063, g: 0.9245283, b: 0.13355923, a: 1}
+  scaleTarget: {fileID: 0}
   hoverScale: 1.08
   clickScale: 0.95
   transitionSpeed: 10
+  settleThreshold: 0.00005
 --- !u!1 &6481318531330300109
 GameObject:
   m_ObjectHideFlags: 0

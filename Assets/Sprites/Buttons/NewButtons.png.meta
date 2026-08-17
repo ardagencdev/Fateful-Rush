@@ -109,12 +109,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 48
     textureCompression: 1
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -157,28 +157,6 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: NewButtons_1
-      rect:
-        serializedVersion: 2
-        x: 437
-        y: 87
-        width: 17
-        height: 19
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 053333ad2ae832db0800000000000000
-      internalID: -4817850346259664048
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: NewButtons_2
       rect:
         serializedVersion: 2
@@ -196,28 +174,6 @@ TextureImporter:
       bones: []
       spriteID: edd6a6179b1f6fcb0800000000000000
       internalID: -4830407771534234146
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: NewButtons_3
-      rect:
-        serializedVersion: 2
-        x: 1185
-        y: 213
-        width: 8
-        height: 6
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 59d4929799e293490800000000000000
-      internalID: -7766124845726085739
       vertices: []
       indices: 
       edges: []

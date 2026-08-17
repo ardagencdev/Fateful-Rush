@@ -535,8 +535,16 @@ public class BeaconEnemy : MonoBehaviour
         if (dash == null)
             dash = other.GetComponentInParent<PlayerDash>();
 
-        if (dash != null && dash.IsDashing)
-            Die();
+        TryDieFromDash(dash);
+    }
+
+    public bool TryDieFromDash(PlayerDash dash)
+    {
+        if (dead || dash == null || !dash.IsDashing)
+            return false;
+
+        Die();
+        return true;
     }
 
     private void Die()
