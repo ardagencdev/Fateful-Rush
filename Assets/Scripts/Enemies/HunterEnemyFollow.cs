@@ -41,6 +41,27 @@ public class HunterEnemyFollow : MonoBehaviour
     [Range(0f, 1f)]
     public float soundVolume = 1f;
 
+    [Header("Near Miss")]
+    [SerializeField]
+    private bool enableNearMiss = true;
+
+    [Tooltip("Surface-to-surface distance that arms a Hunter charge near miss.")]
+    [SerializeField, Min(0.05f)]
+    private float nearMissDistance = 0.95f;
+
+    [Tooltip("Hunter must move this far away from its closest point before feedback fires.")]
+    [SerializeField, Min(0f)]
+    private float nearMissReleaseDistance = 0.10f;
+
+    private const float NearMissReliabilityPadding = 0.12f;
+
+    [Header("SFX Variation")]
+    [SerializeField, Range(0f, 0.08f)]
+    private float soundPitchJitter = 0.012f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float soundVolumeJitter = 0.01f;
+
     [Header("Visual")]
     public SpriteRenderer spriteRenderer;
 
@@ -76,6 +97,13 @@ public class HunterEnemyFollow : MonoBehaviour
     private int obstacleLayerIndex;
     private int wallLayerLowerIndex;
     private int wallLayerUpperIndex;
+
+    private Collider2D nearMissPlayerCollider;
+    private bool nearMissArmed;
+    private bool nearMissTriggered;
+    private bool nearMissTouchedPlayer;
+    private bool nearMissCancelled;
+    private float nearMissClosestDistance = float.PositiveInfinity;
 
     private void Awake()
     {
@@ -217,6 +245,7 @@ public class HunterEnemyFollow : MonoBehaviour
                     player.GetComponent<PlayerArmor>();
             }
 
+            CacheNearMissPlayerCollider();
             return;
         }
 
@@ -233,6 +262,8 @@ public class HunterEnemyFollow : MonoBehaviour
 
         playerArmor =
             foundPlayer.GetComponent<PlayerArmor>();
+
+        CacheNearMissPlayerCollider();
     }
 
     private void SelectDashSound()
@@ -391,6 +422,9 @@ public class HunterEnemyFollow : MonoBehaviour
         isStunned = false;
         cloneAbsorbedCharge = false;
 
+        ResetNearMissTracking();
+        CacheNearMissPlayerCollider();
+
         EnterChargeMode();
 
         PlaySound(selectedDashSound);
@@ -411,6 +445,8 @@ public class HunterEnemyFollow : MonoBehaviour
             {
                 yield break;
             }
+
+            TrackNearMiss();
 
             float moveDistance =
                 chargeSpeed * Time.fixedDeltaTime;
@@ -450,7 +486,10 @@ public class HunterEnemyFollow : MonoBehaviour
             timer += Time.fixedDeltaTime;
 
             yield return new WaitForFixedUpdate();
+            TrackNearMiss();
         }
+
+        TryCompleteNearMiss();
 
         isCharging = false;
         SetDangerous(false);
@@ -866,6 +905,7 @@ public class HunterEnemyFollow : MonoBehaviour
 
         cloneAbsorbedCharge = true;
         isCharging = false;
+        nearMissCancelled = true;
 
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
@@ -883,6 +923,8 @@ public class HunterEnemyFollow : MonoBehaviour
         {
             return;
         }
+
+        nearMissTouchedPlayer = true;
 
         if (playerArmor == null)
         {
@@ -922,8 +964,12 @@ public class HunterEnemyFollow : MonoBehaviour
         if (!isCharging || isStunned)
             return;
 
+        TryCompleteNearMiss();
+
         isCharging = false;
         isStunned = true;
+
+        StatsManager.AddHunterStun();
 
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
@@ -1185,6 +1231,125 @@ public class HunterEnemyFollow : MonoBehaviour
         transform.localScale = scale;
     }
 
+    private void ResetNearMissTracking()
+    {
+        nearMissArmed = false;
+        nearMissTriggered = false;
+        nearMissTouchedPlayer = false;
+        nearMissCancelled = false;
+        nearMissClosestDistance = float.PositiveInfinity;
+    }
+
+    private void CacheNearMissPlayerCollider()
+    {
+        if (player == null)
+            return;
+
+        nearMissPlayerCollider =
+            player.GetComponent<Collider2D>();
+
+        if (nearMissPlayerCollider == null)
+        {
+            nearMissPlayerCollider =
+                player.GetComponentInChildren<Collider2D>();
+        }
+    }
+
+    private void TrackNearMiss()
+    {
+        if (!enableNearMiss ||
+            !isCharging ||
+            nearMissTriggered ||
+            nearMissCancelled ||
+            nearMissTouchedPlayer ||
+            player == null ||
+            playerMovement == null ||
+            playerMovement.IsGameOver ||
+            col == null ||
+            !col.enabled)
+        {
+            return;
+        }
+
+        if (nearMissPlayerCollider == null)
+            CacheNearMissPlayerCollider();
+
+        if (nearMissPlayerCollider == null ||
+            !nearMissPlayerCollider.enabled)
+        {
+            return;
+        }
+
+        ColliderDistance2D separation =
+            col.Distance(nearMissPlayerCollider);
+
+        float surfaceDistance = separation.distance;
+
+        if (surfaceDistance <= 0f)
+        {
+            nearMissTouchedPlayer = true;
+            return;
+        }
+
+        float detectionDistance =
+            nearMissDistance + NearMissReliabilityPadding;
+
+        if (surfaceDistance <= detectionDistance)
+        {
+            nearMissArmed = true;
+            nearMissClosestDistance = Mathf.Min(
+                nearMissClosestDistance,
+                surfaceDistance
+            );
+        }
+
+        if (!nearMissArmed)
+            return;
+
+        Vector2 toPlayer =
+            (Vector2)player.position - rb.position;
+
+        bool movingAway =
+            Vector2.Dot(chargeDirection, toPlayer) <= 0f;
+
+        bool released =
+            surfaceDistance >=
+            nearMissClosestDistance + nearMissReleaseDistance;
+
+        if (movingAway && released)
+            TriggerNearMiss();
+    }
+
+    private void TryCompleteNearMiss()
+    {
+        if (!nearMissArmed ||
+            nearMissTriggered ||
+            nearMissTouchedPlayer ||
+            nearMissCancelled)
+        {
+            return;
+        }
+
+        TriggerNearMiss();
+    }
+
+    private void TriggerNearMiss()
+    {
+        if (nearMissTriggered)
+            return;
+
+        float closeness =
+            NearMissFeedback.GetCloseness01(
+                nearMissClosestDistance,
+                nearMissDistance + NearMissReliabilityPadding
+            );
+
+        nearMissTriggered = NearMissFeedback.TryTrigger(
+            transform.position,
+            closeness
+        );
+    }
+
     private void SetDangerous(bool state)
     {
         gameObject.tag =
@@ -1200,9 +1365,17 @@ public class HunterEnemyFollow : MonoBehaviour
         }
 
         audioSource.volume = SoundManager.SFXVolume;
+        audioSource.pitch = SoundManager.GetVariedPitch(
+            1f,
+            soundPitchJitter
+        );
+
         audioSource.PlayOneShot(
             clip,
-            soundVolume
+            SoundManager.GetVariedVolumeMultiplier(
+                soundVolume,
+                soundVolumeJitter
+            )
         );
     }
 }

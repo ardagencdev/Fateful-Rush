@@ -11,7 +11,30 @@ public class SceneTransition : MonoBehaviour
     [SerializeField] private Image fadeImage;
 
     [SerializeField, Min(0f)]
-    private float fadeDuration = 1f;
+    [Tooltip("Mevcut sahnenin siyaha kapanma süresi.")]
+    private float fadeOutDuration = 0.4f;
+
+    [SerializeField, Min(0f)]
+    [Tooltip("Yeni sahnenin siyahtan açılma süresi.")]
+    private float fadeInDuration = 0.5f;
+
+    [SerializeField]
+    [Tooltip("Fade animasyonunun easing eğrisi.")]
+    private AnimationCurve fadeCurve = AnimationCurve.EaseInOut(
+        0f,
+        0f,
+        1f,
+        1f
+    );
+
+    [Header("Scene Load Polish")]
+    [SerializeField, Min(0f)]
+    [Tooltip("Çok hızlı yüklenen sahnelerde siyah ekranın minimum kalma süresi. Flash hissini engeller.")]
+    private float minimumBlackDuration = 0.08f;
+
+    [SerializeField, Range(0, 5)]
+    [Tooltip("Yeni sahne aktive olduktan sonra fade-in başlamadan önce kaç frame initialize olması beklenecek.")]
+    private int postLoadFrameWait = 2;
 
     private bool isTransitioning;
     private bool isQuitting;
@@ -52,9 +75,7 @@ public class SceneTransition : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         EnsureFadeImage();
-
         PrepareFadeCanvas();
-
         SetAlpha(0f);
 
         fadeImage.raycastTarget = false;
@@ -68,6 +89,13 @@ public class SceneTransition : MonoBehaviour
         LoadSceneMode mode)
     {
         PrepareFadeCanvas();
+
+        if (isTransitioning && fadeImage != null)
+        {
+            fadeImage.gameObject.SetActive(true);
+            fadeImage.raycastTarget = true;
+            SetAlpha(1f);
+        }
     }
 
     public void LoadSceneWithFade(string sceneName)
@@ -86,6 +114,8 @@ public class SceneTransition : MonoBehaviour
 
             return;
         }
+
+        BeginTransition();
 
         StartCoroutine(
             TransitionRoutine(sceneName)
@@ -110,6 +140,8 @@ public class SceneTransition : MonoBehaviour
             return;
         }
 
+        BeginTransition();
+
         StartCoroutine(
             TransitionRoutine(sceneIndex)
         );
@@ -120,17 +152,32 @@ public class SceneTransition : MonoBehaviour
         if (isTransitioning)
             return;
 
+        BeginTransition();
         StartCoroutine(QuitRoutine());
+    }
+
+    private void BeginTransition()
+    {
+        isTransitioning = true;
+
+        EnsureFadeImage();
+        PrepareFadeCanvas();
+
+        if (fadeImage != null)
+        {
+            fadeImage.gameObject.SetActive(true);
+            fadeImage.raycastTarget = true;
+        }
     }
 
     private IEnumerator TransitionRoutine(
         string sceneName)
     {
-        isTransitioning = true;
-
         Time.timeScale = 0f;
 
         yield return FadeOutEverything();
+
+        float blackStartTime = Time.realtimeSinceStartup;
 
         AsyncOperation loadOperation =
             SceneManager.LoadSceneAsync(sceneName);
@@ -143,30 +190,24 @@ public class SceneTransition : MonoBehaviour
                 this
             );
 
-            Time.timeScale = 1f;
-            isTransitioning = false;
-
-            yield return FadeIn();
-
+            yield return RecoverFromFailedLoad();
             yield break;
         }
 
-        while (!loadOperation.isDone)
-        {
-            yield return null;
-        }
-
-        yield return FinishTransition();
+        yield return CompleteAsyncLoad(
+            loadOperation,
+            blackStartTime
+        );
     }
 
     private IEnumerator TransitionRoutine(
         int sceneIndex)
     {
-        isTransitioning = true;
-
         Time.timeScale = 0f;
 
         yield return FadeOutEverything();
+
+        float blackStartTime = Time.realtimeSinceStartup;
 
         AsyncOperation loadOperation =
             SceneManager.LoadSceneAsync(sceneIndex);
@@ -179,16 +220,51 @@ public class SceneTransition : MonoBehaviour
                 this
             );
 
-            Time.timeScale = 1f;
-            isTransitioning = false;
-
-            yield return FadeIn();
-
+            yield return RecoverFromFailedLoad();
             yield break;
         }
 
+        yield return CompleteAsyncLoad(
+            loadOperation,
+            blackStartTime
+        );
+    }
+
+    private IEnumerator CompleteAsyncLoad(
+        AsyncOperation loadOperation,
+        float blackStartTime)
+    {
+        // Sahneyi arka planda %90'a kadar hazırla ama ekran siyah olmadan
+        // aktive etme. Böylece yeni sahnenin tek frame parlaması engellenir.
+        loadOperation.allowSceneActivation = false;
+
+        while (loadOperation.progress < 0.9f)
+        {
+            Time.timeScale = 0f;
+            yield return null;
+        }
+
+        float blackElapsed =
+            Time.realtimeSinceStartup - blackStartTime;
+
+        float remainingBlackTime =
+            Mathf.Max(
+                0f,
+                minimumBlackDuration - blackElapsed
+            );
+
+        if (remainingBlackTime > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                remainingBlackTime
+            );
+        }
+
+        loadOperation.allowSceneActivation = true;
+
         while (!loadOperation.isDone)
         {
+            Time.timeScale = 0f;
             yield return null;
         }
 
@@ -197,11 +273,38 @@ public class SceneTransition : MonoBehaviour
 
     private IEnumerator FinishTransition()
     {
+        PrepareFadeCanvas();
+
+        if (fadeImage != null)
+        {
+            fadeImage.gameObject.SetActive(true);
+            fadeImage.raycastTarget = true;
+            SetAlpha(1f);
+        }
+
+        int framesToWait = Mathf.Max(
+            0,
+            postLoadFrameWait
+        );
+
+        for (int i = 0; i < framesToWait; i++)
+        {
+            // Yeni sahnedeki Awake / OnEnable / Start işlemlerine görünmeden
+            // birkaç frame alan bırak.
+            Time.timeScale = 0f;
+            yield return null;
+        }
+
         Time.timeScale = 1f;
 
-        yield return null;
+        yield return FadeIn();
 
-        PrepareFadeCanvas();
+        isTransitioning = false;
+    }
+
+    private IEnumerator RecoverFromFailedLoad()
+    {
+        Time.timeScale = 1f;
 
         yield return FadeIn();
 
@@ -210,9 +313,7 @@ public class SceneTransition : MonoBehaviour
 
     private IEnumerator QuitRoutine()
     {
-        isTransitioning = true;
         isQuitting = true;
-
         Time.timeScale = 0f;
 
         yield return FadeOutEverything();
@@ -245,11 +346,10 @@ public class SceneTransition : MonoBehaviour
         {
             menuMusic.FadeOutMusic();
 
-            float duration =
-                Mathf.Max(
-                    0f,
-                    menuMusic.FadeOutDuration
-                );
+            float duration = Mathf.Max(
+                0f,
+                menuMusic.FadeOutDuration
+            );
 
             if (duration > 0f)
             {
@@ -268,11 +368,10 @@ public class SceneTransition : MonoBehaviour
         {
             gameplayMusic.FadeOut();
 
-            float duration =
-                Mathf.Max(
-                    0f,
-                    gameplayMusic.FadeOutDuration
-                );
+            float duration = Mathf.Max(
+                0f,
+                gameplayMusic.FadeOutDuration
+            );
 
             if (duration > 0f)
             {
@@ -292,7 +391,8 @@ public class SceneTransition : MonoBehaviour
 
         yield return Fade(
             fadeImage.color.a,
-            1f
+            1f,
+            fadeOutDuration
         );
     }
 
@@ -305,7 +405,11 @@ public class SceneTransition : MonoBehaviour
 
         SetAlpha(1f);
 
-        yield return Fade(1f, 0f);
+        yield return Fade(
+            1f,
+            0f,
+            fadeInDuration
+        );
 
         SetAlpha(0f);
 
@@ -315,9 +419,10 @@ public class SceneTransition : MonoBehaviour
 
     private IEnumerator Fade(
         float from,
-        float to)
+        float to,
+        float duration)
     {
-        if (fadeDuration <= 0f)
+        if (duration <= 0f)
         {
             SetAlpha(to);
             yield break;
@@ -325,27 +430,22 @@ public class SceneTransition : MonoBehaviour
 
         float timer = 0f;
 
-        while (timer < fadeDuration)
+        while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;
 
-            float progress =
-                Mathf.Clamp01(
-                    timer / fadeDuration
-                );
+            float progress = Mathf.Clamp01(
+                timer / duration
+            );
 
-            float smoothProgress =
-                Mathf.SmoothStep(
-                    0f,
-                    1f,
-                    progress
-                );
+            float easedProgress =
+                EvaluateFadeCurve(progress);
 
             SetAlpha(
                 Mathf.Lerp(
                     from,
                     to,
-                    smoothProgress
+                    easedProgress
                 )
             );
 
@@ -353,6 +453,24 @@ public class SceneTransition : MonoBehaviour
         }
 
         SetAlpha(to);
+    }
+
+    private float EvaluateFadeCurve(float progress)
+    {
+        progress = Mathf.Clamp01(progress);
+
+        if (fadeCurve == null ||
+            fadeCurve.length == 0)
+        {
+            return progress * progress * progress *
+                   (progress *
+                    (progress * 6f - 15f) +
+                    10f);
+        }
+
+        return Mathf.Clamp01(
+            fadeCurve.Evaluate(progress)
+        );
     }
 
     private void EnsureFadeImage()
@@ -422,8 +540,7 @@ public class SceneTransition : MonoBehaviour
 
         Color color = fadeImage.color;
 
-        color.a =
-            Mathf.Clamp01(alpha);
+        color.a = Mathf.Clamp01(alpha);
 
         fadeImage.color = color;
     }
@@ -535,11 +652,26 @@ public class SceneTransition : MonoBehaviour
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        fadeDuration =
-            Mathf.Max(
-                0f,
-                fadeDuration
-            );
+        fadeOutDuration = Mathf.Max(
+            0f,
+            fadeOutDuration
+        );
+
+        fadeInDuration = Mathf.Max(
+            0f,
+            fadeInDuration
+        );
+
+        minimumBlackDuration = Mathf.Max(
+            0f,
+            minimumBlackDuration
+        );
+
+        postLoadFrameWait = Mathf.Clamp(
+            postLoadFrameWait,
+            0,
+            5
+        );
     }
 #endif
 }

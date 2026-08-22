@@ -104,6 +104,11 @@ public class MenuMusicApply : MonoBehaviour
         source.mute = false;
         source.spatialBlend = 0f;
         source.volume = 0f;
+
+        GameAudioMixerController.Route(
+            source,
+            GameAudioMixerController.AudioBus.Music
+        );
     }
 
     private static void CopyAudioSourceSettings(
@@ -581,6 +586,9 @@ public class MenuMusicApply : MonoBehaviour
 
         if (!soundOn || !menuMusicOn)
             return 0f;
+
+        if (GameAudioMixerController.IsReady)
+            return menuMusicBaseVolume;
 
         float musicVolume = Mathf.Clamp01(
             PlayerPrefs.GetFloat(

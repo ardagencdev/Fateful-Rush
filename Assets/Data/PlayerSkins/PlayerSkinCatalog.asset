@@ -28,72 +28,81 @@ MonoBehaviour:
     dashTrailColor: {r: 0.14686659, g: 0.6168397, b: 1.4980392, a: 0}
     armorVisualColor: {r: 0.38185316, g: 0.7930796, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
-    uiThemeColor: {r: 0.25490198, g: 0.52941178, b: 1, a: 1}
+    uiThemeColor: {r: 0.25490198, g: 0.5294118, b: 1, a: 1}
     uiThemeColorVersion: 1
     requiredCompletedLevel: 4
-  - id: cyan
-    displayName: CYAN
-    playerSprite: {fileID: 8902824919242271618, guid: 84c85369d67acf34b962eb808623d703, type: 3}
-    dashTrailColor: {r: 0.46997312, g: 1.3217994, b: 1.4980392, a: 0}
-    armorVisualColor: {r: 0.93994623, g: 1.4099193, b: 1.4980392, a: 1}
-    armorVisualColorVersion: 2
-    uiThemeColor: {r: 0.62745102, g: 0.94117651, b: 1, a: 1}
-    uiThemeColorVersion: 1
-    requiredCompletedLevel: 8
-  - id: yellow
-    displayName: YELLOW
-    playerSprite: {fileID: -5716934265592407773, guid: 519b60e682cbc7d47aa8cab9fa1098a2, type: 3}
-    dashTrailColor: {r: 1.4980392, g: 1.4392927, b: 0.23498656, a: 0}
-    armorVisualColor: {r: 1.4980392, g: 1.468666, b: 0.70495963, a: 1}
-    armorVisualColorVersion: 2
-    uiThemeColor: {r: 1, g: 0.98039224, b: 0.47058824, a: 1}
-    uiThemeColorVersion: 1
-    requiredCompletedLevel: 12
   - id: orange
     displayName: ORANGE
-    playerSprite: {fileID: -6840934628537648883, guid: c6ac0d30ddeca534894856e61b534849, type: 3}
+    playerSprite: {fileID: 6755936941797454601, guid: c6ac0d30ddeca534894856e61b534849, type: 3}
     dashTrailColor: {r: 1.4980392, g: 0.6168397, b: 0.088119954, a: 0}
     armorVisualColor: {r: 1.4980392, g: 0.9105729, b: 0.3231065, a: 1}
     armorVisualColorVersion: 2
-    uiThemeColor: {r: 1, g: 0.60784317, b: 0.21568628, a: 1}
+    uiThemeColor: {r: 1, g: 0.60784316, b: 0.21568628, a: 1}
     uiThemeColorVersion: 1
-    requiredCompletedLevel: 16
-  - id: red
-    displayName: RED
-    playerSprite: {fileID: -3818393354303293454, guid: 12a4f066afb7ff84ea6fdecaee39f916, type: 3}
-    dashTrailColor: {r: 1.4980392, g: 0.20561324, b: 0.26435986, a: 0}
-    armorVisualColor: {r: 1.4980392, g: 0.14267041, b: 0.2140056, a: 1}
-    armorVisualColorVersion: 2
-    uiThemeColor: {r: 1, g: 0.095238102, b: 0.14285714, a: 1}
-    uiThemeColorVersion: 1
-    requiredCompletedLevel: 20
+    requiredCompletedLevel: 8
   - id: purple
     displayName: PURPLE
     playerSprite: {fileID: 8057961249046504388, guid: 8d7178da840f5784fba4b5cf7c2505d7, type: 3}
     dashTrailColor: {r: 0.9693195, g: 0.26435986, b: 1.4980392, a: 0}
     armorVisualColor: {r: 1.1455594, g: 0.58746636, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
-    uiThemeColor: {r: 0.76470589, g: 0.39215687, b: 1, a: 1}
+    uiThemeColor: {r: 0.7647059, g: 0.39215687, b: 1, a: 1}
+    uiThemeColorVersion: 1
+    requiredCompletedLevel: 12
+  - id: green
+    displayName: GREEN
+    playerSprite: {fileID: -1939157477111830303, guid: 522bacfde68a3f7448020324c6e121b3, type: 3}
+    dashTrailColor: {r: 0.35247982, g: 1.4980392, b: 0.41122648, a: 0}
+    armorVisualColor: {r: 0.49934644, g: 1.4980392, b: 0.58746636, a: 1}
+    armorVisualColorVersion: 2
+    uiThemeColor: {r: 0.33333334, g: 1, b: 0.39215687, a: 1}
+    uiThemeColorVersion: 1
+    requiredCompletedLevel: 16
+  - id: pink
+    displayName: PINK
+    playerSprite: {fileID: -2725262614998627365, guid: 5e74ebc86d52bde46950bef3e2e16094, type: 3}
+    dashTrailColor: {r: 1.4980392, g: 0.11749328, b: 0.8633987, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 0.17623991, b: 0.93994623, a: 1}
+    armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.078431375, b: 0.5764706, a: 1}
+    uiThemeColorVersion: 1
+    requiredCompletedLevel: 20
+  - id: yellow
+    displayName: YELLOW
+    playerSprite: {fileID: -5716934265592407773, guid: 519b60e682cbc7d47aa8cab9fa1098a2, type: 3}
+    dashTrailColor: {r: 1.4980392, g: 1.4392927, b: 0.23498656, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 1.468666, b: 0.70495963, a: 1}
+    armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.9803922, b: 0.47058824, a: 1}
     uiThemeColorVersion: 1
     requiredCompletedLevel: 24
-  - id: silver
-    displayName: SILVER
-    playerSprite: {fileID: 1743708838107697744, guid: b8b6dcb1285a3184b962ca9d74f9c3df, type: 3}
-    dashTrailColor: {r: 1.1651417, g: 1.3648803, b: 1.4980394, a: 0}
-    armorVisualColor: {r: 1.345178, g: 1.4368947, b: 1.4980391, a: 1}
+  - id: cyan
+    displayName: LIGHT BLUE
+    playerSprite: {fileID: 8902824919242271618, guid: 84c85369d67acf34b962eb808623d703, type: 3}
+    dashTrailColor: {r: 0.46997312, g: 1.3217994, b: 1.4980392, a: 0}
+    armorVisualColor: {r: 0.93994623, g: 1.4099193, b: 1.4980392, a: 1}
     armorVisualColorVersion: 2
-    uiThemeColor: {r: 0.89795921, g: 0.95918371, b: 1, a: 1}
+    uiThemeColor: {r: 0.627451, g: 0.94117653, b: 1, a: 1}
     uiThemeColorVersion: 1
     requiredCompletedLevel: 28
+  - id: red
+    displayName: RED
+    playerSprite: {fileID: -3818393354303293454, guid: 12a4f066afb7ff84ea6fdecaee39f916, type: 3}
+    dashTrailColor: {r: 1.4980392, g: 0.20561324, b: 0.26435986, a: 0}
+    armorVisualColor: {r: 1.4980392, g: 0.14267041, b: 0.2140056, a: 1}
+    armorVisualColorVersion: 2
+    uiThemeColor: {r: 1, g: 0.095238104, b: 0.14285713, a: 1}
+    uiThemeColorVersion: 1
+    requiredCompletedLevel: 32
   - id: dark
     displayName: DARK
-    playerSprite: {fileID: 622316905666471184, guid: 5a3f18844f3cb674185d20a5bd6990c5, type: 3}
+    playerSprite: {fileID: 8758117774617742911, guid: 5a3f18844f3cb674185d20a5bd6990c5, type: 3}
     dashTrailColor: {r: 0.72, g: 0.02, b: 0.07, a: 0}
     armorVisualColor: {r: 0.58, g: 0.03, b: 0.08, a: 1}
     armorVisualColorVersion: 3
-    uiThemeColor: {r: 0.56862745, g: 0.031372549, b: 0.094117647, a: 1}
+    uiThemeColor: {r: 0.5686275, g: 0.031372547, b: 0.09411765, a: 1}
     uiThemeColorVersion: 1
-    requiredCompletedLevel: 32
+    requiredCompletedLevel: 36
   - id: golden
     displayName: GOLDEN
     playerSprite: {fileID: 7417481400307438080, guid: 4ca4c01538ff55b40b0300a689ab1cb2, type: 3}

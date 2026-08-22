@@ -150,28 +150,6 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: NormalEnemy_1
-      rect:
-        serializedVersion: 2
-        x: 493
-        y: 347
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2d41aca909a7928d0800000000000000
-      internalID: -2870628525981166382
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []

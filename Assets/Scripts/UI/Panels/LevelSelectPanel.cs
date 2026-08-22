@@ -139,7 +139,18 @@ public class LevelSelectPanel : MonoBehaviour
 
         CalculatePageCount();
         OpenLatestUnlockedPage();
-        CreateCurrentPageButtons();
+
+        // Important: do not instantiate the level buttons while the whole
+        // Mission Select panel is inactive. When a button is created under an
+        // inactive parent, its OnEnable lifecycle is delayed until the panel
+        // opens. That can make its own scale/reset logic fight the panel intro
+        // transition on the very first page. Page changes do not have this
+        // problem because the panel is already active.
+        //
+        // Clear old page objects first, activate the panel through the shared
+        // transition, then create the new buttons while their parent is active.
+        ClearCreatedButtons();
+        ResetContainerVisuals();
 
         ApplyCurrentPageStarProgression();
 
@@ -147,6 +158,10 @@ public class LevelSelectPanel : MonoBehaviour
             mainMenuPanel,
             levelSelectPanel
         );
+
+        CreateCurrentPageButtons();
+        RefreshPageUI(false);
+        SetPageButtonsInteractable(true);
     }
 
     public void ClosePanel()
@@ -964,8 +979,14 @@ public class LevelSelectPanel : MonoBehaviour
     {
         foreach (LevelButtonUI button in createdButtons)
         {
-            if (button != null)
-                Destroy(button.gameObject);
+            if (button == null)
+                continue;
+
+            // Destroy is deferred until the end of the frame. Disable first so
+            // a panel re-open in the same frame cannot re-enable an old button
+            // and restart its scale animation.
+            button.gameObject.SetActive(false);
+            Destroy(button.gameObject);
         }
 
         createdButtons.Clear();
@@ -990,6 +1011,7 @@ public class LevelSelectPanel : MonoBehaviour
                 continue;
             }
 
+            button.gameObject.SetActive(false);
             Destroy(button.gameObject);
         }
     }

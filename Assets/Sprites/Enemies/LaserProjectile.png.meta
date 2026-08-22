@@ -153,50 +153,6 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: LaserProjectile_1
-      rect:
-        serializedVersion: 2
-        x: 218
-        y: 715
-        width: 7
-        height: 6
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 307fcd4512bf80c00800000000000000
-      internalID: 867219048845080323
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LaserProjectile_2
-      rect:
-        serializedVersion: 2
-        x: 1022
-        y: 583
-        width: 14
-        height: 14
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3b121fab1151045d0800000000000000
-      internalID: -3080438979226426957
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []

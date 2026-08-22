@@ -3,12 +3,15 @@ using UnityEngine;
 /// <summary>
 /// Cosmetic-only prestige skin effects.
 ///
-/// Silver / Dark / Golden:
+/// Dark / Golden:
 /// - dash afterimages
 /// - level start / spawn pulse
 /// - death pulse
 ///
-/// White / Blue / Cyan / Yellow / Orange / Red / Purple:
+/// Purple:
+/// - level start / spawn pulse only
+///
+/// White / Blue / Cyan / Yellow / Orange / Green / Red / Purple:
 /// - shared white coin collection sprite tinted with Armor Visual Color
 ///
 /// Dark:
@@ -22,9 +25,9 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class SpecialSkinVisuals : MonoBehaviour
 {
-    private const string SilverSkinId = "silver";
     private const string DarkSkinId = "dark";
     private const string GoldenSkinId = "golden";
+    private const string PurpleSkinId = "purple";
 
     private const int BurstPoolSize = 10;
     private const int PrestigePulsePoolSize = 4;
@@ -115,7 +118,7 @@ public class SpecialSkinVisuals : MonoBehaviour
     private bool levelSpawnPlayed;
 
     private GameObject afterimagePoolRoot;
-    private SilverAfterimageFade[] afterimagePool;
+    private PrestigeAfterimageFade[] afterimagePool;
     private int afterimagePoolCursor;
 
     private GameObject burstPoolRoot;
@@ -128,12 +131,17 @@ public class SpecialSkinVisuals : MonoBehaviour
 
     public string ActiveSkinId => activeSkinId;
 
-    private bool IsSilver => activeSkinId == SilverSkinId;
     private bool IsDark => activeSkinId == DarkSkinId;
     private bool IsGolden => activeSkinId == GoldenSkinId;
+    private bool IsPurple => activeSkinId == PurpleSkinId;
 
     private bool UsesPrestigeEffects =>
-        IsSilver || IsDark || IsGolden;
+        IsDark || IsGolden;
+
+    // Purple shares only the level-start spawn pulse.
+    // Dash afterimages and death pulse remain exclusive to Dark / Golden.
+    private bool UsesSpawnEffect =>
+        UsesPrestigeEffects || IsPurple;
 
     private void Awake()
     {
@@ -239,11 +247,6 @@ public class SpecialSkinVisuals : MonoBehaviour
         int coinValue,
         float coinWorldSize)
     {
-        // Prestige skins keep their own treatment.
-        // Silver is intentionally excluded from the generic effect.
-        if (IsSilver)
-            return;
-
         Sprite selectedSprite;
         Color burstColor;
 
@@ -314,7 +317,7 @@ public class SpecialSkinVisuals : MonoBehaviour
     private void TryPlayLevelSpawnEffect()
     {
         if (levelSpawnPlayed ||
-            !UsesPrestigeEffects ||
+            !UsesSpawnEffect ||
             !GameStateManager.IsGameplayStarted)
         {
             return;
@@ -466,7 +469,7 @@ public class SpecialSkinVisuals : MonoBehaviour
             return;
         }
 
-        SilverAfterimageFade fade =
+        PrestigeAfterimageFade fade =
             GetAfterimageFromPool();
 
         if (fade == null)
@@ -518,7 +521,7 @@ public class SpecialSkinVisuals : MonoBehaviour
         ghost.SetActive(true);
     }
 
-    private SilverAfterimageFade GetAfterimageFromPool()
+    private PrestigeAfterimageFade GetAfterimageFromPool()
     {
         EnsureAfterimagePool();
 
@@ -534,7 +537,7 @@ public class SpecialSkinVisuals : MonoBehaviour
                 (afterimagePoolCursor + i) %
                 afterimagePool.Length;
 
-            SilverAfterimageFade candidate =
+            PrestigeAfterimageFade candidate =
                 afterimagePool[index];
 
             if (candidate != null &&
@@ -547,7 +550,7 @@ public class SpecialSkinVisuals : MonoBehaviour
             }
         }
 
-        SilverAfterimageFade fallback =
+        PrestigeAfterimageFade fallback =
             afterimagePool[afterimagePoolCursor];
 
         afterimagePoolCursor =
@@ -573,7 +576,7 @@ public class SpecialSkinVisuals : MonoBehaviour
         }
 
         afterimagePool =
-            new SilverAfterimageFade[AfterimagePoolSize];
+            new PrestigeAfterimageFade[AfterimagePoolSize];
 
         for (int i = 0; i < afterimagePool.Length; i++)
         {
@@ -590,8 +593,8 @@ public class SpecialSkinVisuals : MonoBehaviour
             SpriteRenderer ghostRenderer =
                 ghost.AddComponent<SpriteRenderer>();
 
-            SilverAfterimageFade fade =
-                ghost.AddComponent<SilverAfterimageFade>();
+            PrestigeAfterimageFade fade =
+                ghost.AddComponent<PrestigeAfterimageFade>();
 
             fade.Prepare(ghostRenderer);
             ghost.SetActive(false);
@@ -644,11 +647,7 @@ public class SpecialSkinVisuals : MonoBehaviour
             pulseScaleMultiplier = 1f
         };
 
-        if (IsSilver)
-        {
-            style.pulseScaleMultiplier = 0.95f;
-        }
-        else if (IsDark)
+        if (IsDark)
         {
             style.pulseScaleMultiplier = 1.08f;
         }
@@ -968,10 +967,9 @@ public class SpecialSkinVisuals : MonoBehaviour
 }
 
 /// <summary>
-/// Short-lived dash ghost.
-/// Kept under the old class name for compatibility.
+/// Short-lived dash ghost used by prestige skins.
 /// </summary>
-public class SilverAfterimageFade :
+public class PrestigeAfterimageFade :
     MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;

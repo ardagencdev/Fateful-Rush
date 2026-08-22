@@ -760,6 +760,7 @@ GameObject:
   - component: {fileID: 45035474}
   - component: {fileID: 45035475}
   - component: {fileID: 45035476}
+  - component: {fileID: 45035477}
   m_Layer: 5
   m_Name: HUDOpacitySlider
   m_TagString: Untagged
@@ -870,6 +871,30 @@ MonoBehaviour:
   fadeInDuration: 0.12
   fadeOutDuration: 0.25
   hideDelay: 0.6
+--- !u!114 &45035477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45035473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb5e3852c925ad499bd4039bf655410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISliderDynamicSound
+  sliderMoveSound: {fileID: 8300000, guid: 82f22814aea7939488675cb55c620bfa, type: 3}
+  slowSpeed: 0.15
+  fastSpeed: 4
+  speedSmoothing: 14
+  slowVolume: 0.1
+  fastVolume: 0.55
+  slowPitch: 0.96
+  fastPitch: 1.12
+  minimumTravel: 0.012
+  slowInterval: 0.075
+  fastInterval: 0.028
+  stereoPanAmount: 0.25
 --- !u!4 &69826751 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3930096691642946872, guid: 9d8d0a2f0ef347e4098af6f2186b1c6a, type: 3}
@@ -1038,6 +1063,7 @@ GameObject:
   - component: {fileID: 79375934}
   - component: {fileID: 79375935}
   - component: {fileID: 79375936}
+  - component: {fileID: 79375937}
   m_Layer: 5
   m_Name: SFXSlider
   m_TagString: Untagged
@@ -1148,6 +1174,30 @@ MonoBehaviour:
   fadeInDuration: 0.12
   fadeOutDuration: 0.25
   hideDelay: 0.6
+--- !u!114 &79375937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79375933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb5e3852c925ad499bd4039bf655410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISliderDynamicSound
+  sliderMoveSound: {fileID: 8300000, guid: 82f22814aea7939488675cb55c620bfa, type: 3}
+  slowSpeed: 0.15
+  fastSpeed: 4
+  speedSmoothing: 14
+  slowVolume: 0.1
+  fastVolume: 0.55
+  slowPitch: 0.96
+  fastPitch: 1.12
+  minimumTravel: 0.012
+  slowInterval: 0.075
+  fastInterval: 0.028
+  stereoPanAmount: 0.25
 --- !u!1 &88077361
 GameObject:
   m_ObjectHideFlags: 0
@@ -8089,8 +8139,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobilePerformanceSettings
   targetFrameRate: 60
+  thermalFallbackFrameRate: 30
+  enableAdaptivePerformance: 1
+  useAutomaticPerformanceControl: 1
+  useThermalFrameRateFallback: 1
+  recoveryDelay: 10
+  useAdaptiveRenderScale: 1
+  imminentRenderScaleMultiplier: 0.96
+  throttlingRenderScaleMultiplier: 0.9
+  minimumRenderScale: 0.85
   preventScreenSleep: 1
   runInBackground: 0
+  logStateChanges: 1
 --- !u!4 &333522789
 Transform:
   m_ObjectHideFlags: 0
@@ -9187,6 +9247,7 @@ GameObject:
   - component: {fileID: 485769506}
   - component: {fileID: 485769507}
   - component: {fileID: 485769508}
+  - component: {fileID: 485769509}
   m_Layer: 5
   m_Name: MusicSlider
   m_TagString: Untagged
@@ -9297,6 +9358,30 @@ MonoBehaviour:
   fadeInDuration: 0.12
   fadeOutDuration: 0.25
   hideDelay: 0.6
+--- !u!114 &485769509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485769505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb5e3852c925ad499bd4039bf655410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISliderDynamicSound
+  sliderMoveSound: {fileID: 8300000, guid: 82f22814aea7939488675cb55c620bfa, type: 3}
+  slowSpeed: 0.15
+  fastSpeed: 4
+  speedSmoothing: 14
+  slowVolume: 0.1
+  fastVolume: 0.55
+  slowPitch: 0.96
+  fastPitch: 1.12
+  minimumTravel: 0.012
+  slowInterval: 0.075
+  fastInterval: 0.028
+  stereoPanAmount: 0.25
 --- !u!1 &489789882
 GameObject:
   m_ObjectHideFlags: 0
@@ -15389,7 +15474,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &693777070
 MonoBehaviour:
@@ -16355,7 +16440,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 900, y: 500}
+  m_SizeDelta: {x: 800, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &797794839
 MonoBehaviour:
@@ -16370,14 +16455,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8058238013378682249, guid: 42b94303c59e93145b3aaa9c8ceda321, type: 3}
+  m_Sprite: {fileID: 4788561758664092940, guid: b8f9b33a04215fe438de26c64e9a3e3b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -23687,6 +23772,7 @@ MonoBehaviour:
   horizontalLaserWallSpawner: {fileID: 653434498}
   obstacleSpawner: {fileID: 1062955815}
   gameplayMusic: {fileID: 1117733029}
+  dynamicMusicTension: {fileID: 0}
   showWinConditionIntro: 1
   winConditionIntroDuration: 2.5
   winConditionIntroFadeDuration: 0.3
@@ -24266,6 +24352,10 @@ MonoBehaviour:
   fadeInDuration: 0.6
   fadeOutDuration: 0.4
   clipTransitionDuration: 0.8
+  maxTensionVolumeBoost: 0.08
+  maxTensionPitch: 1.045
+  tensionRiseSpeed: 1.9
+  tensionFallSpeed: 3.5
 --- !u!4 &1118182825 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2307238948728083217, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
@@ -24463,7 +24553,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 120, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1175529233
 GameObject:
@@ -24504,7 +24594,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1175529235
 MonoBehaviour:
@@ -25066,8 +25156,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -130, y: 100}
-  m_SizeDelta: {x: 250, y: 80}
+  m_AnchoredPosition: {x: -80, y: 85}
+  m_SizeDelta: {x: 210, y: 75}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1214333075
 MonoBehaviour:
@@ -25495,6 +25585,17 @@ MonoBehaviour:
   slowCollectSound: {fileID: 8300000, guid: 65775f71e5bea984fbfcb59a0ff10581, type: 3}
   dashSound: {fileID: 8300000, guid: fa7d8c9532865a5458d9772b083ecbb5, type: 3}
   voidCloneSound: {fileID: 8300000, guid: 2cefeebc79839e14e8c77daa838fb9b4, type: 3}
+  enableSfxVariation: 1
+  coinSoundVariants: []
+  dashSoundVariants: []
+  armorCollectSoundVariants: []
+  slowCollectSoundVariants: []
+  voidCloneSoundVariants: []
+  coinPitchJitter: 0.025
+  dashPitchJitter: 0.018
+  pickupPitchJitter: 0.012
+  clonePitchJitter: 0.015
+  frequentSfxVolumeJitter: 0.012
   darkCoinSound: {fileID: 8300000, guid: 0173ccd72ab65204aaa8eee30147b985, type: 3}
   goldenCoinSound: {fileID: 8300000, guid: 59a07e3a2e71d3a4682675bad5484512, type: 3}
   menuButtonSound: {fileID: 8300000, guid: 9e0c7c3ef0b54b844ac299ea1a788a6e, type: 3}
@@ -25504,7 +25605,7 @@ MonoBehaviour:
   missionBriefingOpenSound: {fileID: 8300000, guid: 448bc40aacf79294cb50396a76e6aa48, type: 3}
   premiumInterfaceSound: {fileID: 8300000, guid: 3923863614aaf94458c1590fce43976d, type: 3}
   missionSelectSound: {fileID: 0}
-  optionButtonSound: {fileID: 8300000, guid: 6b40e451120119846b3ac88f53276239, type: 3}
+  optionButtonSound: {fileID: 8300000, guid: f60fcd7ee34af0644896b42d9e6f0e2f, type: 3}
   skinEquipSound: {fileID: 8300000, guid: 632a22724f09eb744b03690171714d39, type: 3}
   previousButtonSound: {fileID: 8300000, guid: 848068eb24092a54c8724b09624c1c27, type: 3}
   exitButtonSound: {fileID: 8300000, guid: 64c044781b48c554c86570048863430b, type: 3}
@@ -25515,6 +25616,9 @@ MonoBehaviour:
   laserWarningSound: {fileID: 8300000, guid: 4325e5aa3f384d46a698cebb8580f785, type: 3}
   comboStageSound: {fileID: 8300000, guid: fdeed1047c18a5e439ab21e39bde05ac, type: 3}
   newSkinUnlockedSound: {fileID: 8300000, guid: 6ae51f8549c24e244a71edf38db75735, type: 3}
+  nearMissSound: {fileID: 0}
+  nearMissVolume: 0.52
+  nearMissPitchJitter: 0.012
   spaceBombSpawnVolume: 0.9
   bossAoeWarningVolume: 1
   bossSplitVolume: 1
@@ -26355,8 +26459,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c710f1533415ab944beaf791e55e4dbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIPanelFadeSwitcher
-  fadeDuration: 0.18
-  startScale: 0.92
+  switchDuration: 0.28
+  incomingStartScale: 1.018
+  outgoingEndScale: 0.985
+  incomingDelayNormalized: 0.14
+  overlayDuration: 0.22
+  overlayStartScale: 0.95
+  overlayEndScale: 0.97
 --- !u!1 &1318913965
 GameObject:
   m_ObjectHideFlags: 0
@@ -26546,8 +26655,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 130, y: 100}
-  m_SizeDelta: {x: 250, y: 80}
+  m_AnchoredPosition: {x: 80, y: 85}
+  m_SizeDelta: {x: 210, y: 75}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1342384967
 MonoBehaviour:
@@ -27614,7 +27723,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1514441761
 GameObject:
@@ -28100,7 +28209,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 120, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1557053848
 MonoBehaviour:
@@ -28269,7 +28378,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00012207031, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1588835772
@@ -29749,7 +29858,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 120, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1900544688
 MonoBehaviour:
@@ -31330,7 +31439,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 120, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2039041040
 MonoBehaviour:
@@ -31886,7 +31995,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 42}
+  m_SizeDelta: {x: 110, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2046742921
 MonoBehaviour:
@@ -32103,8 +32212,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 44
-  m_fontSizeBase: 44
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -32514,7 +32623,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 66808903290035563, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_Size.x
-      value: 10.24
+      value: 10.19
       objectReference: {fileID: 0}
     - target: {fileID: 66808903290035563, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_Size.y
@@ -32523,7 +32632,7 @@ PrefabInstance:
     - target: {fileID: 66808903290035563, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 01518e100999ae24485b1960235e2e50, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 66808903290035563, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 0
@@ -32584,6 +32693,34 @@ PrefabInstance:
       propertyPath: gameStateManager
       value: 
       objectReference: {fileID: 1040834707}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: playerSkinApplier
+      value: 
+      objectReference: {fileID: 2867039574598277702}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: combo5MagnetRadius
+      value: 1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: combo6MagnetRadius
+      value: 2.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: combo5MagnetMaxSpeed
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: combo6MagnetMaxSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: comboMagnetSmoothTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1852625697302958029, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
+      propertyPath: comboMagnetEdgeSpeedFactor
+      value: 0.55
+      objectReference: {fileID: 0}
     - target: {fileID: 2307238948728083217, guid: a3b86c7ac7ebfc74d9e6f4d7dfa87922, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

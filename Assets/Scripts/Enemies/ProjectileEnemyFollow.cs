@@ -55,6 +55,59 @@ public class ProjectileEnemyFollow : MonoBehaviour
     public float fireRate = 1.5f;
     public float projectileSpeed = 6f;
 
+    [Header("Shot Recoil")]
+    [Min(0f)] public float shotRecoilDistance = 0.035f;
+    [Min(0f)] public float shotRecoilPause = 0.02f;
+    [Min(1f)] public float finalShotRecoilMultiplier = 1.12f;
+
+    [Header("Arena Bounds")]
+    [SerializeField, Min(0f)]
+    private float arenaEdgePadding = 0.03f;
+
+    [Header("Attack Timing Desync")]
+    [SerializeField, Range(0f, 0.30f)]
+    private float fireIntervalJitter = 0.10f;
+
+    [SerializeField, Range(0f, 0.20f)]
+    private float reloadDurationJitter = 0.08f;
+
+    [SerializeField, Min(0f)]
+    private float initialFireDelayMin = 0.15f;
+
+    [SerializeField, Min(0f)]
+    private float initialFireDelayMax = 0.85f;
+
+    [SerializeField, Min(0f)]
+    private float postReloadFireDelayMin = 0.12f;
+
+    [SerializeField, Min(0f)]
+    private float postReloadFireDelayMax = 0.38f;
+
+    [Header("Final Burst Shot")]
+    [Tooltip("Danger 1-2 use 3 shots per burst, so their final shot fires this many projectiles.")]
+    [Min(1)] public int lowDangerFinalShotProjectileCount = 2;
+    [Tooltip("Danger 3-5 use 4+ shots per burst, so their final shot fires this many projectiles.")]
+    [Min(1)] public int highDangerFinalShotProjectileCount = 3;
+    [Tooltip("Burst sizes at or above this value use the high-danger final-shot projectile count.")]
+    [Min(1)] public int highDangerBurstThreshold = 4;
+    [Range(0f, 20f)] public float finalShotAngleOffset = 6f;
+
+    [Header("Burst / Reload")]
+    [Min(1)] public int shotsPerBurst = 3;
+    [Min(0.05f)] public float reloadDuration = 3f;
+    [Min(0f)] public float reloadRetreatDistance = 9f;
+    [Min(0.1f)] public float reloadMoveSpeedMultiplier = 1.4f;
+
+    [Header("Reload Feedback")]
+    public AudioClip reloadSound;
+    [Range(0.5f, 1f)] public float reloadVolumeMinMultiplier = 0.82f;
+    [Range(0.5f, 1f)] public float reloadVolumeMaxMultiplier = 1f;
+    [Range(0.9f, 1.1f)] public float reloadPitchMin = 0.97f;
+    [Range(0.9f, 1.1f)] public float reloadPitchMax = 1.03f;
+    [Min(0.01f)] public float reloadSfxFadeOutDuration = 0.22f;
+    [Range(0.05f, 1f)] public float reloadBlinkMinAlpha = 0.2f;
+    [Min(0.1f)] public float reloadBlinkFrequency = 4.5f;
+
     [Header("Projectile Pool")]
     public int poolSize = 12;
 
@@ -67,8 +120,27 @@ public class ProjectileEnemyFollow : MonoBehaviour
     [Header("Sound")]
     public AudioClip fireSound;
 
+    [Header("SFX Variation")]
+    [SerializeField, Range(0f, 0.08f)]
+    private float firePitchJitter = 0.015f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float fireVolumeJitter = 0.01f;
+
     [Header("Spawn Effect")]
     public float spawnEffectDuration = 0.15f;
+
+    [Header("Near Miss")]
+    [SerializeField]
+    private bool enableNearMiss = true;
+
+    [Tooltip("Surface-to-surface distance that arms a projectile-enemy body near miss.")]
+    [SerializeField, Min(0.05f)]
+    private float nearMissDistance = 0.80f;
+
+    [Tooltip("Enemy must separate this much after the closest point before the near miss fires.")]
+    [SerializeField, Min(0f)]
+    private float nearMissReleaseDistance = 0.10f;
 
     private readonly List<EnemyProjectile> ownedProjectiles =
         new List<EnemyProjectile>();
@@ -86,12 +158,24 @@ public class ProjectileEnemyFollow : MonoBehaviour
     private Collider2D col;
     private Rigidbody2D targetRigidbody;
     private AudioSource audioSource;
+    private AudioSource reloadAudioSource;
     private PlayerMovement playerMovement;
+    private SpriteRenderer[] reloadRenderers;
+    private float[] reloadRendererBaseAlphas;
 
     private Vector3 spawnTargetScale;
     private Vector2 lastPosition;
 
     private float fireCooldown;
+    private float reloadTimer;
+    private float reloadVisualTime;
+    private float activeReloadDuration;
+    private float activeReloadSfxVolume;
+    private float shotRecoilPauseTimer;
+    private float perEnemyFireCadenceMultiplier = 1f;
+    private float perEnemyReloadCadenceMultiplier = 1f;
+    private Vector2 pendingShotRecoil;
+    private int shotsFiredInBurst;
 
     private float movementOffset;
     private float sideMoveAmount;
@@ -106,16 +190,26 @@ public class ProjectileEnemyFollow : MonoBehaviour
     private int obstacleAvoidanceSide = 1;
 
     private bool isSpawning;
+    private bool isReloading;
     private bool stopped;
     private bool attemptedMovementThisFrame;
 
     private Transform cachedCurrentTarget;
     private ContactFilter2D navigationFilter;
 
+    private Collider2D nearMissPlayerCollider;
+    private bool nearMissArmed;
+    private bool nearMissTriggered;
+    private bool nearMissTouchedPlayer;
+    private float nearMissClosestDistance = float.PositiveInfinity;
+    private Vector3 nearMissClosestPoint;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
+        EnemyObstacleSteering2D.ConfigureAIMovementBody(rb, true);
 
         navigationFilter = new ContactFilter2D();
         navigationFilter.SetLayerMask(
@@ -131,6 +225,14 @@ public class ProjectileEnemyFollow : MonoBehaviour
         // User SFX volume is applied once through AudioSource.volume.
         // Keeping the initial source gain at 1 prevents accidental double scaling.
         audioSource.volume = 1f;
+
+        reloadAudioSource = gameObject.AddComponent<AudioSource>();
+        reloadAudioSource.playOnAwake = false;
+        reloadAudioSource.loop = false;
+        SoundManager.ConfigureAsWorld3D(reloadAudioSource);
+        reloadAudioSource.volume = 1f;
+
+        CacheReloadRenderers();
     }
 
     private void Start()
@@ -142,10 +244,58 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         transform.localScale = Vector3.zero;
 
-        fireCooldown = Random.Range(
-            fireRate * 0.5f,
-            fireRate * 1.5f
-        );
+        if (shotsPerBurst <= 0)
+            shotsPerBurst = 3;
+
+        if (reloadDuration <= 0f)
+            reloadDuration = 3f;
+
+        if (reloadRetreatDistance <= 0f)
+            reloadRetreatDistance = Mathf.Max(stoppingDistance, 9f);
+        else
+            reloadRetreatDistance = Mathf.Max(stoppingDistance, reloadRetreatDistance);
+
+        if (reloadMoveSpeedMultiplier <= 0f)
+            reloadMoveSpeedMultiplier = 1.4f;
+
+        if (reloadBlinkMinAlpha <= 0f)
+            reloadBlinkMinAlpha = 0.2f;
+
+        reloadBlinkMinAlpha = Mathf.Clamp(reloadBlinkMinAlpha, 0.05f, 1f);
+
+        if (reloadBlinkFrequency <= 0f)
+            reloadBlinkFrequency = 4.5f;
+
+        // Keep recoil intentionally subtle even if an older prefab serialized
+        // the previous, much stronger values.
+        shotRecoilDistance = Mathf.Clamp(shotRecoilDistance, 0f, 0.05f);
+        shotRecoilPause = Mathf.Clamp(shotRecoilPause, 0f, 0.03f);
+        finalShotRecoilMultiplier = Mathf.Clamp(finalShotRecoilMultiplier, 1f, 1.18f);
+        lowDangerFinalShotProjectileCount = Mathf.Max(1, lowDangerFinalShotProjectileCount);
+        highDangerFinalShotProjectileCount = Mathf.Max(1, highDangerFinalShotProjectileCount);
+        highDangerBurstThreshold = Mathf.Max(1, highDangerBurstThreshold);
+        finalShotAngleOffset = Mathf.Clamp(finalShotAngleOffset, 0f, 20f);
+        arenaEdgePadding = Mathf.Max(0f, arenaEdgePadding);
+
+        fireIntervalJitter = Mathf.Clamp(fireIntervalJitter, 0f, 0.30f);
+        reloadDurationJitter = Mathf.Clamp(reloadDurationJitter, 0f, 0.20f);
+        initialFireDelayMin = Mathf.Max(0f, initialFireDelayMin);
+        initialFireDelayMax = Mathf.Max(initialFireDelayMin, initialFireDelayMax);
+        postReloadFireDelayMin = Mathf.Max(0f, postReloadFireDelayMin);
+        postReloadFireDelayMax = Mathf.Max(postReloadFireDelayMin, postReloadFireDelayMax);
+
+        perEnemyFireCadenceMultiplier = Random.Range(0.94f, 1.06f);
+        perEnemyReloadCadenceMultiplier = Random.Range(0.95f, 1.05f);
+
+        reloadVolumeMinMultiplier = Mathf.Clamp(reloadVolumeMinMultiplier, 0.5f, 1f);
+        reloadVolumeMaxMultiplier = Mathf.Clamp(reloadVolumeMaxMultiplier, reloadVolumeMinMultiplier, 1f);
+        reloadPitchMin = Mathf.Clamp(reloadPitchMin, 0.9f, 1.1f);
+        reloadPitchMax = Mathf.Clamp(reloadPitchMax, reloadPitchMin, 1.1f);
+        reloadSfxFadeOutDuration = Mathf.Max(0.01f, reloadSfxFadeOutDuration);
+
+        fireCooldown =
+            Random.Range(initialFireDelayMin, initialFireDelayMax) +
+            GetNextFireInterval() * Random.Range(0.10f, 0.55f);
 
         movementOffset = Random.Range(0f, 100f);
 
@@ -208,10 +358,29 @@ public class ProjectileEnemyFollow : MonoBehaviour
         }
 
         attemptedMovementThisFrame = false;
+        EnforceArenaBounds();
+
+        TrackNearMiss();
+
+        if (ApplyPendingShotRecoil())
+        {
+            EnforceArenaBounds();
+            FlipSprite(currentTarget);
+            return;
+        }
+
+        if (shotRecoilPauseTimer > 0f)
+        {
+            shotRecoilPauseTimer -= Time.fixedDeltaTime;
+            ResetStuckCheck();
+            FlipSprite(currentTarget);
+            return;
+        }
 
         HandleStrafeDirectionTimer();
         HandleMovement(currentTarget);
         HandleStuckCheck(currentTarget);
+        EnforceArenaBounds();
         FlipSprite(currentTarget);
     }
 
@@ -221,6 +390,8 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         if (isSpawning || stopped)
             return;
+
+        UpdateReloadState();
 
         Transform currentTarget = GetCurrentTarget();
 
@@ -279,6 +450,109 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         playerMovement =
             foundPlayer.GetComponent<PlayerMovement>();
+    }
+
+    private void ResetNearMissTracking()
+    {
+        nearMissPlayerCollider = null;
+        nearMissArmed = false;
+        nearMissTriggered = false;
+        nearMissTouchedPlayer = false;
+        nearMissClosestDistance = float.PositiveInfinity;
+        nearMissClosestPoint = transform.position;
+    }
+
+    private void CacheNearMissPlayerCollider()
+    {
+        if (playerMovement == null)
+            return;
+
+        nearMissPlayerCollider =
+            playerMovement.GetComponent<Collider2D>();
+
+        if (nearMissPlayerCollider == null)
+        {
+            nearMissPlayerCollider =
+                playerMovement.GetComponentInChildren<Collider2D>();
+        }
+    }
+
+    private void TrackNearMiss()
+    {
+        if (!enableNearMiss ||
+            nearMissTriggered ||
+            nearMissTouchedPlayer ||
+            playerMovement == null ||
+            playerMovement.IsGameOver ||
+            col == null ||
+            !col.enabled)
+        {
+            return;
+        }
+
+        if (nearMissPlayerCollider == null)
+            CacheNearMissPlayerCollider();
+
+        if (nearMissPlayerCollider == null ||
+            !nearMissPlayerCollider.enabled)
+        {
+            return;
+        }
+
+        ColliderDistance2D separation =
+            col.Distance(nearMissPlayerCollider);
+
+        float surfaceDistance = separation.distance;
+
+        if (surfaceDistance <= 0f)
+        {
+            nearMissTouchedPlayer = true;
+            return;
+        }
+
+        if (surfaceDistance <= nearMissDistance)
+        {
+            nearMissArmed = true;
+
+            if (surfaceDistance < nearMissClosestDistance)
+            {
+                nearMissClosestDistance = surfaceDistance;
+                nearMissClosestPoint = separation.pointA;
+            }
+
+            return;
+        }
+
+        if (!nearMissArmed)
+            return;
+
+        bool released =
+            surfaceDistance >=
+            nearMissDistance + nearMissReleaseDistance;
+
+        if (released)
+            TriggerNearMiss();
+    }
+
+    private void TriggerNearMiss()
+    {
+        if (nearMissTriggered ||
+            !nearMissArmed ||
+            nearMissTouchedPlayer)
+        {
+            return;
+        }
+
+        float closeness =
+            NearMissFeedback.GetCloseness01(
+                nearMissClosestDistance,
+                nearMissDistance
+            );
+
+        nearMissTriggered = NearMissFeedback.TryTrigger(
+            nearMissClosestPoint,
+            closeness
+        );
     }
 
     private GameObject GetProjectileFromPool(Vector3 position)
@@ -345,8 +619,39 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         Vector2 desiredDirection = Vector2.zero;
         float speedMultiplier = 1f;
+        bool retreatingForReload = false;
 
-        if (distance > stoppingDistance)
+        if (isReloading)
+        {
+            float safeReloadDistance =
+                Mathf.Max(stoppingDistance, reloadRetreatDistance);
+
+            if (distance < safeReloadDistance)
+            {
+                desiredDirection = -targetDirection;
+                speedMultiplier = reloadMoveSpeedMultiplier;
+                retreatingForReload = true;
+            }
+            else if (strafeEnabled)
+            {
+                Vector2 sideDirection =
+                    new Vector2(
+                        -targetDirection.y,
+                        targetDirection.x
+                    ) * strafeDirection;
+
+                desiredDirection = sideDirection;
+                speedMultiplier =
+                    strafeSpeedMultiplier *
+                    reloadMoveSpeedMultiplier;
+            }
+            else
+            {
+                ResetStuckCheck();
+                return;
+            }
+        }
+        else if (distance > stoppingDistance)
         {
             desiredDirection = targetDirection;
         }
@@ -408,7 +713,21 @@ public class ProjectileEnemyFollow : MonoBehaviour
             speedMultiplier *
             Time.fixedDeltaTime;
 
-        if (distance > stoppingDistance)
+        if (retreatingForReload)
+        {
+            float safeReloadDistance =
+                Mathf.Max(stoppingDistance, reloadRetreatDistance);
+
+            float missingDistance =
+                safeReloadDistance - distance;
+
+            movementDistance =
+                Mathf.Min(
+                    movementDistance,
+                    missingDistance
+                );
+        }
+        else if (distance > stoppingDistance)
         {
             float excessDistance =
                 distance - stoppingDistance;
@@ -607,13 +926,37 @@ public class ProjectileEnemyFollow : MonoBehaviour
         float distance
     )
     {
-        if (direction.sqrMagnitude <= 0.001f)
-            return;
-
         if (distance <= 0f)
             return;
 
         attemptedMovementThisFrame = true;
+
+        if (EnemyObstacleSteering2D.TryGetOverlapRecovery(
+                col,
+                navigationFilter,
+                out Vector2 overlapDirection,
+                out float penetrationDepth))
+        {
+            float recoveryDistance =
+                EnemyObstacleSteering2D.GetOverlapRecoveryDistance(
+                    penetrationDepth,
+                    distance,
+                    0.03f
+                );
+
+            Vector2 recoveryTarget =
+                rb.position +
+                overlapDirection * recoveryDistance;
+
+            rb.MovePosition(
+                ClampPositionInsideArena(recoveryTarget)
+            );
+
+            return;
+        }
+
+        if (direction.sqrMagnitude <= 0.001f)
+            return;
 
         Vector2 steeredDirection =
             EnemyObstacleSteering2D.GetSteeredDirection(
@@ -633,10 +976,84 @@ public class ProjectileEnemyFollow : MonoBehaviour
         if (steeredDirection.sqrMagnitude <= 0.001f)
             return;
 
-        rb.MovePosition(
-            rb.position +
-            steeredDirection.normalized * distance
+        Vector2 desiredDisplacement =
+            steeredDirection.normalized * distance;
+
+        desiredDisplacement =
+            ClampDisplacementToArena(desiredDisplacement);
+
+        if (desiredDisplacement.sqrMagnitude <= 0.000001f)
+            return;
+
+        EnemyObstacleSteering2D.MoveDisplacementWithPhysicsSlide(
+            rb,
+            col,
+            desiredDisplacement,
+            Time.fixedDeltaTime,
+            navigationFilter,
+            5
         );
+    }
+
+    private Vector2 ClampDisplacementToArena(Vector2 displacement)
+    {
+        Vector2 desiredPosition = rb.position + displacement;
+        Vector2 clampedPosition = ClampPositionInsideArena(desiredPosition);
+        return clampedPosition - rb.position;
+    }
+
+    private Vector2 ClampPositionInsideArena(Vector2 desiredPosition)
+    {
+        CameraWorldBounds bounds = CameraWorldBounds.Instance;
+
+        if (bounds == null || col == null)
+            return desiredPosition;
+
+        Bounds colliderBounds = col.bounds;
+        Vector2 centerOffset =
+            (Vector2)colliderBounds.center - rb.position;
+
+        Vector2 extents = colliderBounds.extents;
+        float padding = Mathf.Max(0f, arenaEdgePadding);
+
+        float minX = bounds.MinX + extents.x + padding - centerOffset.x;
+        float maxX = bounds.MaxX - extents.x - padding - centerOffset.x;
+        float minY = bounds.MinY + extents.y + padding - centerOffset.y;
+        float maxY = bounds.MaxY - extents.y - padding - centerOffset.y;
+
+        if (minX > maxX)
+        {
+            float centerX = (bounds.MinX + bounds.MaxX) * 0.5f - centerOffset.x;
+            minX = centerX;
+            maxX = centerX;
+        }
+
+        if (minY > maxY)
+        {
+            float centerY = (bounds.MinY + bounds.MaxY) * 0.5f - centerOffset.y;
+            minY = centerY;
+            maxY = centerY;
+        }
+
+        return new Vector2(
+            Mathf.Clamp(desiredPosition.x, minX, maxX),
+            Mathf.Clamp(desiredPosition.y, minY, maxY)
+        );
+    }
+
+    private void EnforceArenaBounds()
+    {
+        if (rb == null || isSpawning)
+            return;
+
+        Vector2 clampedPosition = ClampPositionInsideArena(rb.position);
+
+        if ((clampedPosition - rb.position).sqrMagnitude <= 0.000001f)
+            return;
+
+        rb.position = clampedPosition;
+        rb.linearVelocity = Vector2.zero;
+        ResetStuckCheck();
     }
 
     private void HandleStrafeDirectionTimer()
@@ -667,6 +1084,9 @@ public class ProjectileEnemyFollow : MonoBehaviour
         Transform currentTarget
     )
     {
+        if (isReloading)
+            return;
+
         fireCooldown -= Time.deltaTime;
 
         if (fireCooldown > 0f)
@@ -674,16 +1094,57 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         if (!CanSeeTarget(currentTarget))
         {
-            fireCooldown = Mathf.Min(
-                fireRate * 0.2f,
-                0.25f
-            );
-
+            fireCooldown = GetBlockedShotRetryDelay();
             return;
         }
 
-        ShootProjectile(currentTarget);
-        fireCooldown = fireRate;
+        bool isFinalShot =
+            shotsFiredInBurst + 1 >= Mathf.Max(1, shotsPerBurst);
+
+        if (!ShootProjectile(currentTarget, isFinalShot))
+        {
+            fireCooldown = GetBlockedShotRetryDelay();
+            return;
+        }
+
+        shotsFiredInBurst++;
+
+        if (shotsFiredInBurst >= Mathf.Max(1, shotsPerBurst))
+        {
+            BeginReload();
+            return;
+        }
+
+        fireCooldown = GetNextFireInterval();
+    }
+
+    private float GetNextFireInterval()
+    {
+        float jitter = Mathf.Clamp(fireIntervalJitter, 0f, 0.30f);
+        float randomMultiplier = Random.Range(1f - jitter, 1f + jitter);
+
+        return Mathf.Max(
+            0.05f,
+            fireRate * perEnemyFireCadenceMultiplier * randomMultiplier
+        );
+    }
+
+    private float GetNextReloadDuration()
+    {
+        float jitter = Mathf.Clamp(reloadDurationJitter, 0f, 0.20f);
+        float randomMultiplier = Random.Range(1f - jitter, 1f + jitter);
+
+        return Mathf.Max(
+            0.05f,
+            reloadDuration * perEnemyReloadCadenceMultiplier * randomMultiplier
+        );
+    }
+
+    private float GetBlockedShotRetryDelay()
+    {
+        // Randomized retry prevents two enemies that regain line of sight on
+        // the same frame from immediately snapping back into sync.
+        return Random.Range(0.12f, 0.28f) * perEnemyFireCadenceMultiplier;
     }
 
     private bool CanSeeTarget(
@@ -761,42 +1222,141 @@ public class ProjectileEnemyFollow : MonoBehaviour
                predictionOffset;
     }
 
-    private void ShootProjectile(
-        Transform currentTarget
+    private bool ShootProjectile(
+        Transform currentTarget,
+        bool isFinalShot
     )
     {
         if (projectilePrefab == null ||
             firePoint == null ||
             currentTarget == null)
         {
-            return;
+            return false;
         }
-
-        GameObject projectile =
-            GetProjectileFromPool(firePoint.position);
-
-        if (projectile == null)
-            return;
 
         Vector2 aimPosition =
             GetAimPosition(currentTarget);
 
-        Vector2 direction =
+        Vector2 baseDirection =
             aimPosition -
             (Vector2)firePoint.position;
+
+        if (baseDirection.sqrMagnitude <= 0.001f)
+            return false;
+
+        baseDirection.Normalize();
+
+        bool firedAnyProjectile;
+
+        if (isFinalShot)
+        {
+            int finalProjectileCount = GetFinalShotProjectileCount();
+            firedAnyProjectile = FireFinalShotSpread(baseDirection, finalProjectileCount);
+        }
+        else
+        {
+            firedAnyProjectile =
+                LaunchProjectile(baseDirection);
+        }
+
+        if (!firedAnyProjectile)
+            return false;
+
+        PlayFireSound();
+
+        float recoilMultiplier =
+            isFinalShot
+                ? Mathf.Max(1f, finalShotRecoilMultiplier)
+                : 1f;
+
+        QueueShotRecoil(
+            -baseDirection,
+            recoilMultiplier
+        );
+
+        return true;
+    }
+
+
+    private int GetFinalShotProjectileCount()
+    {
+        int threshold = Mathf.Max(1, highDangerBurstThreshold);
+
+        return shotsPerBurst >= threshold
+            ? Mathf.Max(1, highDangerFinalShotProjectileCount)
+            : Mathf.Max(1, lowDangerFinalShotProjectileCount);
+    }
+
+    private bool FireFinalShotSpread(
+        Vector2 baseDirection,
+        int projectileCount
+    )
+    {
+        projectileCount = Mathf.Max(1, projectileCount);
+
+        if (projectileCount == 1)
+            return LaunchProjectile(baseDirection);
+
+        float angleOffset =
+            Mathf.Clamp(finalShotAngleOffset, 0f, 20f);
+
+        bool firedAnyProjectile = false;
+
+        if (projectileCount == 2)
+        {
+            firedAnyProjectile |=
+                LaunchProjectile(
+                    RotateDirection(baseDirection, -angleOffset)
+                );
+
+            firedAnyProjectile |=
+                LaunchProjectile(
+                    RotateDirection(baseDirection, angleOffset)
+                );
+
+            return firedAnyProjectile;
+        }
+
+        // Keep the spread symmetric. For 3 projectiles this becomes
+        // -angleOffset, 0, +angleOffset. Higher counts are distributed
+        // evenly across the same total spread.
+        for (int i = 0; i < projectileCount; i++)
+        {
+            float t =
+                projectileCount <= 1
+                    ? 0.5f
+                    : i / (float)(projectileCount - 1);
+
+            float angle =
+                Mathf.Lerp(-angleOffset, angleOffset, t);
+
+            firedAnyProjectile |=
+                LaunchProjectile(
+                    RotateDirection(baseDirection, angle)
+                );
+        }
+
+        return firedAnyProjectile;
+    }
+
+    private bool LaunchProjectile(Vector2 direction)
+    {
+        GameObject projectile =
+            GetProjectileFromPool(firePoint.position);
+
+        if (projectile == null)
+            return false;
 
         if (direction.sqrMagnitude <= 0.001f)
         {
             ReturnProjectileToPool(projectile);
-            return;
+            return false;
         }
 
         direction.Normalize();
 
         EnemyProjectile projectileScript =
-            projectile.GetComponent<
-                EnemyProjectile
-            >();
+            projectile.GetComponent<EnemyProjectile>();
 
         if (projectileScript != null)
         {
@@ -811,9 +1371,7 @@ public class ProjectileEnemyFollow : MonoBehaviour
         else
         {
             Rigidbody2D projectileRb =
-                projectile.GetComponent<
-                    Rigidbody2D
-                >();
+                projectile.GetComponent<Rigidbody2D>();
 
             if (projectileRb != null)
             {
@@ -822,14 +1380,324 @@ public class ProjectileEnemyFollow : MonoBehaviour
             }
         }
 
-        if (fireSound != null &&
-            audioSource != null)
+        return true;
+    }
+
+    private static Vector2 RotateDirection(
+        Vector2 direction,
+        float degrees
+    )
+    {
+        float radians = degrees * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(radians);
+        float sin = Mathf.Sin(radians);
+
+        return new Vector2(
+            direction.x * cos - direction.y * sin,
+            direction.x * sin + direction.y * cos
+        ).normalized;
+    }
+
+    private void PlayFireSound()
+    {
+        if (fireSound == null || audioSource == null)
+            return;
+
+        audioSource.volume = SoundManager.SFXVolume;
+        audioSource.pitch = SoundManager.GetVariedPitch(
+            1f,
+            firePitchJitter
+        );
+
+        audioSource.PlayOneShot(
+            fireSound,
+            SoundManager.GetVariedVolumeMultiplier(
+                1f,
+                fireVolumeJitter
+            )
+        );
+    }
+
+    private void QueueShotRecoil(
+        Vector2 recoilDirection,
+        float multiplier
+    )
+    {
+        if (shotRecoilDistance <= 0f ||
+            recoilDirection.sqrMagnitude <= 0.001f)
         {
-            audioSource.volume = SoundManager.SFXVolume;
-            audioSource.PlayOneShot(
-                fireSound,
-                1f
+            return;
+        }
+
+        float distance =
+            shotRecoilDistance * Mathf.Max(1f, multiplier);
+
+        pendingShotRecoil +=
+            recoilDirection.normalized * distance;
+
+        pendingShotRecoil = Vector2.ClampMagnitude(
+            pendingShotRecoil,
+            shotRecoilDistance * 2f
+        );
+    }
+
+    private bool ApplyPendingShotRecoil()
+    {
+        if (pendingShotRecoil.sqrMagnitude <= 0.000001f)
+            return false;
+
+        Vector2 displacement =
+            ClampDisplacementToArena(pendingShotRecoil);
+        pendingShotRecoil = Vector2.zero;
+
+        if (displacement.sqrMagnitude <= 0.000001f)
+        {
+            shotRecoilPauseTimer =
+                Mathf.Max(shotRecoilPauseTimer, shotRecoilPause);
+
+            ResetStuckCheck();
+            return true;
+        }
+
+        EnemyObstacleSteering2D.MoveDisplacementWithPhysicsSlide(
+            rb,
+            col,
+            displacement,
+            Time.fixedDeltaTime,
+            navigationFilter,
+            3
+        );
+
+        shotRecoilPauseTimer =
+            Mathf.Max(shotRecoilPauseTimer, shotRecoilPause);
+
+        ResetStuckCheck();
+        return true;
+    }
+
+    private void BeginReload()
+    {
+        if (isReloading || stopped)
+            return;
+
+        isReloading = true;
+        activeReloadDuration = GetNextReloadDuration();
+        reloadTimer = activeReloadDuration;
+        reloadVisualTime = 0f;
+        fireCooldown = 0f;
+
+        PlayReloadSound();
+        UpdateReloadVisual();
+    }
+
+    private void UpdateReloadState()
+    {
+        if (!isReloading)
+            return;
+
+        reloadTimer -= Time.deltaTime;
+        reloadVisualTime += Time.deltaTime;
+        UpdateReloadVisual();
+        UpdateReloadSoundFade();
+
+        if (reloadTimer > 0f)
+            return;
+
+        FinishReload();
+    }
+
+    private void FinishReload()
+    {
+        isReloading = false;
+        reloadTimer = 0f;
+        reloadVisualTime = 0f;
+        activeReloadDuration = 0f;
+        shotsFiredInBurst = 0;
+
+        RestoreReloadVisuals();
+        StopReloadSound();
+
+        float minDelay = Mathf.Max(0f, postReloadFireDelayMin);
+        float maxDelay = Mathf.Max(minDelay, postReloadFireDelayMax);
+
+        fireCooldown =
+            Random.Range(minDelay, maxDelay) +
+            GetNextFireInterval() * Random.Range(0.10f, 0.25f);
+    }
+
+    private void PlayReloadSound()
+    {
+        if (reloadSound == null || reloadAudioSource == null)
+            return;
+
+        float minVolume = Mathf.Clamp(
+            reloadVolumeMinMultiplier,
+            0.5f,
+            1f
+        );
+
+        float maxVolume = Mathf.Clamp(
+            reloadVolumeMaxMultiplier,
+            minVolume,
+            1f
+        );
+
+        float minPitch = Mathf.Clamp(
+            reloadPitchMin,
+            0.9f,
+            1.1f
+        );
+
+        float maxPitch = Mathf.Clamp(
+            reloadPitchMax,
+            minPitch,
+            1.1f
+        );
+
+        float randomVolumeMultiplier =
+            Random.Range(minVolume, maxVolume);
+
+        float randomPitch =
+            Random.Range(minPitch, maxPitch);
+
+        activeReloadSfxVolume =
+            SoundManager.SFXVolume * randomVolumeMultiplier;
+
+        reloadAudioSource.Stop();
+        reloadAudioSource.clip = reloadSound;
+        reloadAudioSource.loop = false;
+        reloadAudioSource.pitch = randomPitch;
+        reloadAudioSource.volume = activeReloadSfxVolume;
+        reloadAudioSource.Play();
+    }
+
+    private void UpdateReloadSoundFade()
+    {
+        if (reloadAudioSource == null ||
+            !reloadAudioSource.isPlaying)
+        {
+            return;
+        }
+
+        float fadeDuration = Mathf.Max(
+            0.01f,
+            Mathf.Min(
+                reloadSfxFadeOutDuration,
+                activeReloadDuration > 0f
+                    ? activeReloadDuration
+                    : reloadDuration
+            )
+        );
+
+        if (reloadTimer > fadeDuration)
+        {
+            reloadAudioSource.volume = activeReloadSfxVolume;
+            return;
+        }
+
+        float t = Mathf.Clamp01(reloadTimer / fadeDuration);
+        t = t * t * (3f - 2f * t);
+
+        reloadAudioSource.volume =
+            activeReloadSfxVolume * t;
+    }
+
+    private void StopReloadSound()
+    {
+        if (reloadAudioSource == null)
+            return;
+
+        reloadAudioSource.Stop();
+        reloadAudioSource.clip = null;
+        reloadAudioSource.volume = 1f;
+        reloadAudioSource.pitch = 1f;
+        activeReloadSfxVolume = 0f;
+    }
+
+    private void CacheReloadRenderers()
+    {
+        reloadRenderers =
+            GetComponentsInChildren<SpriteRenderer>(true);
+
+        if (reloadRenderers == null || reloadRenderers.Length == 0)
+        {
+            reloadRendererBaseAlphas = null;
+            return;
+        }
+
+        reloadRendererBaseAlphas =
+            new float[reloadRenderers.Length];
+
+        for (int i = 0; i < reloadRenderers.Length; i++)
+        {
+            SpriteRenderer renderer = reloadRenderers[i];
+
+            reloadRendererBaseAlphas[i] =
+                renderer != null
+                    ? renderer.color.a
+                    : 1f;
+        }
+    }
+
+    private void UpdateReloadVisual()
+    {
+        if (reloadRenderers == null ||
+            reloadRendererBaseAlphas == null)
+        {
+            return;
+        }
+
+        float frequency = Mathf.Max(0.1f, reloadBlinkFrequency);
+        float pulse =
+            0.5f -
+            0.5f * Mathf.Cos(
+                reloadVisualTime * frequency * Mathf.PI * 2f
             );
+
+        pulse = Mathf.SmoothStep(0f, 1f, pulse);
+
+        float alphaMultiplier = Mathf.Lerp(
+            Mathf.Clamp(reloadBlinkMinAlpha, 0.05f, 1f),
+            1f,
+            pulse
+        );
+
+        for (int i = 0; i < reloadRenderers.Length; i++)
+        {
+            SpriteRenderer renderer = reloadRenderers[i];
+
+            if (renderer == null)
+                continue;
+
+            Color color = renderer.color;
+            color.a = reloadRendererBaseAlphas[i] * alphaMultiplier;
+            renderer.color = color;
+        }
+    }
+
+    private void RestoreReloadVisuals()
+    {
+        if (reloadRenderers == null ||
+            reloadRendererBaseAlphas == null)
+        {
+            return;
+        }
+
+        int count = Mathf.Min(
+            reloadRenderers.Length,
+            reloadRendererBaseAlphas.Length
+        );
+
+        for (int i = 0; i < count; i++)
+        {
+            SpriteRenderer renderer = reloadRenderers[i];
+
+            if (renderer == null)
+                continue;
+
+            Color color = renderer.color;
+            color.a = reloadRendererBaseAlphas[i];
+            renderer.color = color;
         }
     }
 
@@ -851,7 +1719,12 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime)
+        float effectiveStuckCheckTime = Mathf.Min(
+            Mathf.Max(0.05f, stuckCheckTime),
+            0.25f
+        );
+
+        if (stuckTimer < effectiveStuckCheckTime)
             return;
 
         float movedSqrDistance =
@@ -869,12 +1742,15 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
             if (escapeDirection != Vector2.zero)
             {
-                rb.MovePosition(
+                Vector2 escapeTarget =
                     rb.position +
                     escapeDirection *
                     moveSpeed *
                     escapeSpeedMultiplier *
-                    Time.fixedDeltaTime
+                    Time.fixedDeltaTime;
+
+                rb.MovePosition(
+                    ClampPositionInsideArena(escapeTarget)
                 );
 
                 unstuckDirection =
@@ -1010,7 +1886,15 @@ public class ProjectileEnemyFollow : MonoBehaviour
             return;
 
         stopped = true;
+        isReloading = false;
+        reloadTimer = 0f;
+        reloadVisualTime = 0f;
+        activeReloadDuration = 0f;
+        shotRecoilPauseTimer = 0f;
+        pendingShotRecoil = Vector2.zero;
 
+        RestoreReloadVisuals();
+        StopReloadSound();
         StopAllCoroutines();
 
         rb.linearVelocity = Vector2.zero;
@@ -1053,6 +1937,7 @@ public class ProjectileEnemyFollow : MonoBehaviour
                 spawnTargetScale;
 
             isSpawning = false;
+            EnforceArenaBounds();
             yield break;
         }
 
@@ -1087,11 +1972,39 @@ public class ProjectileEnemyFollow : MonoBehaviour
 
         isSpawning = false;
 
+        EnforceArenaBounds();
         ResetStuckCheck();
     }
 
     private void OnDestroy()
     {
+        RestoreReloadVisuals();
+        StopReloadSound();
         DisableActiveProjectiles();
+    }
+
+    private void OnValidate()
+    {
+        shotRecoilDistance = Mathf.Clamp(shotRecoilDistance, 0f, 0.05f);
+        shotRecoilPause = Mathf.Clamp(shotRecoilPause, 0f, 0.03f);
+        finalShotRecoilMultiplier = Mathf.Clamp(finalShotRecoilMultiplier, 1f, 1.18f);
+        lowDangerFinalShotProjectileCount = Mathf.Max(1, lowDangerFinalShotProjectileCount);
+        highDangerFinalShotProjectileCount = Mathf.Max(1, highDangerFinalShotProjectileCount);
+        highDangerBurstThreshold = Mathf.Max(1, highDangerBurstThreshold);
+        finalShotAngleOffset = Mathf.Clamp(finalShotAngleOffset, 0f, 20f);
+        arenaEdgePadding = Mathf.Max(0f, arenaEdgePadding);
+
+        fireIntervalJitter = Mathf.Clamp(fireIntervalJitter, 0f, 0.30f);
+        reloadDurationJitter = Mathf.Clamp(reloadDurationJitter, 0f, 0.20f);
+        initialFireDelayMin = Mathf.Max(0f, initialFireDelayMin);
+        initialFireDelayMax = Mathf.Max(initialFireDelayMin, initialFireDelayMax);
+        postReloadFireDelayMin = Mathf.Max(0f, postReloadFireDelayMin);
+        postReloadFireDelayMax = Mathf.Max(postReloadFireDelayMin, postReloadFireDelayMax);
+
+        shotsPerBurst = Mathf.Max(1, shotsPerBurst);
+        reloadDuration = Mathf.Max(0.05f, reloadDuration);
+        reloadMoveSpeedMultiplier = Mathf.Max(0.1f, reloadMoveSpeedMultiplier);
+        reloadBlinkMinAlpha = Mathf.Clamp(reloadBlinkMinAlpha, 0.05f, 1f);
+        reloadBlinkFrequency = Mathf.Max(0.1f, reloadBlinkFrequency);
     }
 }

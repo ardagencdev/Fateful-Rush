@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -51,6 +53,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
     private Vector2 dragStartPosition;
     private Vector2 pageStartPosition;
     private bool isDragging;
+
+    private readonly List<RaycastResult> swipeRaycastResults =
+        new List<RaycastResult>();
 
     private CanvasGroup pageCanvasGroup;
     private Coroutine pageRoutine;
@@ -112,7 +117,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
         RefreshCurrentSkin();
         ResetPageVisuals();
 
-        SoundManager.Instance?.PlayOptionButtonSound(openButton != null ? openButton.transform as RectTransform : transform as RectTransform);
+        // The Main Menu Skins button owns its own sound through UIButtonSound.
+        // Do not force a SoundManager preset here; this lets the Inspector
+        // Sound Type / Custom Sound fields work exactly as configured.
         SwitchPanels(mainMenuPanel, skinPanel);
     }
 
@@ -133,6 +140,8 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     public void NextSkin()
     {
+        CancelSwipeTracking();
+
         if (!CanNavigate() || skinCatalog.Skins.Count <= 1)
             return;
 
@@ -145,6 +154,8 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     public void PreviousSkin()
     {
+        CancelSwipeTracking();
+
         if (!CanNavigate() || skinCatalog.Skins.Count <= 1)
             return;
 
@@ -158,6 +169,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     public void EquipCurrentSkin()
     {
+        // A UI button press must never be reused as a page swipe.
+        CancelSwipeTracking();
+
         PlayerSkinCatalog.SkinEntry skin = GetCurrentSkin();
 
         if (skin == null || skinCatalog == null)
@@ -188,8 +202,9 @@ public class PlayerSkinPanelUI : MonoBehaviour
     {
         if (openButton != null)
         {
-            DisableAutomaticButtonSound(openButton);
-
+            // Intentionally leave UIButtonSound automatic playback enabled.
+            // The Skins button SFX is configured manually in its UIButtonSound
+            // component (including Custom Sound when desired).
             openButton.onClick.RemoveListener(OpenPanel);
             openButton.onClick.AddListener(OpenPanel);
         }
@@ -290,6 +305,8 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
     private void StartSkinTransition(int targetIndex, int direction)
     {
+        CancelSwipeTracking();
+
         if (pageRoutine != null)
             return;
 
@@ -533,15 +550,16 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            dragStartPosition = Mouse.current.position.ReadValue();
-            isDragging = true;
+            BeginSwipeTracking(
+                Mouse.current.position.ReadValue()
+            );
         }
 
-        if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            Vector2 endPosition = Mouse.current.position.ReadValue();
-            isDragging = false;
-            TrySwipe(endPosition);
+            EndSwipeTracking(
+                Mouse.current.position.ReadValue()
+            );
         }
     }
 
@@ -554,16 +572,80 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         if (touch.press.wasPressedThisFrame)
         {
-            dragStartPosition = touch.position.ReadValue();
-            isDragging = true;
+            BeginSwipeTracking(
+                touch.position.ReadValue()
+            );
         }
 
-        if (touch.press.wasReleasedThisFrame && isDragging)
+        if (touch.press.wasReleasedThisFrame)
         {
-            Vector2 endPosition = touch.position.ReadValue();
-            isDragging = false;
-            TrySwipe(endPosition);
+            EndSwipeTracking(
+                touch.position.ReadValue()
+            );
         }
+    }
+
+    private void BeginSwipeTracking(Vector2 screenPosition)
+    {
+        isDragging = false;
+
+        // Same protection used by the Options pages:
+        // a press that starts on EQUIP / NEXT / PREVIOUS / BACK
+        // (or any other interactable Selectable) belongs to the UI,
+        // never to page-swipe navigation.
+        if (IsPointerOverInteractableSelectable(screenPosition))
+            return;
+
+        dragStartPosition = screenPosition;
+        isDragging = true;
+    }
+
+    private void EndSwipeTracking(Vector2 screenPosition)
+    {
+        if (!isDragging)
+            return;
+
+        isDragging = false;
+        TrySwipe(screenPosition);
+    }
+
+    private void CancelSwipeTracking()
+    {
+        isDragging = false;
+    }
+
+    private bool IsPointerOverInteractableSelectable(
+        Vector2 screenPosition)
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        PointerEventData pointerData =
+            new PointerEventData(EventSystem.current)
+            {
+                position = screenPosition
+            };
+
+        swipeRaycastResults.Clear();
+        EventSystem.current.RaycastAll(
+            pointerData,
+            swipeRaycastResults
+        );
+
+        foreach (RaycastResult result in swipeRaycastResults)
+        {
+            if (result.gameObject == null)
+                continue;
+
+            Selectable selectable =
+                result.gameObject
+                    .GetComponentInParent<Selectable>();
+
+            if (selectable != null && selectable.IsInteractable())
+                return true;
+        }
+
+        return false;
     }
 
     private void TrySwipe(Vector2 endPosition)

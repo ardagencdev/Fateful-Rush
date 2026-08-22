@@ -126,6 +126,9 @@ public class SettingsManager : MonoBehaviour
 
         prefsDirty = true;
 
+        GameAudioMixerController.Instance?
+            .SetMusicVolume(value);
+
         ApplyMenuMusic();
         ApplyGameplayMusic();
         ApplyAudioAppliers();
@@ -188,6 +191,9 @@ public class SettingsManager : MonoBehaviour
         );
 
         prefsDirty = true;
+
+        GameAudioMixerController.Instance?
+            .SetSFXVolume(value);
 
         ApplySFX();
         ApplyAudioAppliers();

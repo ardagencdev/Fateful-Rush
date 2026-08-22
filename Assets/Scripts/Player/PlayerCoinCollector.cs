@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerCoinCollector : MonoBehaviour
 {
+    public static PlayerCoinCollector Instance { get; private set; }
     [Header("References")]
     public PlayerMovement playerMovement;
     public EnemySpawner enemySpawner;
@@ -19,6 +20,34 @@ public class PlayerCoinCollector : MonoBehaviour
 
     [Header("UI")]
     public TextMeshProUGUI scoreText;
+
+    [Header("Combo Magnet")]
+    [Tooltip("5x veya 6x comboda yakındaki coinleri oyuncuya doğru yumuşakça çeker.")]
+    public bool comboMagnetEnabled = true;
+
+    [Min(0.1f)]
+    [Tooltip("5x comboda magnetin dünya birimi cinsinden menzili.")]
+    public float combo5MagnetRadius = 1.65f;
+
+    [Min(0.1f)]
+    [Tooltip("6x comboda magnetin dünya birimi cinsinden menzili.")]
+    public float combo6MagnetRadius = 2.15f;
+
+    [Min(0.1f)]
+    [Tooltip("5x comboda coinlerin oyuncuya yaklaşabileceği maksimum hız.")]
+    public float combo5MagnetMaxSpeed = 7.2f;
+
+    [Min(0.1f)]
+    [Tooltip("6x comboda coinlerin oyuncuya yaklaşabileceği maksimum hız.")]
+    public float combo6MagnetMaxSpeed = 9f;
+
+    [Range(0.04f, 0.5f)]
+    [Tooltip("Coin hareketinin ne kadar yumuşak olacağını belirler. Küçük değer daha hızlı tepki verir.")]
+    public float comboMagnetSmoothTime = 0.16f;
+
+    [Range(0f, 0.95f)]
+    [Tooltip("Magnet menzilinin dış kenarında çekim çok hafif başlar. 0.35 = ilk girişte maksimum hızın %35'i.")]
+    public float comboMagnetEdgeSpeedFactor = 0.35f;
 
     [Header("Combo")]
     public bool comboEnabled = true;
@@ -38,15 +67,19 @@ public class PlayerCoinCollector : MonoBehaviour
     public ComboSpeedStage[] comboSpeedStages;
 
     private int score;
+    private int coinsCollectedThisRun;
     private int combo = 1;
     private int comboChain;
     private float comboTimer;
 
     public int Score => score;
+    public int CoinsCollectedThisRun => coinsCollectedThisRun;
     public int Combo => combo;
 
     private void Awake()
     {
+        Instance = this;
+
         if (playerMovement == null)
         {
             playerMovement =
@@ -157,6 +190,12 @@ public class PlayerCoinCollector : MonoBehaviour
             coinValue * currentCombo;
 
         score += gainedScore;
+        coinsCollectedThisRun++;
+
+        StatsManager.AddScore(
+            gainedScore,
+            coinValue
+        );
 
         if (coin != null)
         {
@@ -164,6 +203,9 @@ public class PlayerCoinCollector : MonoBehaviour
                 coinValue,
                 coin.Type
             );
+
+            if (coin.WasMagnetAffected)
+                StatsManager.AddMagnetCoin();
         }
 
         UpdateScoreUI();
@@ -229,11 +271,19 @@ public class PlayerCoinCollector : MonoBehaviour
             return 1;
         }
 
+        int previousCombo = combo;
+
         comboTimer = 0f;
         comboChain++;
 
         combo =
             GetComboFromChain();
+
+        StatsManager.RecordComboProgress(
+            combo,
+            comboChain,
+            combo > previousCombo
+        );
 
         return combo;
     }
@@ -451,6 +501,76 @@ public class PlayerCoinCollector : MonoBehaviour
         }
     }
 
+    public bool TryGetComboMagnetSettings(
+        Vector3 coinPosition,
+        out float maxSpeed,
+        out float smoothTime)
+    {
+        maxSpeed = 0f;
+        smoothTime = comboMagnetSmoothTime;
+
+        if (!comboMagnetEnabled ||
+            !comboEnabled ||
+            IsGameOver() ||
+            !GameStateManager.IsGameplayStarted)
+        {
+            return false;
+        }
+
+        float radius;
+        float baseMaxSpeed;
+
+        if (combo >= 6)
+        {
+            radius = combo6MagnetRadius;
+            baseMaxSpeed = combo6MagnetMaxSpeed;
+        }
+        else if (combo >= 5)
+        {
+            radius = combo5MagnetRadius;
+            baseMaxSpeed = combo5MagnetMaxSpeed;
+        }
+        else
+        {
+            return false;
+        }
+
+        Vector2 delta =
+            (Vector2)transform.position -
+            (Vector2)coinPosition;
+
+        float radiusSquared = radius * radius;
+        float distanceSquared = delta.sqrMagnitude;
+
+        if (distanceSquared > radiusSquared)
+            return false;
+
+        float distance = Mathf.Sqrt(distanceSquared);
+        float closeness =
+            1f - Mathf.Clamp01(distance / radius);
+
+        // Menzilin kenarında hafif, oyuncuya yaklaştıkça daha güçlü çekim.
+        float strength = Mathf.SmoothStep(
+            comboMagnetEdgeSpeedFactor,
+            1f,
+            closeness
+        );
+
+        maxSpeed = Mathf.Max(
+            0.1f,
+            baseMaxSpeed * strength
+        );
+
+        smoothTime = comboMagnetSmoothTime;
+        return true;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     private bool IsGameOver()
     {
         return playerMovement != null &&
@@ -485,6 +605,24 @@ public class PlayerCoinCollector : MonoBehaviour
                 coinsForCombo2,
                 coinsForCombo3
             );
+
+        combo5MagnetRadius =
+            Mathf.Max(0.1f, combo5MagnetRadius);
+
+        combo6MagnetRadius =
+            Mathf.Max(combo5MagnetRadius, combo6MagnetRadius);
+
+        combo5MagnetMaxSpeed =
+            Mathf.Max(0.1f, combo5MagnetMaxSpeed);
+
+        combo6MagnetMaxSpeed =
+            Mathf.Max(combo5MagnetMaxSpeed, combo6MagnetMaxSpeed);
+
+        comboMagnetSmoothTime =
+            Mathf.Clamp(comboMagnetSmoothTime, 0.04f, 0.5f);
+
+        comboMagnetEdgeSpeedFactor =
+            Mathf.Clamp(comboMagnetEdgeSpeedFactor, 0f, 0.95f);
     }
 }
 

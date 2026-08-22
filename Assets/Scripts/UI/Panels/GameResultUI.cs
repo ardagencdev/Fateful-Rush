@@ -102,6 +102,22 @@ public class GameResultUI : MonoBehaviour
     private bool menuConfirmationOpenedFromPause;
     private bool pauseConfirmationActivatedResultPanel;
 
+    // Runtime modal layer. Pause and Result UI may live on different Canvases.
+    // Re-parenting the dialog to a dedicated top-level overlay Canvas makes
+    // both draw order and raycast priority deterministic.
+    private GameObject menuConfirmationModalRoot;
+    private Canvas menuConfirmationModalCanvas;
+    private CanvasScaler menuConfirmationModalScaler;
+    private GraphicRaycaster menuConfirmationModalRaycaster;
+    private GameObject menuConfirmationInputShield;
+    private Transform menuConfirmationOriginalParent;
+    private int menuConfirmationOriginalSiblingIndex;
+    private bool menuConfirmationDetachedToModal;
+    private bool isMenuConfirmationOpen;
+    private GameQuit cachedGameQuit;
+
+    public bool IsMenuConfirmationOpen => isMenuConfirmationOpen;
+
     private void Awake()
     {
         levelManager =
@@ -773,6 +789,7 @@ public class GameResultUI : MonoBehaviour
             return;
 
         SetSceneButtonsInteractable(false);
+        EnableMenuConfirmationModalLayer();
         StartMenuConfirmationAnimation(true);
     }
 
@@ -781,37 +798,19 @@ public class GameResultUI : MonoBehaviour
         if (menuConfirmationPanel == null)
             return false;
 
-        if (isSceneChangeRequested)
+        if (isSceneChangeRequested || isMenuConfirmationOpen)
             return true;
 
         menuConfirmationOpenedFromPause = true;
-
-        pauseConfirmationActivatedResultPanel =
-            resultPanel != null &&
-            !resultPanel.activeSelf;
-
-        if (resultPanel != null)
-        {
-            resultPanel.SetActive(true);
-            resultPanel.transform.SetAsLastSibling();
-        }
-
-        if (winUI != null)
-            winUI.SetActive(false);
-
-        if (loseUI != null)
-            loseUI.SetActive(false);
-
-        if (nextLevelButton != null)
-            nextLevelButton.SetActive(false);
-
-        if (tryAgainButton != null)
-            tryAgainButton.SetActive(false);
-
-        if (menuButton != null)
-            menuButton.SetActive(false);
+        pauseConfirmationActivatedResultPanel = false;
 
         SetSceneButtonsInteractable(false);
+
+        // Lock Pause at the source too: no child button, nested raycaster or
+        // Escape/Resume path is allowed while this modal is open.
+        GetGameQuit()?.SetPauseMenuModalState(true);
+
+        EnableMenuConfirmationModalLayer();
         StartMenuConfirmationAnimation(true);
         return true;
     }
@@ -842,6 +841,9 @@ public class GameResultUI : MonoBehaviour
         yield return AnimateMenuConfirmation(false);
 
         menuConfirmationRoutine = null;
+        DisableMenuConfirmationModalLayer();
+
+        GetGameQuit()?.SetPauseMenuModalState(false);
 
         menuConfirmationOpenedFromPause = false;
         pauseConfirmationActivatedResultPanel = false;
@@ -901,10 +903,251 @@ public class GameResultUI : MonoBehaviour
         }
     }
 
+    private GameQuit GetGameQuit()
+    {
+        if (cachedGameQuit == null)
+        {
+            cachedGameQuit =
+                FindAnyObjectByType<GameQuit>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        return cachedGameQuit;
+    }
+
+    private void EnableMenuConfirmationModalLayer()
+    {
+        if (menuConfirmationPanel == null)
+            return;
+
+        PrepareMenuConfirmationUI();
+        PrepareMenuConfirmationModalRoot();
+
+        if (menuConfirmationModalRoot == null)
+            return;
+
+        CacheMenuConfirmationHome();
+
+        if (!menuConfirmationDetachedToModal)
+        {
+            menuConfirmationPanel.transform.SetParent(
+                menuConfirmationModalRoot.transform,
+                true
+            );
+
+            menuConfirmationDetachedToModal = true;
+        }
+
+        if (menuConfirmationInputShield != null)
+        {
+            menuConfirmationInputShield.SetActive(true);
+            menuConfirmationInputShield.transform.SetAsFirstSibling();
+        }
+
+        menuConfirmationPanel.transform.SetAsLastSibling();
+        menuConfirmationModalRoot.SetActive(true);
+        isMenuConfirmationOpen = true;
+    }
+
+    private void DisableMenuConfirmationModalLayer()
+    {
+        if (menuConfirmationInputShield != null)
+            menuConfirmationInputShield.SetActive(false);
+
+        RestoreMenuConfirmationHome();
+
+        if (menuConfirmationModalRoot != null)
+            menuConfirmationModalRoot.SetActive(false);
+
+        isMenuConfirmationOpen = false;
+    }
+
+    private void CacheMenuConfirmationHome()
+    {
+        if (menuConfirmationPanel == null ||
+            menuConfirmationOriginalParent != null)
+        {
+            return;
+        }
+
+        menuConfirmationOriginalParent =
+            menuConfirmationPanel.transform.parent;
+
+        menuConfirmationOriginalSiblingIndex =
+            menuConfirmationPanel.transform.GetSiblingIndex();
+    }
+
+    private void RestoreMenuConfirmationHome()
+    {
+        if (!menuConfirmationDetachedToModal ||
+            menuConfirmationPanel == null)
+        {
+            return;
+        }
+
+        if (menuConfirmationOriginalParent != null)
+        {
+            menuConfirmationPanel.transform.SetParent(
+                menuConfirmationOriginalParent,
+                true
+            );
+
+            int siblingIndex = Mathf.Clamp(
+                menuConfirmationOriginalSiblingIndex,
+                0,
+                Mathf.Max(
+                    0,
+                    menuConfirmationOriginalParent.childCount - 1
+                )
+            );
+
+            menuConfirmationPanel.transform.SetSiblingIndex(siblingIndex);
+        }
+
+        menuConfirmationDetachedToModal = false;
+    }
+
+    private void PrepareMenuConfirmationModalRoot()
+    {
+        if (menuConfirmationModalRoot != null)
+            return;
+
+        Canvas sourceCanvas = null;
+
+        if (menuConfirmationPanel != null)
+            sourceCanvas = menuConfirmationPanel.GetComponentInParent<Canvas>(true);
+
+        if (sourceCanvas == null && resultPanel != null)
+            sourceCanvas = resultPanel.GetComponentInParent<Canvas>(true);
+
+        GameObject root = new GameObject(
+            "[Menu Confirmation Modal Canvas]",
+            typeof(RectTransform),
+            typeof(Canvas),
+            typeof(CanvasScaler),
+            typeof(GraphicRaycaster)
+        );
+
+        // Keep it as a scene root. A Screen Space Overlay canvas with a very
+        // high sorting order will always render above the Pause canvas.
+        root.transform.SetParent(null, false);
+
+        RectTransform rootRect = root.GetComponent<RectTransform>();
+        rootRect.anchorMin = Vector2.zero;
+        rootRect.anchorMax = Vector2.one;
+        rootRect.offsetMin = Vector2.zero;
+        rootRect.offsetMax = Vector2.zero;
+        rootRect.localScale = Vector3.one;
+
+        menuConfirmationModalCanvas = root.GetComponent<Canvas>();
+        menuConfirmationModalCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        menuConfirmationModalCanvas.overrideSorting = true;
+        menuConfirmationModalCanvas.sortingOrder = 32760;
+
+        if (sourceCanvas != null)
+            menuConfirmationModalCanvas.targetDisplay = sourceCanvas.targetDisplay;
+
+        menuConfirmationModalScaler = root.GetComponent<CanvasScaler>();
+        CopyCanvasScalerSettings(sourceCanvas, menuConfirmationModalScaler);
+
+        menuConfirmationModalRaycaster = root.GetComponent<GraphicRaycaster>();
+        menuConfirmationModalRaycaster.enabled = true;
+
+        PrepareMenuConfirmationInputShield(root.transform);
+
+        menuConfirmationModalRoot = root;
+        menuConfirmationModalRoot.SetActive(false);
+    }
+
+    private static void CopyCanvasScalerSettings(
+        Canvas sourceCanvas,
+        CanvasScaler targetScaler)
+    {
+        if (targetScaler == null)
+            return;
+
+        CanvasScaler sourceScaler =
+            sourceCanvas != null
+                ? sourceCanvas.GetComponent<CanvasScaler>()
+                : null;
+
+        if (sourceScaler == null)
+        {
+            targetScaler.uiScaleMode =
+                CanvasScaler.ScaleMode.ScaleWithScreenSize;
+
+            targetScaler.referenceResolution =
+                new Vector2(1920f, 1080f);
+
+            targetScaler.screenMatchMode =
+                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+
+            targetScaler.matchWidthOrHeight = 0.5f;
+            return;
+        }
+
+        targetScaler.uiScaleMode = sourceScaler.uiScaleMode;
+        targetScaler.referencePixelsPerUnit =
+            sourceScaler.referencePixelsPerUnit;
+
+        targetScaler.scaleFactor = sourceScaler.scaleFactor;
+        targetScaler.referenceResolution =
+            sourceScaler.referenceResolution;
+
+        targetScaler.screenMatchMode =
+            sourceScaler.screenMatchMode;
+
+        targetScaler.matchWidthOrHeight =
+            sourceScaler.matchWidthOrHeight;
+
+        targetScaler.physicalUnit = sourceScaler.physicalUnit;
+        targetScaler.fallbackScreenDPI =
+            sourceScaler.fallbackScreenDPI;
+
+        targetScaler.defaultSpriteDPI =
+            sourceScaler.defaultSpriteDPI;
+    }
+
+    private void PrepareMenuConfirmationInputShield(Transform parent)
+    {
+        if (menuConfirmationInputShield != null || parent == null)
+            return;
+
+        GameObject shield = new GameObject(
+            "[Menu Confirmation Input Shield]",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image),
+            typeof(LayoutElement)
+        );
+
+        shield.transform.SetParent(parent, false);
+
+        RectTransform rect = shield.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.localScale = Vector3.one;
+
+        Image image = shield.GetComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0.001f);
+        image.raycastTarget = true;
+
+        LayoutElement layout = shield.GetComponent<LayoutElement>();
+        layout.ignoreLayout = true;
+
+        menuConfirmationInputShield = shield;
+        menuConfirmationInputShield.SetActive(false);
+    }
+
     private void PrepareMenuConfirmationUI()
     {
         if (menuConfirmationPanel == null)
             return;
+
+        CacheMenuConfirmationHome();
 
         menuConfirmationCanvasGroup =
             menuConfirmationPanel.GetComponent<CanvasGroup>();
@@ -945,9 +1188,12 @@ public class GameResultUI : MonoBehaviour
         yield return AnimateMenuConfirmation(show);
         menuConfirmationRoutine = null;
 
-        if (!show && menuConfirmationOpenedFromPause)
+        if (!show)
         {
-            RestoreAfterPauseMenuConfirmation();
+            DisableMenuConfirmationModalLayer();
+
+            if (menuConfirmationOpenedFromPause)
+                RestoreAfterPauseMenuConfirmation();
         }
     }
 
@@ -963,6 +1209,7 @@ public class GameResultUI : MonoBehaviour
 
         if (show)
         {
+            EnableMenuConfirmationModalLayer();
             menuConfirmationPanel.SetActive(true);
             menuConfirmationPanel.transform.SetAsLastSibling();
         }
@@ -1087,6 +1334,9 @@ public class GameResultUI : MonoBehaviour
         menuConfirmationOpenedFromPause = false;
         pauseConfirmationActivatedResultPanel = false;
 
+        DisableMenuConfirmationModalLayer();
+        GetGameQuit()?.SetPauseMenuModalState(false);
+
         if (shouldHideResultPanel &&
             resultPanel != null)
         {
@@ -1097,6 +1347,13 @@ public class GameResultUI : MonoBehaviour
     private void HideMenuConfirmationImmediate()
     {
         StopMenuConfirmationRoutine();
+        DisableMenuConfirmationModalLayer();
+
+        if (menuConfirmationOpenedFromPause)
+            GetGameQuit()?.SetPauseMenuModalState(false);
+
+        menuConfirmationOpenedFromPause = false;
+        pauseConfirmationActivatedResultPanel = false;
 
         if (menuConfirmationPanel == null)
             return;
@@ -1593,5 +1850,15 @@ public class GameResultUI : MonoBehaviour
     {
         HideSkinUnlockImmediate();
         HideMenuConfirmationImmediate();
+
+        if (menuConfirmationModalRoot != null)
+        {
+            Destroy(menuConfirmationModalRoot);
+            menuConfirmationModalRoot = null;
+            menuConfirmationModalCanvas = null;
+            menuConfirmationModalScaler = null;
+            menuConfirmationModalRaycaster = null;
+            menuConfirmationInputShield = null;
+        }
     }
 }

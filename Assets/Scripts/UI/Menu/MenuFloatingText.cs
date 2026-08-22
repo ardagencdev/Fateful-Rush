@@ -130,6 +130,40 @@ public sealed class MenuFloatingText : MonoBehaviour
     public Vector3 BaseLocalPosition => baseLocalPosition;
     public Transform TargetParent => target != null ? target.parent : null;
 
+    public void SetThemeColor(Color themeColor)
+    {
+        ResolveReferences();
+
+        if (textUI == null)
+            return;
+
+        themeColor.r = Mathf.Clamp01(themeColor.r);
+        themeColor.g = Mathf.Clamp01(themeColor.g);
+        themeColor.b = Mathf.Clamp01(themeColor.b);
+
+        // MenuFloatingText drives TMP color every frame through baseColor.
+        // Updating only textUI.color would therefore be overwritten on the
+        // next Update(). Keep both the cached base RGB and current alpha.
+        if (initialized)
+        {
+            baseColor = new Color(
+                themeColor.r,
+                themeColor.g,
+                themeColor.b,
+                baseColor.a
+            );
+        }
+
+        Color currentColor = textUI.color;
+
+        textUI.color = new Color(
+            themeColor.r,
+            themeColor.g,
+            themeColor.b,
+            currentColor.a
+        );
+    }
+
     private void Reset()
     {
         textUI = GetComponent<TMP_Text>();

@@ -1374,6 +1374,9 @@ public class LevelConfigEditor : Editor
                 $"Move Speed: {settings.moveSpeed:0.##}",
                 $"Fire Interval: {settings.fireRate:0.##}s",
                 $"Projectile Speed: {settings.projectileSpeed:0.##}",
+                $"Burst: {settings.shotsPerBurst} shots",
+                $"Reload: {settings.reloadDuration:0.##}s",
+                $"Reload Retreat: {settings.reloadRetreatDistance:0.##}",
                 $"Combat Range: {settings.retreatDistance:0.##} – {settings.stoppingDistance:0.##}",
                 $"Predictive Aim: {(settings.predictiveAimEnabled ? "ON" : "OFF")}"
             }

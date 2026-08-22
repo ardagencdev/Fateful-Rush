@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [DisallowMultipleComponent]
-[DefaultExecutionOrder(1000)]
+[DefaultExecutionOrder(-1000)]
 public sealed class ObstacleIdleAnimation : MonoBehaviour
 {
     public enum IdlePreset
@@ -118,6 +118,17 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
     private Transform activeTarget;
     private SpriteRenderer activeRenderer;
 
+    // Unity 6 recommends that a Collider2D which moves at runtime is moved
+    // through a Rigidbody2D rather than by changing its Transform directly.
+    // Animated obstacle roots therefore become Kinematic physics bodies.
+    private Rigidbody2D physicsBody;
+    private bool drivePhysicsWithRigidbody;
+
+    // Planned motion for the current physics step. Enemy avoidance reads this
+    // before contact happens so moving/rotating obstacle sweeps can be predicted.
+    private Vector2 plannedLinearVelocity;
+    private float plannedAngularVelocity;
+
     private Vector3 lastPositionOffset;
     private Quaternion lastRotationOffset = Quaternion.identity;
     private Vector3 lastScaleMultiplier = Vector3.one;
@@ -163,6 +174,20 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
         InitializeAnimation();
     }
 
+    private void FixedUpdate()
+    {
+        if (!initialized || GetResolvedTarget() != activeTarget)
+            InitializeAnimation();
+
+        if (activeTarget == null || !drivePhysicsWithRigidbody)
+            return;
+
+        // Rigidbody2D.MovePosition/MoveRotation are intended to be requested
+        // from FixedUpdate so the collider participates in the same physics
+        // step as the enemies that are avoiding it.
+        ApplyTransformAnimationStep(Time.fixedDeltaTime, true);
+    }
+
     private void LateUpdate()
     {
         if (!initialized || GetResolvedTarget() != activeTarget)
@@ -171,11 +196,28 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
         if (activeTarget == null)
             return;
 
-        float deltaTime = timeSource == AnimationTimeSource.Unscaled
-            ? Time.unscaledDeltaTime
-            : Time.deltaTime;
+        if (!drivePhysicsWithRigidbody)
+        {
+            float deltaTime = timeSource == AnimationTimeSource.Unscaled
+                ? Time.unscaledDeltaTime
+                : Time.deltaTime;
 
-        elapsedTime += Mathf.Max(0f, deltaTime);
+            ApplyTransformAnimationStep(deltaTime, false);
+        }
+
+        float blend = blendInDuration <= 0f
+            ? 1f
+            : Smooth01(elapsedTime / blendInDuration);
+
+        UpdateColorPulse(blend);
+    }
+
+    private void ApplyTransformAnimationStep(
+        float deltaTime,
+        bool useRigidbody)
+    {
+        deltaTime = Mathf.Max(0f, deltaTime);
+        elapsedTime += deltaTime;
 
         RemovePreviousTransformContribution(
             out Vector3 externalPosition,
@@ -188,23 +230,99 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
 
         Vector3 positionOffset = CalculatePositionOffset(blend);
         Quaternion rotationOffset = CalculateRotationOffset(deltaTime, blend);
-        Vector3 scaleMultiplier = CalculateScaleMultiplier(blend);
 
-        activeTarget.localPosition = externalPosition + positionOffset;
-        activeTarget.localRotation = externalRotation * rotationOffset;
-        activeTarget.localScale = Vector3.Scale(externalScale, scaleMultiplier);
+        // Scaling a Transform that owns Collider2D geometry also scales the
+        // collider outside the physics solver. For physics-driven obstacles,
+        // keep collider scale fixed; color/position/rotation polish remains.
+        Vector3 scaleMultiplier = useRigidbody
+            ? Vector3.one
+            : CalculateScaleMultiplier(blend);
+
+        Vector3 desiredLocalPosition = externalPosition + positionOffset;
+        Quaternion desiredLocalRotation = externalRotation * rotationOffset;
+        Vector3 desiredLocalScale = Vector3.Scale(
+            externalScale,
+            scaleMultiplier
+        );
+
+        if (useRigidbody && physicsBody != null)
+        {
+            Vector3 desiredWorldPosition =
+                activeTarget.parent != null
+                    ? activeTarget.parent.TransformPoint(desiredLocalPosition)
+                    : desiredLocalPosition;
+
+            Quaternion desiredWorldRotation =
+                activeTarget.parent != null
+                    ? activeTarget.parent.rotation * desiredLocalRotation
+                    : desiredLocalRotation;
+
+            float safeDeltaTime = Mathf.Max(deltaTime, 0.0001f);
+
+            plannedLinearVelocity =
+                ((Vector2)desiredWorldPosition - physicsBody.position) /
+                safeDeltaTime;
+
+            plannedAngularVelocity = Mathf.DeltaAngle(
+                physicsBody.rotation,
+                desiredWorldRotation.eulerAngles.z
+            ) / safeDeltaTime;
+
+            physicsBody.MovePosition(desiredWorldPosition);
+            physicsBody.MoveRotation(desiredWorldRotation.eulerAngles.z);
+
+            // Rigidbody2D controls position/rotation. Scale is intentionally
+            // left at its unanimated value for collider stability.
+            activeTarget.localScale = desiredLocalScale;
+        }
+        else
+        {
+            plannedLinearVelocity = Vector2.zero;
+            plannedAngularVelocity = 0f;
+
+            activeTarget.localPosition = desiredLocalPosition;
+            activeTarget.localRotation = desiredLocalRotation;
+            activeTarget.localScale = desiredLocalScale;
+        }
 
         lastPositionOffset = positionOffset;
         lastRotationOffset = rotationOffset;
         lastScaleMultiplier = scaleMultiplier;
-
-        UpdateColorPulse(blend);
     }
 
     private void OnDisable()
     {
         RemoveAnimationContribution();
+        plannedLinearVelocity = Vector2.zero;
+        plannedAngularVelocity = 0f;
         initialized = false;
+    }
+
+    /// <summary>
+    /// Returns this animation's intended Rigidbody2D motion for the current
+    /// physics step. Local obstacle avoidance uses it as relative velocity
+    /// instead of waiting for the obstacle to physically enter an enemy.
+    /// </summary>
+    public bool TryGetPhysicsMotion(
+        Rigidbody2D queriedBody,
+        out Vector2 linearVelocity,
+        out float angularVelocity)
+    {
+        linearVelocity = Vector2.zero;
+        angularVelocity = 0f;
+
+        if (!initialized ||
+            !drivePhysicsWithRigidbody ||
+            physicsBody == null ||
+            queriedBody == null ||
+            queriedBody != physicsBody)
+        {
+            return false;
+        }
+
+        linearVelocity = plannedLinearVelocity;
+        angularVelocity = plannedAngularVelocity;
+        return true;
     }
 
     public void ApplySelectedPreset()
@@ -251,6 +369,10 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
 
         activeTarget = GetResolvedTarget();
         activeRenderer = GetResolvedRenderer();
+        ConfigurePhysicsDrive();
+
+        plannedLinearVelocity = Vector2.zero;
+        plannedAngularVelocity = 0f;
 
         lastPositionOffset = Vector3.zero;
         lastRotationOffset = Quaternion.identity;
@@ -415,9 +537,28 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
             out Quaternion externalRotation,
             out Vector3 externalScale);
 
-        activeTarget.localPosition = externalPosition;
-        activeTarget.localRotation = externalRotation;
-        activeTarget.localScale = externalScale;
+        if (drivePhysicsWithRigidbody && physicsBody != null)
+        {
+            Vector3 worldPosition =
+                activeTarget.parent != null
+                    ? activeTarget.parent.TransformPoint(externalPosition)
+                    : externalPosition;
+
+            Quaternion worldRotation =
+                activeTarget.parent != null
+                    ? activeTarget.parent.rotation * externalRotation
+                    : externalRotation;
+
+            physicsBody.position = worldPosition;
+            physicsBody.rotation = worldRotation.eulerAngles.z;
+            activeTarget.localScale = externalScale;
+        }
+        else
+        {
+            activeTarget.localPosition = externalPosition;
+            activeTarget.localRotation = externalRotation;
+            activeTarget.localScale = externalScale;
+        }
 
         if (activeRenderer != null && colorApplied && Approximately(activeRenderer.color, lastAppliedColor))
             activeRenderer.color = baseColor;
@@ -426,6 +567,40 @@ public sealed class ObstacleIdleAnimation : MonoBehaviour
         lastRotationOffset = Quaternion.identity;
         lastScaleMultiplier = Vector3.one;
         colorApplied = false;
+    }
+
+    private void ConfigurePhysicsDrive()
+    {
+        drivePhysicsWithRigidbody = false;
+        physicsBody = null;
+
+        if (!Application.isPlaying || activeTarget == null)
+            return;
+
+        Collider2D[] colliders =
+            activeTarget.GetComponentsInChildren<Collider2D>(true);
+
+        if (colliders == null || colliders.Length == 0)
+            return;
+
+        physicsBody = activeTarget.GetComponent<Rigidbody2D>();
+
+        if (physicsBody == null)
+            physicsBody = activeTarget.gameObject.AddComponent<Rigidbody2D>();
+
+        // This object is animated explicitly by this script, so Kinematic is
+        // the correct body type. Full contacts keep callbacks/query behaviour
+        // available while its path stays completely script-controlled.
+        physicsBody.bodyType = RigidbodyType2D.Kinematic;
+        physicsBody.gravityScale = 0f;
+        physicsBody.useFullKinematicContacts = true;
+        physicsBody.simulated = true;
+        physicsBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        physicsBody.interpolation = RigidbodyInterpolation2D.Interpolate;
+        physicsBody.linearVelocity = Vector2.zero;
+        physicsBody.angularVelocity = 0f;
+
+        drivePhysicsWithRigidbody = true;
     }
 
     private void ResolveReferences()

@@ -5,9 +5,6 @@ TextureImporter:
   - first:
       213: 8758117774617742911
     second: DarkPlayer_0
-  - first:
-      213: 622316905666471184
-    second: DarkPlayer_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,12 +113,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: DarkPlayer_1
+      name: DarkPlayer_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 2
         y: 0
-        width: 1016
+        width: 1022
         height: 1024
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -131,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 01568f3bde9e2a800800000000000000
-      internalID: 622316905666471184
+      spriteID: f3e0029a6b51b8970800000000000000
+      internalID: 8758117774617742911
       vertices: []
       indices: 
       edges: []
@@ -141,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f2198a6c05eccf24f84cc5025a8d4a39
+    spriteID: c4d41d99aada8074bb4ded76678837aa
     internalID: 0
     vertices: []
     indices: 
@@ -152,7 +149,6 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       DarkPlayer_0: 8758117774617742911
-      DarkPlayer_1: 622316905666471184
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

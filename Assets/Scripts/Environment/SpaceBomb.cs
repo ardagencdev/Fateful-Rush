@@ -87,7 +87,7 @@ public class SpaceBomb : MonoBehaviour
         {
             if (SoundManager.Instance != null)
             {
-                SoundManager.Instance.PlayCustomSoundAtWorld(
+                SoundManager.Instance.PlayCriticalSoundAtWorld(
                     explosionSound,
                     transform.position
                 );

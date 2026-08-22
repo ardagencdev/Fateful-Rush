@@ -300,6 +300,9 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         TMP_FontAsset sceneFont =
             FindSceneFont();
 
+        Color skinAccentColor =
+            GetSelectedSkinAccentColor();
+
         levelText =
             CreateText(
                 "Level",
@@ -312,7 +315,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
             );
 
         levelText.color =
-            new Color(0.78f, 0.72f, 1f, 0.82f);
+            SetAlpha(skinAccentColor, 0.82f);
 
         levelText.characterSpacing = 4.5f;
         levelText.fontStyle = FontStyles.Bold;
@@ -366,7 +369,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         mechanicText.fontStyle = FontStyles.Bold;
         mechanicText.characterSpacing = 2.2f;
         mechanicText.color =
-            new Color(0.78f, 0.72f, 1f, 0.92f);
+            SetAlpha(skinAccentColor, 0.92f);
 
         inputHintText =
             CreateText(
@@ -383,6 +386,55 @@ public sealed class WinConditionIntroUI : MonoBehaviour
             new Color(1f, 1f, 1f, 0.52f);
 
         inputHintText.characterSpacing = 2.5f;
+    }
+
+    private static Color GetSelectedSkinAccentColor()
+    {
+        PlayerSkinCatalog catalog =
+            ResolveSkinCatalog();
+
+        if (catalog != null)
+            return catalog.GetSelectedUIThemeColor();
+
+        // Catalog bulunamazsa eski briefing morunu koru.
+        return new Color(0.78f, 0.72f, 1f, 1f);
+    }
+
+    private static PlayerSkinCatalog ResolveSkinCatalog()
+    {
+        if (PlayerSkinCatalog.LoadedInstance != null)
+            return PlayerSkinCatalog.LoadedInstance;
+
+        PlayerSkinCatalog[] catalogs =
+            Resources.FindObjectsOfTypeAll<PlayerSkinCatalog>();
+
+        if (catalogs == null || catalogs.Length == 0)
+            return null;
+
+        for (int i = 0; i < catalogs.Length; i++)
+        {
+            PlayerSkinCatalog catalog = catalogs[i];
+
+            if (catalog != null &&
+                string.Equals(
+                    catalog.name,
+                    "PlayerSkinCatalog",
+                    System.StringComparison.Ordinal
+                ))
+            {
+                return catalog;
+            }
+        }
+
+        return catalogs[0];
+    }
+
+    private static Color SetAlpha(
+        Color color,
+        float alpha)
+    {
+        color.a = Mathf.Clamp01(alpha);
+        return color;
     }
 
     private static TextMeshProUGUI CreateText(

@@ -69,12 +69,25 @@ public class LevelButtonUI : MonoBehaviour,
             ? scaleTarget.localScale
             : Vector3.one;
 
+        // A UI template can occasionally be left at zero scale by an editor or
+        // previous animation state. Never cache zero as the button's permanent
+        // resting scale, otherwise every hover/reset tween will drive it away.
+        if (originalScale.sqrMagnitude < 0.0001f)
+            originalScale = Vector3.one;
+
         if (levelText != null)
             levelText.raycastTarget = false;
     }
 
+    private void OnEnable()
+    {
+        PlayerSkinCatalog.SelectedSkinChanged -= HandleSelectedSkinChanged;
+        PlayerSkinCatalog.SelectedSkinChanged += HandleSelectedSkinChanged;
+    }
+
     private void OnDisable()
     {
+        PlayerSkinCatalog.SelectedSkinChanged -= HandleSelectedSkinChanged;
         UIScaleTweenRunner.CancelScheduledVisual(this);
 
         hovering = false;
@@ -90,6 +103,8 @@ public class LevelButtonUI : MonoBehaviour,
 
     private void OnDestroy()
     {
+        PlayerSkinCatalog.SelectedSkinChanged -= HandleSelectedSkinChanged;
+
         UIScaleTweenRunner.CancelScheduledVisual(this);
         UIScaleTweenRunner.Cancel(scaleTarget);
 
@@ -105,6 +120,17 @@ public class LevelButtonUI : MonoBehaviour,
         panel = owner;
 
         ResolveReferences();
+
+        hovering = false;
+        pressing = false;
+
+        // Setup is the authoritative visual reset for a freshly-created page
+        // button. This also cancels any stale shared tween before the panel
+        // transition gets a chance to render the first frame.
+        UIScaleTweenRunner.CancelAndSnap(
+            scaleTarget,
+            originalScale
+        );
 
         if (button != null)
         {
@@ -204,11 +230,27 @@ public class LevelButtonUI : MonoBehaviour,
             levelText.alpha = 1f;
 
         Color desiredColor = completed
-            ? completedTextColor
+            ? GetCompletedLevelTextColor()
             : unlockedTextColor;
 
         if (levelText.color != desiredColor)
             levelText.color = desiredColor;
+    }
+
+    private Color GetCompletedLevelTextColor()
+    {
+        // Completed levels use the fixed completion color configured on
+        // the LevelButtonUI (green in the current prefab). This keeps
+        // completed and uncompleted levels readable even with White/Silver skins.
+        return completedTextColor;
+    }
+
+    private void HandleSelectedSkinChanged()
+    {
+        if (!isActiveAndEnabled)
+            return;
+
+        RefreshLevelText();
     }
 
     private void ApplyCurrentSprite()

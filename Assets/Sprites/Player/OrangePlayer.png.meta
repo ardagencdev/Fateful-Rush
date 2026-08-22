@@ -5,9 +5,6 @@ TextureImporter:
   - first:
       213: 6755936941797454601
     second: OrangePlayer_0
-  - first:
-      213: -6840934628537648883
-    second: OrangePlayer_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,12 +113,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: OrangePlayer_1
+      name: OrangePlayer_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 2
         y: 0
-        width: 1016
+        width: 1022
         height: 1024
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -131,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d09385e333e1011a0800000000000000
-      internalID: -6840934628537648883
+      spriteID: 903b6c4aad8e1cd50800000000000000
+      internalID: 6755936941797454601
       vertices: []
       indices: 
       edges: []
@@ -141,8 +138,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 31f75e9959a992049818e25f2dad0499
-    internalID: -561856763
+    spriteID: 75b1fc3e483ac4e4d976e97960c2d390
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -152,7 +149,6 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       OrangePlayer_0: 6755936941797454601
-      OrangePlayer_1: -6840934628537648883
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -113,6 +113,11 @@ public class ProjectileEnemyDangerSettings
     [Min(0.01f)] public float fireRate = 1.5f;
     [Min(0f)] public float projectileSpeed = 6f;
 
+    [Min(1)] public int shotsPerBurst = 3;
+    [Min(0.05f)] public float reloadDuration = 3f;
+    [Min(0f)] public float reloadRetreatDistance = 9f;
+    [Min(0.1f)] public float reloadMoveSpeedMultiplier = 1.4f;
+
     public bool strafeEnabled = true;
     [Min(0f)] public float strafeSpeedMultiplier = 0.65f;
     [Min(0f)] public float strafeDirectionChangeMinTime = 1.5f;
@@ -140,6 +145,19 @@ public class ProjectileEnemyDangerSettings
         retreatDistance = Mathf.Clamp(retreatDistance, 0f, stoppingDistance);
         fireRate = Mathf.Max(0.01f, fireRate);
         projectileSpeed = Mathf.Max(0f, projectileSpeed);
+        if (shotsPerBurst <= 0)
+            shotsPerBurst = 3;
+
+        if (reloadDuration <= 0f)
+            reloadDuration = 3f;
+
+        if (reloadRetreatDistance <= 0f)
+            reloadRetreatDistance = Mathf.Max(stoppingDistance, 9f);
+        else
+            reloadRetreatDistance = Mathf.Max(stoppingDistance, reloadRetreatDistance);
+
+        if (reloadMoveSpeedMultiplier <= 0f)
+            reloadMoveSpeedMultiplier = 1.4f;
         strafeSpeedMultiplier = Mathf.Max(0f, strafeSpeedMultiplier);
         strafeDirectionChangeMinTime = Mathf.Max(0f, strafeDirectionChangeMinTime);
         strafeDirectionChangeMaxTime = Mathf.Max(
@@ -318,7 +336,7 @@ public class BombDangerSettings
 public class DangerBalanceProfile : ScriptableObject
 {
     [SerializeField, Min(1)]
-    private int profileVersion = 2;
+    private int profileVersion = 3;
 
     [SerializeField]
     private NormalEnemyDangerSettings[] normalEnemyLevels;
@@ -388,7 +406,7 @@ public class DangerBalanceProfile : ScriptableObject
 
     public void ResetToBalancedDefaults()
     {
-        profileVersion = 2;
+        profileVersion = 3;
         normalEnemyLevels = CreateDefaultNormalEnemyLevels();
         projectileEnemyLevels = CreateDefaultProjectileEnemyLevels();
         hunterEnemyLevels = CreateDefaultHunterEnemyLevels();
@@ -402,12 +420,14 @@ public class DangerBalanceProfile : ScriptableObject
     private void OnEnable()
     {
         EnsureValidArrays();
+        UpgradeProfileIfNeeded();
     }
 
 #if UNITY_EDITOR
     private void OnValidate()
     {
         EnsureValidArrays();
+        UpgradeProfileIfNeeded();
         SanitizeAll();
     }
 #endif
@@ -422,6 +442,49 @@ public class DangerBalanceProfile : ScriptableObject
         verticalLaserLevels = EnsureArray(verticalLaserLevels, CreateDefaultVerticalLaserLevels);
         horizontalLaserLevels = EnsureArray(horizontalLaserLevels, CreateDefaultHorizontalLaserLevels);
         bombLevels = EnsureArray(bombLevels, CreateDefaultBombLevels);
+    }
+
+    private void UpgradeProfileIfNeeded()
+    {
+        if (profileVersion >= 3)
+            return;
+
+        ProjectileEnemyDangerSettings[] defaults =
+            CreateDefaultProjectileEnemyLevels();
+
+        if (projectileEnemyLevels != null)
+        {
+            int count = Mathf.Min(
+                projectileEnemyLevels.Length,
+                defaults.Length
+            );
+
+            for (int i = 0; i < count; i++)
+            {
+                ProjectileEnemyDangerSettings current =
+                    projectileEnemyLevels[i];
+
+                ProjectileEnemyDangerSettings fallback =
+                    defaults[i];
+
+                if (current == null || fallback == null)
+                    continue;
+
+                current.shotsPerBurst =
+                    fallback.shotsPerBurst;
+
+                current.reloadDuration =
+                    fallback.reloadDuration;
+
+                current.reloadRetreatDistance =
+                    fallback.reloadRetreatDistance;
+
+                current.reloadMoveSpeedMultiplier =
+                    fallback.reloadMoveSpeedMultiplier;
+            }
+        }
+
+        profileVersion = 3;
     }
 
     private void SanitizeAll()
@@ -524,6 +587,10 @@ public class DangerBalanceProfile : ScriptableObject
                 retreatDistance = 4.0f,
                 fireRate = 1.65f,
                 projectileSpeed = 6.2f,
+                shotsPerBurst = 3,
+                reloadDuration = 3.25f,
+                reloadRetreatDistance = 9.5f,
+                reloadMoveSpeedMultiplier = 1.35f,
                 strafeEnabled = true,
                 strafeSpeedMultiplier = 0.60f,
                 strafeDirectionChangeMinTime = 1.6f,
@@ -544,6 +611,10 @@ public class DangerBalanceProfile : ScriptableObject
                 retreatDistance = 3.9f,
                 fireRate = 1.42f,
                 projectileSpeed = 6.9f,
+                shotsPerBurst = 3,
+                reloadDuration = 3.0f,
+                reloadRetreatDistance = 9.2f,
+                reloadMoveSpeedMultiplier = 1.40f,
                 strafeEnabled = true,
                 strafeSpeedMultiplier = 0.70f,
                 strafeDirectionChangeMinTime = 1.3f,
@@ -564,6 +635,10 @@ public class DangerBalanceProfile : ScriptableObject
                 retreatDistance = 3.8f,
                 fireRate = 1.20f,
                 projectileSpeed = 7.7f,
+                shotsPerBurst = 4,
+                reloadDuration = 2.75f,
+                reloadRetreatDistance = 9.0f,
+                reloadMoveSpeedMultiplier = 1.45f,
                 strafeEnabled = true,
                 strafeSpeedMultiplier = 0.80f,
                 strafeDirectionChangeMinTime = 1.0f,
@@ -584,6 +659,10 @@ public class DangerBalanceProfile : ScriptableObject
                 retreatDistance = 3.6f,
                 fireRate = 0.98f,
                 projectileSpeed = 8.7f,
+                shotsPerBurst = 4,
+                reloadDuration = 2.45f,
+                reloadRetreatDistance = 8.7f,
+                reloadMoveSpeedMultiplier = 1.50f,
                 strafeEnabled = true,
                 strafeSpeedMultiplier = 0.90f,
                 strafeDirectionChangeMinTime = 0.8f,
@@ -604,6 +683,10 @@ public class DangerBalanceProfile : ScriptableObject
                 retreatDistance = 3.4f,
                 fireRate = 0.82f,
                 projectileSpeed = 9.8f,
+                shotsPerBurst = 5,
+                reloadDuration = 2.20f,
+                reloadRetreatDistance = 8.5f,
+                reloadMoveSpeedMultiplier = 1.55f,
                 strafeEnabled = true,
                 strafeSpeedMultiplier = 1.00f,
                 strafeDirectionChangeMinTime = 0.65f,

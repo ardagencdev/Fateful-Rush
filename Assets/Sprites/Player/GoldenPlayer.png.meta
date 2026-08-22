@@ -116,9 +116,9 @@ TextureImporter:
       name: GoldenPlayer_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 2
         y: 0
-        width: 1016
+        width: 1022
         height: 1024
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: b8a6b8e2b613bb34182ba2158d7e3d21
+    spriteID: 2dc9f3c170aecaa4785da470adea64fa
     internalID: 0
     vertices: []
     indices: 

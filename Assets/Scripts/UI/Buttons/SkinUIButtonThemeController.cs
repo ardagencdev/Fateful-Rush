@@ -190,10 +190,19 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
 
         if (isMainMenu)
         {
+            ApplyMainMenuAmbientTextThemes(
+                activeScene,
+                themeColor
+            );
+
             ApplyMainMenuRushTitle(
                 activeScene,
                 themeColor
             );
+
+            // Skin theming must never overwrite the Continue level label.
+            // That label previews the target level's gameplay NearStars color.
+            MainMenu.Instance?.RefreshContinueLevelColor();
         }
     }
 
@@ -510,6 +519,125 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private static void ApplyMainMenuAmbientTextThemes(
+        Scene scene,
+        Color themeColor
+    )
+    {
+        themeColor = NormalizeColor(themeColor);
+
+        // The three animated ambient labels (SIGNAL LOST / THREAT UNKNOWN /
+        // NO RETURN VECTOR) continuously rewrite their own TMP color in
+        // MenuFloatingText.Update(). Feed the skin theme into that component
+        // instead of setting TMP_Text.color only once.
+        MenuFloatingText[] floatingTexts =
+            Resources.FindObjectsOfTypeAll<MenuFloatingText>();
+
+        for (int i = 0; i < floatingTexts.Length; i++)
+        {
+            MenuFloatingText floatingText = floatingTexts[i];
+
+            if (floatingText == null || floatingText.gameObject == null)
+                continue;
+
+            if (!floatingText.gameObject.scene.IsValid() ||
+                floatingText.gameObject.scene != scene)
+            {
+                continue;
+            }
+
+            floatingText.SetThemeColor(themeColor);
+        }
+
+        // Also catches decorative static ambient labels such as
+        // "SIGNAL // UNSTABLE" if they are not driven by MenuFloatingText.
+        TMP_Text[] texts =
+            Resources.FindObjectsOfTypeAll<TMP_Text>();
+
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TMP_Text text = texts[i];
+
+            if (!IsTextInScene(text, scene))
+                continue;
+
+            if (!IsMainMenuAmbientAccentText(text) &&
+                !IsMainMenuVersionText(text))
+            {
+                continue;
+            }
+
+            // Animated texts are handled above so their cached baseColor is
+            // updated as well. Reapplying here is harmless, but unnecessary.
+            if (text.GetComponent<MenuFloatingText>() != null)
+                continue;
+
+            Color currentColor = text.color;
+
+            text.color = new Color(
+                themeColor.r,
+                themeColor.g,
+                themeColor.b,
+                currentColor.a
+            );
+        }
+    }
+
+    private static bool IsMainMenuVersionText(TMP_Text text)
+    {
+        if (text == null || text.gameObject == null)
+            return false;
+
+        // Main Menu footer version label is driven by MenuVersionText.
+        // Name check is kept as a fallback in case the component is moved
+        // or the hierarchy is reorganized later.
+        if (text.GetComponent<MenuVersionText>() != null)
+            return true;
+
+        string objectName = text.gameObject.name;
+
+        return ContainsIgnoreCase(objectName, "versiontext") ||
+               ContainsIgnoreCase(objectName, "version");
+    }
+
+    private static bool IsMainMenuAmbientAccentText(TMP_Text text)
+    {
+        if (text == null || text.gameObject == null)
+            return false;
+
+        Transform current = text.transform;
+
+        while (current != null)
+        {
+            string objectName = current.gameObject.name;
+
+            if (ContainsIgnoreCase(objectName, "ambienttexts") ||
+                ContainsIgnoreCase(objectName, "ambienttext"))
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        string textObjectName = text.gameObject.name;
+
+        if (ContainsIgnoreCase(textObjectName, "signallost") ||
+            ContainsIgnoreCase(textObjectName, "threatunknown") ||
+            ContainsIgnoreCase(textObjectName, "noreturnvector") ||
+            ContainsIgnoreCase(textObjectName, "signalunstable"))
+        {
+            return true;
+        }
+
+        string content = text.text;
+
+        return ContainsIgnoreCase(content, "SIGNAL LOST") ||
+               ContainsIgnoreCase(content, "THREAT UNKNOWN") ||
+               ContainsIgnoreCase(content, "NO RETURN VECTOR") ||
+               ContainsIgnoreCase(content, "SIGNAL // UNSTABLE");
     }
 
     private static void ApplyMainMenuRushTitle(

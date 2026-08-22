@@ -227,13 +227,27 @@ MonoBehaviour:
   firePoint: {fileID: 2854675189351112553}
   fireRate: 1.5
   projectileSpeed: 6
+  shotsPerBurst: 3
+  reloadDuration: 3
+  reloadRetreatDistance: 9
+  reloadMoveSpeedMultiplier: 1.4
+  reloadSound: {fileID: 8300000, guid: de8d43ab4ea791b4488048a320c38aae, type: 3}
+  reloadBlinkMinAlpha: 0.2
+  reloadBlinkFrequency: 4.5
   poolSize: 12
   stuckCheckTime: 0.5
   stuckDistance: 0.05
   unstuckDuration: 0.35
   unstuckSideForce: 2
   fireSound: {fileID: 8300000, guid: 56b01a5d46f1a69478e7b7de0c8df811, type: 3}
+  firePitchJitter: 0.015
+  fireVolumeJitter: 0.01
+  reloadPitchJitter: 0.015
+  reloadVolumeJitter: 0.01
   spawnEffectDuration: 0.15
+  enableNearMiss: 1
+  nearMissDistance: 0.8
+  nearMissReleaseDistance: 0.1
 --- !u!1 &2194490060352627480
 GameObject:
   m_ObjectHideFlags: 0

@@ -43,6 +43,7 @@ public class TimeSlowController : MonoBehaviour
 
         SlowPowerUp.isSlowActive = true;
         SlowPowerUp.currentSlowMultiplier = multiplier;
+        GameAudioMixerController.SetSlowMotion(true);
 
         slowRoutine = StartCoroutine(
             SlowRoutine(multiplier, duration)
@@ -93,6 +94,7 @@ public class TimeSlowController : MonoBehaviour
 
         SlowPowerUp.isSlowActive = false;
         SlowPowerUp.currentSlowMultiplier = 1f;
+        GameAudioMixerController.SetSlowMotion(false);
 
         Time.fixedDeltaTime =
             originalFixedDeltaTime;
@@ -147,6 +149,7 @@ public class TimeSlowController : MonoBehaviour
 
         SlowPowerUp.isSlowActive = false;
         SlowPowerUp.currentSlowMultiplier = 1f;
+        GameAudioMixerController.SetSlowMotion(false);
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime =
@@ -196,6 +199,7 @@ public class TimeSlowController : MonoBehaviour
 
         SlowPowerUp.isSlowActive = false;
         SlowPowerUp.currentSlowMultiplier = 1f;
+        GameAudioMixerController.SetSlowMotion(false);
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime =

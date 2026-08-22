@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 8d406103afa59cc46b32778e218f92de
+guid: 5e74ebc86d52bde46950bef3e2e16094
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3326103058536227812
-    second: unlocked_0
-  - first:
-      213: 85292459976491255
-    second: unlocked_1
+      213: -2725262614998627365
+    second: PinkPlayer_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,12 +100,12 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 48
     textureCompression: 1
-    compressionQuality: 50
+    compressionQuality: 100
     crunchedCompression: 0
     allowsAlphaSplitting: 0
-    overridden: 0
+    overridden: 1
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
@@ -116,45 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: unlocked_0
+      name: PinkPlayer_0
       rect:
         serializedVersion: 2
-        x: 50
+        x: 2
         y: 0
-        width: 1822
-        height: 835
+        width: 1022
+        height: 1024
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e3646afb11b82e20800000000000000
-      internalID: 3326103058536227812
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: unlocked_1
-      rect:
-        serializedVersion: 2
-        x: 1799
-        y: 15
-        width: 19
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7f00bea5a050f2100800000000000000
-      internalID: 85292459976491255
+      spriteID: bdbca59371ced2ad0800000000000000
+      internalID: -2725262614998627365
       vertices: []
       indices: 
       edges: []
@@ -163,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: e20a1a38d1c9a4a4da9911a32ec7957a
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      unlocked_0: 3326103058536227812
-      unlocked_1: 85292459976491255
+      PinkPlayer_0: -2725262614998627365
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

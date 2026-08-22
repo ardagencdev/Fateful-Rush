@@ -37,6 +37,7 @@ public static class EnemyAreaStrikeUtility
             if ((playerPosition - origin).sqrMagnitude >
                 safeRadius * safeRadius)
             {
+                RecordAoeEvade(deathCause);
                 return false;
             }
         }
@@ -46,6 +47,7 @@ public static class EnemyAreaStrikeUtility
                 playerPosition,
                 coverLayers))
         {
+            RecordAoeEvade(deathCause);
             return false;
         }
 
@@ -58,6 +60,22 @@ public static class EnemyAreaStrikeUtility
 
         playerMovement.GameOver(deathCause);
         return true;
+    }
+
+
+    private static void RecordAoeEvade(string deathCause)
+    {
+        if (string.IsNullOrWhiteSpace(deathCause))
+            return;
+
+        if (deathCause == "BOSS")
+        {
+            StatsManager.AddBossAoeEvade();
+            return;
+        }
+
+        if (deathCause == "MINI BOSS")
+            StatsManager.AddMiniBossAoeEvade();
     }
 
     public static bool IsProtectedByCover(

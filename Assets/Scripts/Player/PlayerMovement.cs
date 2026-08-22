@@ -23,6 +23,15 @@ public class PlayerMovement : MonoBehaviour
     )]
     public ComboSpeedStage[] comboSpeedStages;
 
+    [Header("Near Miss Boost")]
+    [Tooltip("Near Miss sonrasi uygulanan sabit hareket hizi carpani. 1.05 = %5 boost.")]
+    [SerializeField, Range(1f, 1.20f)]
+    private float nearMissSpeedMultiplier = 1.05f;
+
+    [Tooltip("Near Miss hareket bonusunun gercek zaman cinsinden suresi.")]
+    [SerializeField, Min(0.05f)]
+    private float nearMissBoostDuration = 1f;
+
     [Header("Movement Feel")]
     [Min(0f)]
     public float acceleration = 70f;
@@ -66,6 +75,8 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 originalScale;
     private int facingDirection = 1;
+
+    private float nearMissBoostEndTime = -100f;
 
     public Vector2 LastMoveDirection { get; private set; } =
         Vector2.right;
@@ -324,30 +335,56 @@ public class PlayerMovement : MonoBehaviour
     {
         float currentSpeed = speed;
 
-        if (coinCollector == null)
-            return currentSpeed;
-
-        bool hasConfiguredStages =
-            comboSpeedStages != null &&
-            comboSpeedStages.Length > 0;
-
-        if (hasConfiguredStages)
+        if (coinCollector != null)
         {
-            float multiplier =
-                GetComboSpeedMultiplier(
-                    coinCollector.Combo
-                );
+            bool hasConfiguredStages =
+                comboSpeedStages != null &&
+                comboSpeedStages.Length > 0;
 
-            return multiplier > 0f
-                ? currentSpeed * multiplier
-                : currentSpeed;
+            if (hasConfiguredStages)
+            {
+                float multiplier =
+                    GetComboSpeedMultiplier(
+                        coinCollector.Combo
+                    );
+
+                if (multiplier > 0f)
+                    currentSpeed *= multiplier;
+            }
+            else if (coinCollector.Combo >= 3)
+            {
+                // Legacy fallback when no combo stages are configured.
+                currentSpeed += comboSpeedBonus;
+            }
         }
 
-        // Legacy fallback when no combo stages are configured.
-        if (coinCollector.Combo >= 3)
-            currentSpeed += comboSpeedBonus;
+        if (IsNearMissBoostActive)
+            currentSpeed *= nearMissSpeedMultiplier;
 
         return currentSpeed;
+    }
+
+    public bool IsNearMissBoostActive =>
+        !IsGameOver &&
+        Time.unscaledTime < nearMissBoostEndTime;
+
+    public void ApplyNearMissBoost()
+    {
+        if (IsGameOver ||
+            !GameStateManager.IsGameplayStarted ||
+            GameStateManager.IsGameplayEnded)
+        {
+            return;
+        }
+
+        // Near Miss'ler hizi stacklemez. Yeni Near Miss sadece sureyi yeniler.
+        nearMissBoostEndTime =
+            Time.unscaledTime + nearMissBoostDuration;
+    }
+
+    private void ClearNearMissBoost()
+    {
+        nearMissBoostEndTime = -100f;
     }
 
     private float GetComboSpeedMultiplier(
@@ -478,7 +515,10 @@ public class PlayerMovement : MonoBehaviour
         IsGameOver = value;
 
         if (value)
+        {
+            ClearNearMissBoost();
             StopMovement();
+        }
     }
 
     public void GameOver(
@@ -489,6 +529,7 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         IsGameOver = true;
+        ClearNearMissBoost();
         StopMovement();
 
         LastDeathInfo.Cause =
@@ -532,6 +573,10 @@ public class PlayerMovement : MonoBehaviour
     {
         speed = Mathf.Max(0f, speed);
         comboSpeedBonus = FixedComboSpeedBonus;
+        nearMissSpeedMultiplier =
+            Mathf.Clamp(nearMissSpeedMultiplier, 1f, 1.20f);
+        nearMissBoostDuration =
+            Mathf.Max(0.05f, nearMissBoostDuration);
 
         acceleration = Mathf.Max(0f, acceleration);
         deceleration = Mathf.Max(0f, deceleration);

@@ -17,22 +17,10 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     [SerializeField]
     private Camera nearStarsCamera;
 
-    [Header("Panel Colors")]
-    [SerializeField]
-    private Color mainMenuColor =
-        new Color(0.65f, 0.2f, 1f, 0.9f);
-
-    [SerializeField]
-    private Color missionBriefingColor =
-        new Color(1f, 0.2f, 0.55f, 0.9f);
-
-    [SerializeField]
-    private Color optionsColor =
-        new Color(0.2f, 1f, 0.65f, 0.9f);
-
-    [SerializeField]
-    private Color statsColor =
-        new Color(1f, 0.75f, 0.2f, 0.9f);
+    [Header("Skin Theme NearStars")]
+    [Tooltip("NearStars use the selected player's UI accent color on every Main Menu panel.")]
+    [SerializeField, Range(0f, 1f)]
+    private float skinThemeAlpha = 0.9f;
 
     [Header("Base Panel Density")]
     [SerializeField, Min(0f)]
@@ -42,14 +30,6 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     private int basePanelMaxParticles = 50;
 
     [Header("Level Page Progression")]
-    [SerializeField]
-    private Color firstLevelPageColor =
-        new Color(1f, 1f, 1f, 0.9f);
-
-    [SerializeField]
-    private Color lastLevelPageColor =
-        new Color(1f, 0.08f, 0.08f, 0.9f);
-
     [Tooltip("Screen-edge sisteminde eski Volume emission değerlerinden daha düşük tutulmalı.")]
     [SerializeField, Min(0f)]
     private float firstPageEmissionRate = 4.25f;
@@ -114,7 +94,6 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     private ParticleSystem.MinMaxCurve originalVelocityZ;
 
     private bool skinPreviewActive;
-    private Color skinPreviewRestoreColor;
     private float skinPreviewRestoreEmissionRate;
     private float skinPreviewRestoreMaxParticles;
     private float skinPreviewRestoreFlowMultiplier;
@@ -142,6 +121,11 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
         Instance = this;
 
+        PlayerSkinCatalog.SelectedSkinChanged -=
+            HandleSelectedSkinChanged;
+        PlayerSkinCatalog.SelectedSkinChanged +=
+            HandleSelectedSkinChanged;
+
         if (nearStars == null)
             nearStars = GetComponent<ParticleSystem>();
 
@@ -149,7 +133,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         CacheOriginalParticleSettings();
         ConfigureScreenEdgeFlow();
 
-        currentColor = mainMenuColor;
+        currentColor = GetSelectedSkinThemeColor();
         currentEmissionRate = basePanelEmissionRate;
         currentMaxParticles = basePanelMaxParticles;
         currentFlowMultiplier = 1f;
@@ -187,14 +171,29 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
     private void OnDestroy()
     {
+        PlayerSkinCatalog.SelectedSkinChanged -=
+            HandleSelectedSkinChanged;
+
         if (Instance == this)
             Instance = null;
+    }
+
+    private void HandleSelectedSkinChanged()
+    {
+        skinPreviewActive = false;
+
+        ChangeState(
+            GetSelectedSkinThemeColor(),
+            currentEmissionRate,
+            Mathf.RoundToInt(currentMaxParticles),
+            currentFlowMultiplier
+        );
     }
 
     public void ShowMainMenuColor()
     {
         ChangeState(
-            mainMenuColor,
+            GetSelectedSkinThemeColor(),
             basePanelEmissionRate,
             basePanelMaxParticles,
             1f
@@ -228,11 +227,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
                   (float)(safePageCount - 1);
 
         Color targetColor =
-            Color.Lerp(
-                firstLevelPageColor,
-                lastLevelPageColor,
-                progress
-            );
+            GetSelectedSkinThemeColor();
 
         float targetEmissionRate =
             Mathf.Lerp(
@@ -268,7 +263,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     public void ShowMissionBriefingColor()
     {
         ChangeState(
-            missionBriefingColor,
+            GetSelectedSkinThemeColor(),
             basePanelEmissionRate,
             basePanelMaxParticles,
             1f
@@ -278,7 +273,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     public void ShowOptionsColor()
     {
         ChangeState(
-            optionsColor,
+            GetSelectedSkinThemeColor(),
             basePanelEmissionRate,
             basePanelMaxParticles,
             1f
@@ -288,7 +283,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     public void ShowStatsColor()
     {
         ChangeState(
-            statsColor,
+            GetSelectedSkinThemeColor(),
             basePanelEmissionRate,
             basePanelMaxParticles,
             1f
@@ -306,7 +301,6 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             transitionRoutine = null;
         }
 
-        skinPreviewRestoreColor = currentColor;
         skinPreviewRestoreEmissionRate = currentEmissionRate;
         skinPreviewRestoreMaxParticles = currentMaxParticles;
         skinPreviewRestoreFlowMultiplier = currentFlowMultiplier;
@@ -321,11 +315,8 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         if (!skinPreviewActive)
             BeginSkinPreview();
 
-        Color targetColor = NormalizePreviewColor(skinColor);
-        targetColor.a = currentColor.a;
-
         ChangeState(
-            targetColor,
+            GetSelectedSkinThemeColor(),
             currentEmissionRate,
             Mathf.RoundToInt(currentMaxParticles),
             currentFlowMultiplier
@@ -340,7 +331,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         skinPreviewActive = false;
 
         ChangeState(
-            skinPreviewRestoreColor,
+            GetSelectedSkinThemeColor(),
             skinPreviewRestoreEmissionRate,
             Mathf.RoundToInt(skinPreviewRestoreMaxParticles),
             skinPreviewRestoreFlowMultiplier
@@ -1218,8 +1209,14 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         screenEdgeSettingsVersion = 2;
     }
 
-    private static Color NormalizePreviewColor(Color color)
+    private Color GetSelectedSkinThemeColor()
     {
+        PlayerSkinCatalog catalog = ResolveSkinCatalog();
+
+        Color color = catalog != null
+            ? catalog.GetSelectedUIThemeColor()
+            : Color.white;
+
         float highestChannel = Mathf.Max(
             color.r,
             color.g,
@@ -1233,8 +1230,37 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             color.b /= highestChannel;
         }
 
-        color.a = 1f;
+        color.a = Mathf.Clamp01(skinThemeAlpha);
         return color;
+    }
+
+    private static PlayerSkinCatalog ResolveSkinCatalog()
+    {
+        if (PlayerSkinCatalog.LoadedInstance != null)
+            return PlayerSkinCatalog.LoadedInstance;
+
+        PlayerSkinCatalog[] catalogs =
+            Resources.FindObjectsOfTypeAll<PlayerSkinCatalog>();
+
+        if (catalogs == null || catalogs.Length == 0)
+            return null;
+
+        for (int i = 0; i < catalogs.Length; i++)
+        {
+            PlayerSkinCatalog catalog = catalogs[i];
+
+            if (catalog != null &&
+                string.Equals(
+                    catalog.name,
+                    "PlayerSkinCatalog",
+                    System.StringComparison.Ordinal
+                ))
+            {
+                return catalog;
+            }
+        }
+
+        return catalogs[0];
     }
 
     private static float EaseInOutCubic(
@@ -1268,6 +1294,9 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
                 0.01f,
                 transitionDuration
             );
+
+        skinThemeAlpha =
+            Mathf.Clamp01(skinThemeAlpha);
 
         basePanelEmissionRate =
             Mathf.Max(

@@ -3,6 +3,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class StarfieldController : MonoBehaviour
 {
+    public Color CurrentNearStarsColor { get; private set; } = Color.white;
+
     [Header("STAR LAYERS")]
     [SerializeField] private ParticleSystem farStars;
     [SerializeField] private ParticleSystem midStars;
@@ -133,6 +135,10 @@ public class StarfieldController : MonoBehaviour
         Color levelColor = level.randomizeNearStarsColor
             ? GenerateRandomStarColor()
             : ForceOpaque(level.nearStarsColor);
+
+        // Store the exact color applied to gameplay NearStars so HUD elements
+        // can match it one-to-one (including randomized test levels).
+        CurrentNearStarsColor = levelColor;
 
         float speedMultiplier = Mathf.Max(0f, level.nearStarsSpeedMultiplier);
         float sizeMultiplier = Mathf.Max(0f, level.nearStarsSizeMultiplier);

@@ -61,6 +61,47 @@ public class SoundManager : MonoBehaviour
     public AudioClip dashSound;
     public AudioClip voidCloneSound;
 
+
+    [Header("SFX Variation")]
+    [Tooltip("Adds very small random pitch/volume changes to frequently repeated gameplay SFX. Critical warnings and win/lose cues stay fixed.")]
+    [SerializeField]
+    private bool enableSfxVariation = true;
+
+    [Tooltip("Optional extra clips for the regular coin sound. The original coinSound remains part of the pool.")]
+    [SerializeField]
+    private AudioClip[] coinSoundVariants;
+
+    [Tooltip("Optional extra clips for dash. The original dashSound remains part of the pool.")]
+    [SerializeField]
+    private AudioClip[] dashSoundVariants;
+
+    [Tooltip("Optional extra clips for armor pickup. The original clip remains part of the pool.")]
+    [SerializeField]
+    private AudioClip[] armorCollectSoundVariants;
+
+    [Tooltip("Optional extra clips for slow pickup. The original clip remains part of the pool.")]
+    [SerializeField]
+    private AudioClip[] slowCollectSoundVariants;
+
+    [Tooltip("Optional extra clips for clone activation. The original clip remains part of the pool.")]
+    [SerializeField]
+    private AudioClip[] voidCloneSoundVariants;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float coinPitchJitter = 0.025f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float dashPitchJitter = 0.018f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float pickupPitchJitter = 0.012f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float clonePitchJitter = 0.015f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float frequentSfxVolumeJitter = 0.012f;
+
     [Header("Prestige Skin Coin Sounds")]
     [Tooltip("Used only while the DARK skin is equipped. Falls back to the normal coin sound if empty.")]
     public AudioClip darkCoinSound;
@@ -98,6 +139,16 @@ public class SoundManager : MonoBehaviour
     public AudioClip comboStageSound;
     public AudioClip newSkinUnlockedSound;
 
+    [Header("Near Miss")]
+    [Tooltip("Optional override. If empty, the bundled Resources/Audio/NearMissWhoosh clip is loaded automatically.")]
+    public AudioClip nearMissSound;
+
+    [Range(0f, 1f)]
+    public float nearMissVolume = 0.52f;
+
+    [SerializeField, Range(0f, 0.05f)]
+    private float nearMissPitchJitter = 0.012f;
+
     [Header("Gameplay Event Volumes")]
     [Range(0f, 1f)] public float spaceBombSpawnVolume = 0.9f;
     [Range(0f, 1f)] public float bossAoeWarningVolume = 1f;
@@ -121,6 +172,12 @@ public class SoundManager : MonoBehaviour
     private int spatialSourceCursor;
     private AudioListener cachedListener;
 
+    private int lastCoinVariantIndex = -1;
+    private int lastDashVariantIndex = -1;
+    private int lastArmorCollectVariantIndex = -1;
+    private int lastSlowCollectVariantIndex = -1;
+    private int lastCloneVariantIndex = -1;
+
     public float ArmorBreakSoundDuration =>
         armorBreakSound != null ? armorBreakSound.length : 0f;
 
@@ -135,6 +192,12 @@ public class SoundManager : MonoBehaviour
 
             if (!soundOn)
                 return 0f;
+
+            // Mixer kuruluysa kullanici SFX slider gain'i AudioMixer
+            // uzerinden uygulanir. Source seviyesinde tekrar carpip volume'u
+            // iki kez dusurmemek icin burada unity gain doneriz.
+            if (GameAudioMixerController.IsReady)
+                return 1f;
 
             return Mathf.Clamp01(
                 PlayerPrefs.GetFloat("SFXVolume", 1f)
@@ -158,6 +221,14 @@ public class SoundManager : MonoBehaviour
 
         if (sfxSource != null)
             ConfigureWorldAudioSource(sfxSource);
+
+        if (nearMissSound == null)
+        {
+            nearMissSound =
+                Resources.Load<AudioClip>(
+                    "Audio/NearMissWhoosh"
+                );
+        }
 
         PrepareSpatialPool();
     }
@@ -205,40 +276,156 @@ public class SoundManager : MonoBehaviour
     // Core / player / pickup SFX
     // ---------------------------------------------------------------------
 
-    public void PlayCoinSound() =>
-        PlayCenteredSound(coinSound);
+    public void PlayCoinSound()
+    {
+        PlayVariedCenteredSound(
+            coinSound,
+            coinSoundVariants,
+            ref lastCoinVariantIndex,
+            coinPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
-    public void PlayCoinSound(Vector3 worldPosition) =>
-        PlayWorldSound(coinSound, worldPosition);
+    public void PlayCoinSound(Vector3 worldPosition)
+    {
+        PlayVariedWorldSound(
+            coinSound,
+            coinSoundVariants,
+            ref lastCoinVariantIndex,
+            worldPosition,
+            coinPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
-    public void PlayCoinSound(string skinId) =>
-        PlayCenteredSound(GetCoinClipForSkin(skinId));
+    public void PlayCoinSound(string skinId)
+    {
+        AudioClip clip = GetCoinClipForSkin(skinId);
+        bool regularCoin = clip == coinSound;
 
-    public void PlayCoinSound(string skinId, Vector3 worldPosition) =>
-        PlayWorldSound(GetCoinClipForSkin(skinId), worldPosition);
+        PlayVariedCenteredSound(
+            clip,
+            regularCoin ? coinSoundVariants : null,
+            ref lastCoinVariantIndex,
+            coinPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
-    public void PlayLoseSound() => PlayCenteredSound(loseSound);
-    public void PlayWinSound() => PlayCenteredSound(winSound);
+    public void PlayCoinSound(string skinId, Vector3 worldPosition)
+    {
+        AudioClip clip = GetCoinClipForSkin(skinId);
+        bool regularCoin = clip == coinSound;
 
-    public void PlayArmorCollectSound() => PlayCenteredSound(armorCollectSound);
-    public void PlayArmorCollectSound(Vector3 worldPosition) =>
-        PlayWorldSound(armorCollectSound, worldPosition);
+        PlayVariedWorldSound(
+            clip,
+            regularCoin ? coinSoundVariants : null,
+            ref lastCoinVariantIndex,
+            worldPosition,
+            coinPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
-    public void PlayArmorBreakSound() => PlayCenteredSound(armorBreakSound);
+    public void PlayLoseSound() => PlayCenteredCriticalSound(loseSound);
+    public void PlayWinSound() => PlayCenteredCriticalSound(winSound);
+
+    public void PlayArmorCollectSound()
+    {
+        PlayVariedCenteredSound(
+            armorCollectSound,
+            armorCollectSoundVariants,
+            ref lastArmorCollectVariantIndex,
+            pickupPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
+
+    public void PlayArmorCollectSound(Vector3 worldPosition)
+    {
+        PlayVariedWorldSound(
+            armorCollectSound,
+            armorCollectSoundVariants,
+            ref lastArmorCollectVariantIndex,
+            worldPosition,
+            pickupPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
+
+    public void PlayArmorBreakSound() => PlayCenteredCriticalSound(armorBreakSound);
     public void PlayArmorBreakSound(Vector3 worldPosition) =>
-        PlayWorldSound(armorBreakSound, worldPosition);
+        PlayWorldCriticalSound(armorBreakSound, worldPosition);
 
-    public void PlaySlowCollectSound() => PlayCenteredSound(slowCollectSound);
-    public void PlaySlowCollectSound(Vector3 worldPosition) =>
-        PlayWorldSound(slowCollectSound, worldPosition);
+    public void PlaySlowCollectSound()
+    {
+        PlayVariedCenteredSound(
+            slowCollectSound,
+            slowCollectSoundVariants,
+            ref lastSlowCollectVariantIndex,
+            pickupPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
-    public void PlayDashSound() => PlayCenteredSound(dashSound);
-    public void PlayDashSound(Vector3 worldPosition) =>
-        PlayWorldSound(dashSound, worldPosition);
+    public void PlaySlowCollectSound(Vector3 worldPosition)
+    {
+        PlayVariedWorldSound(
+            slowCollectSound,
+            slowCollectSoundVariants,
+            ref lastSlowCollectVariantIndex,
+            worldPosition,
+            pickupPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
-    public void PlayVoidCloneSound() => PlayCenteredSound(voidCloneSound);
-    public void PlayVoidCloneSound(Vector3 worldPosition) =>
-        PlayWorldSound(voidCloneSound, worldPosition);
+    public void PlayDashSound()
+    {
+        PlayVariedCenteredSound(
+            dashSound,
+            dashSoundVariants,
+            ref lastDashVariantIndex,
+            dashPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
+
+    public void PlayDashSound(Vector3 worldPosition)
+    {
+        PlayVariedWorldSound(
+            dashSound,
+            dashSoundVariants,
+            ref lastDashVariantIndex,
+            worldPosition,
+            dashPitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
+
+    public void PlayVoidCloneSound()
+    {
+        PlayVariedCenteredSound(
+            voidCloneSound,
+            voidCloneSoundVariants,
+            ref lastCloneVariantIndex,
+            clonePitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
+
+    public void PlayVoidCloneSound(Vector3 worldPosition)
+    {
+        PlayVariedWorldSound(
+            voidCloneSound,
+            voidCloneSoundVariants,
+            ref lastCloneVariantIndex,
+            worldPosition,
+            clonePitchJitter,
+            frequentSfxVolumeJitter
+        );
+    }
 
     // ---------------------------------------------------------------------
     // UI SFX. No-argument versions remain for compatibility and are still
@@ -246,79 +433,79 @@ public class SoundManager : MonoBehaviour
     // ---------------------------------------------------------------------
 
     public void PlayMissionBriefingOpenSound() =>
-        PlayCenteredSound(missionBriefingOpenSound);
+        PlayCenteredUISound(missionBriefingOpenSound);
 
     public void PlayMissionBriefingOpenSound(RectTransform sourceRect) =>
         PlayUISound(missionBriefingOpenSound, sourceRect);
 
     public void PlayPremiumInterfaceSound() =>
-        PlayCenteredSound(premiumInterfaceSound);
+        PlayCenteredUISound(premiumInterfaceSound);
 
     public void PlayPremiumInterfaceSound(RectTransform sourceRect) =>
         PlayUISound(premiumInterfaceSound, sourceRect);
 
     public void PlayMissionSelectSound() =>
-        PlayCenteredSound(missionSelectSound);
+        PlayCenteredUISound(missionSelectSound);
 
     public void PlayMissionSelectSound(RectTransform sourceRect) =>
         PlayUISound(missionSelectSound, sourceRect);
 
     public void PlayStartButtonSound() =>
-        PlayCenteredSound(startButtonSound);
+        PlayCenteredUISound(startButtonSound);
 
     public void PlayStartButtonSound(RectTransform sourceRect) =>
         PlayUISound(startButtonSound, sourceRect);
 
     public void PlayLockedLevelSound() =>
-        PlayCenteredSound(lockedLevelSound);
+        PlayCenteredUISound(lockedLevelSound);
 
     public void PlayLockedLevelSound(RectTransform sourceRect) =>
         PlayUISound(lockedLevelSound, sourceRect);
 
     public void PlayMenuButtonSound() =>
-        PlayCenteredSound(menuButtonSound);
+        PlayCenteredUISound(menuButtonSound);
 
     public void PlayMenuButtonSound(RectTransform sourceRect) =>
         PlayUISound(menuButtonSound, sourceRect);
 
     public void PlayBackButtonSound() =>
-        PlayCenteredSound(backButtonSound);
+        PlayCenteredUISound(backButtonSound);
 
     public void PlayBackButtonSound(RectTransform sourceRect) =>
         PlayUISound(backButtonSound, sourceRect);
 
     public void PlayOptionButtonSound() =>
-        PlayCenteredSound(optionButtonSound);
+        PlayCenteredUISound(optionButtonSound);
 
     public void PlayOptionButtonSound(RectTransform sourceRect) =>
         PlayUISound(optionButtonSound, sourceRect);
 
     public void PlayNextButtonSound() =>
-        PlayCenteredSound(previousButtonSound);
+        PlayCenteredUISound(previousButtonSound);
 
     public void PlayNextButtonSound(RectTransform sourceRect) =>
         PlayUISound(previousButtonSound, sourceRect);
 
     public void PlayPreviousButtonSound() =>
-        PlayCenteredSound(previousButtonSound);
+        PlayCenteredUISound(previousButtonSound);
 
     public void PlayPreviousButtonSound(RectTransform sourceRect) =>
         PlayUISound(previousButtonSound, sourceRect);
 
     public void PlaySkinEquipSound() =>
-        PlayCenteredSound(skinEquipSound);
+        PlayCenteredUISound(skinEquipSound);
 
     public void PlaySkinEquipSound(RectTransform sourceRect) =>
         PlayUISound(skinEquipSound, sourceRect);
 
     public void PlayExitButtonSound() =>
-        PlayCenteredSound(exitButtonSound);
+        PlayCenteredUISound(exitButtonSound);
 
     public void PlayExitButtonSound(RectTransform sourceRect) =>
         PlayUISound(exitButtonSound, sourceRect);
 
     public void PlayRestartButtonSound() =>
-        PlayCenteredSound(restartButtonSound);
+        PlayCenteredUISound(restartButtonSound);
 
     public void PlayRestartButtonSound(RectTransform sourceRect) =>
         PlayUISound(restartButtonSound, sourceRect);
@@ -328,40 +515,73 @@ public class SoundManager : MonoBehaviour
     // ---------------------------------------------------------------------
 
     public void PlaySpaceBombSpawnSound() =>
-        PlayCenteredSound(spaceBombSpawnSound, spaceBombSpawnVolume);
+        PlayCenteredCriticalSound(spaceBombSpawnSound, spaceBombSpawnVolume);
 
     public void PlaySpaceBombSpawnSound(Vector3 worldPosition) =>
-        PlayWorldSound(spaceBombSpawnSound, worldPosition, spaceBombSpawnVolume);
+        PlayWorldCriticalSound(spaceBombSpawnSound, worldPosition, spaceBombSpawnVolume);
 
     public void PlayBossAoeWarningSound() =>
-        PlayCenteredSound(bossAoeWarningSound, bossAoeWarningVolume);
+        PlayCenteredCriticalSound(bossAoeWarningSound, bossAoeWarningVolume);
 
     public void PlayBossAoeWarningSound(Vector3 worldPosition) =>
-        PlayWorldSound(bossAoeWarningSound, worldPosition, bossAoeWarningVolume);
+        PlayWorldCriticalSound(bossAoeWarningSound, worldPosition, bossAoeWarningVolume);
 
     public void PlayBossSplitSound() =>
-        PlayCenteredSound(bossSplitSound, bossSplitVolume);
+        PlayCenteredCriticalSound(bossSplitSound, bossSplitVolume);
 
     public void PlayBossSplitSound(Vector3 worldPosition) =>
-        PlayWorldSound(bossSplitSound, worldPosition, bossSplitVolume);
+        PlayWorldCriticalSound(bossSplitSound, worldPosition, bossSplitVolume);
 
     public void PlayLaserWarningSound() =>
-        PlayCenteredSound(laserWarningSound, laserWarningVolume);
+        PlayCenteredCriticalSound(laserWarningSound, laserWarningVolume);
 
     public void PlayLaserWarningSound(Vector3 worldPosition) =>
-        PlayWorldSound(laserWarningSound, worldPosition, laserWarningVolume);
+        PlayWorldCriticalSound(laserWarningSound, worldPosition, laserWarningVolume);
 
     public void PlayComboStageSound() =>
-        PlayCenteredSound(comboStageSound, comboStageVolume);
+        PlayCenteredUISound(comboStageSound, comboStageVolume);
 
     public void PlayComboStageSound(RectTransform sourceRect) =>
         PlayUISound(comboStageSound, sourceRect, comboStageVolume);
 
     public void PlayNewSkinUnlockedSound() =>
-        PlayCenteredSound(newSkinUnlockedSound, newSkinUnlockedVolume);
+        PlayCenteredUISound(newSkinUnlockedSound, newSkinUnlockedVolume);
 
     public void PlayNewSkinUnlockedSound(RectTransform sourceRect) =>
         PlayUISound(newSkinUnlockedSound, sourceRect, newSkinUnlockedVolume);
+
+    public void PlayNearMissSound(
+        Vector3 worldPosition,
+        float closeness01 = 1f)
+    {
+        if (nearMissSound == null)
+            return;
+
+        float closeness =
+            Mathf.Clamp01(closeness01);
+
+        float volume =
+            nearMissVolume *
+            Mathf.Lerp(0.82f, 1f, closeness);
+
+        float basePitch =
+            Mathf.Lerp(0.985f, 1.015f, closeness);
+
+        float pitch =
+            enableSfxVariation
+                ? GetVariedPitch(
+                    basePitch,
+                    nearMissPitchJitter
+                )
+                : basePitch;
+
+        PlayWorldCriticalSound(
+            nearMissSound,
+            worldPosition,
+            volume,
+            pitch
+        );
+    }
 
     public void PlayBeaconActivationWaveSound() =>
         PlayCenteredSound(beaconActivationWaveSound, beaconActivationVolume);
@@ -418,6 +638,20 @@ public class SoundManager : MonoBehaviour
         );
     }
 
+    public void PlayCriticalSoundAtWorld(
+        AudioClip customClip,
+        Vector3 worldPosition,
+        float volumeMultiplier = 1f,
+        float pitch = 1f)
+    {
+        PlayWorldCriticalSound(
+            customClip,
+            worldPosition,
+            volumeMultiplier,
+            pitch
+        );
+    }
+
     public static void ConfigureAsWorld3D(AudioSource source)
     {
         if (source == null)
@@ -435,9 +669,24 @@ public class SoundManager : MonoBehaviour
         source.rolloffMode = AudioRolloffMode.Linear;
         source.minDistance = 25f;
         source.maxDistance = 60f;
+
+        GameAudioMixerController.Route(
+            source,
+            GameAudioMixerController.AudioBus.GameplaySFX
+        );
     }
 
     public void ConfigureWorldAudioSource(AudioSource source)
+    {
+        ConfigureWorldAudioSource(
+            source,
+            GameAudioMixerController.AudioBus.GameplaySFX
+        );
+    }
+
+    public void ConfigureWorldAudioSource(
+        AudioSource source,
+        GameAudioMixerController.AudioBus bus)
     {
         if (source == null)
             return;
@@ -448,6 +697,162 @@ public class SoundManager : MonoBehaviour
         source.rolloffMode = spatialRolloffMode;
         source.minDistance = spatialMinDistance;
         source.maxDistance = spatialMaxDistance;
+
+        GameAudioMixerController.Route(source, bus);
+    }
+
+    public static float GetVariedPitch(float basePitch, float jitterAmount)
+    {
+        float jitter = Mathf.Max(0f, jitterAmount);
+
+        if (jitter <= 0f)
+            return basePitch;
+
+        return Mathf.Clamp(
+            basePitch + Random.Range(-jitter, jitter),
+            -3f,
+            3f
+        );
+    }
+
+    public static float GetVariedVolumeMultiplier(
+        float baseMultiplier,
+        float jitterAmount)
+    {
+        float jitter = Mathf.Max(0f, jitterAmount);
+
+        if (jitter <= 0f)
+            return Mathf.Max(0f, baseMultiplier);
+
+        return Mathf.Max(
+            0f,
+            baseMultiplier * (1f + Random.Range(-jitter, jitter))
+        );
+    }
+
+    private void PlayVariedCenteredSound(
+        AudioClip primaryClip,
+        AudioClip[] extraClips,
+        ref int lastVariantIndex,
+        float pitchJitter,
+        float volumeJitter)
+    {
+        AudioClip clip = SelectVariationClip(
+            primaryClip,
+            extraClips,
+            ref lastVariantIndex
+        );
+
+        float pitch = enableSfxVariation
+            ? GetVariedPitch(1f, pitchJitter)
+            : 1f;
+
+        float volume = enableSfxVariation
+            ? GetVariedVolumeMultiplier(1f, volumeJitter)
+            : 1f;
+
+        PlayCenteredSound(clip, volume, pitch);
+    }
+
+    private void PlayVariedWorldSound(
+        AudioClip primaryClip,
+        AudioClip[] extraClips,
+        ref int lastVariantIndex,
+        Vector3 worldPosition,
+        float pitchJitter,
+        float volumeJitter)
+    {
+        AudioClip clip = SelectVariationClip(
+            primaryClip,
+            extraClips,
+            ref lastVariantIndex
+        );
+
+        float pitch = enableSfxVariation
+            ? GetVariedPitch(1f, pitchJitter)
+            : 1f;
+
+        float volume = enableSfxVariation
+            ? GetVariedVolumeMultiplier(1f, volumeJitter)
+            : 1f;
+
+        PlayWorldSound(clip, worldPosition, volume, pitch);
+    }
+
+    private AudioClip SelectVariationClip(
+        AudioClip primaryClip,
+        AudioClip[] extraClips,
+        ref int lastVariantIndex)
+    {
+        if (!enableSfxVariation ||
+            extraClips == null ||
+            extraClips.Length == 0)
+        {
+            lastVariantIndex = -1;
+            return primaryClip;
+        }
+
+        int validExtraCount = 0;
+
+        for (int i = 0; i < extraClips.Length; i++)
+        {
+            if (extraClips[i] != null)
+                validExtraCount++;
+        }
+
+        int totalCount = (primaryClip != null ? 1 : 0) + validExtraCount;
+
+        if (totalCount <= 0)
+            return null;
+
+        if (totalCount == 1)
+        {
+            lastVariantIndex = 0;
+
+            if (primaryClip != null)
+                return primaryClip;
+
+            for (int i = 0; i < extraClips.Length; i++)
+            {
+                if (extraClips[i] != null)
+                    return extraClips[i];
+            }
+        }
+
+        int selectedIndex;
+        int safety = 0;
+
+        do
+        {
+            selectedIndex = Random.Range(0, totalCount);
+            safety++;
+        }
+        while (selectedIndex == lastVariantIndex && safety < 8);
+
+        lastVariantIndex = selectedIndex;
+
+        if (primaryClip != null)
+        {
+            if (selectedIndex == 0)
+                return primaryClip;
+
+            selectedIndex--;
+        }
+
+        for (int i = 0; i < extraClips.Length; i++)
+        {
+            AudioClip candidate = extraClips[i];
+
+            if (candidate == null)
+                continue;
+
+            if (selectedIndex == 0)
+                return candidate;
+
+            selectedIndex--;
+        }
+
+        return primaryClip;
     }
 
     private AudioClip GetCoinClipForSkin(string skinId)
@@ -469,13 +874,57 @@ public class SoundManager : MonoBehaviour
     private void PlayCenteredSound(
         AudioClip clip,
         float volumeMultiplier = 1f,
-        float pitch = 1f)
+        float pitch = 1f,
+        GameAudioMixerController.AudioBus bus =
+            GameAudioMixerController.AudioBus.GameplaySFX)
     {
         PlaySpatialSound(
             clip,
             GetCenteredWorldPosition(),
             volumeMultiplier,
-            pitch
+            pitch,
+            bus
+        );
+    }
+
+    private void PlayCenteredUISound(
+        AudioClip clip,
+        float volumeMultiplier = 1f,
+        float pitch = 1f)
+    {
+        PlayCenteredSound(
+            clip,
+            volumeMultiplier,
+            pitch,
+            GameAudioMixerController.AudioBus.UISFX
+        );
+    }
+
+    private void PlayCenteredCriticalSound(
+        AudioClip clip,
+        float volumeMultiplier = 1f,
+        float pitch = 1f)
+    {
+        PlayCenteredSound(
+            clip,
+            volumeMultiplier,
+            pitch,
+            GameAudioMixerController.AudioBus.CriticalSFX
+        );
+    }
+
+    private void PlayWorldCriticalSound(
+        AudioClip clip,
+        Vector3 worldPosition,
+        float volumeMultiplier = 1f,
+        float pitch = 1f)
+    {
+        PlayWorldSound(
+            clip,
+            worldPosition,
+            volumeMultiplier,
+            pitch,
+            GameAudioMixerController.AudioBus.CriticalSFX
         );
     }
 
@@ -483,13 +932,16 @@ public class SoundManager : MonoBehaviour
         AudioClip clip,
         Vector3 worldPosition,
         float volumeMultiplier = 1f,
-        float pitch = 1f)
+        float pitch = 1f,
+        GameAudioMixerController.AudioBus bus =
+            GameAudioMixerController.AudioBus.GameplaySFX)
     {
         PlaySpatialSound(
             clip,
             worldPosition,
             volumeMultiplier,
-            pitch
+            pitch,
+            bus
         );
     }
 
@@ -507,7 +959,8 @@ public class SoundManager : MonoBehaviour
             clip,
             position,
             volumeMultiplier,
-            pitch
+            pitch,
+            GameAudioMixerController.AudioBus.UISFX
         );
     }
 
@@ -515,7 +968,8 @@ public class SoundManager : MonoBehaviour
         AudioClip clip,
         Vector3 position,
         float volumeMultiplier,
-        float pitch)
+        float pitch,
+        GameAudioMixerController.AudioBus bus)
     {
         if (clip == null)
             return;
@@ -533,6 +987,9 @@ public class SoundManager : MonoBehaviour
         source.transform.position = position;
         source.volume = sfxVolume;
         source.pitch = Mathf.Clamp(pitch, -3f, 3f);
+
+        GameAudioMixerController.Route(source, bus);
+
         source.PlayOneShot(clip, Mathf.Max(0f, volumeMultiplier));
     }
 
@@ -730,6 +1187,12 @@ public class SoundManager : MonoBehaviour
         laserWarningVolume = Mathf.Clamp01(laserWarningVolume);
         comboStageVolume = Mathf.Clamp01(comboStageVolume);
         newSkinUnlockedVolume = Mathf.Clamp01(newSkinUnlockedVolume);
+
+        coinPitchJitter = Mathf.Clamp(coinPitchJitter, 0f, 0.08f);
+        dashPitchJitter = Mathf.Clamp(dashPitchJitter, 0f, 0.08f);
+        pickupPitchJitter = Mathf.Clamp(pickupPitchJitter, 0f, 0.08f);
+        clonePitchJitter = Mathf.Clamp(clonePitchJitter, 0f, 0.08f);
+        frequentSfxVolumeJitter = Mathf.Clamp(frequentSfxVolumeJitter, 0f, 0.08f);
 
         spatialPoolSize = Mathf.Max(1, spatialPoolSize);
         spatialPoolMaxSize = Mathf.Max(spatialPoolSize, spatialPoolMaxSize);

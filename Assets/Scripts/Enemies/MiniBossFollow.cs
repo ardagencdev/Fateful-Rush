@@ -184,11 +184,7 @@ public class MiniBossFollow : MonoBehaviour
         if (originalScale == Vector3.zero)
             originalScale = Vector3.one;
 
-        rb.gravityScale = 0f;
-        rb.freezeRotation = true;
-        rb.collisionDetectionMode =
-            CollisionDetectionMode2D.Continuous;
-        rb.bodyType = RigidbodyType2D.Dynamic;
+        EnemyObstacleSteering2D.ConfigureAIMovementBody(rb, true);
 
         ApplyAoeBalanceMigration();
         RefreshNavigationFilter();
@@ -516,6 +512,7 @@ public class MiniBossFollow : MonoBehaviour
             yield break;
 
         isChargingAoe = true;
+        GameAudioMixerController.SetBossDanger(this, true);
         isAoeFadingOut = false;
         aoeChargeProgress = 0f;
 
@@ -662,6 +659,7 @@ public class MiniBossFollow : MonoBehaviour
 
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
         aoeChargeProgress = 0f;
 
         aoeCooldownTimer =
@@ -837,16 +835,38 @@ public class MiniBossFollow : MonoBehaviour
         RestoreAoeChargeCenter();
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
         aoeChargeProgress = 0f;
         aoeRoutine = null;
     }
 
     private bool MoveWithCollision(Vector2 direction)
     {
+        float movementDistance = speed * Time.fixedDeltaTime;
+
+        if (EnemyObstacleSteering2D.TryGetOverlapRecovery(
+                col,
+                navigationFilter,
+                out Vector2 overlapDirection,
+                out float penetrationDepth))
+        {
+            float recoveryDistance =
+                EnemyObstacleSteering2D.GetOverlapRecoveryDistance(
+                    penetrationDepth,
+                    movementDistance,
+                    castSkin
+                );
+
+            rb.MovePosition(
+                rb.position +
+                overlapDirection * recoveryDistance
+            );
+
+            return true;
+        }
+
         if (direction.sqrMagnitude <= 0.001f)
             return false;
-
-        float movementDistance = speed * Time.fixedDeltaTime;
 
         Vector2 steeredDirection =
             EnemyObstacleSteering2D.GetSteeredDirection(
@@ -873,9 +893,14 @@ public class MiniBossFollow : MonoBehaviour
             intendedMovement +
             Random.insideUnitCircle * Mathf.Max(0f, normalShakeAmount);
 
-        if (CanMove(finalMovement))
+        if (EnemyObstacleSteering2D.MoveDisplacementWithPhysicsSlide(
+                rb,
+                col,
+                finalMovement,
+                Time.fixedDeltaTime,
+                navigationFilter,
+                6))
         {
-            rb.MovePosition(rb.position + finalMovement);
             return true;
         }
 
@@ -986,7 +1011,12 @@ public class MiniBossFollow : MonoBehaviour
     {
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime)
+        float effectiveStuckCheckTime = Mathf.Min(
+            Mathf.Max(0.05f, stuckCheckTime),
+            0.25f
+        );
+
+        if (stuckTimer < effectiveStuckCheckTime)
             return;
 
         float movedDistanceSqr =
@@ -1163,6 +1193,7 @@ public class MiniBossFollow : MonoBehaviour
 
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
         ZeroVelocity();
         enabled = false;
     }
@@ -1178,6 +1209,7 @@ public class MiniBossFollow : MonoBehaviour
         HideDangerPreview();
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
     }
 
     private void ApplyAoeBalanceMigration()

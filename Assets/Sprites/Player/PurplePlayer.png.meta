@@ -116,9 +116,9 @@ TextureImporter:
       name: PurplePlayer_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 2
         y: 0
-        width: 1016
+        width: 1022
         height: 1024
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 9b2a53d88b9832e44bab3a63e67917bf
+    spriteID: e1bea373bdc90d343bc67e601279f24b
     internalID: 0
     vertices: []
     indices: 

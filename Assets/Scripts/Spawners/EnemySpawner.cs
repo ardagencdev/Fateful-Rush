@@ -86,6 +86,19 @@ public class EnemySpawner : MonoBehaviour
     [Min(0f)]
     public float projectileSpeed = 6f;
 
+    [Header("Projectile Enemy Burst / Reload")]
+    [Min(1)]
+    public int projectileShotsPerBurst = 3;
+
+    [Min(0.05f)]
+    public float projectileReloadDuration = 3f;
+
+    [Min(0f)]
+    public float projectileReloadRetreatDistance = 9f;
+
+    [Min(0.1f)]
+    public float projectileReloadMoveSpeedMultiplier = 1.4f;
+
     [Header("Projectile Enemy AI")]
     public bool projectileStrafeEnabled = true;
 
@@ -294,6 +307,10 @@ public class EnemySpawner : MonoBehaviour
         projectileRetreatDistance = settings.retreatDistance;
         projectileFireRate = settings.fireRate;
         projectileSpeed = settings.projectileSpeed;
+        projectileShotsPerBurst = settings.shotsPerBurst;
+        projectileReloadDuration = settings.reloadDuration;
+        projectileReloadRetreatDistance = settings.reloadRetreatDistance;
+        projectileReloadMoveSpeedMultiplier = settings.reloadMoveSpeedMultiplier;
         projectileStrafeEnabled = settings.strafeEnabled;
         projectileStrafeSpeedMultiplier = settings.strafeSpeedMultiplier;
         projectileStrafeDirectionChangeMinTime = settings.strafeDirectionChangeMinTime;
@@ -708,6 +725,18 @@ public class EnemySpawner : MonoBehaviour
             projectile.projectileSpeed =
                 projectileSpeed;
 
+            projectile.shotsPerBurst =
+                projectileShotsPerBurst;
+
+            projectile.reloadDuration =
+                projectileReloadDuration;
+
+            projectile.reloadRetreatDistance =
+                projectileReloadRetreatDistance;
+
+            projectile.reloadMoveSpeedMultiplier =
+                projectileReloadMoveSpeedMultiplier;
+
             projectile.strafeEnabled =
                 projectileStrafeEnabled;
 
@@ -1049,6 +1078,7 @@ public class EnemySpawner : MonoBehaviour
             return;
 
         bossSpawned = true;
+        StatsManager.AddBossEncounter();
         activeEnemies.Add(boss);
 
         ConfigureSpawnedEnemy(boss);

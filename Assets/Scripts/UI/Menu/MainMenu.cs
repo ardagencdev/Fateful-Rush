@@ -360,10 +360,24 @@ public class MainMenu : MonoBehaviour
             continueLevelText.text =
                 $"LEVEL {continueTargetLevel.levelNumber}";
 
-            // Continue yazısı, hedef bölümün Near Stars tema rengini kullanır.
-            continueLevelText.color =
-                continueTargetLevel.nearStarsColor;
+            RefreshContinueLevelColor();
         }
+    }
+
+    public void RefreshContinueLevelColor()
+    {
+        if (continueLevelText == null ||
+            continueTargetLevel == null)
+        {
+            return;
+        }
+
+        // Main Menu level label always previews the exact gameplay NearStars
+        // color configured for the Continue target level. It must not follow
+        // the selected skin UI theme.
+        Color levelColor = continueTargetLevel.nearStarsColor;
+        levelColor.a = 1f;
+        continueLevelText.color = levelColor;
     }
 
     private void FindLevelSelectPanelIfNeeded()

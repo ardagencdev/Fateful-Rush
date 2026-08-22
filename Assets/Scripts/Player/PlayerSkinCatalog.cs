@@ -21,6 +21,9 @@ public class PlayerSkinCatalog : ScriptableObject
     private const string CompletedLevelKeyPrefix =
         "CompletedLevel_";
 
+    private const string LegacySilverSkinId =
+        "silver";
+
     private const int CurrentArmorColorVersion = 2;
     private const int CurrentDarkVisualColorVersion = 3;
     private const int CurrentUIThemeColorVersion = 1;
@@ -104,6 +107,7 @@ public class PlayerSkinCatalog : ScriptableObject
     private void OnEnable()
     {
         LoadedInstance = this;
+        MigrateLegacySilverSelection();
         EnsureArmorVisualColors();
         EnsureDarkSkinVisualColors();
         EnsureUIThemeColors();
@@ -282,6 +286,41 @@ public class PlayerSkinCatalog : ScriptableObject
             SelectedSkinChanged?.Invoke();
     }
 
+    private void MigrateLegacySilverSelection()
+    {
+        if (!PlayerPrefs.HasKey(SelectedSkinKey))
+            return;
+
+        string savedId = PlayerPrefs.GetString(
+            SelectedSkinKey,
+            string.Empty
+        );
+
+        if (!string.Equals(
+                savedId,
+                LegacySilverSkinId,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        SkinEntry purpleSkin = FindById("purple");
+
+        if (purpleSkin == null)
+        {
+            PlayerPrefs.DeleteKey(SelectedSkinKey);
+            PlayerPrefs.Save();
+            return;
+        }
+
+        PlayerPrefs.SetString(
+            SelectedSkinKey,
+            purpleSkin.id
+        );
+
+        PlayerPrefs.Save();
+    }
+
     private SkinEntry GetFallbackSkin()
     {
         SkinEntry defaultSkin = DefaultSkin;
@@ -422,6 +461,9 @@ public class PlayerSkinCatalog : ScriptableObject
         if (IsDarkSkinId(skin.id))
             return new Color32(145, 8, 24, 255);
 
+        if (IsPinkSkinId(skin.id))
+            return new Color32(255, 20, 147, 255);
+
         return NormalizeUIThemeColor(
             NormalizeHdrColor(skin.armorVisualColor)
         );
@@ -441,6 +483,23 @@ public class PlayerSkinCatalog : ScriptableObject
 
         return normalizedId == "dark" ||
                normalizedId == "black";
+    }
+
+    private static bool IsPinkSkinId(string skinId)
+    {
+        if (string.IsNullOrWhiteSpace(skinId))
+            return false;
+
+        string normalizedId = skinId
+            .Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(" ", string.Empty);
+
+        return normalizedId == "pink" ||
+               normalizedId == "deeppink" ||
+               normalizedId == "hotpink";
     }
 
     private static Color GetDefaultArmorVisualColor(
@@ -478,8 +537,16 @@ public class PlayerSkinCatalog : ScriptableObject
             case "orange":
                 return new Color32(255, 166, 6, 255);
 
+            case "green":
+                return new Color32(85, 255, 100, 255);
+
             case "red":
                 return new Color32(245, 30, 34, 255);
+
+            case "pink":
+            case "deeppink":
+            case "hotpink":
+                return new Color32(255, 30, 160, 255);
 
             case "purple":
                 return new Color32(170, 81, 209, 255);
@@ -487,11 +554,6 @@ public class PlayerSkinCatalog : ScriptableObject
             case "dark":
             case "black":
                 return new Color32(148, 8, 20, 255);
-
-            case "silver":
-            case "gray":
-            case "grey":
-                return new Color32(190, 205, 216, 255);
 
             case "gold":
             case "golden":

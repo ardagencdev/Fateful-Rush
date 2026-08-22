@@ -22,6 +22,9 @@ public class GameStateManager : MonoBehaviour
     [SerializeField]
     private GameplayMusicFade gameplayMusic;
 
+    [SerializeField]
+    private DynamicMusicTension dynamicMusicTension;
+
     [Header("Win Condition Intro")]
     [SerializeField]
     private bool showWinConditionIntro = true;
@@ -115,6 +118,8 @@ public class GameStateManager : MonoBehaviour
                 ? currentLevel.gameplayMusic
                 : null
         );
+
+        EnsureDynamicMusicTension(currentLevel);
 
         yield return null;
 
@@ -369,6 +374,17 @@ public class GameStateManager : MonoBehaviour
         StatsManager.AddRun();
         StatsManager.AddWin();
         StatsManager.AddPlayTime(gameTimer);
+        StatsManager.RecordRunDetails(
+            true,
+            score,
+            gameTimer,
+            CurrentLevel != null
+                ? CurrentLevel.winCondition
+                : WinConditionType.ReachScore,
+            playerCoinCollector != null
+                ? playerCoinCollector.CoinsCollectedThisRun
+                : 0
+        );
 
         int completedLevelNumber = 0;
         bool isFirstCompletion = false;
@@ -437,6 +453,7 @@ public class GameStateManager : MonoBehaviour
         gameTimerComponent?.StopTimer();
         bossScreenEffect?.StopEffect();
 
+        gameplayMusic?.ResetTension(true);
         StopMusic();
 
         if (soundManager != null)
@@ -476,6 +493,18 @@ public class GameStateManager : MonoBehaviour
         StatsManager.AddRun();
         StatsManager.AddDeath();
         StatsManager.AddPlayTime(gameTimer);
+        StatsManager.RecordRunDetails(
+            false,
+            score,
+            gameTimer,
+            CurrentLevel != null
+                ? CurrentLevel.winCondition
+                : WinConditionType.ReachScore,
+            playerCoinCollector != null
+                ? playerCoinCollector.CoinsCollectedThisRun
+                : 0,
+            cause
+        );
         StatsManager.SaveIfDirty();
 
         if (playerMovement != null)
@@ -504,6 +533,7 @@ public class GameStateManager : MonoBehaviour
         gameTimerComponent?.StopTimer();
         bossScreenEffect?.StopEffect();
 
+        gameplayMusic?.ResetTension(true);
         StopMusic();
 
         if (soundManager != null)
@@ -706,20 +736,16 @@ public class GameStateManager : MonoBehaviour
             return;
         }
 
-        PlayerSkinApplier skinApplier = null;
+        Color appliedNearStarsColor =
+            level.nearStarsColor;
 
-        if (playerMovement != null)
+        if (levelManager != null &&
+            levelManager.starfieldController != null)
         {
-            skinApplier =
-                playerMovement.GetComponent
-                    <PlayerSkinApplier>();
-
-            if (skinApplier == null)
-            {
-                skinApplier =
-                    playerMovement.GetComponentInChildren
-                        <PlayerSkinApplier>(true);
-            }
+            // StarfieldController already resolved the level color before the
+            // HUD is created, so this is the exact color visible in NearStars.
+            appliedNearStarsColor =
+                levelManager.starfieldController.CurrentNearStarsColor;
         }
 
         int siblingIndex =
@@ -728,7 +754,7 @@ public class GameStateManager : MonoBehaviour
         currentLevelHUD =
             CurrentLevelHUD.Create(
                 level,
-                skinApplier,
+                appliedNearStarsColor,
                 hudCanvas,
                 siblingIndex
             );
@@ -957,6 +983,35 @@ public class GameStateManager : MonoBehaviour
         return true;
     }
 
+    private void EnsureDynamicMusicTension(
+        LevelConfig currentLevel)
+    {
+        if (currentLevel == null ||
+            gameplayMusic == null)
+        {
+            return;
+        }
+
+        if (dynamicMusicTension == null)
+        {
+            dynamicMusicTension =
+                GetComponent<DynamicMusicTension>();
+        }
+
+        if (dynamicMusicTension == null)
+        {
+            dynamicMusicTension =
+                gameObject.AddComponent<DynamicMusicTension>();
+        }
+
+        dynamicMusicTension.Configure(
+            this,
+            playerCoinCollector,
+            gameplayMusic,
+            currentLevel
+        );
+    }
+
     private void StopMusic()
     {
         gameplayMusic?.StopImmediately();
@@ -1044,6 +1099,12 @@ public class GameStateManager : MonoBehaviour
                 FindAnyObjectByType<GameplayMusicFade>();
         }
 
+        if (dynamicMusicTension == null)
+        {
+            dynamicMusicTension =
+                GetComponent<DynamicMusicTension>();
+        }
+
         levelManager =
             FindAnyObjectByType<LevelManager>();
 
@@ -1074,6 +1135,8 @@ public class GameStateManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        dynamicMusicTension = null;
+
         IsGameplayStarted = false;
         IsGameplayEnded = false;
     }

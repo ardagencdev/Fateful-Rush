@@ -14,6 +14,8 @@ public class CameraShake : MonoBehaviour
 
     private Coroutine shakeRoutine;
 
+    private float activeShakeStrength;
+
     private Vector3 originalLocalPosition;
 
     private float noiseSeedX;
@@ -44,6 +46,33 @@ public class CameraShake : MonoBehaviour
         float strength
     )
     {
+        StartShake(
+            duration,
+            strength,
+            false
+        );
+    }
+
+    // Used for lightweight gameplay feedback such as Near Miss.
+    // It never interrupts an already-running stronger impact.
+    public void ShakeSoft(
+        float duration,
+        float strength
+    )
+    {
+        StartShake(
+            duration,
+            strength,
+            true
+        );
+    }
+
+    private void StartShake(
+        float duration,
+        float strength,
+        bool preserveStrongerShake
+    )
+    {
         if (duration <= 0f ||
             strength <= 0f ||
             !isActiveAndEnabled)
@@ -51,7 +80,15 @@ public class CameraShake : MonoBehaviour
             return;
         }
 
+        if (preserveStrongerShake &&
+            shakeRoutine != null &&
+            activeShakeStrength >= strength)
+        {
+            return;
+        }
+
         StopCurrentShake();
+        activeShakeStrength = strength;
 
         shakeRoutine = StartCoroutine(
             ShakeRoutine(
@@ -120,6 +157,7 @@ public class CameraShake : MonoBehaviour
             originalLocalPosition;
 
         shakeRoutine = null;
+        activeShakeStrength = 0f;
     }
 
     private void StopCurrentShake()
@@ -132,6 +170,8 @@ public class CameraShake : MonoBehaviour
 
         transform.localPosition =
             originalLocalPosition;
+
+        activeShakeStrength = 0f;
     }
 
     private void OnDisable()

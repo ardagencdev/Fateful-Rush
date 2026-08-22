@@ -88,6 +88,18 @@ public class EnemyFollow : MonoBehaviour
     [Range(0.5f, 1f)]
     public float closeRangeSpeedMultiplier = 0.9f;
 
+    [Header("Near Miss")]
+    [SerializeField]
+    private bool enableNearMiss = true;
+
+    [Tooltip("Surface-to-surface distance that arms a normal-enemy near miss.")]
+    [SerializeField, Min(0.05f)]
+    private float nearMissDistance = 0.80f;
+
+    [Tooltip("Enemy must separate this much after the closest point before the near miss fires.")]
+    [SerializeField, Min(0f)]
+    private float nearMissReleaseDistance = 0.10f;
+
     private float movementOffset;
     private float beaconSpeedMultiplier = 1f;
     private float sideMoveAmount;
@@ -117,6 +129,13 @@ public class EnemyFollow : MonoBehaviour
 
     private ContactFilter2D navigationFilter;
 
+    private Collider2D nearMissPlayerCollider;
+    private bool nearMissArmed;
+    private bool nearMissTriggered;
+    private bool nearMissTouchedPlayer;
+    private float nearMissClosestDistance = float.PositiveInfinity;
+    private Vector3 nearMissClosestPoint;
+
     private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[12];
     private readonly RaycastHit2D[] absorptionPathHits = new RaycastHit2D[8];
     private readonly Collider2D[] escapeHits = new Collider2D[16];
@@ -126,6 +145,8 @@ public class EnemyFollow : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
+        EnemyObstacleSteering2D.ConfigureAIMovementBody(rb, true);
 
         navigationFilter = new ContactFilter2D();
         navigationFilter.SetLayerMask(
@@ -163,6 +184,7 @@ public class EnemyFollow : MonoBehaviour
         sideMoveSpeed = Random.Range(minSideMoveSpeed, maxSideMoveSpeed);
 
         lastPosition = rb.position;
+        ResetNearMissTracking();
 
         StartCoroutine(SpawnEffect());
     }
@@ -196,6 +218,7 @@ public class EnemyFollow : MonoBehaviour
             return;
         }
 
+        TrackNearMiss();
         FollowTarget();
         IncreaseSpeed();
     }
@@ -233,6 +256,110 @@ public class EnemyFollow : MonoBehaviour
     }
 
 
+    private void ResetNearMissTracking()
+    {
+        nearMissPlayerCollider = null;
+        nearMissArmed = false;
+        nearMissTriggered = false;
+        nearMissTouchedPlayer = false;
+        nearMissClosestDistance = float.PositiveInfinity;
+        nearMissClosestPoint = transform.position;
+    }
+
+    private void CacheNearMissPlayerCollider()
+    {
+        if (playerMovement == null)
+            return;
+
+        nearMissPlayerCollider =
+            playerMovement.GetComponent<Collider2D>();
+
+        if (nearMissPlayerCollider == null)
+        {
+            nearMissPlayerCollider =
+                playerMovement.GetComponentInChildren<Collider2D>();
+        }
+    }
+
+    private void TrackNearMiss()
+    {
+        if (!enableNearMiss ||
+            nearMissTriggered ||
+            nearMissTouchedPlayer ||
+            isBeingAbsorbed ||
+            playerMovement == null ||
+            playerMovement.IsGameOver ||
+            col == null ||
+            !col.enabled)
+        {
+            return;
+        }
+
+        if (nearMissPlayerCollider == null)
+            CacheNearMissPlayerCollider();
+
+        if (nearMissPlayerCollider == null ||
+            !nearMissPlayerCollider.enabled)
+        {
+            return;
+        }
+
+        ColliderDistance2D separation =
+            col.Distance(nearMissPlayerCollider);
+
+        float surfaceDistance = separation.distance;
+
+        if (surfaceDistance <= 0f)
+        {
+            nearMissTouchedPlayer = true;
+            return;
+        }
+
+        if (surfaceDistance <= nearMissDistance)
+        {
+            nearMissArmed = true;
+
+            if (surfaceDistance < nearMissClosestDistance)
+            {
+                nearMissClosestDistance = surfaceDistance;
+                nearMissClosestPoint = separation.pointA;
+            }
+
+            return;
+        }
+
+        if (!nearMissArmed)
+            return;
+
+        bool released =
+            surfaceDistance >=
+            nearMissDistance + nearMissReleaseDistance;
+
+        if (released)
+            TriggerNearMiss();
+    }
+
+    private void TriggerNearMiss()
+    {
+        if (nearMissTriggered ||
+            !nearMissArmed ||
+            nearMissTouchedPlayer)
+        {
+            return;
+        }
+
+        float closeness =
+            NearMissFeedback.GetCloseness01(
+                nearMissClosestDistance,
+                nearMissDistance
+            );
+
+        nearMissTriggered = NearMissFeedback.TryTrigger(
+            nearMissClosestPoint,
+            closeness
+        );
+    }
+
     public bool BeginBossAbsorption(BossEnemyFollow boss)
     {
         if (boss == null || isBeingAbsorbed)
@@ -240,6 +367,7 @@ public class EnemyFollow : MonoBehaviour
 
         absorptionBoss = boss;
         isBeingAbsorbed = true;
+        nearMissArmed = false;
         isFinishingAbsorption = false;
         absorptionNotified = false;
 
@@ -406,7 +534,12 @@ public class EnemyFollow : MonoBehaviour
         stuckTimer +=
             Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime)
+        float effectiveStuckCheckTime = Mathf.Min(
+            Mathf.Max(0.05f, stuckCheckTime),
+            0.25f
+        );
+
+        if (stuckTimer < effectiveStuckCheckTime)
             return;
 
         float movedSqrDistance =
@@ -984,6 +1117,27 @@ public class EnemyFollow : MonoBehaviour
         float movementDistance =
             finalSpeed * Time.fixedDeltaTime;
 
+        if (EnemyObstacleSteering2D.TryGetOverlapRecovery(
+                col,
+                navigationFilter,
+                out Vector2 overlapDirection,
+                out float penetrationDepth))
+        {
+            float recoveryDistance =
+                EnemyObstacleSteering2D.GetOverlapRecoveryDistance(
+                    penetrationDepth,
+                    movementDistance,
+                    0.03f
+                );
+
+            rb.MovePosition(
+                rb.position +
+                overlapDirection * recoveryDistance
+            );
+
+            return;
+        }
+
         Vector2 steeredDirection =
             EnemyObstacleSteering2D.GetSteeredDirection(
                 col,
@@ -1002,10 +1156,13 @@ public class EnemyFollow : MonoBehaviour
         if (steeredDirection.sqrMagnitude <= 0.001f)
             return;
 
-        rb.MovePosition(
-            rb.position +
-            steeredDirection *
-            movementDistance
+        EnemyObstacleSteering2D.MoveWithPhysicsSlide(
+            rb,
+            col,
+            steeredDirection * finalSpeed,
+            Time.fixedDeltaTime,
+            navigationFilter,
+            5
         );
     }
 
@@ -1019,7 +1176,12 @@ public class EnemyFollow : MonoBehaviour
 
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime)
+        float effectiveStuckCheckTime = Mathf.Min(
+            Mathf.Max(0.05f, stuckCheckTime),
+            0.25f
+        );
+
+        if (stuckTimer < effectiveStuckCheckTime)
             return;
 
         float movedSqrDistance =

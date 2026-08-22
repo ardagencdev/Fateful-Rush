@@ -4,15 +4,16 @@ using UnityEngine;
 [RequireComponent(typeof(CanvasGroup))]
 public class UIPanelAnimation : MonoBehaviour
 {
-    [Header("Animation")]
-    [SerializeField, Min(0.01f)]
-    private float duration = 0.2f;
+    [Header("Polished Intro")]
+    [SerializeField, Min(0.05f)]
+    private float introDuration = 0.24f;
 
-    [SerializeField, Range(0.01f, 1f)]
-    private float startScale = 0.8f;
+    [SerializeField, Range(0.85f, 1f)]
+    private float introStartScale = 0.95f;
 
     private CanvasGroup canvasGroup;
     private Coroutine animationRoutine;
+    private bool suppressNextEnableAnimation;
 
     private void Awake()
     {
@@ -23,8 +24,18 @@ public class UIPanelAnimation : MonoBehaviour
     {
         StopAnimation();
 
-        animationRoutine =
-            StartCoroutine(AnimatePanel());
+        if (suppressNextEnableAnimation)
+        {
+            suppressNextEnableAnimation = false;
+            return;
+        }
+
+        animationRoutine = StartCoroutine(AnimatePanel());
+    }
+
+    public void SuppressNextEnableAnimation()
+    {
+        suppressNextEnableAnimation = true;
     }
 
     private void OnDisable()
@@ -34,13 +45,11 @@ public class UIPanelAnimation : MonoBehaviour
 
     private IEnumerator AnimatePanel()
     {
-        float timer = 0f;
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.05f, introDuration);
 
-        Vector3 fromScale =
-            Vector3.one * startScale;
-
-        Vector3 targetScale =
-            Vector3.one;
+        Vector3 fromScale = Vector3.one * introStartScale;
+        Vector3 targetScale = Vector3.one;
 
         transform.localScale = fromScale;
 
@@ -48,29 +57,20 @@ public class UIPanelAnimation : MonoBehaviour
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
 
-        while (timer < duration)
+        while (elapsed < duration)
         {
-            timer += Time.unscaledDeltaTime;
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
 
-            float progress =
-                Mathf.Clamp01(timer / duration);
+            float alphaEase = EaseOutCubic(t);
+            float scaleEase = EaseOutBackSubtle(t);
 
-            float easedProgress =
-                Mathf.SmoothStep(
-                    0f,
-                    1f,
-                    progress
-                );
-
-            canvasGroup.alpha =
-                easedProgress;
-
-            transform.localScale =
-                Vector3.LerpUnclamped(
-                    fromScale,
-                    targetScale,
-                    easedProgress
-                );
+            canvasGroup.alpha = alphaEase;
+            transform.localScale = Vector3.LerpUnclamped(
+                fromScale,
+                targetScale,
+                scaleEase
+            );
 
             yield return null;
         }
@@ -78,7 +78,6 @@ public class UIPanelAnimation : MonoBehaviour
         canvasGroup.alpha = 1f;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
-
         transform.localScale = targetScale;
 
         animationRoutine = null;
@@ -93,16 +92,27 @@ public class UIPanelAnimation : MonoBehaviour
         animationRoutine = null;
     }
 
+    private static float EaseOutCubic(float t)
+    {
+        t = Mathf.Clamp01(t);
+        float inverse = 1f - t;
+        return 1f - inverse * inverse * inverse;
+    }
+
+    private static float EaseOutBackSubtle(float t)
+    {
+        t = Mathf.Clamp01(t);
+
+        const float c1 = 0.8f;
+        const float c3 = c1 + 1f;
+        float x = t - 1f;
+
+        return 1f + c3 * x * x * x + c1 * x * x;
+    }
+
     private void OnValidate()
     {
-        duration =
-            Mathf.Max(0.01f, duration);
-
-        startScale =
-            Mathf.Clamp(
-                startScale,
-                0.01f,
-                1f
-            );
+        introDuration = Mathf.Max(0.05f, introDuration);
+        introStartScale = Mathf.Clamp(introStartScale, 0.85f, 1f);
     }
 }

@@ -1017,10 +1017,7 @@ public class BossEnemyFollow : MonoBehaviour
 
         CreateBossSfxSource();
 
-        rb.gravityScale = 0f;
-        rb.freezeRotation = true;
-        rb.collisionDetectionMode =
-            CollisionDetectionMode2D.Continuous;
+        EnemyObstacleSteering2D.ConfigureAIMovementBody(rb, true);
 
         RefreshNavigationFilter();
     }
@@ -1499,6 +1496,7 @@ public class BossEnemyFollow : MonoBehaviour
         }
 
         isChargingAoe = true;
+        GameAudioMixerController.SetBossDanger(this, true);
         aoeChargeProgress = 0f;
         aoeChargeCenter = rb != null
             ? rb.position
@@ -1651,6 +1649,7 @@ public class BossEnemyFollow : MonoBehaviour
 
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
         aoeChargeProgress = 0f;
         aoeCooldownTimer = Mathf.Max(0f, aoeCooldown);
         aoeRoutine = null;
@@ -1816,6 +1815,7 @@ public class BossEnemyFollow : MonoBehaviour
         RestoreAoeChargeCenter();
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
         aoeChargeProgress = 0f;
         aoeRoutine = null;
     }
@@ -2223,11 +2223,32 @@ public class BossEnemyFollow : MonoBehaviour
 
     private bool MoveWithCollision(Vector2 direction)
     {
-        if (direction.sqrMagnitude <= 0.001f)
-            return false;
-
         float movementDistance =
             speed * Time.fixedDeltaTime;
+
+        if (EnemyObstacleSteering2D.TryGetOverlapRecovery(
+                bossCollider,
+                navigationFilter,
+                out Vector2 overlapDirection,
+                out float penetrationDepth))
+        {
+            float recoveryDistance =
+                EnemyObstacleSteering2D.GetOverlapRecoveryDistance(
+                    penetrationDepth,
+                    movementDistance,
+                    castSkin
+                );
+
+            rb.MovePosition(
+                rb.position +
+                overlapDirection * recoveryDistance
+            );
+
+            return true;
+        }
+
+        if (direction.sqrMagnitude <= 0.001f)
+            return false;
 
         Vector2 steeredDirection =
             EnemyObstacleSteering2D.GetSteeredDirection(
@@ -2255,9 +2276,14 @@ public class BossEnemyFollow : MonoBehaviour
 
         Vector2 movement = intendedMovement + shakeOffset;
 
-        if (CanMove(movement))
+        if (EnemyObstacleSteering2D.MoveDisplacementWithPhysicsSlide(
+                rb,
+                bossCollider,
+                movement,
+                Time.fixedDeltaTime,
+                navigationFilter,
+                7))
         {
-            rb.MovePosition(rb.position + movement);
             return true;
         }
 
@@ -2398,7 +2424,12 @@ public class BossEnemyFollow : MonoBehaviour
     {
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime)
+        float effectiveStuckCheckTime = Mathf.Min(
+            Mathf.Max(0.05f, stuckCheckTime),
+            0.25f
+        );
+
+        if (stuckTimer < effectiveStuckCheckTime)
             return;
 
         float movedDistanceSqr =
@@ -2790,6 +2821,8 @@ public class BossEnemyFollow : MonoBehaviour
         if (miniBossPrefab == null || player == null)
             return;
 
+        StatsManager.AddBossSplit();
+
         Vector2 playerDirection =
             (Vector2)player.position - bossPosition;
 
@@ -2983,6 +3016,11 @@ public class BossEnemyFollow : MonoBehaviour
             );
         }
 
+        GameAudioMixerController.Route(
+            bossSfxSource,
+            GameAudioMixerController.AudioBus.CriticalSFX
+        );
+
         // Boss gameplay SFX'leri pause'dan muaf olmamali.
         bossSfxSource.ignoreListenerPause = false;
     }
@@ -3136,6 +3174,7 @@ public class BossEnemyFollow : MonoBehaviour
 
         isAoeFadingOut = false;
         isChargingAoe = false;
+        GameAudioMixerController.SetBossDanger(this, false);
         aoeChargeProgress = 0f;
 
         StopBossMovement();
@@ -3181,6 +3220,7 @@ public class BossEnemyFollow : MonoBehaviour
             isSpawning = false;
             isAoeFadingOut = false;
             isChargingAoe = false;
+            GameAudioMixerController.SetBossDanger(this, false);
             aoeChargeProgress = 0f;
         }
     }

@@ -116,9 +116,9 @@ TextureImporter:
       name: YellowPlayer_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 2
         y: 0
-        width: 1016
+        width: 1022
         height: 1024
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c9d28ecd75f48de4580e5444f660a6d0
+    spriteID: ead2291f0bfcccf43b6c8a60b66426d0
     internalID: 0
     vertices: []
     indices: 

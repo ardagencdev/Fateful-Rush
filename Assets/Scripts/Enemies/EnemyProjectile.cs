@@ -22,6 +22,13 @@ public class EnemyProjectile : MonoBehaviour
     [Range(0f, 1f)]
     public float environmentHitSoundVolume = 1f;
 
+    [Header("SFX Variation")]
+    [SerializeField, Range(0f, 0.08f)]
+    private float environmentHitPitchJitter = 0.02f;
+
+    [SerializeField, Range(0f, 0.08f)]
+    private float environmentHitVolumeJitter = 0.015f;
+
     private AudioSource audioSource;
 
     [Header("Hit Settings")]
@@ -30,6 +37,20 @@ public class EnemyProjectile : MonoBehaviour
     [Header("Collision Filter")]
     public LayerMask hitLayers;
     public bool useHitLayerFilter = false;
+
+    [Header("Near Miss")]
+    [SerializeField]
+    private bool enableNearMiss = true;
+
+    [Tooltip("Surface-to-surface distance that arms a projectile near miss.")]
+    [SerializeField, Min(0.05f)]
+    private float nearMissDistance = 0.75f;
+
+    [Tooltip("Projectile must move this far away from its closest point before feedback fires.")]
+    [SerializeField, Min(0f)]
+    private float nearMissReleaseDistance = 0.08f;
+
+    private const float NearMissReliabilityPadding = 0.15f;
 
     private Rigidbody2D rb;
     private Collider2D col;
@@ -53,6 +74,13 @@ public class EnemyProjectile : MonoBehaviour
     private ProjectileEnemyFollow poolOwner;
     private PlayerMovement playerMovement;
     private Vector2 travelVelocity;
+
+    private Collider2D nearMissPlayerCollider;
+    private bool nearMissArmed;
+    private bool nearMissTriggered;
+    private bool nearMissTouchedPlayer;
+    private bool nearMissCancelled;
+    private float nearMissClosestDistance = float.PositiveInfinity;
 
     private void Awake()
     {
@@ -99,6 +127,8 @@ public class EnemyProjectile : MonoBehaviour
         stopped = false;
         disappearing = false;
 
+        ResetNearMissTracking();
+
         transform.localScale = originalScale;
 
         ResetSpriteColors();
@@ -123,6 +153,9 @@ public class EnemyProjectile : MonoBehaviour
         stopped = false;
         disappearing = false;
 
+        ResetNearMissTracking();
+        CacheNearMissPlayerCollider();
+
         transform.localScale = originalScale;
         ResetSpriteColors();
 
@@ -144,6 +177,11 @@ public class EnemyProjectile : MonoBehaviour
             StopCoroutine(lifeRoutine);
 
         lifeRoutine = StartCoroutine(LifeRoutine());
+    }
+
+    private void FixedUpdate()
+    {
+        TrackNearMiss();
     }
 
     private IEnumerator LifeRoutine()
@@ -170,6 +208,8 @@ public class EnemyProjectile : MonoBehaviour
     {
         if (stopped)
             return;
+
+        TryCompleteNearMiss();
 
         stopped = true;
 
@@ -344,6 +384,7 @@ public class EnemyProjectile : MonoBehaviour
 
         if (IsVoidClone(other.gameObject))
         {
+            nearMissCancelled = true;
             ReturnToPool();
             return;
         }
@@ -367,6 +408,7 @@ public class EnemyProjectile : MonoBehaviour
 
         if (IsVoidClone(other))
         {
+            nearMissCancelled = true;
             ReturnToPool();
             return;
         }
@@ -421,6 +463,8 @@ public class EnemyProjectile : MonoBehaviour
 
     private void HandlePlayerHit(GameObject playerObj)
     {
+        nearMissTouchedPlayer = true;
+
         PlayerArmor armor =
             playerObj.GetComponent<PlayerArmor>();
 
@@ -444,6 +488,127 @@ public class EnemyProjectile : MonoBehaviour
             player.GameOver(gameOverName);
 
         ReturnToPool();
+    }
+
+    private void ResetNearMissTracking()
+    {
+        nearMissPlayerCollider = null;
+        nearMissArmed = false;
+        nearMissTriggered = false;
+        nearMissTouchedPlayer = false;
+        nearMissCancelled = false;
+        nearMissClosestDistance = float.PositiveInfinity;
+    }
+
+    private void CacheNearMissPlayerCollider()
+    {
+        if (playerMovement == null)
+            return;
+
+        nearMissPlayerCollider =
+            playerMovement.GetComponent<Collider2D>();
+
+        if (nearMissPlayerCollider == null)
+        {
+            nearMissPlayerCollider =
+                playerMovement.GetComponentInChildren<Collider2D>();
+        }
+    }
+
+    private void TrackNearMiss()
+    {
+        if (!enableNearMiss ||
+            stopped ||
+            disappearing ||
+            nearMissTriggered ||
+            nearMissCancelled ||
+            nearMissTouchedPlayer ||
+            playerMovement == null ||
+            playerMovement.IsGameOver ||
+            col == null ||
+            !col.enabled)
+        {
+            return;
+        }
+
+        if (nearMissPlayerCollider == null)
+            CacheNearMissPlayerCollider();
+
+        if (nearMissPlayerCollider == null ||
+            !nearMissPlayerCollider.enabled)
+        {
+            return;
+        }
+
+        ColliderDistance2D separation =
+            col.Distance(nearMissPlayerCollider);
+
+        float surfaceDistance = separation.distance;
+
+        if (surfaceDistance <= 0f)
+        {
+            nearMissTouchedPlayer = true;
+            return;
+        }
+
+        float detectionDistance =
+            nearMissDistance + NearMissReliabilityPadding;
+
+        if (surfaceDistance <= detectionDistance)
+        {
+            nearMissArmed = true;
+            nearMissClosestDistance = Mathf.Min(
+                nearMissClosestDistance,
+                surfaceDistance
+            );
+        }
+
+        if (!nearMissArmed)
+            return;
+
+        Vector2 toPlayer =
+            (Vector2)playerMovement.transform.position -
+            rb.position;
+
+        bool movingAway =
+            Vector2.Dot(travelVelocity, toPlayer) <= 0f;
+
+        bool released =
+            surfaceDistance >=
+            nearMissClosestDistance + nearMissReleaseDistance;
+
+        if (movingAway && released)
+            TriggerNearMiss();
+    }
+
+    private void TryCompleteNearMiss()
+    {
+        if (!nearMissArmed ||
+            nearMissTriggered ||
+            nearMissTouchedPlayer ||
+            nearMissCancelled)
+        {
+            return;
+        }
+
+        TriggerNearMiss();
+    }
+
+    private void TriggerNearMiss()
+    {
+        if (nearMissTriggered)
+            return;
+
+        float closeness =
+            NearMissFeedback.GetCloseness01(
+                nearMissClosestDistance,
+                nearMissDistance + NearMissReliabilityPadding
+            );
+
+        nearMissTriggered = NearMissFeedback.TryTrigger(
+            transform.position,
+            closeness
+        );
     }
 
     private bool IsEnvironmentHit(GameObject other)
@@ -553,9 +718,17 @@ public class EnemyProjectile : MonoBehaviour
         }
 
         audioSource.volume = SoundManager.SFXVolume;
+        audioSource.pitch = SoundManager.GetVariedPitch(
+            1f,
+            environmentHitPitchJitter
+        );
+
         audioSource.PlayOneShot(
             environmentHitSound,
-            environmentHitSoundVolume
+            SoundManager.GetVariedVolumeMultiplier(
+                environmentHitSoundVolume,
+                environmentHitVolumeJitter
+            )
         );
     }
 }

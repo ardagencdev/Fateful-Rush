@@ -35,6 +35,13 @@ public class AudioSettingsApply : MonoBehaviour
             audioSource.GetComponent<MenuMusicApply>() != null ||
             audioSource.GetComponent<SoundManager>() != null ||
             audioSource.GetComponent<LaserWall>() != null;
+
+        GameAudioMixerController.Route(
+            audioSource,
+            soundType == SoundType.Music
+                ? GameAudioMixerController.AudioBus.Music
+                : GameAudioMixerController.AudioBus.GameplaySFX
+        );
     }
 
     private void Start()
@@ -60,11 +67,21 @@ public class AudioSettingsApply : MonoBehaviour
         bool soundOn =
             PlayerPrefs.GetInt("SoundOn", 1) == 1;
 
-        float userVolume = soundType == SoundType.Music
-            ? PlayerPrefs.GetFloat("MusicVolume", 1f)
-            : PlayerPrefs.GetFloat("SFXVolume", 1f);
+        float userVolume;
 
-        userVolume = Mathf.Clamp01(userVolume);
+        if (GameAudioMixerController.IsReady)
+        {
+            // Slider gain'i mixer parent bus'unda uygulanir.
+            userVolume = 1f;
+        }
+        else
+        {
+            userVolume = soundType == SoundType.Music
+                ? PlayerPrefs.GetFloat("MusicVolume", 1f)
+                : PlayerPrefs.GetFloat("SFXVolume", 1f);
+
+            userVolume = Mathf.Clamp01(userVolume);
+        }
 
         audioSource.volume = soundOn
             ? baseVolume * userVolume

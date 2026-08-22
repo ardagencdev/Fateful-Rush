@@ -149,6 +149,32 @@ public class VibrationManager : MonoBehaviour
         );
     }
 
+    public void VibrateNearMiss(float intensity01 = 1f)
+    {
+        if (!isEnabled)
+            return;
+
+        float intensity =
+            Mathf.Clamp01(intensity01);
+
+        long milliseconds =
+            Mathf.RoundToInt(
+                Mathf.Lerp(12f, 20f, intensity)
+            );
+
+        int amplitude =
+            Mathf.RoundToInt(
+                Mathf.Lerp(48f, 82f, intensity)
+            );
+
+        PlayPredefined(
+            EffectTick,
+            fallbackMilliseconds: milliseconds,
+            fallbackAmplitude: amplitude,
+            allowIOSFallback: false
+        );
+    }
+
     public void VibrateClone()
     {
         if (!isEnabled)

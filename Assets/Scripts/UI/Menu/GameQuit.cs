@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameQuit : MonoBehaviour
 {
@@ -23,9 +24,18 @@ public class GameQuit : MonoBehaviour
     private float musicFadeDuration = 0.25f;
 
     private Coroutine musicFadeRoutine;
+    private Coroutine pauseTransitionRoutine;
     private float defaultGameplayMusicVolume = 1f;
+    private CanvasGroup pausePanelCanvasGroup;
+
+    private bool pauseMenuModalOpen;
+    private Selectable[] pausePanelSelectables;
+    private bool[] pausePanelSelectableStates;
+    private GraphicRaycaster[] pausePanelRaycasters;
+    private bool[] pausePanelRaycasterStates;
 
     public bool IsPaused { get; private set; }
+    public bool IsPauseMenuModalOpen => pauseMenuModalOpen;
 
     private void Awake()
     {
@@ -33,6 +43,7 @@ public class GameQuit : MonoBehaviour
         IsPaused = false;
 
         RefreshReferences();
+        CachePausePanelCanvasGroup();
 
         if (gameplayMusicSource != null)
         {
@@ -41,7 +52,12 @@ public class GameQuit : MonoBehaviour
         }
 
         if (pausePanel != null)
-            pausePanel.SetActive(false);
+        {
+            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
+                fadeSwitcher.SetInstant(pausePanel, false);
+            else
+                pausePanel.SetActive(false);
+        }
     }
 
     private void Update()
@@ -54,6 +70,11 @@ public class GameQuit : MonoBehaviour
         {
             return;
         }
+
+        // A confirmation dialog opened from Pause is a true modal.
+        // Escape must never resume gameplay behind it.
+        if (pauseMenuModalOpen)
+            return;
 
         if (IsPaused &&
             optionsUI != null &&
@@ -68,35 +89,72 @@ public class GameQuit : MonoBehaviour
     private void OnDestroy()
     {
         StopMusicFade();
+        StopPauseTransition();
+        GameAudioMixerController.SetPaused(false);
     }
 
     public void PauseGame()
     {
-        if (!GameStateManager.IsGameplayStarted || IsPaused)
+        if (!GameStateManager.IsGameplayStarted || IsPaused || pauseTransitionRoutine != null)
             return;
 
         IsPaused = true;
         Time.timeScale = 0f;
 
-        SoundManager.Instance?.PlayPremiumInterfaceSound(pausePanel != null ? pausePanel.transform as RectTransform : transform as RectTransform);
+        GameAudioMixerController.SetPaused(true);
+
+        SoundManager.Instance?.PlayPremiumInterfaceSound(
+            pausePanel != null
+                ? pausePanel.transform as RectTransform
+                : transform as RectTransform
+        );
 
         FadeGameplayMusicOut();
+        SetPausePanelInteraction(true);
 
         if (pausePanel != null)
-            pausePanel.SetActive(true);
+        {
+            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
+                fadeSwitcher.ShowPanel(pausePanel);
+            else
+                pausePanel.SetActive(true);
+        }
     }
 
     public void ResumeGame()
     {
-        if (!IsPaused)
+        if (!IsPaused || pauseTransitionRoutine != null || pauseMenuModalOpen)
             return;
 
-        IsPaused = false;
+        pauseTransitionRoutine = StartCoroutine(ResumeGameRoutine());
+    }
 
-        SoundManager.Instance?.PlayPremiumInterfaceSound(pausePanel != null ? pausePanel.transform as RectTransform : transform as RectTransform);
+    private IEnumerator ResumeGameRoutine()
+    {
+        SoundManager.Instance?.PlayPremiumInterfaceSound(
+            pausePanel != null
+                ? pausePanel.transform as RectTransform
+                : transform as RectTransform
+        );
 
+        // Keep gameplay frozen while the pause panel finishes its outro.
         if (pausePanel != null)
-            pausePanel.SetActive(false);
+        {
+            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
+            {
+                fadeSwitcher.HidePanel(pausePanel);
+
+                while (fadeSwitcher.IsTransitioning)
+                    yield return null;
+            }
+            else
+            {
+                pausePanel.SetActive(false);
+            }
+        }
+
+        IsPaused = false;
+        GameAudioMixerController.SetPaused(false);
 
         if (TimeSlowController.Instance != null)
         {
@@ -108,10 +166,14 @@ public class GameQuit : MonoBehaviour
         }
 
         FadeGameplayMusicIn();
+        pauseTransitionRoutine = null;
     }
 
     public void TogglePause()
     {
+        if (pauseMenuModalOpen)
+            return;
+
         if (IsPaused)
             ResumeGame();
         else
@@ -120,6 +182,9 @@ public class GameQuit : MonoBehaviour
 
     public void RestartGame()
     {
+        if (pauseMenuModalOpen)
+            return;
+
         PrepareForSceneChange();
 
         int activeSceneIndex =
@@ -348,15 +413,176 @@ public class GameQuit : MonoBehaviour
         );
     }
 
+    public void SetPauseMenuModalState(bool open)
+    {
+        pauseMenuModalOpen = open;
+        SetPausePanelInteraction(!open);
+    }
+
+    public void SetPausePanelInteraction(bool enabled)
+    {
+        CachePausePanelCanvasGroup();
+
+        if (pausePanel == null)
+            return;
+
+        if (!enabled)
+        {
+            CachePausePanelInputStates();
+
+            if (pausePanelCanvasGroup != null)
+            {
+                pausePanelCanvasGroup.interactable = false;
+                pausePanelCanvasGroup.blocksRaycasts = false;
+            }
+
+            // CanvasGroup is normally enough, but the pause UI contains
+            // nested canvases / UI components. Disable them explicitly so
+            // no child button can receive a click through the modal.
+            if (pausePanelSelectables != null)
+            {
+                for (int i = 0; i < pausePanelSelectables.Length; i++)
+                {
+                    if (pausePanelSelectables[i] != null)
+                        pausePanelSelectables[i].interactable = false;
+                }
+            }
+
+            if (pausePanelRaycasters != null)
+            {
+                for (int i = 0; i < pausePanelRaycasters.Length; i++)
+                {
+                    if (pausePanelRaycasters[i] != null)
+                        pausePanelRaycasters[i].enabled = false;
+                }
+            }
+
+            return;
+        }
+
+        if (pausePanelCanvasGroup != null)
+        {
+            pausePanelCanvasGroup.interactable = true;
+            pausePanelCanvasGroup.blocksRaycasts = true;
+        }
+
+        RestorePausePanelInputStates();
+    }
+
+    private void CachePausePanelInputStates()
+    {
+        if (pausePanel == null)
+            return;
+
+        pausePanelSelectables =
+            pausePanel.GetComponentsInChildren<Selectable>(true);
+
+        pausePanelSelectableStates =
+            new bool[pausePanelSelectables.Length];
+
+        for (int i = 0; i < pausePanelSelectables.Length; i++)
+        {
+            pausePanelSelectableStates[i] =
+                pausePanelSelectables[i] != null &&
+                pausePanelSelectables[i].interactable;
+        }
+
+        pausePanelRaycasters =
+            pausePanel.GetComponentsInChildren<GraphicRaycaster>(true);
+
+        pausePanelRaycasterStates =
+            new bool[pausePanelRaycasters.Length];
+
+        for (int i = 0; i < pausePanelRaycasters.Length; i++)
+        {
+            pausePanelRaycasterStates[i] =
+                pausePanelRaycasters[i] != null &&
+                pausePanelRaycasters[i].enabled;
+        }
+    }
+
+    private void RestorePausePanelInputStates()
+    {
+        if (pausePanelSelectables != null &&
+            pausePanelSelectableStates != null)
+        {
+            int count = Mathf.Min(
+                pausePanelSelectables.Length,
+                pausePanelSelectableStates.Length
+            );
+
+            for (int i = 0; i < count; i++)
+            {
+                if (pausePanelSelectables[i] != null)
+                {
+                    pausePanelSelectables[i].interactable =
+                        pausePanelSelectableStates[i];
+                }
+            }
+        }
+
+        if (pausePanelRaycasters != null &&
+            pausePanelRaycasterStates != null)
+        {
+            int count = Mathf.Min(
+                pausePanelRaycasters.Length,
+                pausePanelRaycasterStates.Length
+            );
+
+            for (int i = 0; i < count; i++)
+            {
+                if (pausePanelRaycasters[i] != null)
+                {
+                    pausePanelRaycasters[i].enabled =
+                        pausePanelRaycasterStates[i];
+                }
+            }
+        }
+
+        pausePanelSelectables = null;
+        pausePanelSelectableStates = null;
+        pausePanelRaycasters = null;
+        pausePanelRaycasterStates = null;
+    }
+
+    private void CachePausePanelCanvasGroup()
+    {
+        if (pausePanel == null || pausePanelCanvasGroup != null)
+            return;
+
+        pausePanelCanvasGroup = pausePanel.GetComponent<CanvasGroup>();
+
+        if (pausePanelCanvasGroup == null)
+            pausePanelCanvasGroup = pausePanel.AddComponent<CanvasGroup>();
+    }
+
     private void PrepareForSceneChange()
     {
         StopMusicFade();
+        StopPauseTransition();
 
         IsPaused = false;
+        pauseMenuModalOpen = false;
         Time.timeScale = 1f;
+        GameAudioMixerController.SetPaused(false);
+        SetPausePanelInteraction(true);
 
         if (pausePanel != null)
-            pausePanel.SetActive(false);
+        {
+            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
+                fadeSwitcher.SetInstant(pausePanel, false);
+            else
+                pausePanel.SetActive(false);
+        }
+    }
+
+    private void StopPauseTransition()
+    {
+        if (pauseTransitionRoutine == null)
+            return;
+
+        StopCoroutine(pauseTransitionRoutine);
+        pauseTransitionRoutine = null;
     }
 
     private void StopMusicFade()

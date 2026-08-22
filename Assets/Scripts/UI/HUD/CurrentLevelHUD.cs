@@ -7,12 +7,11 @@ public class CurrentLevelHUD : MonoBehaviour
     private const float TopOffset = 3f;
 
     private TextMeshProUGUI levelText;
-    private PlayerSkinApplier skinApplier;
-    private PlayerSkinCatalog.SkinEntry cachedSkin;
+    private Color nearStarsColor = Color.white;
 
     public static CurrentLevelHUD Create(
         LevelConfig level,
-        PlayerSkinApplier playerSkinApplier,
+        Color appliedNearStarsColor,
         Canvas targetCanvas,
         int siblingIndex)
     {
@@ -90,7 +89,7 @@ public class CurrentLevelHUD : MonoBehaviour
 
         levelHud.Configure(
             text,
-            playerSkinApplier
+            appliedNearStarsColor
         );
 
         levelHud.SetVisible(false);
@@ -106,12 +105,12 @@ public class CurrentLevelHUD : MonoBehaviour
 
     private void Configure(
         TextMeshProUGUI text,
-        PlayerSkinApplier playerSkinApplier)
+        Color appliedNearStarsColor)
     {
         levelText = text;
-        skinApplier = playerSkinApplier;
+        nearStarsColor = ForceOpaque(appliedNearStarsColor);
 
-        RefreshSkinColor();
+        ApplyNearStarsColor();
     }
 
     private void OnEnable()
@@ -119,20 +118,11 @@ public class CurrentLevelHUD : MonoBehaviour
         if (levelText == null)
             levelText = GetComponent<TextMeshProUGUI>();
 
-        RefreshSkinColor();
+        ApplyNearStarsColor();
         RegisterWithOcclusionController();
 
         if (levelText != null)
             levelText.SetVerticesDirty();
-    }
-
-    private void LateUpdate()
-    {
-        if (skinApplier != null &&
-            cachedSkin != skinApplier.CurrentSkin)
-        {
-            RefreshSkinColor();
-        }
     }
 
     private void RegisterWithOcclusionController()
@@ -144,7 +134,7 @@ public class CurrentLevelHUD : MonoBehaviour
             controller.RegisterHUDRoot(gameObject);
     }
 
-    private void RefreshSkinColor()
+    private void ApplyNearStarsColor()
     {
         if (levelText == null)
             levelText = GetComponent<TextMeshProUGUI>();
@@ -152,42 +142,12 @@ public class CurrentLevelHUD : MonoBehaviour
         if (levelText == null)
             return;
 
-        cachedSkin =
-            skinApplier != null
-                ? skinApplier.CurrentSkin
-                : null;
-
-        Color skinColor =
-            skinApplier != null
-                ? skinApplier.CurrentDashTrailColor
-                : Color.white;
-
-        levelText.color =
-            NormalizeSkinColor(skinColor);
+        levelText.color = ForceOpaque(nearStarsColor);
     }
 
-    private static Color NormalizeSkinColor(
-        Color color)
+    private static Color ForceOpaque(Color color)
     {
-        float highestChannel =
-            Mathf.Max(
-                color.r,
-                color.g,
-                color.b
-            );
-
-        if (highestChannel > 1f)
-        {
-            color.r /= highestChannel;
-            color.g /= highestChannel;
-            color.b /= highestChannel;
-        }
-
-        color.r = Mathf.Clamp01(color.r);
-        color.g = Mathf.Clamp01(color.g);
-        color.b = Mathf.Clamp01(color.b);
         color.a = 1f;
-
         return color;
     }
 

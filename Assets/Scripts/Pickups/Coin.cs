@@ -18,9 +18,12 @@ public class Coin : MonoBehaviour
     private bool isCollected;
     private Collider2D[] cachedColliders;
     private Rigidbody2D[] cachedRigidbodies;
+    private Vector3 magnetVelocity;
+    private bool wasMagnetAffected;
 
     public bool IsCollected => isCollected;
     public CoinType Type => coinType;
+    public bool WasMagnetAffected => wasMagnetAffected;
 
     private void Awake()
     {
@@ -30,7 +33,49 @@ public class Coin : MonoBehaviour
     private void OnEnable()
     {
         isCollected = false;
+        magnetVelocity = Vector3.zero;
+        wasMagnetAffected = false;
         RestorePhysicsAndCollisions();
+    }
+
+    private void Update()
+    {
+        if (isCollected)
+            return;
+
+        PlayerCoinCollector collector =
+            PlayerCoinCollector.Instance;
+
+        if (collector == null)
+        {
+            magnetVelocity = Vector3.zero;
+            return;
+        }
+
+        if (!collector.TryGetComboMagnetSettings(
+                transform.position,
+                out float maxSpeed,
+                out float smoothTime))
+        {
+            // Combo bittiğinde coin kendi kendine kaymaya devam etmesin.
+            magnetVelocity = Vector3.zero;
+            return;
+        }
+
+        wasMagnetAffected = true;
+
+        Vector3 currentPosition = transform.position;
+        Vector3 targetPosition = collector.transform.position;
+        targetPosition.z = currentPosition.z;
+
+        transform.position = Vector3.SmoothDamp(
+            currentPosition,
+            targetPosition,
+            ref magnetVelocity,
+            smoothTime,
+            maxSpeed,
+            Time.deltaTime
+        );
     }
 
     public void Configure(CoinType type, int coinValue)
@@ -50,6 +95,7 @@ public class Coin : MonoBehaviour
             return false;
 
         isCollected = true;
+        magnetVelocity = Vector3.zero;
         SpawnAreaRegistry.Unregister(gameObject);
         DisablePhysicsAndCollisions();
         return true;
@@ -106,6 +152,7 @@ public class Coin : MonoBehaviour
 
     private void OnDisable()
     {
+        magnetVelocity = Vector3.zero;
         SpawnAreaRegistry.Unregister(gameObject);
     }
 }

@@ -140,10 +140,10 @@ TextureImporter:
       name: LevelStar_0
       rect:
         serializedVersion: 2
-        x: 217
-        y: 365
+        x: 218
+        y: 364
         width: 410
-        height: 389
+        height: 392
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -163,9 +163,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 960
-        y: 372
-        width: 400
-        height: 388
+        y: 370
+        width: 402
+        height: 390
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -176,160 +176,6 @@ TextureImporter:
       bones: []
       spriteID: aef085d83dec18aa0800000000000000
       internalID: -6160415407261347862
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_2
-      rect:
-        serializedVersion: 2
-        x: 947
-        y: 591
-        width: 6
-        height: 13
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 588503520a0c05800800000000000000
-      internalID: 599190544491501701
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_3
-      rect:
-        serializedVersion: 2
-        x: 255
-        y: 275
-        width: 83
-        height: 38
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f1f49caa9865b0d80800000000000000
-      internalID: -8283431940342067425
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_4
-      rect:
-        serializedVersion: 2
-        x: 332
-        y: 268
-        width: 152
-        height: 46
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2c099844693e62ea0800000000000000
-      internalID: -5897776427460620094
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_5
-      rect:
-        serializedVersion: 2
-        x: 487
-        y: 265
-        width: 82
-        height: 48
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 584a4fce268034460800000000000000
-      internalID: 7224627448207680645
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_6
-      rect:
-        serializedVersion: 2
-        x: 1039
-        y: 267
-        width: 106
-        height: 46
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c2bd6a2d10fae0690800000000000000
-      internalID: -7633971895982433492
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_7
-      rect:
-        serializedVersion: 2
-        x: 1140
-        y: 275
-        width: 53
-        height: 46
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a1ce1fdee60f405b0800000000000000
-      internalID: -5402929293708628966
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LevelStar_8
-      rect:
-        serializedVersion: 2
-        x: 1199
-        y: 269
-        width: 82
-        height: 44
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f79ba78debbd04630800000000000000
-      internalID: 3909366089279781247
       vertices: []
       indices: 
       edges: []

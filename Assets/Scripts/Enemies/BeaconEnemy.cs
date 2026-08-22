@@ -100,10 +100,7 @@ public class BeaconEnemy : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
 
-        rb.gravityScale = 0f;
-        rb.freezeRotation = true;
-        rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        EnemyObstacleSteering2D.ConfigureAIMovementBody(rb, true);
 
         solidFilter = new ContactFilter2D();
         solidFilter.SetLayerMask(
@@ -320,10 +317,32 @@ public class BeaconEnemy : MonoBehaviour
 
     private void MoveWithCollision(Vector2 dir)
     {
-        if (dir.sqrMagnitude <= 0.001f) return;
-
         Vector2 pos = rb.position;
         float movementDistance = moveSpeed * Time.fixedDeltaTime;
+
+        if (EnemyObstacleSteering2D.TryGetOverlapRecovery(
+                col,
+                solidFilter,
+                out Vector2 overlapDirection,
+                out float penetrationDepth))
+        {
+            float recoveryDistance =
+                EnemyObstacleSteering2D.GetOverlapRecoveryDistance(
+                    penetrationDepth,
+                    movementDistance,
+                    castSkin
+                );
+
+            Vector2 recoveryPosition = ClampToBounds(
+                pos + overlapDirection * recoveryDistance
+            );
+
+            rb.MovePosition(recoveryPosition);
+            return;
+        }
+
+        if (dir.sqrMagnitude <= 0.001f)
+            return;
 
         Vector2 steeredDirection =
             EnemyObstacleSteering2D.GetSteeredDirection(
@@ -344,13 +363,20 @@ public class BeaconEnemy : MonoBehaviour
             return;
 
         Vector2 nextPos =
-            pos + steeredDirection * movementDistance;
+            EnemyObstacleSteering2D.CalculatePhysicsSlideTarget(
+                rb,
+                col,
+                steeredDirection * moveSpeed,
+                Time.fixedDeltaTime,
+                solidFilter,
+                5
+            );
 
         nextPos = ClampToBounds(nextPos);
 
         Vector2 movement = nextPos - pos;
 
-        if (CanMove(movement))
+        if (movement.sqrMagnitude > 0.000001f)
         {
             rb.MovePosition(nextPos);
             return;
@@ -391,7 +417,12 @@ public class BeaconEnemy : MonoBehaviour
     {
         stuckTimer += Time.fixedDeltaTime;
 
-        if (stuckTimer < stuckCheckTime) return;
+        float effectiveStuckCheckTime = Mathf.Min(
+            Mathf.Max(0.05f, stuckCheckTime),
+            0.25f
+        );
+
+        if (stuckTimer < effectiveStuckCheckTime) return;
 
         float movedSqrDistance = (rb.position - lastPosition).sqrMagnitude;
         float stuckSqrDistance = stuckDistance * stuckDistance;
@@ -553,6 +584,8 @@ public class BeaconEnemy : MonoBehaviour
 
         dead = true;
         active = false;
+
+        StatsManager.AddBeaconDestroyed();
 
         ReleaseAppliedBuffs();
         NotifySpawnerOnce();
