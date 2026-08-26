@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 [DefaultExecutionOrder(-10000)]
 public sealed class GameAudioMixerController : MonoBehaviour
@@ -27,6 +28,7 @@ public sealed class GameAudioMixerController : MonoBehaviour
     private const string PausedSnapshotName = "Paused";
     private const string BossDangerSnapshotName = "BossDanger";
     private const string SlowMotionSnapshotName = "SlowMotion";
+    private const string BossDangerSlowSnapshotName = "BossDangerSlow";
 
     private const float MinimumDecibels = -80f;
 
@@ -51,6 +53,7 @@ public sealed class GameAudioMixerController : MonoBehaviour
     private AudioMixerSnapshot pausedSnapshot;
     private AudioMixerSnapshot bossDangerSnapshot;
     private AudioMixerSnapshot slowMotionSnapshot;
+    private AudioMixerSnapshot bossDangerSlowSnapshot;
 
     private readonly HashSet<Object> bossDangerOwners =
         new HashSet<Object>();
@@ -86,6 +89,7 @@ public sealed class GameAudioMixerController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         LoadMixerAndRouting();
+        SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
     private void Start()
@@ -98,8 +102,22 @@ public sealed class GameAudioMixerController : MonoBehaviour
 
     private void OnDestroy()
     {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+
         if (Instance == this)
             Instance = null;
+    }
+
+    private void HandleSceneLoaded(
+        Scene scene,
+        LoadSceneMode loadMode)
+    {
+        if (loadMode != LoadSceneMode.Single)
+            return;
+
+        // AudioMixerController survives scene changes. Gameplay-only states
+        // must never leak into a restarted level or the main menu.
+        ResetTransientState(0f);
     }
 
     public AudioMixerGroup GetGroup(AudioBus bus)
@@ -185,6 +203,18 @@ public sealed class GameAudioMixerController : MonoBehaviour
         }
     }
 
+    public static void ResetTransientState(
+        float transitionDuration = 0f)
+    {
+        if (Instance == null)
+            return;
+
+        Instance.isPaused = false;
+        Instance.isSlowMotionActive = false;
+        Instance.bossDangerOwners.Clear();
+        Instance.RefreshSnapshot(transitionDuration);
+    }
+
     public static void SetPaused(bool paused)
     {
         if (Instance == null)
@@ -248,6 +278,7 @@ public sealed class GameAudioMixerController : MonoBehaviour
         pausedSnapshot = mixer.FindSnapshot(PausedSnapshotName);
         bossDangerSnapshot = mixer.FindSnapshot(BossDangerSnapshotName);
         slowMotionSnapshot = mixer.FindSnapshot(SlowMotionSnapshotName);
+        bossDangerSlowSnapshot = mixer.FindSnapshot(BossDangerSlowSnapshotName);
 
         ValidateSetup();
     }
@@ -294,7 +325,17 @@ public sealed class GameAudioMixerController : MonoBehaviour
         if (isPaused && pausedSnapshot != null)
             return pausedSnapshot;
 
-        if (bossDangerOwners.Count > 0 &&
+        bool bossDangerActive =
+            bossDangerOwners.Count > 0;
+
+        if (bossDangerActive &&
+            isSlowMotionActive &&
+            bossDangerSlowSnapshot != null)
+        {
+            return bossDangerSlowSnapshot;
+        }
+
+        if (bossDangerActive &&
             bossDangerSnapshot != null)
         {
             return bossDangerSnapshot;
@@ -349,11 +390,12 @@ public sealed class GameAudioMixerController : MonoBehaviour
         if (normalSnapshot == null ||
             pausedSnapshot == null ||
             bossDangerSnapshot == null ||
-            slowMotionSnapshot == null)
+            slowMotionSnapshot == null ||
+            bossDangerSlowSnapshot == null)
         {
             Debug.LogWarning(
                 "GameAudioMixer snapshot yapisi eksik. Beklenen snapshotlar: " +
-                "Normal, Paused, BossDanger, SlowMotion."
+                "Normal, Paused, BossDanger, SlowMotion, BossDangerSlow."
             );
         }
     }

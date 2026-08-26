@@ -131,7 +131,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 2
+  projectileEnemyCount: 1
   projectileEnemySpawnInterval: 3
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
@@ -169,7 +169,7 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 0
+  bossEnabled: 1
   bossSpawnCondition: 0
   bossSpawnScore: 10
   bossSpawnTime: 30

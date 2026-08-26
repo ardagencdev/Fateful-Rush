@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(1100)]
 public class CameraWorldBounds : MonoBehaviour
 {
     public static CameraWorldBounds Instance { get; private set; }
@@ -26,10 +27,13 @@ public class CameraWorldBounds : MonoBehaviour
             (MinY + MaxY) * 0.5f
         );
 
-    private Vector3 lastCameraPosition;
+    private Vector3 lastStableCameraPosition;
     private float lastOrthographicSize;
     private int lastScreenWidth;
     private int lastScreenHeight;
+    private float lastCameraAspect;
+    private Rect lastCameraRect;
+    private Rect lastCameraPixelRect;
 
     private void Awake()
     {
@@ -83,6 +87,30 @@ public class CameraWorldBounds : MonoBehaviour
         CacheCameraState();
     }
 
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            ForceRefreshBounds();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (!pauseStatus)
+            ForceRefreshBounds();
+    }
+
+    public void ForceRefreshBounds()
+    {
+        if (cam == null)
+            FindCamera();
+
+        if (cam == null)
+            return;
+
+        UpdateBounds();
+        CacheCameraState();
+    }
+
     public void UpdateBounds()
     {
         if (cam == null)
@@ -108,6 +136,13 @@ public class CameraWorldBounds : MonoBehaviour
                     distanceToWorldPlane
                 )
             );
+
+        // CameraShake moves the rendered camera, but the gameplay arena must
+        // stay fixed. Remove only the shake translation from the viewport
+        // points before calculating physical arena bounds.
+        Vector3 shakeOffset = GetCameraShakeWorldOffset();
+        bottomLeft -= shakeOffset;
+        topRight -= shakeOffset;
 
         MinX = bottomLeft.x + padding;
         MaxX = topRight.x - padding;
@@ -182,19 +217,25 @@ public class CameraWorldBounds : MonoBehaviour
 
     private bool HasCameraStateChanged()
     {
-        return cam.transform.position != lastCameraPosition ||
+        return GetStableCameraPosition() != lastStableCameraPosition ||
                !Mathf.Approximately(
                    cam.orthographicSize,
                    lastOrthographicSize
                ) ||
                Screen.width != lastScreenWidth ||
-               Screen.height != lastScreenHeight;
+               Screen.height != lastScreenHeight ||
+               !Mathf.Approximately(
+                   cam.aspect,
+                   lastCameraAspect
+               ) ||
+               cam.rect != lastCameraRect ||
+               cam.pixelRect != lastCameraPixelRect;
     }
 
     private void CacheCameraState()
     {
-        lastCameraPosition =
-            cam.transform.position;
+        lastStableCameraPosition =
+            GetStableCameraPosition();
 
         lastOrthographicSize =
             cam.orthographicSize;
@@ -204,6 +245,50 @@ public class CameraWorldBounds : MonoBehaviour
 
         lastScreenHeight =
             Screen.height;
+
+        lastCameraAspect =
+            cam.aspect;
+
+        lastCameraRect =
+            cam.rect;
+
+        lastCameraPixelRect =
+            cam.pixelRect;
+    }
+
+
+    private Vector3 GetStableCameraPosition()
+    {
+        CameraShake cameraShake = CameraShake.Instance;
+
+        if (IsCameraAffectedByShake(cameraShake))
+        {
+            return cam.transform.position -
+                   cameraShake.CurrentWorldShakeOffset;
+        }
+
+        return cam.transform.position;
+    }
+
+    private Vector3 GetCameraShakeWorldOffset()
+    {
+        CameraShake cameraShake = CameraShake.Instance;
+
+        if (IsCameraAffectedByShake(cameraShake))
+            return cameraShake.CurrentWorldShakeOffset;
+
+        return Vector3.zero;
+    }
+
+    private bool IsCameraAffectedByShake(CameraShake cameraShake)
+    {
+        if (cameraShake == null || cam == null)
+            return false;
+
+        Transform shakeTransform = cameraShake.transform;
+
+        return cam.transform == shakeTransform ||
+               cam.transform.IsChildOf(shakeTransform);
     }
 
     private void OnDestroy()

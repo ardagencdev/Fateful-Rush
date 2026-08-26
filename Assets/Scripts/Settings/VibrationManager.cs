@@ -20,6 +20,7 @@ public class VibrationManager : MonoBehaviour
     private const int DefaultAmplitude = -1;
 
     private const float LowImpactMinInterval = 0.035f;
+    private const float NearMissMinInterval = 0.085f;
 
     private static readonly long[] CloneTimings = { 0, 18, 42, 24 };
     private static readonly int[] CloneAmplitudes = { 0, 70, 0, 105 };
@@ -30,8 +31,12 @@ public class VibrationManager : MonoBehaviour
     private static readonly long[] FailureTimings = { 0, 55, 45, 95 };
     private static readonly int[] FailureAmplitudes = { 0, 175, 0, 235 };
 
+    private static readonly long[] BossSplitTimings = { 0, 20, 28, 30 };
+    private static readonly int[] BossSplitAmplitudes = { 0, 105, 0, 150 };
+
     private bool isEnabled;
     private float lastLowImpactHapticTime = -10f;
+    private float lastNearMissHapticTime = -10f;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
     private AndroidJavaObject vibrator;
@@ -154,6 +159,13 @@ public class VibrationManager : MonoBehaviour
         if (!isEnabled)
             return;
 
+        float now = Time.unscaledTime;
+
+        if (now - lastNearMissHapticTime < NearMissMinInterval)
+            return;
+
+        lastNearMissHapticTime = now;
+
         float intensity =
             Mathf.Clamp01(intensity01);
 
@@ -212,6 +224,57 @@ public class VibrationManager : MonoBehaviour
             fallbackMilliseconds: 58,
             fallbackAmplitude: 205,
             allowIOSFallback: true
+        );
+    }
+
+    public void VibrateBossAoe()
+    {
+        if (!isEnabled)
+            return;
+
+        PlayPredefined(
+            EffectHeavyClick,
+            fallbackMilliseconds: 42,
+            fallbackAmplitude: 160,
+            allowIOSFallback: true
+        );
+    }
+
+    public void VibrateMiniBossAoe()
+    {
+        if (!isEnabled)
+            return;
+
+        PlayPredefined(
+            EffectClick,
+            fallbackMilliseconds: 26,
+            fallbackAmplitude: 108,
+            allowIOSFallback: false
+        );
+    }
+
+    public void VibrateBossSplit()
+    {
+        if (!isEnabled)
+            return;
+
+        PlayPattern(
+            BossSplitTimings,
+            BossSplitAmplitudes,
+            allowIOSFallback: true
+        );
+    }
+
+    public void VibrateSpaceBomb()
+    {
+        if (!isEnabled)
+            return;
+
+        PlayPredefined(
+            EffectClick,
+            fallbackMilliseconds: 20,
+            fallbackAmplitude: 95,
+            allowIOSFallback: false
         );
     }
 

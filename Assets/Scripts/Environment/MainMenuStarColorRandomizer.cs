@@ -100,6 +100,9 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
     private float nearEmissionAccumulator;
     private bool nearFlowInitialized;
+    private bool nearStarsSuspended;
+
+    private const float MaxNearStarsFrameDelta = 0.1f;
 
     private struct CameraBounds2D
     {
@@ -155,6 +158,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     {
         if (!useScreenEdgeNearStars ||
             !nearFlowInitialized ||
+            nearStarsSuspended ||
             nearStars == null)
         {
             return;
@@ -166,7 +170,25 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             return;
 
         CullExitedNearStars();
-        EmitNearStars(Time.unscaledDeltaTime);
+        EmitNearStars(
+            Mathf.Min(Time.unscaledDeltaTime, MaxNearStarsFrameDelta)
+        );
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            ResumeNearStarsFlow();
+        else
+            SuspendNearStarsFlow();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+            SuspendNearStarsFlow();
+        else
+            ResumeNearStarsFlow();
     }
 
     private void OnDestroy()
@@ -557,6 +579,51 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
 
         nearEmissionAccumulator = 0f;
         nearFlowInitialized = true;
+    }
+
+    private void SuspendNearStarsFlow()
+    {
+        if (!useScreenEdgeNearStars ||
+            nearStars == null ||
+            nearStarsSuspended)
+        {
+            return;
+        }
+
+        nearStarsSuspended = true;
+        nearEmissionAccumulator = 0f;
+
+        if (nearStars.isPlaying)
+            nearStars.Pause(true);
+    }
+
+    private void ResumeNearStarsFlow()
+    {
+        if (!nearStarsSuspended)
+            return;
+
+        nearStarsSuspended = false;
+        nearEmissionAccumulator = 0f;
+
+        if (!useScreenEdgeNearStars || nearStars == null)
+            return;
+
+        ResolveCamera();
+        if (nearStarsCamera == null)
+            return;
+
+        if (!nearFlowInitialized)
+        {
+            InitializeScreenEdgeFlow();
+            return;
+        }
+
+        // Returning from Alt-Tab/Home can produce a very large first-frame
+        // unscaled delta. Re-seeding avoids an edge burst / stacked particles.
+        nearStars.Clear(true);
+        nearStars.Play(true);
+        EnsureParticleBuffer();
+        SeedInitialNearStars();
     }
 
     private void ResolveCamera()

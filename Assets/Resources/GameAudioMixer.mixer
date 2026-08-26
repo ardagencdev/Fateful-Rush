@@ -119,6 +119,7 @@ AudioMixerController:
   - {fileID: 5806426896834911605}
   - {fileID: 313580727616824271}
   - {fileID: -6213045879475910424}
+  - {fileID: 7429183641053372814}
   m_StartSnapshot: {fileID: -5151528553827743871}
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
@@ -187,6 +188,19 @@ AudioMixerSnapshotController:
   m_FloatValues:
     3efcebf7d7cdcde46a40049f73934fbd: -6
     6f08c3ced5da6a24aad1f858e8a8fb41: -3
+  m_TransitionOverrides: {}
+--- !u!245 &7429183641053372814
+AudioMixerSnapshotController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BossDangerSlow
+  m_AudioMixer: {fileID: 24100000}
+  m_SnapshotID: 5d281a4ce9c747e89c7df81f7f4ff1c1
+  m_FloatValues:
+    3efcebf7d7cdcde46a40049f73934fbd: -7.5
+    6f08c3ced5da6a24aad1f858e8a8fb41: -4.5
   m_TransitionOverrides: {}
 --- !u!243 &1337494373841193613
 AudioMixerGroupController:

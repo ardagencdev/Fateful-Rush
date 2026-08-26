@@ -28,6 +28,55 @@ public class PlayerSkinCatalog : ScriptableObject
     private const int CurrentDarkVisualColorVersion = 3;
     private const int CurrentUIThemeColorVersion = 1;
 
+    // Canonical 11-skin progression. Keeping this in the runtime catalog makes
+    // unlock checks/result rewards self-healing even if a scene still references
+    // an older serialized catalog asset.
+    public static int GetCurrentRequiredCompletedLevel(string skinId)
+    {
+        if (string.IsNullOrWhiteSpace(skinId))
+            return -1;
+
+        string normalizedId = skinId
+            .Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(" ", string.Empty);
+
+        switch (normalizedId)
+        {
+            case "white":
+                return 0;
+            case "blue":
+                return 4;
+            case "orange":
+                return 8;
+            case "purple":
+                return 12;
+            case "green":
+                return 16;
+            case "pink":
+            case "deeppink":
+            case "hotpink":
+                return 20;
+            case "yellow":
+                return 24;
+            case "cyan":
+            case "lightblue":
+                return 28;
+            case "red":
+                return 32;
+            case "dark":
+            case "black":
+                return 36;
+            case "gold":
+            case "golden":
+                return 40;
+            default:
+                return -1;
+        }
+    }
+
     [Serializable]
     public class SkinEntry
     {
@@ -107,6 +156,7 @@ public class PlayerSkinCatalog : ScriptableObject
     private void OnEnable()
     {
         LoadedInstance = this;
+        EnsureCurrentUnlockProgression();
         MigrateLegacySilverSelection();
         EnsureArmorVisualColors();
         EnsureDarkSkinVisualColors();
@@ -195,6 +245,27 @@ public class PlayerSkinCatalog : ScriptableObject
                     skin.id,
                     skinId,
                     StringComparison.Ordinal))
+            {
+                return skin;
+            }
+        }
+
+        return null;
+    }
+
+    public SkinEntry FindSkinUnlockedAtLevel(int completedLevelNumber)
+    {
+        if (completedLevelNumber <= 0 || skins == null)
+            return null;
+
+        EnsureCurrentUnlockProgression();
+
+        for (int i = 0; i < skins.Count; i++)
+        {
+            SkinEntry skin = skins[i];
+
+            if (skin != null &&
+                skin.requiredCompletedLevel == completedLevelNumber)
             {
                 return skin;
             }
@@ -371,6 +442,26 @@ public class PlayerSkinCatalog : ScriptableObject
 
         if (changed)
             SelectedSkinChanged?.Invoke();
+    }
+
+    private void EnsureCurrentUnlockProgression()
+    {
+        if (skins == null)
+            return;
+
+        for (int i = 0; i < skins.Count; i++)
+        {
+            SkinEntry skin = skins[i];
+
+            if (skin == null)
+                continue;
+
+            int requiredLevel =
+                GetCurrentRequiredCompletedLevel(skin.id);
+
+            if (requiredLevel >= 0)
+                skin.requiredCompletedLevel = requiredLevel;
+        }
     }
 
     private void EnsureArmorVisualColors()
@@ -600,6 +691,7 @@ public class PlayerSkinCatalog : ScriptableObject
         if (skins == null)
             return;
 
+        EnsureCurrentUnlockProgression();
         EnsureArmorVisualColors();
         EnsureDarkSkinVisualColors();
         EnsureUIThemeColors();

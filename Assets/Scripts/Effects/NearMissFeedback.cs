@@ -129,11 +129,11 @@ public static class NearMissFeedback
             Mathf.Lerp(0.82f, 1f, closeness01);
 
         float duration =
-            Mathf.Lerp(0.055f, 0.10f, streak01) *
+            Mathf.Lerp(0.050f, 0.090f, streak01) *
             closenessFactor;
 
         float strength =
-            Mathf.Lerp(0.025f, 0.085f, streak01) *
+            Mathf.Lerp(0.022f, 0.065f, streak01) *
             closenessFactor;
 
         // Soft shake never interrupts a stronger boss/death impact.

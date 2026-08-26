@@ -129,10 +129,12 @@ public class TimeSlowController : MonoBehaviour
                     1f
                 );
 
+            GameAudioMixerController.SetSlowMotion(true);
             ApplySlow(multiplier);
         }
         else
         {
+            GameAudioMixerController.SetSlowMotion(false);
             Time.timeScale = 1f;
             Time.fixedDeltaTime =
                 originalFixedDeltaTime;

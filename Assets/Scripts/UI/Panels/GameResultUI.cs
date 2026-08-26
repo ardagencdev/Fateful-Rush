@@ -1378,8 +1378,12 @@ public class GameResultUI : MonoBehaviour
 
     private void PrepareSkinUnlockUI()
     {
+        ResolveSkinUnlockCatalog();
+
         if (skinUnlockUI == null)
             return;
+
+        ResolveSkinUnlockTextReferences();
 
         if (skinUnlockRect == null)
         {
@@ -1418,6 +1422,10 @@ public class GameResultUI : MonoBehaviour
         bool isFirstCompletion)
     {
         HideSkinUnlockImmediate();
+        ResolveSkinUnlockCatalog();
+
+        if (skinUnlockUI != null)
+            ResolveSkinUnlockTextReferences();
 
         if (!isFirstCompletion ||
             completedLevelNumber <= 0 ||
@@ -1439,6 +1447,7 @@ public class GameResultUI : MonoBehaviour
         {
             skinUnlockedTitleText.text =
                 "NEW SKIN UNLOCKED";
+            skinUnlockedTitleText.color = Color.white;
         }
 
         if (unlockedSkinNameText != null)
@@ -1455,8 +1464,8 @@ public class GameResultUI : MonoBehaviour
                     : displayName.ToUpperInvariant();
 
             unlockedSkinNameText.color =
-                GetReadableRewardColor(
-                    unlockedSkin.dashTrailColor
+                PlayerSkinCatalog.GetUIThemeColor(
+                    unlockedSkin
                 );
         }
 
@@ -1473,28 +1482,104 @@ public class GameResultUI : MonoBehaviour
         FindSkinUnlockedByLevel(
             int completedLevelNumber)
     {
-        if (playerSkinCatalog == null ||
-            playerSkinCatalog.Skins == null)
+        ResolveSkinUnlockCatalog();
+
+        return playerSkinCatalog != null
+            ? playerSkinCatalog.FindSkinUnlockedAtLevel(
+                completedLevelNumber
+            )
+            : null;
+    }
+
+    private void ResolveSkinUnlockCatalog()
+    {
+        if (playerSkinCatalog == null &&
+            PlayerSkinCatalog.LoadedInstance != null)
         {
-            return null;
+            playerSkinCatalog =
+                PlayerSkinCatalog.LoadedInstance;
+        }
+    }
+
+    private void ResolveSkinUnlockTextReferences()
+    {
+        if (skinUnlockUI == null ||
+            (skinUnlockedTitleText != null &&
+             unlockedSkinNameText != null))
+        {
+            return;
         }
 
-        for (int i = 0;
-             i < playerSkinCatalog.Skins.Count;
-             i++)
-        {
-            PlayerSkinCatalog.SkinEntry skin =
-                playerSkinCatalog.Skins[i];
+        TextMeshProUGUI[] texts =
+            skinUnlockUI.GetComponentsInChildren<TextMeshProUGUI>(true);
 
-            if (skin != null &&
-                skin.requiredCompletedLevel ==
-                completedLevelNumber)
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TextMeshProUGUI text = texts[i];
+
+            if (text == null)
+                continue;
+
+            string normalizedText =
+                string.IsNullOrWhiteSpace(text.text)
+                    ? string.Empty
+                    : text.text
+                        .Trim()
+                        .ToUpperInvariant();
+
+            if (skinUnlockedTitleText == null &&
+                normalizedText.Contains("NEW SKIN UNLOCKED"))
             {
-                return skin;
+                skinUnlockedTitleText = text;
+                continue;
+            }
+
+            if (unlockedSkinNameText == null &&
+                IsSkinNamePlaceholder(normalizedText))
+            {
+                unlockedSkinNameText = text;
             }
         }
 
-        return null;
+        // Fallback for prefabs where the placeholder text was renamed.
+        if (unlockedSkinNameText == null)
+        {
+            for (int i = 0; i < texts.Length; i++)
+            {
+                TextMeshProUGUI text = texts[i];
+
+                if (text != null &&
+                    text != skinUnlockedTitleText)
+                {
+                    unlockedSkinNameText = text;
+                    break;
+                }
+            }
+        }
+    }
+
+    private static bool IsSkinNamePlaceholder(string text)
+    {
+        switch (text)
+        {
+            case "WHITE":
+            case "BLUE":
+            case "ORANGE":
+            case "PURPLE":
+            case "GREEN":
+            case "PINK":
+            case "YELLOW":
+            case "LIGHT BLUE":
+            case "CYAN":
+            case "RED":
+            case "DARK":
+            case "GOLD":
+            case "GOLDEN":
+            case "NEW SKIN":
+                return true;
+            default:
+                return false;
+        }
     }
 
     private IEnumerator AnimateSkinUnlock()

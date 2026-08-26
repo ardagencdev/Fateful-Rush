@@ -1695,6 +1695,14 @@ public class BossEnemyFollow : MonoBehaviour
 
         PlayBossSfx(aoeSfx);
 
+        // The camera hit happens exactly on the shockwave/strike frame.
+        CameraShake.Instance?.Shake(
+            0.26f,
+            0.20f
+        );
+
+        VibrationManager.Instance?.VibrateBossAoe();
+
         EnemyAreaStrikeUtility.ExecuteStrike(
             transform,
             player,
@@ -2757,6 +2765,13 @@ public class BossEnemyFollow : MonoBehaviour
                 ? soundManager.bossSplitVolume
                 : 1f
         );
+
+        CameraShake.Instance?.Shake(
+            0.22f,
+            0.16f
+        );
+
+        VibrationManager.Instance?.VibrateBossSplit();
 
         SpawnMiniBosses(splitCenter);
 

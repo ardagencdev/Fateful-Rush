@@ -709,6 +709,13 @@ public class MiniBossFollow : MonoBehaviour
 
         EnemyAreaStrikeUtility.PlaySound(aoeSfx, transform.position);
 
+        CameraShake.Instance?.Shake(
+            0.18f,
+            0.12f
+        );
+
+        VibrationManager.Instance?.VibrateMiniBossAoe();
+
         EnemyAreaStrikeUtility.ExecuteStrike(
             transform,
             player,

@@ -371,6 +371,10 @@ public class GameStateManager : MonoBehaviour
                 .ForceStopForGameEnd();
         }
 
+        // Results/win/lose audio must start from a clean mixer state even
+        // if the run ended during Slow + BossDanger.
+        GameAudioMixerController.ResetTransientState(0.12f);
+
         StatsManager.AddRun();
         StatsManager.AddWin();
         StatsManager.AddPlayTime(gameTimer);
@@ -490,6 +494,10 @@ public class GameStateManager : MonoBehaviour
                 .ForceStopForGameEnd();
         }
 
+        // Results/win/lose audio must start from a clean mixer state even
+        // if the run ended during Slow + BossDanger.
+        GameAudioMixerController.ResetTransientState(0.12f);
+
         StatsManager.AddRun();
         StatsManager.AddDeath();
         StatsManager.AddPlayTime(gameTimer);
@@ -513,9 +521,12 @@ public class GameStateManager : MonoBehaviour
         if (playerDash != null)
             playerDash.StopDash();
 
+        // One authoritative death impact. PlayerMovement used to trigger a
+        // second shake immediately before this one, causing the two effects
+        // to fight each other.
         CameraShake.Instance?.Shake(
-            0.65f,
-            0.42f
+            0.44f,
+            0.34f
         );
 
         SetHUD(false);

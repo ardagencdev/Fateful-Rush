@@ -210,6 +210,11 @@ public class PlayerArmor : MonoBehaviour
 
         VibrationManager.Instance?.VibrateArmorBreak();
 
+        CameraShake.Instance?.Shake(
+            0.18f,
+            0.14f
+        );
+
         StartImmunity();
 
         if (shieldVisual == null)

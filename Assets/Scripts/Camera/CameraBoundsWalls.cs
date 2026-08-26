@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(1200)]
 public class CameraBoundsWalls : MonoBehaviour
 {
     [Header("Wall Colliders")]

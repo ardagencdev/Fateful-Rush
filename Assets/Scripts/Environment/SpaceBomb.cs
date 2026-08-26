@@ -74,6 +74,13 @@ public class SpaceBomb : MonoBehaviour
 
     private void Explode()
     {
+        CameraShake.Instance?.Shake(
+            0.14f,
+            0.10f
+        );
+
+        VibrationManager.Instance?.VibrateSpaceBomb();
+
         if (explosionEffectPrefab != null)
         {
             Instantiate(
@@ -94,15 +101,46 @@ public class SpaceBomb : MonoBehaviour
             }
             else
             {
-                AudioSource.PlayClipAtPoint(
-                    explosionSound,
-                    transform.position,
-                    SoundManager.SFXVolume
-                );
+                PlayMixerRoutedExplosionFallback();
             }
         }
 
         Destroy(gameObject);
+    }
+
+
+    private void PlayMixerRoutedExplosionFallback()
+    {
+        if (explosionSound == null)
+            return;
+
+        GameObject audioObject =
+            new GameObject("SpaceBomb_ExplosionAudio");
+
+        audioObject.transform.position = transform.position;
+
+        AudioSource source =
+            audioObject.AddComponent<AudioSource>();
+
+        source.playOnAwake = false;
+        source.clip = explosionSound;
+        source.volume = SoundManager.SFXVolume;
+        source.pitch = 1f;
+
+        // Keep the emergency path on the same mixer routing as the normal
+        // SoundManager path so Slow/Boss/Pause snapshots still behave.
+        SoundManager.ConfigureAsWorld3D(source);
+        GameAudioMixerController.Route(
+            source,
+            GameAudioMixerController.AudioBus.CriticalSFX
+        );
+
+        source.Play();
+
+        Destroy(
+            audioObject,
+            explosionSound.length + 0.15f
+        );
     }
 
     private void SetColliderEnabled(bool enabledState)

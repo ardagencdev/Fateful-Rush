@@ -70,7 +70,10 @@ public class StarfieldController : MonoBehaviour
     private float currentNearSpeedMultiplier = 1f;
     private float nearEmissionAccumulator;
     private bool nearFlowInitialized;
+    private bool nearStarsSuspended;
     private ParticleSystem.Particle[] nearParticleBuffer;
+
+    private const float MaxNearStarsFrameDelta = 0.1f;
 
     private struct LayerDefaults
     {
@@ -107,15 +110,38 @@ public class StarfieldController : MonoBehaviour
 
     private void Update()
     {
-        if (!useScreenEdgeNearStars || !nearFlowInitialized || nearStars == null)
+        if (!useScreenEdgeNearStars ||
+            !nearFlowInitialized ||
+            nearStarsSuspended ||
+            nearStars == null)
+        {
             return;
+        }
 
         ResolveNearStarsCamera();
         if (nearStarsCamera == null)
             return;
 
         CullExitedNearStars();
-        EmitNearStars(Time.deltaTime);
+        EmitNearStars(
+            Mathf.Min(Time.deltaTime, MaxNearStarsFrameDelta)
+        );
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            ResumeNearStarsFlow();
+        else
+            SuspendNearStarsFlow();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+            SuspendNearStarsFlow();
+        else
+            ResumeNearStarsFlow();
     }
 
     private void Reset()
@@ -318,6 +344,52 @@ public class StarfieldController : MonoBehaviour
 
         nearEmissionAccumulator = 0f;
         nearFlowInitialized = true;
+    }
+
+    private void SuspendNearStarsFlow()
+    {
+        if (!useScreenEdgeNearStars ||
+            nearStars == null ||
+            nearStarsSuspended)
+        {
+            return;
+        }
+
+        nearStarsSuspended = true;
+        nearEmissionAccumulator = 0f;
+
+        if (nearStars.isPlaying)
+            nearStars.Pause(true);
+    }
+
+    private void ResumeNearStarsFlow()
+    {
+        if (!nearStarsSuspended)
+            return;
+
+        nearStarsSuspended = false;
+        nearEmissionAccumulator = 0f;
+
+        if (!useScreenEdgeNearStars || nearStars == null)
+            return;
+
+        ResolveNearStarsCamera();
+        if (nearStarsCamera == null)
+            return;
+
+        if (!nearFlowInitialized)
+        {
+            InitializeNearStarsFlow();
+            return;
+        }
+
+        // Do not let a long OS/app suspension collapse many particles onto
+        // the same edge on the first resumed frame. Rebuild an already-spread
+        // field instead.
+        nearStars.Clear(true);
+        nearStars.Play(true);
+        EnsureNearParticleBuffer();
+        SeedInitialNearStars();
     }
 
     private void ResolveNearStarsCamera()

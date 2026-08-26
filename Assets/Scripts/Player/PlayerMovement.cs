@@ -537,10 +537,6 @@ public class PlayerMovement : MonoBehaviour
                 ? "UNKNOWN"
                 : deathCause;
 
-        CameraShake.Instance?.Shake(
-            0.3f,
-            0.7f
-        );
 
         if (specialSkinVisuals == null)
             specialSkinVisuals = GetComponent<SpecialSkinVisuals>();
