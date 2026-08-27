@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 98 score while Horizontal Lasers restrict exits. Reach that phase with Dash
+  - The Boss enters at 100 score while Horizontal Lasers restrict exits. Reach that phase with Dash
     ready and keep scoring routes clear.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
-  winScore: 180
+  winScore: 160
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -125,7 +125,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.6
+  normalEnemySpawnInterval: 6.2
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 9.5
-  projectileEnemyDanger: 3
+  projectileEnemySpawnInterval: 13
+  projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 15
-  hunterEnemyDanger: 3
+  hunterEnemySpawnInterval: 19
+  hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -176,7 +176,7 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 98
+  bossSpawnScore: 100
   bossSpawnTime: 30
   bossDanger: 2
   bossCustomOverride: 0

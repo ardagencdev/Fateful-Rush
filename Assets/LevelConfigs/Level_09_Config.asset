@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Space Bombs arm after a short delay and then become lethal zones. Track the minefield before
-    committing to a coin route.
+  - Space Bombs arm after a short delay and then become lethal zones. Track the minefield
+    before committing to a coin route.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 95
+  winScore: 100
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -150,6 +150,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5

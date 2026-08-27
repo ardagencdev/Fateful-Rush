@@ -36,7 +36,7 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 33 \u2014 MINEFIELD RUN"
-  missionDifficulty: 5
+  missionDifficulty: 4
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
@@ -44,7 +44,7 @@ MonoBehaviour:
     open sector to the next.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
-  winScore: 210
+  winScore: 180
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -125,8 +125,8 @@ MonoBehaviour:
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.7
-  normalEnemyDanger: 4
+  normalEnemySpawnInterval: 6.2
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 9
-  projectileEnemyDanger: 4
+  projectileEnemySpawnInterval: 11
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 14
-  hunterEnemyDanger: 4
+  hunterEnemySpawnInterval: 17
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -178,7 +178,7 @@ MonoBehaviour:
   bossSpawnCondition: 0
   bossSpawnScore: 115
   bossSpawnTime: 30
-  bossDanger: 4
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

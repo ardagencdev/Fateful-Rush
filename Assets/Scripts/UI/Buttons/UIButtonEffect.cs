@@ -10,6 +10,13 @@ public class UIButtonEffect : MonoBehaviour,
     IPointerDownHandler,
     IPointerUpHandler
 {
+    public enum AbilityFeedbackStyle
+    {
+        None,
+        Dash,
+        Clone
+    }
+
     [Header("Sprites")]
     public Sprite normalSprite;
     public Sprite highlightedSprite;
@@ -42,6 +49,12 @@ public class UIButtonEffect : MonoBehaviour,
 
     private Button cachedButton;
     private Vector3 originalScale;
+    private bool originalScaleCaptured;
+
+    private AbilityFeedbackStyle abilityFeedbackStyle =
+        AbilityFeedbackStyle.None;
+
+    private Coroutine abilityFeedbackRoutine;
 
     private bool isHovering;
     private bool isPressed;
@@ -51,9 +64,7 @@ public class UIButtonEffect : MonoBehaviour,
     {
         ResolveReferences();
 
-        originalScale = scaleTarget != null
-            ? scaleTarget.localScale
-            : Vector3.one;
+        CaptureOriginalScale();
 
         DisableNonInteractiveTextRaycasts();
         ApplyCurrentSprite();
@@ -66,7 +77,9 @@ public class UIButtonEffect : MonoBehaviour,
 
         isHovering = true;
         UIScaleTweenRunner.ScheduleVisual(this);
-        AnimateToCurrentState();
+
+        if (abilityFeedbackRoutine == null)
+            AnimateToCurrentState();
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -78,7 +91,9 @@ public class UIButtonEffect : MonoBehaviour,
         isPressed = false;
 
         UIScaleTweenRunner.ScheduleVisual(this);
-        AnimateToCurrentState();
+
+        if (abilityFeedbackRoutine == null)
+            AnimateToCurrentState();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -94,7 +109,11 @@ public class UIButtonEffect : MonoBehaviour,
 
         isPressed = true;
         UIScaleTweenRunner.ScheduleVisual(this);
-        AnimateToCurrentState();
+
+        // Ability buttons play their own success feedback from the ability
+        // script. This prevents a fake punch while the ability is on cooldown.
+        if (abilityFeedbackStyle == AbilityFeedbackStyle.None)
+            AnimateToCurrentState();
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -107,7 +126,149 @@ public class UIButtonEffect : MonoBehaviour,
 
         isPressed = false;
         UIScaleTweenRunner.ScheduleVisual(this);
-        AnimateToCurrentState();
+
+        if (abilityFeedbackRoutine == null)
+            AnimateToCurrentState();
+    }
+
+    public void ConfigureAbilityFeedback(AbilityFeedbackStyle style)
+    {
+        ResolveReferences();
+        CaptureOriginalScale();
+        abilityFeedbackStyle = style;
+    }
+
+    public void PlayAbilityActivation()
+    {
+        if (abilityFeedbackStyle == AbilityFeedbackStyle.None ||
+            scaleTarget == null ||
+            !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        StartAbilityFeedback(AbilityFeedbackKind.Activation);
+    }
+
+    public void PlayReadyPulse()
+    {
+        if (abilityFeedbackStyle == AbilityFeedbackStyle.None ||
+            scaleTarget == null ||
+            !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        StartAbilityFeedback(AbilityFeedbackKind.Ready);
+    }
+
+    private enum AbilityFeedbackKind
+    {
+        Activation,
+        Ready
+    }
+
+    private void StartAbilityFeedback(AbilityFeedbackKind kind)
+    {
+        StopAbilityFeedback();
+        UIScaleTweenRunner.Cancel(scaleTarget);
+
+        abilityFeedbackRoutine = StartCoroutine(
+            AbilityFeedbackRoutine(kind)
+        );
+    }
+
+    private System.Collections.IEnumerator AbilityFeedbackRoutine(
+        AbilityFeedbackKind kind)
+    {
+        CaptureOriginalScale();
+
+        if (kind == AbilityFeedbackKind.Ready)
+        {
+            if (abilityFeedbackStyle == AbilityFeedbackStyle.Dash)
+            {
+                yield return AnimateScaleMultiplier(1.045f, 0.055f);
+                yield return AnimateScaleMultiplier(1f, 0.10f);
+            }
+            else
+            {
+                yield return AnimateScaleMultiplier(1.035f, 0.09f);
+                yield return AnimateScaleMultiplier(1f, 0.13f);
+            }
+        }
+        else if (abilityFeedbackStyle == AbilityFeedbackStyle.Dash)
+        {
+            // Dash: short, hard compression followed by a sharp rebound.
+            yield return AnimateScaleMultiplier(0.84f, 0.035f);
+            yield return AnimateScaleMultiplier(1.07f, 0.055f);
+            yield return AnimateScaleMultiplier(1f, 0.085f);
+        }
+        else
+        {
+            // Clone: softer and slightly wider pulse than Dash.
+            yield return AnimateScaleMultiplier(0.93f, 0.055f);
+            yield return AnimateScaleMultiplier(1.06f, 0.10f);
+            yield return AnimateScaleMultiplier(0.99f, 0.075f);
+            yield return AnimateScaleMultiplier(1f, 0.09f);
+        }
+
+        abilityFeedbackRoutine = null;
+    }
+
+    private System.Collections.IEnumerator AnimateScaleMultiplier(
+        float multiplier,
+        float duration)
+    {
+        if (scaleTarget == null)
+            yield break;
+
+        Vector3 startScale = scaleTarget.localScale;
+        Vector3 targetScale = originalScale * multiplier;
+
+        duration = Mathf.Max(0.001f, duration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (scaleTarget == null)
+                yield break;
+
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            t = t * t * (3f - 2f * t);
+
+            scaleTarget.localScale = Vector3.LerpUnclamped(
+                startScale,
+                targetScale,
+                t
+            );
+
+            yield return null;
+        }
+
+        if (scaleTarget != null)
+            scaleTarget.localScale = targetScale;
+    }
+
+    private void StopAbilityFeedback()
+    {
+        if (abilityFeedbackRoutine == null)
+            return;
+
+        StopCoroutine(abilityFeedbackRoutine);
+        abilityFeedbackRoutine = null;
+    }
+
+    private void CaptureOriginalScale()
+    {
+        if (originalScaleCaptured)
+            return;
+
+        originalScale = scaleTarget != null
+            ? scaleTarget.localScale
+            : Vector3.one;
+
+        originalScaleCaptured = true;
     }
 
     public void SetSelected(bool selected)
@@ -123,6 +284,7 @@ public class UIButtonEffect : MonoBehaviour,
 
     public void ResetButtonVisual()
     {
+        StopAbilityFeedback();
         isHovering = false;
         isPressed = false;
 
@@ -229,6 +391,7 @@ public class UIButtonEffect : MonoBehaviour,
 
     private void OnDestroy()
     {
+        StopAbilityFeedback();
         UIScaleTweenRunner.CancelScheduledVisual(this);
         UIScaleTweenRunner.Cancel(scaleTarget);
     }

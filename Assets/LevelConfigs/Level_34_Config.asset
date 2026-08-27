@@ -36,7 +36,7 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 34 \u2014 RESONANCE"
-  missionDifficulty: 5
+  missionDifficulty: 4
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
@@ -45,7 +45,7 @@ MonoBehaviour:
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
-  timeLimit: 70
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -110,7 +110,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 7
+  normalEnemySpawnInterval: 6.8
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -126,8 +126,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 13
-  projectileEnemyDanger: 4
+  projectileEnemySpawnInterval: 12.5
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -148,8 +148,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 17
-  hunterEnemyDanger: 4
+  hunterEnemySpawnInterval: 17.5
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -173,9 +173,9 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 14
-  beaconMaxSpawnTime: 17
-  beaconEnemyDanger: 4
+  beaconMinSpawnTime: 17
+  beaconMaxSpawnTime: 21
+  beaconEnemyDanger: 3
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -241,7 +241,7 @@ MonoBehaviour:
   slowMinSpawnTime: 34
   slowMaxSpawnTime: 42
   verticalLaserEnabled: 1
-  verticalLaserDanger: 4
+  verticalLaserDanger: 3
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8

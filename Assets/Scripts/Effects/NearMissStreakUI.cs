@@ -49,6 +49,7 @@ public class NearMissStreakUI : MonoBehaviour
     private Vector2 baseAnchoredPosition;
     private Vector3 baseScale;
     private Quaternion baseRotation;
+    private float baseFontSize;
 
     private void Awake()
     {
@@ -56,6 +57,7 @@ public class NearMissStreakUI : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
 
         ApplyNearMissFont(text);
+        StabilizeTextSizing();
         CaptureBaseTransform();
         SetVisible(false);
 
@@ -177,6 +179,8 @@ public class NearMissStreakUI : MonoBehaviour
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.raycastTarget = false;
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
+        tmp.enableAutoSizing = false;
+        tmp.overflowMode = TextOverflowModes.Overflow;
         tmp.fontSize = 14f;
         tmp.color = new Color(1f, 1f, 1f, 0f);
 
@@ -201,6 +205,7 @@ public class NearMissStreakUI : MonoBehaviour
 
         ui.text = tmp;
         ui.rectTransform = rect;
+        ui.StabilizeTextSizing();
         ui.CaptureBaseTransform();
         ui.SetVisible(false);
 
@@ -283,6 +288,7 @@ public class NearMissStreakUI : MonoBehaviour
         }
 
         ResetTransform();
+        StabilizeTextSizing();
 
         text.SetText(
             "NEAR MISS  x{0}",
@@ -441,6 +447,25 @@ public class NearMissStreakUI : MonoBehaviour
         SetVisible(false);
         ResetTransform();
         activeRoutine = null;
+    }
+
+
+    private void StabilizeTextSizing()
+    {
+        if (text == null)
+            return;
+
+        // TMP Auto Size can progressively shrink this label when the streak
+        // reaches two digits on some canvas/layout combinations. Near Miss
+        // uses transform punch animation, so its font size should stay fixed.
+        text.enableAutoSizing = false;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
+        text.overflowMode = TextOverflowModes.Overflow;
+
+        if (baseFontSize <= 0f)
+            baseFontSize = Mathf.Max(1f, text.fontSize);
+        else
+            text.fontSize = baseFontSize;
     }
 
     private void CaptureBaseTransform()

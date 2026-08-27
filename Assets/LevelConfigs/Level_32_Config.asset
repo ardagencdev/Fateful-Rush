@@ -44,8 +44,8 @@ MonoBehaviour:
     Beacon before committing to a long combo chain.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 2
-  winScore: 145
-  timeLimit: 65
+  winScore: 135
+  timeLimit: 70
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -125,8 +125,8 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.9
-  normalEnemyDanger: 4
+  normalEnemySpawnInterval: 6.2
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10
-  projectileEnemyDanger: 4
+  projectileEnemySpawnInterval: 11.5
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 17
-  hunterEnemyDanger: 4
+  hunterEnemySpawnInterval: 17.5
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -176,9 +176,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 80
+  bossSpawnScore: 100
   bossSpawnTime: 30
-  bossDanger: 3
+  bossDanger: 2
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -188,9 +188,9 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 15
-  beaconMaxSpawnTime: 18
-  beaconEnemyDanger: 3
+  beaconMinSpawnTime: 18
+  beaconMaxSpawnTime: 22
+  beaconEnemyDanger: 2
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

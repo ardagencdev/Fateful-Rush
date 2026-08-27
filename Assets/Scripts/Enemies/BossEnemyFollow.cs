@@ -69,6 +69,13 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
         angularSamples = Mathf.Max(64, sampleCount);
 
         float safeRate = Mathf.Clamp(visibilityRefreshRate, 1f, 60f);
+
+        // Texture2D.Apply + hundreds of Physics2D raycasts can create short
+        // CPU/GPU upload spikes on tablets. The visibility texture is smoothly
+        // sampled by the shader, so 10 Hz is visually enough on mobile.
+        if (Application.isMobilePlatform)
+            safeRate = Mathf.Min(safeRate, 10f);
+
         refreshInterval = 1f / safeRate;
         nextVisibilityRefreshTime = -1f;
 
@@ -310,11 +317,11 @@ public static class EnemyDangerPreviewMesh
             return null;
         }
 
-        int angularSamples = Mathf.Clamp(
-            Mathf.Max(360, rayCount) * 2,
-            720,
-            2048
-        );
+        int requestedSamples = Mathf.Max(180, rayCount);
+
+        int angularSamples = Application.isMobilePlatform
+            ? Mathf.Clamp(requestedSamples, 256, 512)
+            : Mathf.Clamp(requestedSamples * 2, 512, 1024);
 
         float maxRange =
             useRadius
@@ -945,6 +952,8 @@ public class BossEnemyFollow : MonoBehaviour
     private Coroutine spawnRoutine;
 
     private AudioSource bossSfxSource;
+    private float bossSfxBasePitch = 1f;
+    private bool bossSfxFollowsGameTime;
     private bool bossSfxPausedByGame;
     private float bossSfxVolumeMultiplier = 1f;
 
@@ -1523,7 +1532,8 @@ public class BossEnemyFollow : MonoBehaviour
                 : null,
             soundManager != null
                 ? soundManager.bossAoeWarningVolume
-                : 1f
+                : 1f,
+            duration
         );
 
         while (timer < duration)
@@ -2605,6 +2615,7 @@ public class BossEnemyFollow : MonoBehaviour
         if (playerArmor != null && playerArmor.HasArmor)
         {
             playerArmor.BreakArmor();
+            StatsManager.AddArmorEnemyKill();
 
             if (canSplit)
                 StartCoroutine(SplitRoutine());
@@ -3042,7 +3053,8 @@ public class BossEnemyFollow : MonoBehaviour
 
     private void PlayBossSfx(
         AudioClip clip,
-        float volumeMultiplier = 1f)
+        float volumeMultiplier = 1f,
+        float scaledDuration = 0f)
     {
         if (clip == null ||
             GameStateManager.IsGameplayEnded)
@@ -3056,11 +3068,16 @@ public class BossEnemyFollow : MonoBehaviour
         bossSfxVolumeMultiplier =
             Mathf.Max(0f, volumeMultiplier);
 
+        bossSfxFollowsGameTime = scaledDuration > 0.01f;
+        bossSfxBasePitch = bossSfxFollowsGameTime
+            ? Mathf.Clamp(clip.length / scaledDuration, 0.25f, 3f)
+            : 1f;
+
         bossSfxPausedByGame = false;
 
         bossSfxSource.Stop();
         bossSfxSource.clip = clip;
-        bossSfxSource.pitch = 1f;
+        bossSfxSource.pitch = GetBossSfxPitch();
         ApplyBossSfxVolume();
         bossSfxSource.Play();
 
@@ -3077,6 +3094,7 @@ public class BossEnemyFollow : MonoBehaviour
             return;
 
         ApplyBossSfxVolume();
+        bossSfxSource.pitch = GetBossSfxPitch();
 
         if (GameStateManager.IsGameplayEnded)
         {
@@ -3106,6 +3124,30 @@ public class BossEnemyFollow : MonoBehaviour
         }
     }
 
+
+    private float GetBossSfxPitch()
+    {
+        if (!bossSfxFollowsGameTime)
+            return Mathf.Clamp(bossSfxBasePitch, 0.01f, 3f);
+
+        float gameplayScale = 1f;
+
+        if (SlowPowerUp.isSlowActive)
+        {
+            gameplayScale = Mathf.Clamp(
+                SlowPowerUp.currentSlowMultiplier,
+                0.01f,
+                1f
+            );
+        }
+
+        return Mathf.Clamp(
+            bossSfxBasePitch * gameplayScale,
+            0.01f,
+            3f
+        );
+    }
+
     private void ApplyBossSfxVolume()
     {
         if (bossSfxSource == null)
@@ -3124,6 +3166,8 @@ public class BossEnemyFollow : MonoBehaviour
         bossSfxSource.Stop();
         bossSfxSource.clip = null;
         bossSfxPausedByGame = false;
+        bossSfxBasePitch = 1f;
+        bossSfxFollowsGameTime = false;
     }
 
     private void ZeroVelocity()

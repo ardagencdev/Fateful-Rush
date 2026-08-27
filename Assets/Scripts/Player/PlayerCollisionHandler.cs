@@ -91,7 +91,10 @@ public class PlayerCollisionHandler : MonoBehaviour
                 danger.GetComponentInParent<LaserWall>() != null;
 
             if (!isLaser)
+            {
+                StatsManager.AddArmorEnemyKill();
                 RemoveDanger(danger);
+            }
 
             return;
         }

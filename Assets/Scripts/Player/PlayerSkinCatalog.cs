@@ -441,7 +441,13 @@ public class PlayerSkinCatalog : ScriptableObject
         PlayerPrefs.Save();
 
         if (changed)
+        {
+            GooglePlayGamesManager.NotifySkinEquipped(
+                skin.id
+            );
+
             SelectedSkinChanged?.Invoke();
+        }
     }
 
     private void EnsureCurrentUnlockProgression()

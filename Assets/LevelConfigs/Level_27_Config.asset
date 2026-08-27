@@ -44,7 +44,7 @@ MonoBehaviour:
     direction after nearby shots commit.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 0
-  winScore: 190
+  winScore: 170
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -125,7 +125,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.5
+  normalEnemySpawnInterval: 6.2
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,7 +141,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 9
+  projectileEnemySpawnInterval: 11
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 15
-  hunterEnemyDanger: 3
+  hunterEnemySpawnInterval: 18
+  hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -249,10 +249,10 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   beaconRespawnDelay: 6
-  armorEnabled: 0
+  armorEnabled: 1
   slowEnabled: 0
-  armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
+  armorMinSpawnTime: 18
+  armorMaxSpawnTime: 26
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 3
+  bombDanger: 2
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

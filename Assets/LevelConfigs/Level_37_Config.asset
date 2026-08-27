@@ -45,7 +45,7 @@ MonoBehaviour:
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
-  timeLimit: 75
+  timeLimit: 65
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -110,7 +110,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 7.2
+  normalEnemySpawnInterval: 6.8
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -126,7 +126,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 14
+  projectileEnemySpawnInterval: 12.5
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -148,8 +148,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 19
-  hunterEnemyDanger: 4
+  hunterEnemySpawnInterval: 18
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -251,7 +251,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserDanger: 4
+  horizontalLaserDanger: 3
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -261,7 +261,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 5
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

@@ -44,7 +44,7 @@ MonoBehaviour:
     local and clear Beacon buffs first.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 0
-  winScore: 235
+  winScore: 200
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -125,7 +125,7 @@ MonoBehaviour:
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.5
+  normalEnemySpawnInterval: 5.9
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,7 +141,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 9
+  projectileEnemySpawnInterval: 10.5
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -163,7 +163,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 14
+  hunterEnemySpawnInterval: 16.5
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -178,7 +178,7 @@ MonoBehaviour:
   bossSpawnCondition: 0
   bossSpawnScore: 130
   bossSpawnTime: 30
-  bossDanger: 4
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -188,9 +188,9 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 16
-  beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 4
+  beaconMinSpawnTime: 24
+  beaconMaxSpawnTime: 30
+  beaconEnemyDanger: 3
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 5
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

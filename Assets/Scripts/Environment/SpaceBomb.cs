@@ -42,18 +42,34 @@ public class SpaceBomb : MonoBehaviour
         triggered = true;
         SetColliderEnabled(false);
 
+        StatsManager.AddSpaceBombTrigger();
+
         PlayerArmor armor =
             other.GetComponentInParent<PlayerArmor>();
 
         PlayerMovement player =
             other.GetComponentInParent<PlayerMovement>();
 
-        Explode();
+        bool isImmune =
+            armor != null && armor.IsImmune;
 
-        if (armor != null && armor.IsImmune)
+        bool willBreakArmor =
+            !isImmune &&
+            armor != null &&
+            armor.HasArmor;
+
+        bool lethalHit =
+            !isImmune &&
+            !willBreakArmor;
+
+        // A lethal bomb hit is special: its explosion must remain visible and
+        // audible even though GameOver freezes gameplay immediately afterward.
+        Explode(lethalHit);
+
+        if (isImmune)
             return;
 
-        if (armor != null && armor.HasArmor)
+        if (willBreakArmor)
         {
             armor.BreakArmor();
             return;
@@ -72,7 +88,7 @@ public class SpaceBomb : MonoBehaviour
             gameStateManager.GameOver(0);
     }
 
-    private void Explode()
+    private void Explode(bool persistThroughGameEnd)
     {
         CameraShake.Instance?.Shake(
             0.14f,
@@ -83,16 +99,23 @@ public class SpaceBomb : MonoBehaviour
 
         if (explosionEffectPrefab != null)
         {
-            Instantiate(
+            GameObject effect = Instantiate(
                 explosionEffectPrefab,
                 transform.position,
                 Quaternion.identity
             );
+
+            if (persistThroughGameEnd)
+                ConfigurePersistentExplosionVisual(effect);
         }
 
         if (explosionSound != null)
         {
-            if (SoundManager.Instance != null)
+            if (persistThroughGameEnd)
+            {
+                PlayPersistentExplosionSound();
+            }
+            else if (SoundManager.Instance != null)
             {
                 SoundManager.Instance.PlayCriticalSoundAtWorld(
                     explosionSound,
@@ -108,6 +131,67 @@ public class SpaceBomb : MonoBehaviour
         Destroy(gameObject);
     }
 
+
+    private void ConfigurePersistentExplosionVisual(GameObject effect)
+    {
+        if (effect == null)
+            return;
+
+        ParticleSystem[] particleSystems =
+            effect.GetComponentsInChildren<ParticleSystem>(true);
+
+        for (int i = 0; i < particleSystems.Length; i++)
+        {
+            ParticleSystem system = particleSystems[i];
+
+            if (system == null)
+                continue;
+
+            ParticleSystem.MainModule main = system.main;
+            main.useUnscaledTime = true;
+        }
+
+        Animator[] animators =
+            effect.GetComponentsInChildren<Animator>(true);
+
+        for (int i = 0; i < animators.Length; i++)
+        {
+            if (animators[i] != null)
+                animators[i].updateMode = AnimatorUpdateMode.UnscaledTime;
+        }
+    }
+
+    private void PlayPersistentExplosionSound()
+    {
+        if (explosionSound == null)
+            return;
+
+        GameObject audioObject =
+            new GameObject("SpaceBomb_LethalExplosionAudio");
+
+        audioObject.transform.position = transform.position;
+
+        GameEndPersistentAudio persistence =
+            audioObject.AddComponent<GameEndPersistentAudio>();
+
+        AudioSource source =
+            audioObject.AddComponent<AudioSource>();
+
+        source.playOnAwake = false;
+        source.clip = explosionSound;
+        source.volume = SoundManager.SFXVolume;
+        source.pitch = 1f;
+        source.ignoreListenerPause = false;
+
+        SoundManager.ConfigureAsWorld3D(source);
+        GameAudioMixerController.Route(
+            source,
+            GameAudioMixerController.AudioBus.CriticalSFX
+        );
+
+        source.Play();
+        persistence.DestroyAfterRealtime(explosionSound.length + 0.25f);
+    }
 
     private void PlayMixerRoutedExplosionFallback()
     {

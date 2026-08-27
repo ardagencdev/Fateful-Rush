@@ -40,8 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Slow temporarily reduces game speed and gives you breathing room. Use it when several threats
-    overlap, not while the arena is calm.
+  - Slow temporarily reduces game speed and gives you breathing room. Use it when
+    several threats overlap, not while the arena is calm.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 1
   winScore: 15
@@ -110,7 +110,7 @@ MonoBehaviour:
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 6
+  normalEnemySpawnInterval: 7.5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -135,6 +135,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5

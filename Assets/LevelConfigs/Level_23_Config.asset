@@ -44,8 +44,8 @@ MonoBehaviour:
     it returns to rebuild control.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 2
-  winScore: 110
-  timeLimit: 55
+  winScore: 105
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -125,8 +125,8 @@ MonoBehaviour:
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.7
-  normalEnemyDanger: 3
+  normalEnemySpawnInterval: 6.4
+  normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 11
-  projectileEnemyDanger: 3
+  projectileEnemySpawnInterval: 13
+  projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -162,9 +162,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 18
-  hunterEnemyDanger: 3
+  hunterEnemyCount: 1
+  hunterEnemySpawnInterval: 20
+  hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -176,9 +176,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 60
+  bossSpawnScore: 85
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 1
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -188,9 +188,9 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 16
-  beaconMaxSpawnTime: 20
-  beaconEnemyDanger: 2
+  beaconMinSpawnTime: 24
+  beaconMaxSpawnTime: 30
+  beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -253,8 +253,8 @@ MonoBehaviour:
   slowEnabled: 1
   armorMinSpawnTime: 14
   armorMaxSpawnTime: 20
-  slowMinSpawnTime: 28
-  slowMaxSpawnTime: 36
+  slowMinSpawnTime: 20
+  slowMaxSpawnTime: 28
   verticalLaserEnabled: 0
   verticalLaserDanger: 1
   verticalLaserCustomOverride: 0
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 3
+  bombDanger: 1
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

@@ -56,6 +56,7 @@ public class VoidCloneAbility : MonoBehaviour
     private EventTrigger cloneButtonEventTrigger;
     private EventTrigger.Entry pointerDownEntry;
     private bool immediatePressConfigured;
+    private UIButtonEffect cloneButtonEffect;
 
     // Active fazinda cooldownFill'i gecici olarak Vertical/Top yapacagiz.
     // Cooldown basladiginda Inspector'daki normal ayarlara geri doner.
@@ -85,13 +86,13 @@ public class VoidCloneAbility : MonoBehaviour
 
         PreloadCloneSound();
         CaptureCooldownFillDefaults();
-        ConfigureImmediateButtonPress();
+        ConfigureAbilityButton();
         ResetCloneState();
     }
 
     private void OnEnable()
     {
-        ConfigureImmediateButtonPress();
+        ConfigureAbilityButton();
         ResetCloneState();
     }
 
@@ -125,6 +126,45 @@ public class VoidCloneAbility : MonoBehaviour
 
         if (cooldownActive)
             UpdateCooldown();
+    }
+
+    public void SetCloneButton(Button button)
+    {
+        if (cloneButton == button)
+        {
+            ConfigureAbilityButton();
+            return;
+        }
+
+        RemoveImmediateButtonPress();
+        cloneButton = button;
+        cloneButtonEffect = null;
+        ConfigureAbilityButton();
+        UpdateUI();
+    }
+
+    private void ConfigureAbilityButton()
+    {
+        if (cloneButton == null)
+            return;
+
+        ConfigureImmediateButtonPress();
+
+        if (cloneButtonEffect == null)
+        {
+            cloneButtonEffect =
+                cloneButton.GetComponent<UIButtonEffect>();
+
+            if (cloneButtonEffect == null)
+            {
+                cloneButtonEffect =
+                    cloneButton.gameObject.AddComponent<UIButtonEffect>();
+            }
+        }
+
+        cloneButtonEffect.ConfigureAbilityFeedback(
+            UIButtonEffect.AbilityFeedbackStyle.Clone
+        );
     }
 
     private void ConfigureImmediateButtonPress()
@@ -252,6 +292,7 @@ public class VoidCloneAbility : MonoBehaviour
             soundManager.PlayVoidCloneSound(transform.position);
 
         VibrationManager.Instance?.VibrateClone();
+        cloneButtonEffect?.PlayAbilityActivation();
 
         ShowActiveUI();
         UpdateActiveVisuals();
@@ -354,6 +395,7 @@ public class VoidCloneAbility : MonoBehaviour
 
         HideCooldownUI();
         UpdateUI();
+        cloneButtonEffect?.PlayReadyPulse();
     }
 
     private void UpdateActiveVisuals()

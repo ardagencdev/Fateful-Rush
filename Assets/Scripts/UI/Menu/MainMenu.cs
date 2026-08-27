@@ -201,6 +201,16 @@ public class MainMenu : MonoBehaviour
         LoadGameScene();
     }
 
+    public void OpenGooglePlayAchievements()
+    {
+        GooglePlayGamesManager.ShowAchievementsUI();
+    }
+
+    public void SignInGooglePlayGames()
+    {
+        GooglePlayGamesManager.ManualSignIn();
+    }
+
     public void QuitGame()
     {
         if (isQuitting || isStartingGame)

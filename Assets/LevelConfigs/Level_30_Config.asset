@@ -40,12 +40,12 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A Beacon, Space Bombs and a Boss at 74 score overlap before the timer ends. Remove Beacon buffs
+  - A Beacon, Space Bombs and a Boss at 90 score overlap before the timer ends. Remove Beacon buffs
     before forcing long scoring routes.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
-  winScore: 135
-  timeLimit: 60
+  winScore: 125
+  timeLimit: 65
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -126,7 +126,7 @@ MonoBehaviour:
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
   normalEnemySpawnInterval: 6.4
-  normalEnemyDanger: 4
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -141,7 +141,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10.5
+  projectileEnemySpawnInterval: 12
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -163,7 +163,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 17
+  hunterEnemySpawnInterval: 18
   hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -176,9 +176,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 74
+  bossSpawnScore: 90
   bossSpawnTime: 30
-  bossDanger: 3
+  bossDanger: 2
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -188,9 +188,9 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 20
-  beaconMaxSpawnTime: 24
-  beaconEnemyDanger: 3
+  beaconMinSpawnTime: 22
+  beaconMaxSpawnTime: 26
+  beaconEnemyDanger: 2
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 2
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

@@ -44,7 +44,7 @@ MonoBehaviour:
     direction only after Hunter charges commit.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
-  winScore: 165
+  winScore: 150
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -125,8 +125,8 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.5
-  normalEnemyDanger: 3
+  normalEnemySpawnInterval: 7.5
+  normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10
-  projectileEnemyDanger: 3
+  projectileEnemySpawnInterval: 14
+  projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -150,6 +150,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5
@@ -162,8 +166,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 16
+  hunterEnemyCount: 1
+  hunterEnemySpawnInterval: 17
   hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -174,9 +178,9 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 1
+  bossEnabled: 0
   bossSpawnCondition: 0
-  bossSpawnScore: 100
+  bossSpawnScore: 110
   bossSpawnTime: 30
   bossDanger: 2
   bossCustomOverride: 0
@@ -276,7 +280,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 3
+  bombDanger: 1
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

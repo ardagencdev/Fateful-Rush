@@ -41,7 +41,7 @@ MonoBehaviour:
   briefingObjectiveDescription: 
   briefingPages:
   - Final Challenge. Survive every major hazard with recurring Beacons and a Boss
-    entering at 30 seconds. Stagger Armor, Slow and Clone carefully.
+    entering at 35 seconds. Stagger Armor, Slow and Clone carefully.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
@@ -107,10 +107,10 @@ MonoBehaviour:
     enabled: 1
   - prefab: {fileID: 1198742668289528155, guid: 44cf2912484bee54c95a93af81028b6e, type: 3}
     enabled: 1
-  randomObstacleCount: 5
+  randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 10
+  normalEnemySpawnInterval: 8.5
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -126,7 +126,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 14
+  projectileEnemySpawnInterval: 12.5
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -148,7 +148,7 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 18
+  hunterEnemySpawnInterval: 16.5
   hunterEnemyDanger: 4
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
@@ -162,7 +162,7 @@ MonoBehaviour:
   bossEnabled: 1
   bossSpawnCondition: 1
   bossSpawnScore: 75
-  bossSpawnTime: 30
+  bossSpawnTime: 35
   bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
@@ -173,8 +173,8 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 18
-  beaconMaxSpawnTime: 22
+  beaconMinSpawnTime: 20
+  beaconMaxSpawnTime: 24
   beaconEnemyDanger: 4
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
@@ -241,7 +241,7 @@ MonoBehaviour:
   slowMinSpawnTime: 20
   slowMaxSpawnTime: 35
   verticalLaserEnabled: 1
-  verticalLaserDanger: 5
+  verticalLaserDanger: 4
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -251,7 +251,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserDanger: 5
+  horizontalLaserDanger: 4
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -261,7 +261,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 5
+  bombDanger: 4
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

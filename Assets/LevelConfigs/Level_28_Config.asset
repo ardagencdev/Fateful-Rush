@@ -44,8 +44,8 @@ MonoBehaviour:
     from the safe quadrant and abandon distant coins early.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
-  winScore: 125
-  timeLimit: 55
+  winScore: 120
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -125,8 +125,8 @@ MonoBehaviour:
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 6.1
-  normalEnemyDanger: 4
+  normalEnemySpawnInterval: 6.4
+  normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5
@@ -141,7 +141,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10.5
+  projectileEnemySpawnInterval: 12
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 17
-  hunterEnemyDanger: 3
+  hunterEnemySpawnInterval: 19
+  hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -176,9 +176,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 68
+  bossSpawnScore: 85
   bossSpawnTime: 30
-  bossDanger: 3
+  bossDanger: 2
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -250,13 +250,13 @@ MonoBehaviour:
   beaconHunterStunMultiplier: 0.8
   beaconRespawnDelay: 6
   armorEnabled: 1
-  slowEnabled: 0
+  slowEnabled: 1
   armorMinSpawnTime: 16
   armorMaxSpawnTime: 24
-  slowMinSpawnTime: 8
-  slowMaxSpawnTime: 20
+  slowMinSpawnTime: 24
+  slowMaxSpawnTime: 32
   verticalLaserEnabled: 1
-  verticalLaserDanger: 3
+  verticalLaserDanger: 2
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -266,7 +266,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserDanger: 3
+  horizontalLaserDanger: 2
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8

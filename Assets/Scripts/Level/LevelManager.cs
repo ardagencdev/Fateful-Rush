@@ -121,6 +121,12 @@ public class LevelManager : MonoBehaviour
 
         if (playerDash != null)
         {
+            playerDash.SetDashButton(
+                dashButton != null
+                    ? dashButton.GetComponent<UnityEngine.UI.Button>()
+                    : null
+            );
+
             playerDash.enabled =
                 currentLevel.dashEnabled;
 
@@ -152,6 +158,12 @@ public class LevelManager : MonoBehaviour
 
         if (voidCloneAbility != null)
         {
+            voidCloneAbility.SetCloneButton(
+                cloneButton != null
+                    ? cloneButton.GetComponent<UnityEngine.UI.Button>()
+                    : null
+            );
+
             voidCloneAbility.enabled =
                 currentLevel.cloneEnabled;
 

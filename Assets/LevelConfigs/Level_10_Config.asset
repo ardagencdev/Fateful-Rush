@@ -135,6 +135,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5
@@ -234,7 +238,7 @@ MonoBehaviour:
   beaconHunterChargeMultiplier: 1.25
   beaconHunterStunMultiplier: 0.8
   beaconRespawnDelay: 6
-  armorEnabled: 1
+  armorEnabled: 0
   slowEnabled: 0
   armorMinSpawnTime: 14
   armorMaxSpawnTime: 22

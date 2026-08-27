@@ -22,6 +22,10 @@ public static class StatsManager
     // In the UI this statistic is presented as Armor Saves.
     private const string ArmorSavesKey = "Stats_ArmorKills";
 
+    // Achievement-specific cumulative counters introduced with PGS support.
+    private const string ArmorEnemyKillsKey = "Stats_ArmorEnemyKills";
+    private const string SpaceBombTriggersKey = "Stats_SpaceBombTriggers";
+
     private const string TotalPlayTimeKey = "Stats_TotalPlayTime";
     private const string BestTimeLevelPrefix = "BestTime_Level_";
     private const string BestTimeDevRoomKey = "BestTime_DevRoom";
@@ -95,15 +99,58 @@ public static class StatsManager
 
     public static void AddRun() => AddInt(TotalRunsKey);
     public static void AddWin() => AddInt(TotalWinsKey);
-    public static void AddDeath() => AddInt(TotalDeathsKey);
-    public static void AddDashUse() => AddInt(DashUsesKey);
-    public static void AddCloneUse() => AddInt(CloneUsesKey);
-    public static void AddSlowBuffUse() => AddInt(SlowBuffUsesKey);
-    public static void AddArmorBuffUse() => AddInt(ArmorBuffUsesKey);
+
+    public static void AddDeath()
+    {
+        // Existing stat semantics are preserved: every lost run increments
+        // TotalDeaths. Achievement death progress is updated after the exact
+        // death cause is recorded so TIME EXPIRED losses can be excluded.
+        AddInt(TotalDeathsKey);
+    }
+
+    public static void AddDashUse()
+    {
+        AddInt(DashUsesKey);
+        GooglePlayGamesManager.NotifyDashUseTotal(GetDashUses());
+    }
+
+    public static void AddCloneUse()
+    {
+        AddInt(CloneUsesKey);
+        GooglePlayGamesManager.NotifyCloneUseTotal(GetCloneUses());
+    }
+
+    public static void AddSlowBuffUse()
+    {
+        AddInt(SlowBuffUsesKey);
+        GooglePlayGamesManager.NotifySlowUseTotal(GetSlowBuffUses());
+    }
+
+    public static void AddArmorBuffUse()
+    {
+        AddInt(ArmorBuffUsesKey);
+        GooglePlayGamesManager.NotifyArmorUseTotal(GetArmorBuffUses());
+    }
 
     // Kept so existing call sites and serialized code remain compatible.
     public static void AddArmorKill() => AddArmorSave();
     public static void AddArmorSave() => AddInt(ArmorSavesKey);
+
+    public static void AddArmorEnemyKill()
+    {
+        AddInt(ArmorEnemyKillsKey);
+        GooglePlayGamesManager.NotifyArmorEnemyKillTotal(
+            GetArmorEnemyKills()
+        );
+    }
+
+    public static void AddSpaceBombTrigger()
+    {
+        AddInt(SpaceBombTriggersKey);
+        GooglePlayGamesManager.NotifySpaceBombTriggerTotal(
+            GetSpaceBombTriggers()
+        );
+    }
 
     public static void AddCoin(int value, CoinType coinType)
     {
@@ -130,6 +177,10 @@ public static class StatsManager
                 Debug.LogWarning($"[StatsManager] Unknown coin type: {coinType}");
                 break;
         }
+
+        GooglePlayGamesManager.NotifyTotalCoins(
+            GetTotalCoins()
+        );
     }
 
     public static void AddScore(int gainedScore, int baseCoinValue)
@@ -157,20 +208,55 @@ public static class StatsManager
 
         if (reachedNewStage && safeCombo == 6)
             AddInt(MaxComboReachedKey);
+
+        if (safeCombo >= 6)
+        {
+            GooglePlayGamesManager.NotifyComboReached(
+                safeCombo
+            );
+        }
     }
 
     public static void AddNearMiss(int streak)
     {
         AddInt(NearMissesKey);
         SetMaxInt(BestNearMissStreakKey, Mathf.Max(1, streak));
+
+        GooglePlayGamesManager.NotifyNearMissTotal(
+            GetNearMisses()
+        );
     }
 
-    public static void AddMagnetCoin() => AddInt(MagnetCoinsKey);
+    public static void AddMagnetCoin()
+    {
+        AddInt(MagnetCoinsKey);
+
+        GooglePlayGamesManager.NotifyMagnetCoinTotal(
+            GetMagnetCoins()
+        );
+    }
+
     public static void AddBeaconDestroyed() => AddInt(BeaconsDestroyedKey);
     public static void AddHunterStun() => AddInt(HuntersStunnedKey);
-    public static void AddBossEncounter() => AddInt(BossEncountersKey);
-    public static void AddBossSplit() => AddInt(BossSplitsKey);
-    public static void AddBossAoeEvade() => AddInt(BossAoeEvadesKey);
+
+    public static void AddBossEncounter()
+    {
+        AddInt(BossEncountersKey);
+        GooglePlayGamesManager.NotifyBossEncounter();
+    }
+
+    public static void AddBossSplit()
+    {
+        AddInt(BossSplitsKey);
+        GooglePlayGamesManager.NotifyBossSplit();
+    }
+
+    public static void AddBossAoeEvade()
+    {
+        AddInt(BossAoeEvadesKey);
+        GooglePlayGamesManager.NotifyBossAoeEvade();
+    }
+
     public static void AddMiniBossAoeEvade() => AddInt(MiniBossAoeEvadesKey);
 
     public static void RecordRunDetails(
@@ -241,6 +327,29 @@ public static class StatsManager
     {
         string key = GetDeathCauseKey(cause);
         AddInt(key);
+
+        GooglePlayGamesManager.NotifyTotalDeaths(
+            GetActualDeaths()
+        );
+
+        if (key == DeathSpaceBombKey)
+        {
+            GooglePlayGamesManager.NotifySpaceBombDeathTotal(
+                GetDeathCauseCount("SPACE BOMB")
+            );
+            return;
+        }
+
+        // Google Play laser achievements intentionally count only the
+        // horizontal / vertical LaserWall hazards. Enemy projectile
+        // "LASER BULLET" deaths remain in the stats panel but do not advance
+        // Burned Once / Light Show Casualty / Laserproof.
+        if (key == DeathLaserWallKey)
+        {
+            GooglePlayGamesManager.NotifyLaserDeathTotal(
+                GetLaserDeaths()
+            );
+        }
     }
 
     public static void AddPlayTime(float seconds)
@@ -294,6 +403,14 @@ public static class StatsManager
     public static int GetTotalRuns() => GetInt(TotalRunsKey);
     public static int GetTotalWins() => GetInt(TotalWinsKey);
     public static int GetTotalDeaths() => GetInt(TotalDeathsKey);
+
+    public static int GetActualDeaths()
+    {
+        int allLosses = GetInt(TotalDeathsKey);
+        int timeExpired = GetInt(DeathTimeExpiredKey);
+        return Mathf.Max(0, allLosses - timeExpired);
+    }
+
     public static int GetTotalCoins() => GetInt(TotalCoinsKey);
     public static int GetTotalCoinValue() => GetInt(TotalCoinValueKey);
     public static int GetNormalCoins() => GetInt(NormalCoinsKey);
@@ -305,6 +422,17 @@ public static class StatsManager
     public static int GetArmorBuffUses() => GetInt(ArmorBuffUsesKey);
     public static int GetArmorKills() => GetInt(ArmorSavesKey);
     public static int GetArmorSaves() => GetInt(ArmorSavesKey);
+    public static int GetArmorEnemyKills() => GetInt(ArmorEnemyKillsKey);
+    public static int GetSpaceBombTriggers() => GetInt(SpaceBombTriggersKey);
+
+    public static int GetLaserDeaths()
+    {
+        // Achievement-facing laser deaths: only horizontal / vertical
+        // LaserWall hazards. Laser bullets are tracked separately and are
+        // deliberately excluded from Google Play achievement progress.
+        return GetInt(DeathLaserWallKey);
+    }
+
     public static float GetTotalPlayTime() => GetFloat(TotalPlayTimeKey);
 
     public static int GetTotalScore() => GetInt(TotalScoreKey);
@@ -563,6 +691,8 @@ public static class StatsManager
             SlowBuffUsesKey,
             ArmorBuffUsesKey,
             ArmorSavesKey,
+            ArmorEnemyKillsKey,
+            SpaceBombTriggersKey,
             TotalPlayTimeKey,
             TotalScoreKey,
             CompletedScoreTotalKey,

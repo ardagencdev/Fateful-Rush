@@ -31,7 +31,7 @@ public sealed class DevCheatConsole : MonoBehaviour
     private const float MobileHotspotWidthRatio = 0.16f;
     private const float MobileHotspotHeightRatio = 0.16f;
 
-    private const int MaxHistoryLines = 9;
+    private const int MaxHistoryLines = 11;
     private const string UnlockedLevelKey = "UnlockedLevel";
 
     private readonly List<string> history = new List<string>();
@@ -47,9 +47,6 @@ public sealed class DevCheatConsole : MonoBehaviour
     private bool isOpen;
     private int mobileTapCounter;
     private float lastMobileTapTime = -10f;
-
-    private float timeScaleBeforeOpen = 1f;
-    private float fixedDeltaBeforeOpen = 0.02f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -188,10 +185,6 @@ public sealed class DevCheatConsole : MonoBehaviour
 
         isOpen = true;
 
-        timeScaleBeforeOpen = Time.timeScale;
-        fixedDeltaBeforeOpen = Time.fixedDeltaTime;
-        Time.timeScale = 0f;
-
         EnsureEventSystem();
         SetConsoleVisible(true);
 
@@ -219,23 +212,7 @@ public sealed class DevCheatConsole : MonoBehaviour
         }
 
         SetConsoleVisible(false);
-
-        RestoreTimeState();
         DestroyTemporaryEventSystem();
-    }
-
-    private void RestoreTimeState()
-    {
-        GameQuit pauseMenu = FindAnyObjectByType<GameQuit>();
-
-        if (pauseMenu != null && pauseMenu.IsPaused)
-        {
-            Time.timeScale = 0f;
-            return;
-        }
-
-        Time.timeScale = Mathf.Max(0f, timeScaleBeforeOpen);
-        Time.fixedDeltaTime = Mathf.Max(0.0001f, fixedDeltaBeforeOpen);
     }
 
     private void SubmitCurrentInput()
@@ -344,7 +321,9 @@ public sealed class DevCheatConsole : MonoBehaviour
         AddHistory("<color=#F7D774>level 25</color> - unlock through a specific level");
         AddHistory("<color=#F7D774>skinsoff</color> - return skins to normal progression");
         AddHistory("<color=#F7D774>reset</color> - reset mission progression + skin cheat");
-        AddHistory("<color=#F7D774>status / clear / close</color>");
+        AddHistory("<color=#F7D774>status</color> - show current cheat/progression status");
+        AddHistory("<color=#F7D774>clear</color> - clear console history");
+        AddHistory("<color=#F7D774>close</color> - close the dev console");
     }
 
     private void UnlockAllLevels()
@@ -475,8 +454,8 @@ public sealed class DevCheatConsole : MonoBehaviour
         if (!isOpen)
             return;
 
-        // Scene changes must never leave the game frozen by a console that is
-        // no longer relevant to the new scene.
+        // The console is scene-independent, but it should not remain open
+        // after changing scenes.
         CloseConsole();
     }
 
@@ -502,6 +481,8 @@ public sealed class DevCheatConsole : MonoBehaviour
 
         Image blockerImage = blockerObject.AddComponent<Image>();
         blockerImage.color = new Color(0f, 0f, 0f, 0.001f);
+        // Keep the game running, but swallow UI pointer events behind the console.
+        // This blocks menu Buttons without touching Time.timeScale or gameplay updates.
         blockerImage.raycastTarget = true;
 
         panelObject = CreateUIObject("ConsolePanel", blockerObject.transform);
@@ -510,7 +491,7 @@ public sealed class DevCheatConsole : MonoBehaviour
         panelRect.anchorMax = new Vector2(1f, 1f);
         panelRect.pivot = new Vector2(0.5f, 1f);
         panelRect.anchoredPosition = Vector2.zero;
-        panelRect.sizeDelta = new Vector2(0f, 300f);
+        panelRect.sizeDelta = new Vector2(0f, 380f);
 
         Image panelImage = panelObject.AddComponent<Image>();
         panelImage.color = new Color(0.015f, 0.02f, 0.028f, 0.96f);

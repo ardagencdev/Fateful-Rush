@@ -110,7 +110,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 6
+  normalEnemySpawnInterval: 6.5
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -126,8 +126,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 13
-  projectileEnemyDanger: 3
+  projectileEnemySpawnInterval: 14
+  projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -148,8 +148,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 18
-  hunterEnemyDanger: 3
+  hunterEnemySpawnInterval: 20
+  hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -162,8 +162,8 @@ MonoBehaviour:
   bossEnabled: 1
   bossSpawnCondition: 1
   bossSpawnScore: 75
-  bossSpawnTime: 25
-  bossDanger: 3
+  bossSpawnTime: 35
+  bossDanger: 2
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -241,7 +241,7 @@ MonoBehaviour:
   slowMinSpawnTime: 26
   slowMaxSpawnTime: 34
   verticalLaserEnabled: 1
-  verticalLaserDanger: 3
+  verticalLaserDanger: 2
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8

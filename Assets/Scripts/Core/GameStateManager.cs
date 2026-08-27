@@ -437,6 +437,10 @@ public class GameStateManager : MonoBehaviour
                 "CompletedLevel_" + levelNumber,
                 1
             );
+
+            GooglePlayGamesManager.NotifyLevelCompleted(
+                levelNumber
+            );
         }
 
         StatsManager.SaveIfDirty();
@@ -644,8 +648,15 @@ public class GameStateManager : MonoBehaviour
         {
             AudioSource source = activeSources[i];
 
-            if (source != null && source.isPlaying)
-                source.Stop();
+            if (source == null || !source.isPlaying)
+                continue;
+
+            // A lethal Space Bomb explosion is intentionally allowed to
+            // finish after the gameplay freeze. Everything else is stopped.
+            if (source.GetComponentInParent<GameEndPersistentAudio>() != null)
+                continue;
+
+            source.Stop();
         }
     }
 

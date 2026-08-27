@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -47,19 +49,22 @@ public class PlayerDash : MonoBehaviour
     public float beaconHitFallbackRadius = 0.35f;
 
     [Header("UI")]
+    public Button dashButton;
     public Image cooldownFill;
     public TMP_Text cooldownText;
 
-    private const float TextRefreshInterval = 0.1f;
-
     private Coroutine dashRoutine;
+
+    private EventTrigger dashButtonEventTrigger;
+    private EventTrigger.Entry pointerDownEntry;
+    private bool immediatePressConfigured;
+    private UIButtonEffect dashButtonEffect;
 
     private bool canDash = true;
     private bool isDashing;
     private bool gameOverHandled;
 
     private float cooldownTimer;
-    private float textRefreshTimer;
 
 
     private float trailStartAlpha = 1f;
@@ -89,13 +94,103 @@ public class PlayerDash : MonoBehaviour
         dashHitFilter = ContactFilter2D.noFilter;
 
         CacheTrailAlpha();
+        ConfigureAbilityButton();
         SetTrail(false);
         HideCooldownUI();
     }
 
     private void OnEnable()
     {
+        ConfigureAbilityButton();
         ResetDashState();
+    }
+
+    public void SetDashButton(Button button)
+    {
+        if (dashButton == button)
+        {
+            ConfigureAbilityButton();
+            return;
+        }
+
+        RemoveImmediateButtonPress();
+        dashButton = button;
+        dashButtonEffect = null;
+        ConfigureAbilityButton();
+    }
+
+    private void ConfigureAbilityButton()
+    {
+        if (dashButton == null)
+            return;
+
+        ConfigureImmediateButtonPress();
+
+        if (dashButtonEffect == null)
+        {
+            dashButtonEffect =
+                dashButton.GetComponent<UIButtonEffect>();
+
+            if (dashButtonEffect == null)
+            {
+                dashButtonEffect =
+                    dashButton.gameObject.AddComponent<UIButtonEffect>();
+            }
+        }
+
+        dashButtonEffect.ConfigureAbilityFeedback(
+            UIButtonEffect.AbilityFeedbackStyle.Dash
+        );
+    }
+
+    private void ConfigureImmediateButtonPress()
+    {
+        if (immediatePressConfigured || dashButton == null)
+            return;
+
+        dashButtonEventTrigger =
+            dashButton.GetComponent<EventTrigger>();
+
+        if (dashButtonEventTrigger == null)
+        {
+            dashButtonEventTrigger =
+                dashButton.gameObject.AddComponent<EventTrigger>();
+        }
+
+        if (dashButtonEventTrigger.triggers == null)
+        {
+            dashButtonEventTrigger.triggers =
+                new List<EventTrigger.Entry>();
+        }
+
+        pointerDownEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerDown
+        };
+
+        pointerDownEntry.callback.AddListener(
+            _ => TryDash()
+        );
+
+        dashButtonEventTrigger.triggers.Add(pointerDownEntry);
+        immediatePressConfigured = true;
+    }
+
+    private void RemoveImmediateButtonPress()
+    {
+        if (!immediatePressConfigured ||
+            dashButtonEventTrigger == null ||
+            pointerDownEntry == null ||
+            dashButtonEventTrigger.triggers == null)
+        {
+            return;
+        }
+
+        dashButtonEventTrigger.triggers.Remove(pointerDownEntry);
+
+        pointerDownEntry = null;
+        dashButtonEventTrigger = null;
+        immediatePressConfigured = false;
     }
 
     private void Update()
@@ -121,7 +216,7 @@ public class PlayerDash : MonoBehaviour
 
     public void TryDash()
     {
-        if (IsGameOver())
+        if (!isActiveAndEnabled || IsGameOver())
             return;
 
         if (!CanDash)
@@ -144,7 +239,6 @@ public class PlayerDash : MonoBehaviour
         isDashing = true;
 
         cooldownTimer = dashCooldown;
-        textRefreshTimer = 0f;
 
         if (dashCooldown > 0f)
             ShowCooldownUI();
@@ -154,6 +248,8 @@ public class PlayerDash : MonoBehaviour
 
         VibrationManager.Instance?.VibrateDash();
         StatsManager.AddDashUse();
+
+        dashButtonEffect?.PlayAbilityActivation();
 
         if (trail != null && clearTrailOnDash)
             trail.Clear();
@@ -249,6 +345,7 @@ public class PlayerDash : MonoBehaviour
         canDash = true;
 
         HideCooldownUI();
+        dashButtonEffect?.PlayReadyPulse();
     }
 
     private void UpdateCooldownUI()
@@ -260,15 +357,11 @@ public class PlayerDash : MonoBehaviour
                 : 0f;
         }
 
-        textRefreshTimer -= Time.deltaTime;
-
-        if (textRefreshTimer > 0f)
-            return;
-
-        textRefreshTimer = TextRefreshInterval;
-
         if (cooldownText != null)
         {
+            // Keep the label frame-accurate. The old 0.1 s refresh throttle
+            // could leave the final "0.1" cached visually even after Dash
+            // had already become usable again.
             cooldownText.text = cooldownTimer > 0f
                 ? cooldownTimer.ToString("F1")
                 : string.Empty;
@@ -459,6 +552,9 @@ public class PlayerDash : MonoBehaviour
                 : 0f;
         }
 
+        if (cooldownText != null)
+            cooldownText.gameObject.SetActive(true);
+
         UpdateCooldownUI();
     }
 
@@ -506,7 +602,10 @@ public class PlayerDash : MonoBehaviour
         }
 
         if (cooldownText != null)
+        {
             cooldownText.text = string.Empty;
+            cooldownText.gameObject.SetActive(false);
+        }
     }
 
     public void ResetDashState()
@@ -522,7 +621,6 @@ public class PlayerDash : MonoBehaviour
         gameOverHandled = false;
 
         cooldownTimer = 0f;
-        textRefreshTimer = 0f;
 
         SetTrail(false);
         HideCooldownUI();
@@ -540,7 +638,6 @@ public class PlayerDash : MonoBehaviour
         canDash = false;
 
         cooldownTimer = 0f;
-        textRefreshTimer = 0f;
 
         SetTrail(false);
         HideCooldownUI();
@@ -557,6 +654,11 @@ public class PlayerDash : MonoBehaviour
         isDashing = false;
 
         SetTrail(false);
+    }
+
+    private void OnDestroy()
+    {
+        RemoveImmediateButtonPress();
     }
 
     private void OnValidate()

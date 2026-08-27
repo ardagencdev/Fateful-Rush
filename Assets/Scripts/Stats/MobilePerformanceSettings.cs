@@ -21,8 +21,12 @@ public class MobilePerformanceSettings : MonoBehaviour
     [Tooltip("Lets Unity's Adaptive Performance provider regulate CPU/GPU performance levels automatically.")]
     [SerializeField] private bool useAutomaticPerformanceControl = true;
 
-    [Tooltip("If the device reaches the actual Throttling state, temporarily use thermalFallbackFrameRate to help it cool down.")]
+    [Tooltip("If the device stays in the actual Throttling state, temporarily use thermalFallbackFrameRate to help it cool down.")]
     [SerializeField] private bool useThermalFrameRateFallback = true;
+
+    [Tooltip("Do not instantly jump from 60 to the fallback FPS on a brief thermal event. Render scale is reduced first; FPS falls only if throttling persists.")]
+    [Min(0f)]
+    [SerializeField] private float thermalFallbackDelay = 8f;
 
     [Tooltip("How long the device must remain back at NoWarning before restoring full quality/FPS. Prevents rapid quality toggling.")]
     [Min(0f)]
@@ -53,7 +57,10 @@ public class MobilePerformanceSettings : MonoBehaviour
     private IAdaptivePerformance adaptivePerformance;
     private Coroutine adaptiveBindRoutine;
     private Coroutine recoveryRoutine;
+    private Coroutine thermalFallbackRoutine;
+    private Coroutine lowMemoryCleanupRoutine;
     private bool thermalEventSubscribed;
+    private bool lowMemoryCleanupPending;
 
     private UniversalRenderPipelineAsset urpAsset;
     private float baseRenderScale = 1f;
@@ -91,8 +98,31 @@ public class MobilePerformanceSettings : MonoBehaviour
             recoveryRoutine = null;
         }
 
+        CancelThermalFallback();
+
+        if (lowMemoryCleanupRoutine != null)
+        {
+            StopCoroutine(lowMemoryCleanupRoutine);
+            lowMemoryCleanupRoutine = null;
+        }
+
         UnsubscribeAdaptivePerformance();
         RestoreFullPerformance();
+    }
+
+    private void Update()
+    {
+        if (!lowMemoryCleanupPending || lowMemoryCleanupRoutine != null)
+            return;
+
+        // UnloadUnusedAssets can hitch badly. Never start it in the middle of
+        // an active run; wait for the result/non-gameplay state instead.
+        if (!GameStateManager.IsGameplayStarted ||
+            GameStateManager.IsGameplayEnded)
+        {
+            lowMemoryCleanupRoutine =
+                StartCoroutine(DeferredLowMemoryCleanupRoutine());
+        }
     }
 
     private void ApplyBaseSettings()
@@ -180,11 +210,13 @@ public class MobilePerformanceSettings : MonoBehaviour
         switch (newLevel)
         {
             case WarningLevel.NoWarning:
+                CancelThermalFallback();
                 BeginRecovery();
                 break;
 
             case WarningLevel.ThrottlingImminent:
                 CancelRecovery();
+                CancelThermalFallback();
                 Application.targetFrameRate = Mathf.Max(30, targetFrameRate);
                 ApplyAdaptiveRenderScale(imminentRenderScaleMultiplier);
 
@@ -193,15 +225,56 @@ public class MobilePerformanceSettings : MonoBehaviour
 
             case WarningLevel.Throttling:
                 CancelRecovery();
-
-                if (useThermalFrameRateFallback)
-                    Application.targetFrameRate = Mathf.Clamp(thermalFallbackFrameRate, 15, Mathf.Max(30, targetFrameRate));
-
                 ApplyAdaptiveRenderScale(throttlingRenderScaleMultiplier);
 
-                Log($"Device is thermally throttling. Temporary target FPS: {Application.targetFrameRate}.");
+                // A short thermal report should not make the game visibly jump
+                // from 60 -> 30 FPS. Give render-scale reduction time to work.
+                Application.targetFrameRate = Mathf.Max(30, targetFrameRate);
+                BeginThermalFallback();
+
+                Log($"Device is thermally throttling. Render load reduced first; FPS fallback is delayed.");
                 break;
         }
+    }
+
+
+    private void BeginThermalFallback()
+    {
+        CancelThermalFallback();
+
+        if (!useThermalFrameRateFallback)
+            return;
+
+        thermalFallbackRoutine =
+            StartCoroutine(ThermalFallbackRoutine());
+    }
+
+    private IEnumerator ThermalFallbackRoutine()
+    {
+        if (thermalFallbackDelay > 0f)
+            yield return new WaitForSecondsRealtime(thermalFallbackDelay);
+
+        if (currentWarningLevel == WarningLevel.Throttling)
+        {
+            Application.targetFrameRate = Mathf.Clamp(
+                thermalFallbackFrameRate,
+                15,
+                Mathf.Max(30, targetFrameRate)
+            );
+
+            Log($"Sustained thermal throttling. Temporary target FPS: {Application.targetFrameRate}.");
+        }
+
+        thermalFallbackRoutine = null;
+    }
+
+    private void CancelThermalFallback()
+    {
+        if (thermalFallbackRoutine == null)
+            return;
+
+        StopCoroutine(thermalFallbackRoutine);
+        thermalFallbackRoutine = null;
     }
 
     private void BeginRecovery()
@@ -284,12 +357,26 @@ public class MobilePerformanceSettings : MonoBehaviour
 
     private void HandleLowMemory()
     {
-        // Keep this as an emergency-only action because unloading assets can cause a hitch.
-        Resources.UnloadUnusedAssets();
+        lowMemoryCleanupPending = true;
 
         Debug.LogWarning(
-            "Low memory warning received. Unused assets are being unloaded."
+            "Low memory warning received. Cleanup was queued for the next non-gameplay state to avoid a mid-run hitch."
         );
+    }
+
+    private IEnumerator DeferredLowMemoryCleanupRoutine()
+    {
+        lowMemoryCleanupPending = false;
+
+        yield return null;
+
+        AsyncOperation unloadOperation =
+            Resources.UnloadUnusedAssets();
+
+        if (unloadOperation != null)
+            yield return unloadOperation;
+
+        lowMemoryCleanupRoutine = null;
     }
 
     private void Log(string message)
@@ -305,6 +392,7 @@ public class MobilePerformanceSettings : MonoBehaviour
     {
         targetFrameRate = Mathf.Max(30, targetFrameRate);
         thermalFallbackFrameRate = Mathf.Max(15, thermalFallbackFrameRate);
+        thermalFallbackDelay = Mathf.Max(0f, thermalFallbackDelay);
         recoveryDelay = Mathf.Max(0f, recoveryDelay);
 
         imminentRenderScaleMultiplier = Mathf.Clamp(imminentRenderScaleMultiplier, 0.85f, 1f);

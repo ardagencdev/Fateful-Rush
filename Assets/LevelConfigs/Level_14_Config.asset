@@ -40,8 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Rare Coins are worth 5 points. Take them when accessible, but never enter a sealed route just for
-    the extra score.
+  - Rare Coins are worth 5 points. Take them when accessible, but never enter a sealed
+    route just for the extra score.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
   winScore: 120
@@ -150,6 +150,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5
@@ -252,7 +256,7 @@ MonoBehaviour:
   armorEnabled: 1
   slowEnabled: 0
   armorMinSpawnTime: 15
-  armorMaxSpawnTime: 30
+  armorMaxSpawnTime: 20
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0

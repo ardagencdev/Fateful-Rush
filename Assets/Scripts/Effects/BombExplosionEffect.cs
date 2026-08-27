@@ -32,7 +32,9 @@ public class BombExplosionEffect : MonoBehaviour
 
         while (time < duration)
         {
-            time += Time.deltaTime;
+            time += GameStateManager.IsGameplayEnded
+                ? Time.unscaledDeltaTime
+                : Time.deltaTime;
             float t = time / duration;
 
             transform.localScale = Vector3.Lerp(start, end, t);

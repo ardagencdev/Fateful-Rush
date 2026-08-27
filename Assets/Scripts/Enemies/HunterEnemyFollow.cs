@@ -948,6 +948,7 @@ public class HunterEnemyFollow : MonoBehaviour
             playerArmor.HasArmor)
         {
             playerArmor.BreakArmor();
+            StatsManager.AddArmorEnemyKill();
             Destroy(gameObject);
             return;
         }

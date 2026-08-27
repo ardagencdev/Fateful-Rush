@@ -36,7 +36,7 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 35 \u2014 TWIN COLLAPSE"
-  missionDifficulty: 5
+  missionDifficulty: 4
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
@@ -44,7 +44,7 @@ MonoBehaviour:
     before the Boss phase.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
-  winScore: 220
+  winScore: 190
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -125,7 +125,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.7
+  normalEnemySpawnInterval: 6.0
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 9
-  projectileEnemyDanger: 4
+  projectileEnemySpawnInterval: 10.5
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 14
-  hunterEnemyDanger: 4
+  hunterEnemySpawnInterval: 16.5
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -178,7 +178,7 @@ MonoBehaviour:
   bossSpawnCondition: 0
   bossSpawnScore: 120
   bossSpawnTime: 30
-  bossDanger: 4
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

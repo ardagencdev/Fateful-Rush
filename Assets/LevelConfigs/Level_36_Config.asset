@@ -36,7 +36,7 @@ MonoBehaviour:
     horizontalLaser: 0
     spaceBomb: 0
   briefingTitle: "MISSION 36 \u2014 EVENT HORIZON"
-  missionDifficulty: 5
+  missionDifficulty: 4
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
@@ -44,8 +44,8 @@ MonoBehaviour:
     mission. Treat each Beacon death as a scoring window.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
-  winScore: 160
-  timeLimit: 65
+  winScore: 140
+  timeLimit: 75
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -125,7 +125,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 6.3
+  normalEnemySpawnInterval: 6.4
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,8 +141,8 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 10.5
-  projectileEnemyDanger: 4
+  projectileEnemySpawnInterval: 11.5
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -163,8 +163,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 16
-  hunterEnemyDanger: 4
+  hunterEnemySpawnInterval: 17
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -176,9 +176,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 88
+  bossSpawnScore: 95
   bossSpawnTime: 30
-  bossDanger: 4
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
@@ -188,9 +188,9 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 18
-  beaconMaxSpawnTime: 22
-  beaconEnemyDanger: 4
+  beaconMinSpawnTime: 20
+  beaconMaxSpawnTime: 24
+  beaconEnemyDanger: 3
   beaconEnemyCustomOverride: 0
   beaconEnemyOverride:
     activationDelay: 3
@@ -256,7 +256,7 @@ MonoBehaviour:
   slowMinSpawnTime: 34
   slowMaxSpawnTime: 42
   verticalLaserEnabled: 1
-  verticalLaserDanger: 4
+  verticalLaserDanger: 3
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -266,7 +266,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   horizontalLaserEnabled: 1
-  horizontalLaserDanger: 4
+  horizontalLaserDanger: 3
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 8
@@ -276,7 +276,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 4
+  bombDanger: 3
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6
