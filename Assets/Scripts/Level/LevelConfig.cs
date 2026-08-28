@@ -216,11 +216,6 @@ public class LevelConfig : ScriptableObject
     [Min(0f)]
     public float cloneCooldown = 8f;
 
-    // Legacy compatibility only. Clone is cooldown-based, so this value is ignored.
-    // Kept hidden to avoid breaking existing serialized LevelConfig assets or old callers.
-    [HideInInspector]
-    public int cloneUses = 1;
-
     [Header("ARMOR")]
     [Min(0f)]
     public float armorImmuneDuration = 0.8f;
@@ -302,10 +297,6 @@ public class LevelConfig : ScriptableObject
     )]
     [Range(0.75f, 1.25f)]
     public float starfieldDensityMultiplier = 1f;
-
-    // Legacy serialized value. New layered starfield uses starfieldDensityMultiplier.
-    [HideInInspector]
-    public float nearStarsEmissionRate = 30f;
 
     [Header("COINS")]
     [Min(0.01f)]

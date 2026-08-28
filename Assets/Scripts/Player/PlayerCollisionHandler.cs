@@ -57,6 +57,40 @@ public class PlayerCollisionHandler : MonoBehaviour
         HandleHit(other.gameObject);
     }
 
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (IsGameOver() ||
+            !collision.gameObject.CompareTag("Enemy"))
+        {
+            return;
+        }
+
+        ProjectileEnemyFollow blaster =
+            collision.gameObject.GetComponentInParent<ProjectileEnemyFollow>();
+
+        if (blaster == null || blaster.IsReloading)
+            return;
+
+        HandleHit(collision.gameObject);
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (IsGameOver() ||
+            !other.CompareTag("Enemy"))
+        {
+            return;
+        }
+
+        ProjectileEnemyFollow blaster =
+            other.GetComponentInParent<ProjectileEnemyFollow>();
+
+        if (blaster == null || blaster.IsReloading)
+            return;
+
+        HandleHit(other.gameObject);
+    }
+
     private void HandleHit(GameObject danger)
     {
         if (danger == null)
@@ -72,6 +106,15 @@ public class PlayerCollisionHandler : MonoBehaviour
         {
             return;
         }
+
+        // A Blaster that is reloading is temporarily harmless on body contact.
+        // Keep its collider/movement active, but do not kill the player or
+        // consume armor until the reload has fully finished.
+        ProjectileEnemyFollow blaster =
+            danger.GetComponentInParent<ProjectileEnemyFollow>();
+
+        if (blaster != null && blaster.IsReloading)
+            return;
 
         // EnemyProjectile owns player-projectile collision handling.
         // Skipping it here prevents armor from returning a pooled projectile

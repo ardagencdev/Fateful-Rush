@@ -33148,7 +33148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 2
+  soundType: 9
   customSound: {fileID: 0}
   minimumRepeatInterval: 0.075
 --- !u!114 &1659619377

@@ -329,6 +329,17 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         skinPreviewActive = true;
     }
 
+    public void ShowSkinPreviewSkin(
+        PlayerSkinCatalog.SkinEntry skin)
+    {
+        if (skin == null)
+            return;
+
+        ShowSkinPreviewColor(
+            GetSkinThemeColor(skin)
+        );
+    }
+
     public void ShowSkinPreviewColor(Color skinColor)
     {
         if (nearStars == null)
@@ -338,7 +349,7 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
             BeginSkinPreview();
 
         ChangeState(
-            GetSelectedSkinThemeColor(),
+            skinColor,
             currentEmissionRate,
             Mathf.RoundToInt(currentMaxParticles),
             currentFlowMultiplier
@@ -1280,8 +1291,18 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
     {
         PlayerSkinCatalog catalog = ResolveSkinCatalog();
 
-        Color color = catalog != null
-            ? catalog.GetSelectedUIThemeColor()
+        return GetSkinThemeColor(
+            catalog != null
+                ? catalog.GetSelectedSkin()
+                : null
+        );
+    }
+
+    private Color GetSkinThemeColor(
+        PlayerSkinCatalog.SkinEntry skin)
+    {
+        Color color = skin != null
+            ? PlayerSkinCatalog.GetUIThemeColor(skin)
             : Color.white;
 
         float highestChannel = Mathf.Max(

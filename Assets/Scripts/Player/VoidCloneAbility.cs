@@ -256,11 +256,6 @@ public class VoidCloneAbility : MonoBehaviour
         cloneCooldown = Mathf.Max(0.1f, cooldown);
     }
 
-    public void SetCloneUses(int uses)
-    {
-        // Legacy compatibility only. Clone is cooldown-based.
-    }
-
     public void UseClone()
     {
         if (!isActiveAndEnabled ||

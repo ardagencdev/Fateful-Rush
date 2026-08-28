@@ -387,9 +387,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
         bool selected = skinCatalog.IsSelected(skin);
 
         MainMenuStarColorRandomizer.Instance?
-            .ShowSkinPreviewColor(
-                skin.armorVisualColor
-            );
+            .ShowSkinPreviewSkin(skin);
 
         if (skinImage != null)
         {

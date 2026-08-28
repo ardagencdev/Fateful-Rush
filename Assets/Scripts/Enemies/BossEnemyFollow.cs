@@ -23,8 +23,18 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
 
     private float maxRange;
     private int angularSamples;
+
+    private Vector2[] rayDirections;
+    private float[] rayMaximumDistances;
+
+    private bool useMobileTimeSlicing;
     private float refreshInterval;
     private float nextVisibilityRefreshTime;
+
+    private float samplesPerSecond;
+    private float sampleBudget;
+    private int sampleCursor;
+    private int maxSamplesPerFrame;
 
     private float currentProgress;
     private float opacityMultiplier = 1f;
@@ -34,6 +44,7 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
 
     private const float TwoPi = Mathf.PI * 2f;
     private const float HitSkin = 0.02f;
+    private const float MaxBudgetDeltaTime = 0.05f;
 
     public void Initialize(
         Material material,
@@ -68,22 +79,60 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
         maxRange = Mathf.Max(0.01f, maximumRange);
         angularSamples = Mathf.Max(64, sampleCount);
 
-        float safeRate = Mathf.Clamp(visibilityRefreshRate, 1f, 60f);
+        BuildRayCache();
 
-        // Texture2D.Apply + hundreds of Physics2D raycasts can create short
-        // CPU/GPU upload spikes on tablets. The visibility texture is smoothly
-        // sampled by the shader, so 10 Hz is visually enough on mobile.
-        if (Application.isMobilePlatform)
+        float safeRate = Mathf.Clamp(
+            visibilityRefreshRate,
+            1f,
+            60f
+        );
+
+        useMobileTimeSlicing =
+            Application.isMobilePlatform;
+
+        // Mobile keeps the same angular resolution and effective refresh
+        // target, but spreads the raycasts across multiple rendered frames
+        // instead of executing the whole sweep in one frame.
+        if (useMobileTimeSlicing)
             safeRate = Mathf.Min(safeRate, 10f);
 
         refreshInterval = 1f / safeRate;
-        nextVisibilityRefreshTime = -1f;
+
+        samplesPerSecond =
+            angularSamples * safeRate;
+
+        maxSamplesPerFrame =
+            useMobileTimeSlicing
+                ? Mathf.Clamp(
+                    Mathf.CeilToInt(
+                        angularSamples * 0.5f
+                    ),
+                    96,
+                    256
+                )
+                : angularSamples;
+
+        sampleBudget = 0f;
+        sampleCursor = 0;
 
         currentProgress = 0f;
         opacityMultiplier = 1f;
         strikeWaveProgress = -1f;
 
-        RefreshVisibility(true);
+        if (useMobileTimeSlicing)
+        {
+            // CreatePreview starts fully transparent (_Progress = 0).
+            // The first visibility sweep is therefore built progressively
+            // during the first few frames instead of causing a spawn spike.
+            nextVisibilityRefreshTime = -1f;
+        }
+        else
+        {
+            RefreshVisibilityImmediate();
+            nextVisibilityRefreshTime =
+                Time.unscaledTime + refreshInterval;
+        }
+
         PushVisualState();
     }
 
@@ -92,7 +141,10 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
         if (Time.timeScale <= 0f)
             return;
 
-        RefreshVisibility(false);
+        if (useMobileTimeSlicing)
+            RefreshVisibilityTimeSliced();
+        else
+            RefreshVisibilityScheduled();
     }
 
     public void SetProgress(float progress)
@@ -116,8 +168,11 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
             ? -1f
             : Mathf.Clamp01(progress);
 
-        strikeWaveWidth = Mathf.Clamp(width, 0.02f, 0.35f);
-        strikeWaveBoost = Mathf.Max(0f, boost);
+        strikeWaveWidth =
+            Mathf.Clamp(width, 0.02f, 0.35f);
+
+        strikeWaveBoost =
+            Mathf.Max(0f, boost);
 
         PushVisualState();
     }
@@ -131,6 +186,8 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
         }
 
         visibilityPixels = null;
+        rayDirections = null;
+        rayMaximumDistances = null;
         previewMaterial = null;
     }
 
@@ -139,28 +196,39 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
         if (previewMaterial == null)
             return;
 
-        previewMaterial.SetFloat("_Progress", currentProgress);
-        previewMaterial.SetFloat("_Opacity", opacityMultiplier);
-        previewMaterial.SetFloat("_StrikeWaveProgress", strikeWaveProgress);
-        previewMaterial.SetFloat("_StrikeWaveWidth", strikeWaveWidth);
-        previewMaterial.SetFloat("_StrikeWaveBoost", strikeWaveBoost);
+        previewMaterial.SetFloat(
+            "_Progress",
+            currentProgress
+        );
+
+        previewMaterial.SetFloat(
+            "_Opacity",
+            opacityMultiplier
+        );
+
+        previewMaterial.SetFloat(
+            "_StrikeWaveProgress",
+            strikeWaveProgress
+        );
+
+        previewMaterial.SetFloat(
+            "_StrikeWaveWidth",
+            strikeWaveWidth
+        );
+
+        previewMaterial.SetFloat(
+            "_StrikeWaveBoost",
+            strikeWaveBoost
+        );
     }
 
-    private void RefreshVisibility(bool force)
+    private void BuildRayCache()
     {
-        if (visibilityTexture == null ||
-            visibilityPixels == null ||
-            previewMaterial == null)
-        {
-            return;
-        }
+        rayDirections =
+            new Vector2[angularSamples];
 
-        float now = Time.unscaledTime;
-
-        if (!force && now < nextVisibilityRefreshTime)
-            return;
-
-        nextVisibilityRefreshTime = now + refreshInterval;
+        rayMaximumDistances =
+            new float[angularSamples];
 
         for (int i = 0; i < angularSamples; i++)
         {
@@ -175,6 +243,8 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
                     Mathf.Cos(angle),
                     Mathf.Sin(angle)
                 );
+
+            rayDirections[i] = direction;
 
             float maximumDistance =
                 useRadius
@@ -195,39 +265,143 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
                 maximumDistance = 0.01f;
             }
 
-            RaycastHit2D hit =
-                Physics2D.Raycast(
-                    origin,
-                    direction,
-                    maximumDistance,
-                    coverLayers
-                );
-
-            float visibleDistance =
-                hit.collider != null
-                    ? Mathf.Max(
-                        0.001f,
-                        hit.distance - HitSkin
-                    )
-                    : maximumDistance;
-
-            // R kanalina 0..1 normalize edilmis gorunur mesafe yazilir.
-            float normalizedDistance =
-                Mathf.Clamp01(
-                    visibleDistance / maxRange
-                );
-
-            visibilityPixels[i] =
-                new Color(
-                    normalizedDistance,
-                    0f,
-                    0f,
-                    1f
-                );
+            rayMaximumDistances[i] =
+                maximumDistance;
         }
+    }
 
-        visibilityTexture.SetPixels(visibilityPixels);
-        visibilityTexture.Apply(false, false);
+    private void RefreshVisibilityScheduled()
+    {
+        if (!CanRefreshVisibility())
+            return;
+
+        float now = Time.unscaledTime;
+
+        if (now < nextVisibilityRefreshTime)
+            return;
+
+        nextVisibilityRefreshTime =
+            now + refreshInterval;
+
+        RefreshVisibilityImmediate();
+    }
+
+    private void RefreshVisibilityTimeSliced()
+    {
+        if (!CanRefreshVisibility())
+            return;
+
+        float deltaTime =
+            Mathf.Min(
+                Time.unscaledDeltaTime,
+                MaxBudgetDeltaTime
+            );
+
+        sampleBudget =
+            Mathf.Min(
+                sampleBudget +
+                samplesPerSecond * deltaTime,
+                maxSamplesPerFrame
+            );
+
+        int samplesThisFrame =
+            Mathf.Min(
+                Mathf.FloorToInt(sampleBudget),
+                maxSamplesPerFrame
+            );
+
+        if (samplesThisFrame <= 0)
+            return;
+
+        sampleBudget -= samplesThisFrame;
+
+        for (int i = 0; i < samplesThisFrame; i++)
+        {
+            RefreshVisibilitySample(
+                sampleCursor
+            );
+
+            sampleCursor++;
+
+            if (sampleCursor < angularSamples)
+                continue;
+
+            UploadVisibilityTexture();
+            sampleCursor = 0;
+        }
+    }
+
+    private void RefreshVisibilityImmediate()
+    {
+        if (!CanRefreshVisibility())
+            return;
+
+        for (int i = 0; i < angularSamples; i++)
+            RefreshVisibilitySample(i);
+
+        UploadVisibilityTexture();
+        sampleCursor = 0;
+        sampleBudget = 0f;
+    }
+
+    private bool CanRefreshVisibility()
+    {
+        return visibilityTexture != null &&
+               visibilityPixels != null &&
+               previewMaterial != null &&
+               rayDirections != null &&
+               rayMaximumDistances != null;
+    }
+
+    private void RefreshVisibilitySample(
+        int sampleIndex)
+    {
+        Vector2 direction =
+            rayDirections[sampleIndex];
+
+        float maximumDistance =
+            rayMaximumDistances[sampleIndex];
+
+        RaycastHit2D hit =
+            Physics2D.Raycast(
+                origin,
+                direction,
+                maximumDistance,
+                coverLayers
+            );
+
+        float visibleDistance =
+            hit.collider != null
+                ? Mathf.Max(
+                    0.001f,
+                    hit.distance - HitSkin
+                )
+                : maximumDistance;
+
+        float normalizedDistance =
+            Mathf.Clamp01(
+                visibleDistance / maxRange
+            );
+
+        visibilityPixels[sampleIndex] =
+            new Color(
+                normalizedDistance,
+                0f,
+                0f,
+                1f
+            );
+    }
+
+    private void UploadVisibilityTexture()
+    {
+        visibilityTexture.SetPixels(
+            visibilityPixels
+        );
+
+        visibilityTexture.Apply(
+            false,
+            false
+        );
     }
 
     private static float DistanceToRectEdge(
@@ -238,33 +412,51 @@ public sealed class EnemyDangerPreviewRuntime : MonoBehaviour
         float minY,
         float maxY)
     {
-        float distance = float.PositiveInfinity;
+        float distance =
+            float.PositiveInfinity;
+
         const float epsilon = 0.0001f;
 
         if (direction.x > epsilon)
         {
-            float t = (maxX - origin.x) / direction.x;
+            float t =
+                (maxX - origin.x) /
+                direction.x;
+
             if (t > 0f)
-                distance = Mathf.Min(distance, t);
+                distance =
+                    Mathf.Min(distance, t);
         }
         else if (direction.x < -epsilon)
         {
-            float t = (minX - origin.x) / direction.x;
+            float t =
+                (minX - origin.x) /
+                direction.x;
+
             if (t > 0f)
-                distance = Mathf.Min(distance, t);
+                distance =
+                    Mathf.Min(distance, t);
         }
 
         if (direction.y > epsilon)
         {
-            float t = (maxY - origin.y) / direction.y;
+            float t =
+                (maxY - origin.y) /
+                direction.y;
+
             if (t > 0f)
-                distance = Mathf.Min(distance, t);
+                distance =
+                    Mathf.Min(distance, t);
         }
         else if (direction.y < -epsilon)
         {
-            float t = (minY - origin.y) / direction.y;
+            float t =
+                (minY - origin.y) /
+                direction.y;
+
             if (t > 0f)
-                distance = Mathf.Min(distance, t);
+                distance =
+                    Mathf.Min(distance, t);
         }
 
         return distance;
@@ -334,11 +526,22 @@ public static class EnemyDangerPreviewMesh
                     maxY
                 );
 
+        TextureFormat visibilityTextureFormat =
+            SystemInfo.SupportsTextureFormat(
+                TextureFormat.RHalf
+            )
+                ? TextureFormat.RHalf
+                : SystemInfo.SupportsTextureFormat(
+                    TextureFormat.RGBAHalf
+                )
+                    ? TextureFormat.RGBAHalf
+                    : TextureFormat.RGBAFloat;
+
         Texture2D visibilityTexture =
             new Texture2D(
                 angularSamples,
                 1,
-                TextureFormat.RGBAFloat,
+                visibilityTextureFormat,
                 false,
                 true
             )
@@ -993,7 +1196,6 @@ public class BossEnemyFollow : MonoBehaviour
     private Coroutine powerUpRoutine;
     private GameObject powerUpPreviewGhost;
     private GameObject dangerPreviewObject;
-    private Coroutine legacyScreenEffectStopRoutine;
 
     public bool IsAoeUnlocked => aoeUnlocked;
     public bool IsChargingAoe => isChargingAoe;
@@ -1046,11 +1248,6 @@ public class BossEnemyFollow : MonoBehaviour
 
         spawnRoutine = StartCoroutine(SpawnEffectRoutine());
 
-        // Eski BossScreenEffect spawn oldugunda surekli pulse yapiyordu.
-        // Yeni sistemde kirmizi warning yalnizca AOE charge sirasinda kullaniliyor.
-        StopLegacyBossScreenEffect();
-        legacyScreenEffectStopRoutine =
-            StartCoroutine(StopLegacyBossScreenEffectNextFrame());
     }
 
     private IEnumerator SpawnEffectRoutine()
@@ -1107,22 +1304,6 @@ public class BossEnemyFollow : MonoBehaviour
 
         if (!stopped && !isSplitting)
             BeginAbsorptionOfCurrentStalkers();
-    }
-
-    private IEnumerator StopLegacyBossScreenEffectNextFrame()
-    {
-        yield return null;
-        StopLegacyBossScreenEffect();
-        legacyScreenEffectStopRoutine = null;
-    }
-
-    private void StopLegacyBossScreenEffect()
-    {
-        BossScreenEffect legacyEffect =
-            FindAnyObjectByType<BossScreenEffect>();
-
-        if (legacyEffect != null)
-            legacyEffect.StopEffect();
     }
 
     private void Update()
@@ -2666,13 +2847,6 @@ public class BossEnemyFollow : MonoBehaviour
             powerUpRoutine = null;
         }
 
-        if (legacyScreenEffectStopRoutine != null)
-        {
-            StopCoroutine(legacyScreenEffectStopRoutine);
-            legacyScreenEffectStopRoutine = null;
-        }
-
-        StopLegacyBossScreenEffect();
         StopBossSfx();
         DestroyPowerUpPreviewGhost();
         HideDangerPreview();
@@ -3217,13 +3391,6 @@ public class BossEnemyFollow : MonoBehaviour
             powerUpRoutine = null;
         }
 
-        if (legacyScreenEffectStopRoutine != null)
-        {
-            StopCoroutine(legacyScreenEffectStopRoutine);
-            legacyScreenEffectStopRoutine = null;
-        }
-
-        StopLegacyBossScreenEffect();
         StopBossSfx();
         DestroyPowerUpPreviewGhost();
         HideDangerPreview();
@@ -3264,12 +3431,6 @@ public class BossEnemyFollow : MonoBehaviour
             {
                 StopCoroutine(powerUpRoutine);
                 powerUpRoutine = null;
-            }
-
-            if (legacyScreenEffectStopRoutine != null)
-            {
-                StopCoroutine(legacyScreenEffectStopRoutine);
-                legacyScreenEffectStopRoutine = null;
             }
 
             StopBossSfx();

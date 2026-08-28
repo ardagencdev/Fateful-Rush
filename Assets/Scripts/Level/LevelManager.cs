@@ -32,11 +32,6 @@ public class LevelManager : MonoBehaviour
     [Header("BACKGROUND")]
     public StarfieldController starfieldController;
 
-    // Kept only so existing scene serialization does not lose the old reference.
-    // The new layered starfield is controlled by StarfieldController.
-    [HideInInspector]
-    public ParticleSystem nearStars;
-
     private bool initialized;
 
     private void Start()
@@ -174,9 +169,6 @@ public class LevelManager : MonoBehaviour
                 currentLevel.cloneCooldown
             );
 
-            voidCloneAbility.SetCloneUses(
-                currentLevel.cloneUses
-            );
         }
     }
 

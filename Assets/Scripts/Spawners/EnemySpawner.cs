@@ -8,7 +8,6 @@ public class EnemySpawner : MonoBehaviour
     [Header("References")]
     public Transform player;
     public PlayerMovement playerMovement;
-    public BossScreenEffect bossScreenEffect;
 
     [Header("Prefabs")]
     public GameObject normalEnemyPrefab;
@@ -1082,9 +1081,6 @@ public class EnemySpawner : MonoBehaviour
         activeEnemies.Add(boss);
 
         ConfigureSpawnedEnemy(boss);
-
-        if (bossScreenEffect != null)
-            bossScreenEffect.StartEffect();
 
     }
 

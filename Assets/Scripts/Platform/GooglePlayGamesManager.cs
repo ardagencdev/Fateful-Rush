@@ -81,10 +81,15 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
     private const int LaserDeath10Target = 10;
     private const int LaserDeath25Target = 25;
 
+    private static readonly bool DiagnosticsEnabled = true;
+
     private static GooglePlayGamesManager instance;
 
     private bool authenticationStarted;
     private bool authenticated;
+
+    private string lastAuthenticationStatus = "NotStarted";
+    private string lastAchievementsUiStatus = "NotRequested";
 
     public static bool IsAuthenticated =>
         instance != null && instance.authenticated;
@@ -107,7 +112,7 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
             return instance;
 
         GooglePlayGamesManager existing =
-            FindFirstObjectByType<GooglePlayGamesManager>();
+            FindAnyObjectByType<GooglePlayGamesManager>();
 
         if (existing != null)
         {
@@ -150,14 +155,21 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
         authenticationStarted = true;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        PlayGamesPlatform.DebugLogEnabled =
-            Debug.isDebugBuild;
+        // Keep Google Play Games logs enabled for this diagnostic build even
+        // when the AAB is not a Unity Development Build. Remove / set false
+        // after the issue is diagnosed.
+        PlayGamesPlatform.DebugLogEnabled = DiagnosticsEnabled;
+
+        LogDiagnostic(
+            "Initialize -> starting automatic authentication."
+        );
 
         PlayGamesPlatform.Instance.Authenticate(
             ProcessAuthentication
         );
 #else
         authenticated = false;
+        lastAuthenticationStatus = "NotAndroidPlayer";
 #endif
     }
 
@@ -165,8 +177,17 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
     private void ProcessAuthentication(
         SignInStatus status)
     {
+        lastAuthenticationStatus = status.ToString();
         authenticated =
             status == SignInStatus.Success;
+
+        SaveDiagnosticState();
+
+        LogDiagnostic(
+            "Automatic authentication result: " + status +
+            " | platformAuthenticated=" +
+            PlayGamesPlatform.Instance.IsAuthenticated()
+        );
 
         if (!authenticated)
         {
@@ -197,28 +218,92 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
             EnsureInstance();
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        if (!manager.IsReady())
+        manager.LogDiagnostic(
+            "Achievements button pressed. " +
+            manager.BuildDiagnosticSummary()
+        );
+
+        manager.ShowAchievementsUIInternal();
+#else
+        manager.LogDiagnostic(
+            "Achievements button pressed outside an Android player build."
+        );
+#endif
+    }
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    private void ShowAchievementsUIInternal()
+    {
+        bool platformAuthenticated =
+            PlayGamesPlatform.Instance.IsAuthenticated();
+
+        LogDiagnostic(
+            "ShowAchievementsUIInternal -> " +
+            "localAuthenticated=" + authenticated +
+            " | platformAuthenticated=" + platformAuthenticated +
+            " | authStatus=" + lastAuthenticationStatus
+        );
+
+        if (!IsReady())
         {
-            manager.ManualSignInInternal(true);
+            ShowDiagnosticToast(
+                "PGS not authenticated. Trying manual sign-in..."
+            );
+
+            ManualSignInInternal(true);
             return;
         }
 
-        PlayGamesPlatform.Instance.ShowAchievementsUI();
-#endif
+        ShowDiagnosticToast(
+            "PGS authenticated. Opening achievements..."
+        );
+
+        PlayGamesPlatform.Instance.ShowAchievementsUI(
+            ProcessAchievementsUiStatus
+        );
     }
+
+    private void ProcessAchievementsUiStatus(
+        UIStatus status)
+    {
+        lastAchievementsUiStatus = status.ToString();
+        SaveDiagnosticState();
+
+        LogDiagnostic(
+            "Achievements UI callback: " + status +
+            " | " + BuildDiagnosticSummary()
+        );
+
+        ShowDiagnosticToast(
+            "Achievements UI: " + status
+        );
+    }
+#endif
 
     private void ManualSignInInternal(
         bool showAchievementsAfterSignIn)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        if (authenticated ||
-            PlayGamesPlatform.Instance.IsAuthenticated())
+        bool platformAuthenticated =
+            PlayGamesPlatform.Instance.IsAuthenticated();
+
+        LogDiagnostic(
+            "ManualSignInInternal requested. " +
+            "localAuthenticated=" + authenticated +
+            " | platformAuthenticated=" + platformAuthenticated +
+            " | showAchievementsAfterSignIn=" +
+            showAchievementsAfterSignIn
+        );
+
+        if (authenticated || platformAuthenticated)
         {
             authenticated = true;
+            lastAuthenticationStatus = SignInStatus.Success.ToString();
+            SaveDiagnosticState();
             SyncProgressFromLocalSave();
 
             if (showAchievementsAfterSignIn)
-                PlayGamesPlatform.Instance.ShowAchievementsUI();
+                ShowAchievementsUIInternal();
 
             return;
         }
@@ -226,15 +311,28 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
         PlayGamesPlatform.Instance.ManuallyAuthenticate(
             status =>
             {
+                lastAuthenticationStatus = status.ToString();
                 authenticated =
                     status == SignInStatus.Success;
+
+                SaveDiagnosticState();
+
+                LogDiagnostic(
+                    "Manual authentication result: " + status +
+                    " | platformAuthenticated=" +
+                    PlayGamesPlatform.Instance.IsAuthenticated()
+                );
+
+                ShowDiagnosticToast(
+                    "PGS sign-in: " + status
+                );
 
                 if (authenticated)
                 {
                     SyncProgressFromLocalSave();
 
                     if (showAchievementsAfterSignIn)
-                        PlayGamesPlatform.Instance.ShowAchievementsUI();
+                        ShowAchievementsUIInternal();
                 }
                 else
                 {
@@ -898,13 +996,18 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
             achievementId,
             success =>
             {
-                if (!success && Debug.isDebugBuild)
+                if (!success)
                 {
                     Debug.LogWarning(
                         "[GooglePlayGames] Achievement unlock failed: " +
                         key
                     );
+                    return;
                 }
+
+                LogDiagnostic(
+                    "Achievement unlock succeeded: " + key
+                );
             }
         );
 #endif
@@ -936,18 +1039,138 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
             safeSteps,
             success =>
             {
-                if (!success && Debug.isDebugBuild)
+                if (!success)
                 {
                     Debug.LogWarning(
                         "[GooglePlayGames] Achievement progress failed: " +
                         key + " | " +
                         safeSteps + "/" + safeTarget
                     );
+                    return;
                 }
+
+                LogDiagnostic(
+                    "Achievement progress succeeded: " +
+                    key + " | " +
+                    safeSteps + "/" + safeTarget
+                );
             }
         );
 #endif
     }
+
+    private string BuildDiagnosticSummary()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        return
+            "localAuth=" + authenticated +
+            " | platformAuth=" +
+            PlayGamesPlatform.Instance.IsAuthenticated() +
+            " | lastAuth=" + lastAuthenticationStatus +
+            " | lastUI=" + lastAchievementsUiStatus;
+#else
+        return
+            "localAuth=" + authenticated +
+            " | lastAuth=" + lastAuthenticationStatus +
+            " | lastUI=" + lastAchievementsUiStatus;
+#endif
+    }
+
+    private void SaveDiagnosticState()
+    {
+        if (!DiagnosticsEnabled)
+            return;
+
+        PlayerPrefs.SetString(
+            "GPGS_DIAG_LastAuth",
+            lastAuthenticationStatus
+        );
+
+        PlayerPrefs.SetString(
+            "GPGS_DIAG_LastUI",
+            lastAchievementsUiStatus
+        );
+
+        PlayerPrefs.SetInt(
+            "GPGS_DIAG_LocalAuthenticated",
+            authenticated ? 1 : 0
+        );
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        PlayerPrefs.SetInt(
+            "GPGS_DIAG_PlatformAuthenticated",
+            PlayGamesPlatform.Instance.IsAuthenticated() ? 1 : 0
+        );
+#endif
+
+        PlayerPrefs.Save();
+    }
+
+    private void LogDiagnostic(
+        string message)
+    {
+        if (!DiagnosticsEnabled)
+            return;
+
+        Debug.Log(
+            "[GPGS-DIAG] " + message
+        );
+    }
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    private void ShowDiagnosticToast(
+        string message)
+    {
+        if (!DiagnosticsEnabled ||
+            string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        try
+        {
+            AndroidJavaClass unityPlayer =
+                new AndroidJavaClass(
+                    "com.unity3d.player.UnityPlayer"
+                );
+
+            AndroidJavaObject activity =
+                unityPlayer.GetStatic<AndroidJavaObject>(
+                    "currentActivity"
+                );
+
+            activity.Call(
+                "runOnUiThread",
+                new AndroidJavaRunnable(
+                    () =>
+                    {
+                        AndroidJavaClass toastClass =
+                            new AndroidJavaClass(
+                                "android.widget.Toast"
+                            );
+
+                        AndroidJavaObject toast =
+                            toastClass.CallStatic<AndroidJavaObject>(
+                                "makeText",
+                                activity,
+                                message,
+                                1
+                            );
+
+                        toast.Call("show");
+                    }
+                )
+            );
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogWarning(
+                "[GPGS-DIAG] Android Toast failed: " +
+                exception.Message
+            );
+        }
+    }
+#endif
 
     private static string ResolveAchievementId(
         AchievementKey key)

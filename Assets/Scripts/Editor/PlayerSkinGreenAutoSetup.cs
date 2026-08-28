@@ -15,12 +15,12 @@ using UnityEngine;
 /// WHITE      -> default
 /// BLUE       -> Level 4
 /// ORANGE     -> Level 8
-/// PURPLE     -> Level 12
+/// RED        -> Level 12
 /// GREEN      -> Level 16
 /// PINK       -> Level 20
 /// YELLOW     -> Level 24
 /// LIGHT BLUE -> Level 28
-/// RED        -> Level 32
+/// PURPLE     -> Level 32
 /// DARK       -> Level 36
 /// GOLDEN     -> Level 40
 /// </summary>
@@ -65,7 +65,7 @@ public static class PlayerSkinGreenAutoSetup
         new SkinPreset("white", "WHITE", 0, "WhitePlayer"),
         new SkinPreset("blue", "BLUE", 4, "BluePlayer"),
         new SkinPreset("orange", "ORANGE", 8, "OrangePlayer"),
-        new SkinPreset("purple", "PURPLE", 12, "PurplePlayer"),
+        new SkinPreset("red", "RED", 12, "RedPlayer"),
         new SkinPreset("green", "GREEN", 16, "GreenPlayer"),
         new SkinPreset("pink", "PINK", 20, "PinkPlayer"),
         new SkinPreset("yellow", "YELLOW", 24, "YellowPlayer"),
@@ -80,7 +80,7 @@ public static class PlayerSkinGreenAutoSetup
             "CyanPlayer"
         ),
 
-        new SkinPreset("red", "RED", 32, "RedPlayer"),
+        new SkinPreset("purple", "PURPLE", 32, "PurplePlayer"),
         new SkinPreset("dark", "DARK", 36, "DarkPlayer"),
         new SkinPreset("golden", "GOLDEN", 40, "GoldenPlayer")
     };

@@ -132,8 +132,6 @@ public static class StatsManager
         GooglePlayGamesManager.NotifyArmorUseTotal(GetArmorBuffUses());
     }
 
-    // Kept so existing call sites and serialized code remain compatible.
-    public static void AddArmorKill() => AddArmorSave();
     public static void AddArmorSave() => AddInt(ArmorSavesKey);
 
     public static void AddArmorEnemyKill()

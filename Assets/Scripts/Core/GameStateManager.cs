@@ -49,7 +49,6 @@ public class GameStateManager : MonoBehaviour
 
     private LevelManager levelManager;
     private GameTimer gameTimerComponent;
-    private BossScreenEffect bossScreenEffect;
     private WinConditionIntroUI winConditionIntroUI;
     private CurrentLevelHUD currentLevelHUD;
     private HUDPlayerOcclusionController hudPlayerOcclusion;
@@ -459,7 +458,6 @@ public class GameStateManager : MonoBehaviour
         }
 
         gameTimerComponent?.StopTimer();
-        bossScreenEffect?.StopEffect();
 
         gameplayMusic?.ResetTension(true);
         StopMusic();
@@ -546,7 +544,6 @@ public class GameStateManager : MonoBehaviour
         }
 
         gameTimerComponent?.StopTimer();
-        bossScreenEffect?.StopEffect();
 
         gameplayMusic?.ResetTension(true);
         StopMusic();
@@ -1132,9 +1129,6 @@ public class GameStateManager : MonoBehaviour
 
         gameTimerComponent =
             FindAnyObjectByType<GameTimer>();
-
-        bossScreenEffect =
-            FindAnyObjectByType<BossScreenEffect>();
 
         winConditionIntroUI =
             GetComponent<WinConditionIntroUI>();

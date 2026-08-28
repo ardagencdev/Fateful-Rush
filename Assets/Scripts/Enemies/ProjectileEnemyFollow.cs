@@ -194,6 +194,8 @@ public class ProjectileEnemyFollow : MonoBehaviour
     private bool stopped;
     private bool attemptedMovementThisFrame;
 
+    public bool IsReloading => isReloading;
+
     private Transform cachedCurrentTarget;
     private ContactFilter2D navigationFilter;
 

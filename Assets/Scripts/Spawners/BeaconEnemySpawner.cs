@@ -128,25 +128,6 @@ public class BeaconEnemySpawner : MonoBehaviour
         respawnDelay = settings.respawnDelay;
     }
 
-    // Legacy API retained for old inspector/scripts.
-    public void ApplyBuffSettings(
-        float duration, float sizeMult, float nSpeedMult, float nMaxMult,
-        float pMoveMult, float pShotMult, float pFireMult,
-        float hRepMult, float hWarnMult, float hChargeMult, float hStunMult)
-    {
-        buffDuration = Mathf.Max(0.1f, duration);
-        buffSizeMultiplier = Mathf.Max(0.1f, sizeMult);
-        normalSpeedMultiplier = Mathf.Max(1f, nSpeedMult);
-        normalMaxSpeedMultiplier = 1f;
-        projectileMoveMultiplier = Mathf.Max(0.1f, pMoveMult);
-        projectileShotMultiplier = Mathf.Max(0.1f, pShotMult);
-        projectileFireMultiplier = Mathf.Max(0.1f, pFireMult);
-        hunterRepositionMultiplier = Mathf.Max(0.1f, hRepMult);
-        hunterWarningMultiplier = Mathf.Max(0.1f, hWarnMult);
-        hunterChargeMultiplier = Mathf.Max(0.1f, hChargeMult);
-        hunterStunMultiplier = Mathf.Max(0.1f, hStunMult);
-    }
-
     public void NotifyBeaconDestroyed(BeaconEnemy beacon)
     {
         if (beacon != null)

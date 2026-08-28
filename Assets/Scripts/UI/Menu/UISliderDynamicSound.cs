@@ -180,8 +180,14 @@ public class UISliderDynamicSound : MonoBehaviour,
             return;
         }
 
-        // Master Sound kapaliysa slider sesi de cikmasin.
-        if (PlayerPrefs.GetInt("SoundOn", 1) == 0)
+        // Slider feedback follows the same SFX volume setting as every
+        // other UI/gameplay sound. When the AudioMixer is ready,
+        // SoundManager.SFXVolume returns unity gain because the mixer bus
+        // already applies the user's SFX slider value. Without the mixer,
+        // it falls back to the saved PlayerPrefs value.
+        float sfxVolume = SoundManager.SFXVolume;
+
+        if (sfxVolume <= 0f)
             return;
 
         float volume =
@@ -189,7 +195,7 @@ public class UISliderDynamicSound : MonoBehaviour,
                 slowVolume,
                 fastVolume,
                 intensity
-            );
+            ) * sfxVolume;
 
         float pitch =
             Mathf.Lerp(
@@ -238,6 +244,14 @@ public class UISliderDynamicSound : MonoBehaviour,
         audioSource.dopplerLevel = 0f;
         audioSource.volume = 1f;
         audioSource.ignoreListenerPause = true;
+
+        // UISFX lives under the SFX mixer bus, so the slider feedback
+        // follows the SFX volume in real time without touching its authored
+        // slow/fast loudness curve.
+        GameAudioMixerController.Route(
+            audioSource,
+            GameAudioMixerController.AudioBus.UISFX
+        );
     }
 
     private float CalculateStereoPan()

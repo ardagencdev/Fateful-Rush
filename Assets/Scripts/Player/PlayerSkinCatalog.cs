@@ -51,7 +51,7 @@ public class PlayerSkinCatalog : ScriptableObject
                 return 4;
             case "orange":
                 return 8;
-            case "purple":
+            case "red":
                 return 12;
             case "green":
                 return 16;
@@ -64,7 +64,7 @@ public class PlayerSkinCatalog : ScriptableObject
             case "cyan":
             case "lightblue":
                 return 28;
-            case "red":
+            case "purple":
                 return 32;
             case "dark":
             case "black":
@@ -156,6 +156,7 @@ public class PlayerSkinCatalog : ScriptableObject
     private void OnEnable()
     {
         LoadedInstance = this;
+        EnsureCurrentSkinOrder();
         EnsureCurrentUnlockProgression();
         MigrateLegacySilverSelection();
         EnsureArmorVisualColors();
@@ -450,6 +451,81 @@ public class PlayerSkinCatalog : ScriptableObject
         }
     }
 
+    private void EnsureCurrentSkinOrder()
+    {
+        if (skins == null || skins.Count <= 1)
+            return;
+
+        skins.Sort((left, right) =>
+        {
+            int leftOrder = GetCurrentSkinOrder(left?.id);
+            int rightOrder = GetCurrentSkinOrder(right?.id);
+
+            int orderComparison = leftOrder.CompareTo(rightOrder);
+
+            if (orderComparison != 0)
+                return orderComparison;
+
+            string leftId = left?.id ?? string.Empty;
+            string rightId = right?.id ?? string.Empty;
+
+            return string.Compare(
+                leftId,
+                rightId,
+                StringComparison.OrdinalIgnoreCase
+            );
+        });
+
+        // White remains the canonical default at index 0.
+        defaultSkinIndex = 0;
+    }
+
+    private static int GetCurrentSkinOrder(string skinId)
+    {
+        if (string.IsNullOrWhiteSpace(skinId))
+            return int.MaxValue;
+
+        string normalizedId = skinId
+            .Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(" ", string.Empty);
+
+        switch (normalizedId)
+        {
+            case "white":
+                return 0;
+            case "blue":
+                return 1;
+            case "orange":
+                return 2;
+            case "red":
+                return 3;
+            case "green":
+                return 4;
+            case "pink":
+            case "deeppink":
+            case "hotpink":
+                return 5;
+            case "yellow":
+                return 6;
+            case "cyan":
+            case "lightblue":
+                return 7;
+            case "purple":
+                return 8;
+            case "dark":
+            case "black":
+                return 9;
+            case "gold":
+            case "golden":
+                return 10;
+            default:
+                return 1000;
+        }
+    }
+
     private void EnsureCurrentUnlockProgression()
     {
         if (skins == null)
@@ -697,6 +773,7 @@ public class PlayerSkinCatalog : ScriptableObject
         if (skins == null)
             return;
 
+        EnsureCurrentSkinOrder();
         EnsureCurrentUnlockProgression();
         EnsureArmorVisualColors();
         EnsureDarkSkinVisualColors();
