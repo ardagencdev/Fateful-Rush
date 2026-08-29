@@ -967,13 +967,29 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
     private bool IsReady()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        if (!authenticated &&
-            PlayGamesPlatform.Instance.IsAuthenticated())
+        try
         {
-            authenticated = true;
-        }
+            if (!authenticated &&
+                PlayGamesPlatform.Instance.IsAuthenticated())
+            {
+                authenticated = true;
+            }
 
-        return authenticated;
+            return authenticated;
+        }
+        catch (System.Exception exception)
+        {
+            authenticated = false;
+            lastAuthenticationStatus = "RuntimeError";
+
+            Debug.LogError(
+                "[GooglePlayGames] Runtime authentication check failed. " +
+                "Gameplay will continue without achievement sync.",
+                this
+            );
+            Debug.LogException(exception, this);
+            return false;
+        }
 #else
         return false;
 #endif
@@ -992,24 +1008,36 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(achievementId))
             return;
 
-        PlayGamesPlatform.Instance.UnlockAchievement(
-            achievementId,
-            success =>
-            {
-                if (!success)
+        try
+        {
+            PlayGamesPlatform.Instance.UnlockAchievement(
+                achievementId,
+                success =>
                 {
-                    Debug.LogWarning(
-                        "[GooglePlayGames] Achievement unlock failed: " +
-                        key
-                    );
-                    return;
-                }
+                    if (!success)
+                    {
+                        Debug.LogWarning(
+                            "[GooglePlayGames] Achievement unlock failed: " +
+                            key
+                        );
+                        return;
+                    }
 
-                LogDiagnostic(
-                    "Achievement unlock succeeded: " + key
-                );
-            }
-        );
+                    LogDiagnostic(
+                        "Achievement unlock succeeded: " + key
+                    );
+                }
+            );
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[GooglePlayGames] Achievement unlock call threw an exception. " +
+                "Gameplay is protected and will continue.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
 #endif
     }
 
@@ -1034,38 +1062,64 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(achievementId))
             return;
 
-        PlayGamesPlatform.Instance.SetStepsAtLeast(
-            achievementId,
-            safeSteps,
-            success =>
-            {
-                if (!success)
+        try
+        {
+            PlayGamesPlatform.Instance.SetStepsAtLeast(
+                achievementId,
+                safeSteps,
+                success =>
                 {
-                    Debug.LogWarning(
-                        "[GooglePlayGames] Achievement progress failed: " +
+                    if (!success)
+                    {
+                        Debug.LogWarning(
+                            "[GooglePlayGames] Achievement progress failed: " +
+                            key + " | " +
+                            safeSteps + "/" + safeTarget
+                        );
+                        return;
+                    }
+
+                    LogDiagnostic(
+                        "Achievement progress succeeded: " +
                         key + " | " +
                         safeSteps + "/" + safeTarget
                     );
-                    return;
                 }
-
-                LogDiagnostic(
-                    "Achievement progress succeeded: " +
-                    key + " | " +
-                    safeSteps + "/" + safeTarget
-                );
-            }
-        );
+            );
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[GooglePlayGames] Achievement progress call threw an exception. " +
+                "Gameplay is protected and will continue.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
 #endif
     }
 
     private string BuildDiagnosticSummary()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
+        bool platformAuthenticated = false;
+
+        try
+        {
+            platformAuthenticated =
+                PlayGamesPlatform.Instance.IsAuthenticated();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogWarning(
+                "[GPGS-DIAG] Platform auth query failed: " +
+                exception.Message
+            );
+        }
+
         return
             "localAuth=" + authenticated +
-            " | platformAuth=" +
-            PlayGamesPlatform.Instance.IsAuthenticated() +
+            " | platformAuth=" + platformAuthenticated +
             " | lastAuth=" + lastAuthenticationStatus +
             " | lastUI=" + lastAchievementsUiStatus;
 #else
@@ -1081,29 +1135,54 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
         if (!DiagnosticsEnabled)
             return;
 
-        PlayerPrefs.SetString(
-            "GPGS_DIAG_LastAuth",
-            lastAuthenticationStatus
-        );
+        try
+        {
+            PlayerPrefs.SetString(
+                "GPGS_DIAG_LastAuth",
+                lastAuthenticationStatus
+            );
 
-        PlayerPrefs.SetString(
-            "GPGS_DIAG_LastUI",
-            lastAchievementsUiStatus
-        );
+            PlayerPrefs.SetString(
+                "GPGS_DIAG_LastUI",
+                lastAchievementsUiStatus
+            );
 
-        PlayerPrefs.SetInt(
-            "GPGS_DIAG_LocalAuthenticated",
-            authenticated ? 1 : 0
-        );
+            PlayerPrefs.SetInt(
+                "GPGS_DIAG_LocalAuthenticated",
+                authenticated ? 1 : 0
+            );
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        PlayerPrefs.SetInt(
-            "GPGS_DIAG_PlatformAuthenticated",
-            PlayGamesPlatform.Instance.IsAuthenticated() ? 1 : 0
-        );
+            bool platformAuthenticated = false;
+
+            try
+            {
+                platformAuthenticated =
+                    PlayGamesPlatform.Instance.IsAuthenticated();
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogWarning(
+                    "[GPGS-DIAG] Platform auth save query failed: " +
+                    exception.Message
+                );
+            }
+
+            PlayerPrefs.SetInt(
+                "GPGS_DIAG_PlatformAuthenticated",
+                platformAuthenticated ? 1 : 0
+            );
 #endif
 
-        PlayerPrefs.Save();
+            PlayerPrefs.Save();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogWarning(
+                "[GPGS-DIAG] Saving diagnostic state failed: " +
+                exception.Message
+            );
+        }
     }
 
     private void LogDiagnostic(

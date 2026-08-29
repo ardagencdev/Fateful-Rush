@@ -225,6 +225,10 @@ public class GameQuit : MonoBehaviour
     {
         PrepareForSceneChange();
 
+        // GameResultUI bulunamayan/fallback cikis yolunda da ayni reklam hakki
+        // denenir. Reklam hicbir durumda scene gecisini bekletmez.
+        FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu();
+
         if (SceneTransition.Instance != null)
         {
             SceneTransition.Instance.LoadSceneWithFade(

@@ -851,6 +851,11 @@ public class GameResultUI : MonoBehaviour
         PrepareForSceneChange();
         SelectedLevelData.Clear();
 
+        // Reklam scene gecisini ASLA bloklamaz. Hazirsa ekrana gelir,
+        // MainMenu ise ayni anda arka planda normal sekilde yuklenmeye devam eder.
+        // SDK/reklam hatasi olursa bu cagri sadece false doner ve akisa dokunmaz.
+        FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu();
+
         if (!LoadScene("MainMenu"))
         {
             CancelSceneChangeRequest();
@@ -1785,8 +1790,10 @@ public class GameResultUI : MonoBehaviour
 
     private void PrepareForSceneChange()
     {
+        // SceneTransition owns timeScale during the fade/load. Do not globally
+        // re-enable Rigidbody2D simulation here: pooled and special-purpose
+        // bodies may intentionally be non-simulated.
         Time.timeScale = 1f;
-        RestorePhysics();
     }
 
     private bool TryBeginSceneChange()
@@ -1889,22 +1896,6 @@ public class GameResultUI : MonoBehaviour
             Mathf.Max(0f, time)
                 .ToString("F1") +
             " s";
-    }
-
-    private static void RestorePhysics()
-    {
-        Rigidbody2D[] bodies =
-            FindObjectsByType<Rigidbody2D>(
-                FindObjectsInactive.Exclude
-            );
-
-        foreach (Rigidbody2D body in bodies)
-        {
-            if (body != null)
-            {
-                body.simulated = true;
-            }
-        }
     }
 
     private void OnValidate()

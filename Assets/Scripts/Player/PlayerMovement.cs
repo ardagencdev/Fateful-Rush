@@ -67,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
     public float minInputToMove = 0.03f;
 
     private Rigidbody2D rb;
+    private Collider2D mainCollider;
     private DeathFadeEffect deathFade;
     private SpecialSkinVisuals specialSkinVisuals;
 
@@ -112,6 +113,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        mainCollider = GetComponent<Collider2D>();
         deathFade = GetComponent<DeathFadeEffect>();
         specialSkinVisuals = GetComponent<SpecialSkinVisuals>();
 
@@ -131,10 +133,34 @@ public class PlayerMovement : MonoBehaviour
 
         rb.interpolation =
             RigidbodyInterpolation2D.Interpolate;
+
+        // A previous game-end path may have disabled Rigidbody2D simulation.
+        // Every freshly loaded Player must always start with working physics.
+        EnsureGameplayPhysicsReady();
+    }
+
+    private void OnEnable()
+    {
+        if (!IsGameOver)
+            EnsureGameplayPhysicsReady();
     }
 
     private void FixedUpdate()
     {
+        if (GameStateManager.IsGameplayStarted &&
+            !IsGameOver &&
+            ((rb != null && !rb.simulated) ||
+             (mainCollider != null && !mainCollider.enabled)))
+        {
+            Debug.LogWarning(
+                "[PlayerMovement] Gameplay sırasında Player physics kapalı bulundu. " +
+                "Runtime state otomatik onarılıyor.",
+                this
+            );
+
+            EnsureGameplayPhysicsReady();
+        }
+
         if (Time.timeScale == 0f)
         {
             StopMovement();
@@ -510,6 +536,33 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
     }
 
+    public void PrepareForGameplay()
+    {
+        IsGameOver = false;
+        ClearNearMissBoost();
+        StopMovement();
+        EnsureGameplayPhysicsReady();
+    }
+
+    public void EnsureGameplayPhysicsReady()
+    {
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (mainCollider == null)
+            mainCollider = GetComponent<Collider2D>();
+
+        if (rb != null)
+        {
+            rb.simulated = true;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        if (mainCollider != null)
+            mainCollider.enabled = true;
+    }
+
     public void SetGameOver(bool value)
     {
         IsGameOver = value;
@@ -525,8 +578,16 @@ public class PlayerMovement : MonoBehaviour
         string deathCause = "UNKNOWN"
     )
     {
-        if (IsGameOver)
+        if (IsGameOver || GameStateManager.IsGameplayEnded)
             return;
+
+        if (gameStateManager == null)
+        {
+            gameStateManager =
+                FindAnyObjectByType<GameStateManager>(
+                    FindObjectsInactive.Include
+                );
+        }
 
         IsGameOver = true;
         ClearNearMissBoost();
@@ -537,22 +598,91 @@ public class PlayerMovement : MonoBehaviour
                 ? "UNKNOWN"
                 : deathCause;
 
-
-        if (specialSkinVisuals == null)
-            specialSkinVisuals = GetComponent<SpecialSkinVisuals>();
-
-        specialSkinVisuals?.PlayDeathEffect();
-
-        if (deathFade != null)
-            deathFade.Play();
-
         int finalScore =
             coinCollector != null
                 ? coinCollector.Score
                 : 0;
 
+        if (specialSkinVisuals == null)
+            specialSkinVisuals = GetComponent<SpecialSkinVisuals>();
+
+        // Death VFX is optional. Never let a skin/fade effect prevent the
+        // authoritative GameStateManager -> GameResultUI path from running.
+        try
+        {
+            specialSkinVisuals?.PlayDeathEffect();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception, this);
+        }
+
+        try
+        {
+            deathFade?.Play();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception, this);
+        }
+
         if (gameStateManager != null)
-            gameStateManager.GameOver(finalScore);
+        {
+            try
+            {
+                gameStateManager.GameOver(
+                    finalScore,
+                    LastDeathInfo.Cause
+                );
+                return;
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogError(
+                    "[PlayerMovement] GameStateManager.GameOver threw an exception. " +
+                    "Emergency result fallback will be used.",
+                    this
+                );
+                Debug.LogException(exception, this);
+            }
+        }
+
+        ShowEmergencyGameOverFallback(
+            finalScore,
+            LastDeathInfo.Cause
+        );
+    }
+
+    private void ShowEmergencyGameOverFallback(
+        int finalScore,
+        string cause)
+    {
+        // Last-resort protection for a broken/missing GameStateManager. The run
+        // must never continue invisibly after the Player has already died.
+        Time.timeScale = 0f;
+
+        GameResultUI emergencyResultUI =
+            FindAnyObjectByType<GameResultUI>(
+                FindObjectsInactive.Include
+            );
+
+        if (emergencyResultUI != null)
+        {
+            emergencyResultUI.ShowLose(
+                finalScore,
+                gameStateManager != null
+                    ? gameStateManager.ElapsedGameTime
+                    : 0f,
+                cause
+            );
+            return;
+        }
+
+        Debug.LogError(
+            "[PlayerMovement] GameStateManager ve GameResultUI kullanılamıyor. " +
+            "Run güvenli şekilde donduruldu.",
+            this
+        );
     }
 
     private float GetPlayerDeltaTime()

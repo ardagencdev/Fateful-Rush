@@ -95,7 +95,7 @@ public class GameStateManager : MonoBehaviour
             playerTargetScale =
                 playerMovement.transform.localScale;
 
-            playerMovement.StopMovement();
+            playerMovement.PrepareForGameplay();
             playerMovement.gameObject.SetActive(false);
         }
 
@@ -151,6 +151,7 @@ public class GameStateManager : MonoBehaviour
 
         if (playerMovement != null)
         {
+            playerMovement.PrepareForGameplay();
             playerMovement.gameObject.SetActive(true);
 
             playerMovement.transform.localScale =
@@ -364,41 +365,32 @@ public class GameStateManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        if (TimeSlowController.Instance != null)
-        {
-            TimeSlowController.Instance
-                .ForceStopForGameEnd();
-        }
-
-        // Results/win/lose audio must start from a clean mixer state even
-        // if the run ended during Slow + BossDanger.
-        GameAudioMixerController.ResetTransientState(0.12f);
-
-        StatsManager.AddRun();
-        StatsManager.AddWin();
-        StatsManager.AddPlayTime(gameTimer);
-        StatsManager.RecordRunDetails(
-            true,
-            score,
-            gameTimer,
-            CurrentLevel != null
-                ? CurrentLevel.winCondition
-                : WinConditionType.ReachScore,
-            playerCoinCollector != null
-                ? playerCoinCollector.CoinsCollectedThisRun
-                : 0
+        RunNonCritical(
+            () => TimeSlowController.Instance?.ForceStopForGameEnd(),
+            "stop slow motion on win"
         );
 
-        int completedLevelNumber = 0;
-        bool isFirstCompletion = false;
+        RunNonCritical(
+            () => GameAudioMixerController.ResetTransientState(0.12f),
+            "reset audio mixer on win"
+        );
 
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
 
+        if (playerDash != null)
+            playerDash.StopDash();
+
+        int completedLevelNumber = 0;
+        bool isFirstCompletion = false;
+
         if (CurrentLevel != null &&
             CurrentLevel.CanSaveBestTime)
         {
-            SaveBestTime();
+            RunNonCritical(
+                SaveBestTime,
+                "save best time"
+            );
         }
 
         if (levelManager != null &&
@@ -408,44 +400,49 @@ public class GameStateManager : MonoBehaviour
             int levelNumber =
                 levelManager.currentLevel.levelNumber;
 
-            completedLevelNumber =
-                levelNumber;
+            completedLevelNumber = levelNumber;
 
-            isFirstCompletion =
-                PlayerPrefs.GetInt(
-                    "CompletedLevel_" +
-                    levelNumber,
-                    0
-                ) == 0;
+            // Progress persistence is important, but the win screen is more
+            // important. Storage failure must never strand a completed run.
+            RunNonCritical(
+                () =>
+                {
+                    isFirstCompletion =
+                        PlayerPrefs.GetInt(
+                            "CompletedLevel_" + levelNumber,
+                            0
+                        ) == 0;
 
-            int unlockedLevel =
-                PlayerPrefs.GetInt(
-                    "UnlockedLevel",
-                    1
-                );
+                    int unlockedLevel =
+                        PlayerPrefs.GetInt(
+                            "UnlockedLevel",
+                            1
+                        );
 
-            if (levelNumber >= unlockedLevel)
-            {
-                PlayerPrefs.SetInt(
-                    "UnlockedLevel",
-                    levelNumber + 1
-                );
-            }
+                    if (levelNumber >= unlockedLevel)
+                    {
+                        PlayerPrefs.SetInt(
+                            "UnlockedLevel",
+                            levelNumber + 1
+                        );
+                    }
 
-            PlayerPrefs.SetInt(
-                "CompletedLevel_" + levelNumber,
-                1
-            );
-
-            GooglePlayGamesManager.NotifyLevelCompleted(
-                levelNumber
+                    PlayerPrefs.SetInt(
+                        "CompletedLevel_" + levelNumber,
+                        1
+                    );
+                },
+                "persist level completion"
             );
         }
 
-        StatsManager.SaveIfDirty();
-
         SetHUD(false);
         StopGameplayImmediately();
+
+        // The result screen is core gameplay. Show it before telemetry,
+        // achievements, audio and other optional subsystems so a platform SDK
+        // failure can never swallow the end-of-run UI.
+        EnsureGameResultUIReference();
 
         if (gameResultUI != null)
         {
@@ -457,24 +454,66 @@ public class GameStateManager : MonoBehaviour
             );
         }
 
-        gameTimerComponent?.StopTimer();
+        RunNonCritical(
+            () =>
+            {
+                StatsManager.AddRun();
+                StatsManager.AddWin();
+                StatsManager.AddPlayTime(gameTimer);
+                StatsManager.RecordRunDetails(
+                    true,
+                    score,
+                    gameTimer,
+                    CurrentLevel != null
+                        ? CurrentLevel.winCondition
+                        : WinConditionType.ReachScore,
+                    playerCoinCollector != null
+                        ? playerCoinCollector.CoinsCollectedThisRun
+                        : 0
+                );
+                StatsManager.SaveIfDirty();
+            },
+            "record win stats"
+        );
 
-        gameplayMusic?.ResetTension(true);
-        StopMusic();
+        if (completedLevelNumber > 0)
+        {
+            int levelToNotify = completedLevelNumber;
+            RunNonCritical(
+                () => GooglePlayGamesManager.NotifyLevelCompleted(levelToNotify),
+                "notify Google Play level completion"
+            );
+        }
 
-        if (soundManager != null)
-            soundManager.PlayWinSound();
+        RunNonCritical(
+            () => gameTimerComponent?.StopTimer(),
+            "stop timer on win"
+        );
 
-        VibrationManager.Instance?.VibrateSuccess();
+        RunNonCritical(
+            () => gameplayMusic?.ResetTension(true),
+            "reset music tension on win"
+        );
 
+        RunNonCritical(StopMusic, "stop gameplay music on win");
+
+        RunNonCritical(
+            () => soundManager?.PlayWinSound(),
+            "play win sound"
+        );
+
+        RunNonCritical(
+            () => VibrationManager.Instance?.VibrateSuccess(),
+            "win vibration"
+        );
     }
 
     public void GameOver(int score)
     {
         GameOver(
-        score,
-        LastDeathInfo.Cause
-    );
+            score,
+            LastDeathInfo.Cause
+        );
     }
 
     public void GameOver(
@@ -490,32 +529,15 @@ public class GameStateManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        if (TimeSlowController.Instance != null)
-        {
-            TimeSlowController.Instance
-                .ForceStopForGameEnd();
-        }
-
-        // Results/win/lose audio must start from a clean mixer state even
-        // if the run ended during Slow + BossDanger.
-        GameAudioMixerController.ResetTransientState(0.12f);
-
-        StatsManager.AddRun();
-        StatsManager.AddDeath();
-        StatsManager.AddPlayTime(gameTimer);
-        StatsManager.RecordRunDetails(
-            false,
-            score,
-            gameTimer,
-            CurrentLevel != null
-                ? CurrentLevel.winCondition
-                : WinConditionType.ReachScore,
-            playerCoinCollector != null
-                ? playerCoinCollector.CoinsCollectedThisRun
-                : 0,
-            cause
+        RunNonCritical(
+            () => TimeSlowController.Instance?.ForceStopForGameEnd(),
+            "stop slow motion on game over"
         );
-        StatsManager.SaveIfDirty();
+
+        RunNonCritical(
+            () => GameAudioMixerController.ResetTransientState(0.12f),
+            "reset audio mixer on game over"
+        );
 
         if (playerMovement != null)
             playerMovement.SetGameOver(true);
@@ -523,16 +545,17 @@ public class GameStateManager : MonoBehaviour
         if (playerDash != null)
             playerDash.StopDash();
 
-        // One authoritative death impact. PlayerMovement used to trigger a
-        // second shake immediately before this one, causing the two effects
-        // to fight each other.
-        CameraShake.Instance?.Shake(
-            0.44f,
-            0.34f
+        RunNonCritical(
+            () => CameraShake.Instance?.Shake(0.44f, 0.34f),
+            "death camera shake"
         );
 
         SetHUD(false);
         StopGameplayImmediately();
+
+        // Show the lose panel before any stats/achievement work. Those systems
+        // are useful, but they are never allowed to block the core result flow.
+        EnsureGameResultUIReference();
 
         if (gameResultUI != null)
         {
@@ -543,16 +566,50 @@ public class GameStateManager : MonoBehaviour
             );
         }
 
-        gameTimerComponent?.StopTimer();
+        RunNonCritical(
+            () =>
+            {
+                StatsManager.AddRun();
+                StatsManager.AddDeath();
+                StatsManager.AddPlayTime(gameTimer);
+                StatsManager.RecordRunDetails(
+                    false,
+                    score,
+                    gameTimer,
+                    CurrentLevel != null
+                        ? CurrentLevel.winCondition
+                        : WinConditionType.ReachScore,
+                    playerCoinCollector != null
+                        ? playerCoinCollector.CoinsCollectedThisRun
+                        : 0,
+                    cause
+                );
+                StatsManager.SaveIfDirty();
+            },
+            "record game-over stats"
+        );
 
-        gameplayMusic?.ResetTension(true);
-        StopMusic();
+        RunNonCritical(
+            () => gameTimerComponent?.StopTimer(),
+            "stop timer on game over"
+        );
 
-        if (soundManager != null)
-            soundManager.PlayLoseSound();
+        RunNonCritical(
+            () => gameplayMusic?.ResetTension(true),
+            "reset music tension on game over"
+        );
 
-        VibrationManager.Instance?.VibrateFailure();
+        RunNonCritical(StopMusic, "stop gameplay music on game over");
 
+        RunNonCritical(
+            () => soundManager?.PlayLoseSound(),
+            "play lose sound"
+        );
+
+        RunNonCritical(
+            () => VibrationManager.Instance?.VibrateFailure(),
+            "lose vibration"
+        );
     }
 
     private void SaveBestTime()
@@ -595,14 +652,37 @@ public class GameStateManager : MonoBehaviour
 
         gameFrozen = true;
 
-        // Result ekranı görünür görünmez gameplay'in yeni frame üretmesini durdur.
-        // UI/scene geçişleri unscaled time kullandığı için çalışmaya devam eder.
+        // Time scale is the authoritative freeze. Everything below is cleanup
+        // and must never be able to prevent the result UI from appearing.
         Time.timeScale = 0f;
 
-        StopLaserSystems();
-        StopBossAoeSystems();
-        StopActiveGameplayAudio();
-        FreezeActiveRigidbodies();
+        RunNonCritical(StopLaserSystems, "stop laser systems");
+        RunNonCritical(StopBossAoeSystems, "stop boss AOE systems");
+        RunNonCritical(StopActiveGameplayAudio, "stop gameplay audio");
+        RunNonCritical(FreezeActiveRigidbodies, "zero active rigidbody velocity");
+    }
+
+    private void RunNonCritical(
+        System.Action action,
+        string operation)
+    {
+        if (action == null)
+            return;
+
+        try
+        {
+            action.Invoke();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[GameStateManager] Non-critical operation failed: " +
+                operation +
+                ". Core game state will continue safely.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
     }
 
     private static void StopBossAoeSystems()
@@ -673,7 +753,10 @@ public class GameStateManager : MonoBehaviour
 
             body.linearVelocity = Vector2.zero;
             body.angularVelocity = 0f;
-            body.simulated = false;
+
+            // Time.timeScale is already 0 on the result screen. Keeping
+            // simulation enabled avoids leaking a disabled Rigidbody2D state
+            // into restart/scene-transition edge cases on mobile.
         }
     }
 
@@ -1061,6 +1144,26 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
+    private void EnsureGameResultUIReference()
+    {
+        if (gameResultUI != null)
+            return;
+
+        gameResultUI =
+            FindAnyObjectByType<GameResultUI>(
+                FindObjectsInactive.Include
+            );
+
+        if (gameResultUI == null)
+        {
+            Debug.LogError(
+                "[GameStateManager] GameResultUI bulunamadı. " +
+                "Win/Lose ekranı gösterilemez.",
+                this
+            );
+        }
+    }
+
     private void FindMissingReferences()
     {
         if (playerMovement == null)
@@ -1087,11 +1190,7 @@ public class GameStateManager : MonoBehaviour
                 FindAnyObjectByType<SoundManager>();
         }
 
-        if (gameResultUI == null)
-        {
-            gameResultUI =
-                FindAnyObjectByType<GameResultUI>();
-        }
+        EnsureGameResultUIReference();
 
         if (laserWallSpawner == null)
         {

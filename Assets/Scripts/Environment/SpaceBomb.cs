@@ -33,16 +33,39 @@ public class SpaceBomb : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (triggered)
-            return;
+        TryTrigger(other);
+    }
 
-        if (!other.CompareTag("Player"))
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        // Safe fallback if enabling the bomb collider while the Player is
+        // already overlapping it does not produce Enter on a specific device.
+        TryTrigger(other);
+    }
+
+    private void TryTrigger(Collider2D other)
+    {
+        if (triggered ||
+            !GameStateManager.IsGameplayStarted ||
+            GameStateManager.IsGameplayEnded)
+        {
+            return;
+        }
+
+        if (other == null || !other.CompareTag("Player"))
             return;
 
         triggered = true;
         SetColliderEnabled(false);
 
-        StatsManager.AddSpaceBombTrigger();
+        try
+        {
+            StatsManager.AddSpaceBombTrigger();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception, this);
+        }
 
         PlayerArmor armor =
             other.GetComponentInParent<PlayerArmor>();
@@ -62,9 +85,21 @@ public class SpaceBomb : MonoBehaviour
             !isImmune &&
             !willBreakArmor;
 
-        // A lethal bomb hit is special: its explosion must remain visible and
-        // audible even though GameOver freezes gameplay immediately afterward.
-        Explode(lethalHit);
+        // A lethal bomb hit is special: its explosion should remain visible and
+        // audible after GameOver. Still, VFX/audio/haptics are optional: an
+        // exception there must never prevent armor/death handling.
+        try
+        {
+            Explode(lethalHit);
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[SpaceBomb] Explosion feedback failed. Hit resolution continues.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
 
         if (isImmune)
             return;
@@ -82,10 +117,12 @@ public class SpaceBomb : MonoBehaviour
         }
 
         GameStateManager gameStateManager =
-            FindAnyObjectByType<GameStateManager>();
+            FindAnyObjectByType<GameStateManager>(
+                FindObjectsInactive.Include
+            );
 
         if (gameStateManager != null)
-            gameStateManager.GameOver(0);
+            gameStateManager.GameOver(0, "SPACE BOMB");
     }
 
     private void Explode(bool persistThroughGameEnd)

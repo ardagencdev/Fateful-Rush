@@ -11,29 +11,12 @@ public class MobilePerformanceSettings : MonoBehaviour
     [Min(30)]
     [SerializeField] private int targetFrameRate = 60;
 
-    [Tooltip("Only used while the device is already thermally throttling.")]
-    [Min(15)]
-    [SerializeField] private int thermalFallbackFrameRate = 30;
-
     [Header("Adaptive Performance")]
+    [Tooltip("Uses Adaptive Performance only as thermal telemetry on physical mobile devices. It never lowers the FPS target automatically.")]
     [SerializeField] private bool enableAdaptivePerformance = true;
 
-    [Tooltip("Lets Unity's Adaptive Performance provider regulate CPU/GPU performance levels automatically.")]
-    [SerializeField] private bool useAutomaticPerformanceControl = true;
-
-    [Tooltip("If the device stays in the actual Throttling state, temporarily use thermalFallbackFrameRate to help it cool down.")]
-    [SerializeField] private bool useThermalFrameRateFallback = true;
-
-    [Tooltip("Do not instantly jump from 60 to the fallback FPS on a brief thermal event. Render scale is reduced first; FPS falls only if throttling persists.")]
-    [Min(0f)]
-    [SerializeField] private float thermalFallbackDelay = 8f;
-
-    [Tooltip("How long the device must remain back at NoWarning before restoring full quality/FPS. Prevents rapid quality toggling.")]
-    [Min(0f)]
-    [SerializeField] private float recoveryDelay = 10f;
-
-    [Header("Adaptive Render Scale (Android build only)")]
-    [Tooltip("Small URP render-scale reductions are only applied when thermal pressure is reported. Editor quality is not changed.")]
+    [Header("Adaptive Render Scale (physical mobile only)")]
+    [Tooltip("When thermal pressure is reported, reduce URP render scale slightly instead of dropping 60 FPS to 30 FPS.")]
     [SerializeField] private bool useAdaptiveRenderScale = true;
 
     [Range(0.85f, 1f)]
@@ -42,22 +25,25 @@ public class MobilePerformanceSettings : MonoBehaviour
     [Range(0.80f, 1f)]
     [SerializeField] private float throttlingRenderScaleMultiplier = 0.90f;
 
-    [Tooltip("Never let Adaptive Performance lower URP render scale below this value.")]
+    [Tooltip("Never let the controlled thermal response lower URP render scale below this value.")]
     [Range(0.75f, 1f)]
     [SerializeField] private float minimumRenderScale = 0.85f;
+
+    [Tooltip("How long the device must remain back at NoWarning before restoring the original render scale.")]
+    [Min(0f)]
+    [SerializeField] private float recoveryDelay = 10f;
 
     [Header("Device Behaviour")]
     [SerializeField] private bool preventScreenSleep = true;
     [SerializeField] private bool runInBackground = false;
 
     [Header("Diagnostics")]
-    [Tooltip("Only logs state changes in Development Builds / Editor.")]
+    [Tooltip("Only logs Adaptive Performance state changes in Development Builds / Editor.")]
     [SerializeField] private bool logStateChanges = true;
 
     private IAdaptivePerformance adaptivePerformance;
     private Coroutine adaptiveBindRoutine;
     private Coroutine recoveryRoutine;
-    private Coroutine thermalFallbackRoutine;
     private Coroutine lowMemoryCleanupRoutine;
     private bool thermalEventSubscribed;
     private bool lowMemoryCleanupPending;
@@ -78,8 +64,14 @@ public class MobilePerformanceSettings : MonoBehaviour
     {
         Application.lowMemory += HandleLowMemory;
 
-        if (enableAdaptivePerformance)
-            adaptiveBindRoutine = StartCoroutine(BindAdaptivePerformanceRoutine());
+        // Adaptive Performance is a mobile thermal/power system. Do not bind
+        // it in Editor, native desktop, or Google Play Games on PC.
+        if (enableAdaptivePerformance &&
+            RuntimePerformancePolicy.IsPhysicalMobileRuntime)
+        {
+            adaptiveBindRoutine =
+                StartCoroutine(BindAdaptivePerformanceRoutine());
+        }
     }
 
     private void OnDisable()
@@ -92,13 +84,7 @@ public class MobilePerformanceSettings : MonoBehaviour
             adaptiveBindRoutine = null;
         }
 
-        if (recoveryRoutine != null)
-        {
-            StopCoroutine(recoveryRoutine);
-            recoveryRoutine = null;
-        }
-
-        CancelThermalFallback();
+        CancelRecovery();
 
         if (lowMemoryCleanupRoutine != null)
         {
@@ -127,11 +113,9 @@ public class MobilePerformanceSettings : MonoBehaviour
 
     private void ApplyBaseSettings()
     {
-        // Application.targetFrameRate controls our 60 FPS target.
-        // VSync must stay disabled for this path.
-        QualitySettings.vSyncCount = 0;
-
-        Application.targetFrameRate = Mathf.Max(30, targetFrameRate);
+        RuntimePerformancePolicy.ApplyFrameRate(
+            GetConfiguredMobileTargetFrameRate()
+        );
         Application.runInBackground = runInBackground;
 
         Screen.sleepTimeout = preventScreenSleep
@@ -141,8 +125,8 @@ public class MobilePerformanceSettings : MonoBehaviour
 
     private IEnumerator BindAdaptivePerformanceRoutine()
     {
-        // The Android provider can finish startup slightly after scene Awake/OnEnable.
-        // Wait briefly instead of assuming Holder.Instance is already available.
+        // The Android provider can finish startup slightly after scene
+        // Awake/OnEnable. Wait briefly instead of assuming it is ready.
         const float maxWaitSeconds = 8f;
         const float retryDelaySeconds = 0.25f;
 
@@ -152,7 +136,8 @@ public class MobilePerformanceSettings : MonoBehaviour
         {
             adaptivePerformance = Holder.Instance;
 
-            if (adaptivePerformance != null && adaptivePerformance.Initialized)
+            if (adaptivePerformance != null &&
+                adaptivePerformance.Initialized)
             {
                 SubscribeAdaptivePerformance();
                 yield break;
@@ -162,7 +147,7 @@ public class MobilePerformanceSettings : MonoBehaviour
             elapsed += retryDelaySeconds;
         }
 
-        Log("Adaptive Performance provider is not active on this device. Base 60 FPS settings remain enabled.");
+        Log("Adaptive Performance provider is not active. The selected mobile FPS target remains unchanged.");
         adaptiveBindRoutine = null;
     }
 
@@ -171,38 +156,59 @@ public class MobilePerformanceSettings : MonoBehaviour
         if (adaptivePerformance == null || thermalEventSubscribed)
             return;
 
-        if (useAutomaticPerformanceControl && adaptivePerformance.DevicePerformanceControl != null)
-            adaptivePerformance.DevicePerformanceControl.AutomaticPerformanceControl = true;
+        // Keep performance behavior deterministic. We only consume thermal
+        // telemetry here; Unity's provider is not allowed to automatically
+        // change CPU/GPU performance levels behind our own policy.
+        if (adaptivePerformance.DevicePerformanceControl != null)
+        {
+            adaptivePerformance.DevicePerformanceControl
+                .AutomaticPerformanceControl = false;
+        }
 
         if (adaptivePerformance.ThermalStatus != null)
         {
-            adaptivePerformance.ThermalStatus.ThermalEvent += HandleThermalEvent;
+            adaptivePerformance.ThermalStatus.ThermalEvent +=
+                HandleThermalEvent;
+
             thermalEventSubscribed = true;
 
-            HandleThermalEvent(adaptivePerformance.ThermalStatus.ThermalMetrics);
+            HandleThermalEvent(
+                adaptivePerformance.ThermalStatus.ThermalMetrics
+            );
         }
 
-        Log("Adaptive Performance connected.");
+        Log("Adaptive Performance connected in thermal-telemetry mode. Automatic FPS/CPU/GPU control is disabled.");
         adaptiveBindRoutine = null;
     }
 
     private void UnsubscribeAdaptivePerformance()
     {
-        if (!thermalEventSubscribed || adaptivePerformance == null || adaptivePerformance.ThermalStatus == null)
+        if (!thermalEventSubscribed ||
+            adaptivePerformance == null ||
+            adaptivePerformance.ThermalStatus == null)
+        {
             return;
+        }
 
-        adaptivePerformance.ThermalStatus.ThermalEvent -= HandleThermalEvent;
+        adaptivePerformance.ThermalStatus.ThermalEvent -=
+            HandleThermalEvent;
+
         thermalEventSubscribed = false;
     }
 
     private void HandleThermalEvent(ThermalMetrics metrics)
     {
-        if (!enableAdaptivePerformance)
+        if (!enableAdaptivePerformance ||
+            !RuntimePerformancePolicy.IsPhysicalMobileRuntime)
+        {
             return;
+        }
 
         WarningLevel newLevel = metrics.WarningLevel;
 
-        if (newLevel == currentWarningLevel && newLevel != WarningLevel.NoWarning)
+        // Avoid restarting recovery on repeated NoWarning events and avoid
+        // reapplying the same quality state over and over.
+        if (newLevel == currentWarningLevel)
             return;
 
         currentWarningLevel = newLevel;
@@ -210,71 +216,21 @@ public class MobilePerformanceSettings : MonoBehaviour
         switch (newLevel)
         {
             case WarningLevel.NoWarning:
-                CancelThermalFallback();
                 BeginRecovery();
                 break;
 
             case WarningLevel.ThrottlingImminent:
                 CancelRecovery();
-                CancelThermalFallback();
-                Application.targetFrameRate = Mathf.Max(30, targetFrameRate);
                 ApplyAdaptiveRenderScale(imminentRenderScaleMultiplier);
-
-                Log($"Thermal pressure detected (Imminent). FPS stays at {Application.targetFrameRate}; render load reduced slightly.");
+                Log("Thermal pressure is imminent. FPS target is unchanged; render scale is reduced slightly.");
                 break;
 
             case WarningLevel.Throttling:
                 CancelRecovery();
                 ApplyAdaptiveRenderScale(throttlingRenderScaleMultiplier);
-
-                // A short thermal report should not make the game visibly jump
-                // from 60 -> 30 FPS. Give render-scale reduction time to work.
-                Application.targetFrameRate = Mathf.Max(30, targetFrameRate);
-                BeginThermalFallback();
-
-                Log($"Device is thermally throttling. Render load reduced first; FPS fallback is delayed.");
+                Log("Device is thermally throttling. FPS target is still unchanged; render scale is reduced further.");
                 break;
         }
-    }
-
-
-    private void BeginThermalFallback()
-    {
-        CancelThermalFallback();
-
-        if (!useThermalFrameRateFallback)
-            return;
-
-        thermalFallbackRoutine =
-            StartCoroutine(ThermalFallbackRoutine());
-    }
-
-    private IEnumerator ThermalFallbackRoutine()
-    {
-        if (thermalFallbackDelay > 0f)
-            yield return new WaitForSecondsRealtime(thermalFallbackDelay);
-
-        if (currentWarningLevel == WarningLevel.Throttling)
-        {
-            Application.targetFrameRate = Mathf.Clamp(
-                thermalFallbackFrameRate,
-                15,
-                Mathf.Max(30, targetFrameRate)
-            );
-
-            Log($"Sustained thermal throttling. Temporary target FPS: {Application.targetFrameRate}.");
-        }
-
-        thermalFallbackRoutine = null;
-    }
-
-    private void CancelThermalFallback()
-    {
-        if (thermalFallbackRoutine == null)
-            return;
-
-        StopCoroutine(thermalFallbackRoutine);
-        thermalFallbackRoutine = null;
     }
 
     private void BeginRecovery()
@@ -288,7 +244,6 @@ public class MobilePerformanceSettings : MonoBehaviour
         if (recoveryDelay > 0f)
             yield return new WaitForSecondsRealtime(recoveryDelay);
 
-        // Only recover if the thermal state stayed healthy for the whole delay.
         if (currentWarningLevel == WarningLevel.NoWarning)
             RestoreFullPerformance();
 
@@ -306,32 +261,60 @@ public class MobilePerformanceSettings : MonoBehaviour
 
     private void RestoreFullPerformance()
     {
-        Application.targetFrameRate = Mathf.Max(30, targetFrameRate);
+        // Re-apply the correct platform policy. This restores 30/60 on a
+        // phone but never accidentally re-caps Google Play Games on PC to 60.
+        RuntimePerformancePolicy.ApplyFrameRate(
+            GetConfiguredMobileTargetFrameRate()
+        );
         RestoreBaseRenderScale();
 
-        Log($"Full mobile performance restored ({Application.targetFrameRate} FPS target).");
+        Log("Full rendering quality restored. FPS policy was not reduced by Adaptive Performance.");
+    }
+
+
+    private int GetConfiguredMobileTargetFrameRate()
+    {
+        if (SettingsManager.Instance != null)
+            return SettingsManager.Instance.GetFPS();
+
+        int saved = PlayerPrefs.GetInt(
+            "FPSMode",
+            targetFrameRate
+        );
+
+        return saved == 30 ? 30 : 60;
     }
 
     private void CacheRenderPipelineSettings()
     {
-        urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+        urpAsset =
+            GraphicsSettings.currentRenderPipeline as
+                UniversalRenderPipelineAsset;
 
         if (urpAsset == null)
             return;
 
         baseRenderScale = urpAsset.renderScale;
         baseRenderScaleCached = true;
+
+        // If the URP asset has its own Adaptive Performance integration
+        // enabled, it can change quality independently of this script. Disable
+        // that hidden path in player builds so this class is the only place
+        // allowed to adapt render quality.
+        if (!Application.isEditor &&
+            RuntimePerformancePolicy.IsPhysicalMobileRuntime)
+        {
+            urpAsset.useAdaptivePerformance = false;
+        }
     }
 
     private void ApplyAdaptiveRenderScale(float multiplier)
     {
-        if (!useAdaptiveRenderScale)
+        if (!useAdaptiveRenderScale ||
+            !RuntimePerformancePolicy.IsPhysicalMobileRuntime)
+        {
             return;
-
-        // Do not mutate the project's URP asset while testing in the Editor.
-        // The actual adaptive scaling is intended for the Android player.
-        if (Application.isEditor)
-            return;
+        }
 
         if (!baseRenderScaleCached)
             CacheRenderPipelineSettings();
@@ -344,12 +327,13 @@ public class MobilePerformanceSettings : MonoBehaviour
             baseRenderScale * Mathf.Clamp01(multiplier)
         );
 
-        urpAsset.renderScale = Mathf.Min(baseRenderScale, targetScale);
+        urpAsset.renderScale =
+            Mathf.Min(baseRenderScale, targetScale);
     }
 
     private void RestoreBaseRenderScale()
     {
-        if (Application.isEditor || !baseRenderScaleCached || urpAsset == null)
+        if (!baseRenderScaleCached || urpAsset == null)
             return;
 
         urpAsset.renderScale = baseRenderScale;
@@ -391,15 +375,17 @@ public class MobilePerformanceSettings : MonoBehaviour
     private void OnValidate()
     {
         targetFrameRate = Mathf.Max(30, targetFrameRate);
-        thermalFallbackFrameRate = Mathf.Max(15, thermalFallbackFrameRate);
-        thermalFallbackDelay = Mathf.Max(0f, thermalFallbackDelay);
         recoveryDelay = Mathf.Max(0f, recoveryDelay);
 
-        imminentRenderScaleMultiplier = Mathf.Clamp(imminentRenderScaleMultiplier, 0.85f, 1f);
-        throttlingRenderScaleMultiplier = Mathf.Clamp(throttlingRenderScaleMultiplier, 0.80f, 1f);
-        minimumRenderScale = Mathf.Clamp(minimumRenderScale, 0.75f, 1f);
+        imminentRenderScaleMultiplier =
+            Mathf.Clamp(imminentRenderScaleMultiplier, 0.85f, 1f);
 
-        // Severe state should never preserve more rendering load than imminent state.
+        throttlingRenderScaleMultiplier =
+            Mathf.Clamp(throttlingRenderScaleMultiplier, 0.80f, 1f);
+
+        minimumRenderScale =
+            Mathf.Clamp(minimumRenderScale, 0.75f, 1f);
+
         throttlingRenderScaleMultiplier = Mathf.Min(
             throttlingRenderScaleMultiplier,
             imminentRenderScaleMultiplier

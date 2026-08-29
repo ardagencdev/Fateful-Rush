@@ -144,12 +144,27 @@ public class PlayerCoinCollector : MonoBehaviour
     private void OnTriggerEnter2D(
         Collider2D other)
     {
-        if (IsGameOver())
+        if (!CanCollectCoin())
             return;
 
         if (!other.CompareTag("Coin"))
             return;
 
+        CollectCoin(other);
+    }
+
+    private void OnTriggerStay2D(
+        Collider2D other)
+    {
+        if (!CanCollectCoin())
+            return;
+
+        if (!other.CompareTag("Coin"))
+            return;
+
+        // Mobile frame hitches or a just-restored Rigidbody2D can occasionally
+        // miss the initial Enter callback. Stay gives coin collection a safe
+        // second chance; Coin.TryBeginCollection still prevents duplicates.
         CollectCoin(other);
     }
 
@@ -175,8 +190,10 @@ public class PlayerCoinCollector : MonoBehaviour
             DisableFallbackCoinPhysics(coinCollider);
         }
 
-        VibrationManager.Instance
-            ?.VibrateCoin();
+        RunOptional(
+            () => VibrationManager.Instance?.VibrateCoin(),
+            "coin vibration"
+        );
 
         int currentCombo =
             UpdateCombo();
@@ -192,72 +209,152 @@ public class PlayerCoinCollector : MonoBehaviour
         score += gainedScore;
         coinsCollectedThisRun++;
 
-        StatsManager.AddScore(
-            gainedScore,
-            coinValue
-        );
-
-        if (coin != null)
+        try
         {
-            StatsManager.AddCoin(
-                coinValue,
-                coin.Type
-            );
-
-            if (coin.WasMagnetAffected)
-                StatsManager.AddMagnetCoin();
-        }
-
-        UpdateScoreUI();
-
-        if (enemySpawner != null)
-        {
-            enemySpawner.TrySpawnBoss(score);
-        }
-
-        if (comboUI != null &&
-            comboEnabled)
-        {
-            comboUI.ShowCombo(
+            StatsManager.AddScore(
                 gainedScore,
-                currentCombo
+                coinValue
+            );
+
+            if (coin != null)
+            {
+                StatsManager.AddCoin(
+                    coinValue,
+                    coin.Type
+                );
+
+                if (coin.WasMagnetAffected)
+                    StatsManager.AddMagnetCoin();
+            }
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[PlayerCoinCollector] Stat/achievement update failed. " +
+                "Coin collection and gameplay will continue.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
+
+        RunOptional(UpdateScoreUI, "update score UI");
+
+        // Score-objective progression is core gameplay. Check it before any
+        // boss/UI/VFX/audio feedback so those optional systems cannot swallow
+        // a win when this coin reaches the target score.
+        if (gameStateManager == null)
+        {
+            gameStateManager =
+                FindAnyObjectByType<GameStateManager>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        if (gameStateManager != null)
+        {
+            try
+            {
+                gameStateManager.CheckScoreObjective(score);
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogError(
+                    "[PlayerCoinCollector] Score-objective check failed.",
+                    this
+                );
+                Debug.LogException(exception, this);
+            }
+        }
+
+        if (!GameStateManager.IsGameplayEnded)
+        {
+            RunOptional(
+                () => enemySpawner?.TrySpawnBoss(score),
+                "boss spawn check after coin"
             );
         }
 
-        if (scoreUIEffect != null)
-            scoreUIEffect.PlayPop();
-
-        PlaySpecialSkinCoinEffect(
-            coin,
-            coinCollider,
-            coinValue
+        RunOptional(
+            () =>
+            {
+                if (comboUI != null && comboEnabled)
+                {
+                    comboUI.ShowCombo(
+                        gainedScore,
+                        currentCombo
+                    );
+                }
+            },
+            "combo UI feedback"
         );
 
-        PlayCollectEffect(coin, coinCollider);
+        RunOptional(
+            () => scoreUIEffect?.PlayPop(),
+            "score pop effect"
+        );
 
-        if (soundManager != null)
+        RunOptional(
+            () => PlaySpecialSkinCoinEffect(
+                coin,
+                coinCollider,
+                coinValue
+            ),
+            "special-skin coin effect"
+        );
+
+        // Releasing/hiding the collected coin is important enough to have its
+        // own fallback. Even a broken collect animation cannot leave an
+        // already-counted, non-interactable coin stuck in the scene.
+        try
         {
-            string activeSkinId =
-                specialSkinVisuals != null
-                    ? specialSkinVisuals.ActiveSkinId
-                    : playerSkinApplier != null &&
-                      playerSkinApplier.CurrentSkin != null
-                        ? playerSkinApplier.CurrentSkin.id
-                        : string.Empty;
-
-            Vector3 coinSoundPosition =
-                coinCollider != null
-                    ? coinCollider.transform.position
-                    : transform.position;
-
-            soundManager.PlayCoinSound(
-                activeSkinId,
-                coinSoundPosition
+            PlayCollectEffect(coin, coinCollider);
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[PlayerCoinCollector] Coin collect effect failed. " +
+                "Releasing the coin with a safe fallback.",
+                this
             );
+            Debug.LogException(exception, this);
+
+            GameObject coinObject =
+                coin != null
+                    ? coin.gameObject
+                    : coinCollider != null
+                        ? coinCollider.transform.root.gameObject
+                        : null;
+
+            if (coinObject != null)
+                RuntimeObjectPool.Release(coinObject);
         }
 
-        gameStateManager
-            ?.CheckScoreObjective(score);
+        RunOptional(
+            () =>
+            {
+                if (soundManager == null)
+                    return;
+
+                string activeSkinId =
+                    specialSkinVisuals != null
+                        ? specialSkinVisuals.ActiveSkinId
+                        : playerSkinApplier != null &&
+                          playerSkinApplier.CurrentSkin != null
+                            ? playerSkinApplier.CurrentSkin.id
+                            : string.Empty;
+
+                Vector3 coinSoundPosition =
+                    coinCollider != null
+                        ? coinCollider.transform.position
+                        : transform.position;
+
+                soundManager.PlayCoinSound(
+                    activeSkinId,
+                    coinSoundPosition
+                );
+            },
+            "coin collect sound"
+        );
     }
 
     private int UpdateCombo()
@@ -279,10 +376,13 @@ public class PlayerCoinCollector : MonoBehaviour
         combo =
             GetComboFromChain();
 
-        StatsManager.RecordComboProgress(
-            combo,
-            comboChain,
-            combo > previousCombo
+        RunOptional(
+            () => StatsManager.RecordComboProgress(
+                combo,
+                comboChain,
+                combo > previousCombo
+            ),
+            "combo stat/achievement update"
         );
 
         return combo;
@@ -569,6 +669,37 @@ public class PlayerCoinCollector : MonoBehaviour
     {
         if (Instance == this)
             Instance = null;
+    }
+
+
+    private void RunOptional(
+        System.Action action,
+        string operation)
+    {
+        if (action == null)
+            return;
+
+        try
+        {
+            action();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                $"[PlayerCoinCollector] Optional {operation} failed. " +
+                "Coin collection/gameplay continues.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
+    }
+
+    private bool CanCollectCoin()
+    {
+        return !IsGameOver() &&
+               GameStateManager.IsGameplayStarted &&
+               !GameStateManager.IsGameplayEnded &&
+               Time.timeScale > 0f;
     }
 
     private bool IsGameOver()

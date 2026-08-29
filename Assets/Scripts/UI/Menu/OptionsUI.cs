@@ -293,7 +293,7 @@ public class OptionsUI : MonoBehaviour
             int validatedFPS = targetFPS == 30 ? 30 : 60;
             PlayerPrefs.SetInt(FPSModeKey, validatedFPS);
             PlayerPrefs.Save();
-            Application.targetFrameRate = validatedFPS;
+            RuntimePerformancePolicy.ApplyFrameRate(validatedFPS);
         }
 
         RefreshButtonStates();

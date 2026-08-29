@@ -72,15 +72,6 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
 
         settingsApplied = true;
 
-        Debug.Log(
-            $"[HorizontalLaser] Level settings applied | " +
-            $"Min: {minSpawnTime} | " +
-            $"Max: {maxSpawnTime} | " +
-            $"Warning: {warningDuration} | " +
-            $"Lifetime: {laserLifeTime}",
-            this
-        );
-
         StartLaserSystem();
     }
 

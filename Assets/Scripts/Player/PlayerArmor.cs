@@ -203,19 +203,34 @@ public class PlayerArmor : MonoBehaviour
 
         HasArmor = false;
 
-        StatsManager.AddArmorSave();
-
-        if (soundManager != null)
-            soundManager.PlayArmorBreakSound(transform.position);
-
-        VibrationManager.Instance?.VibrateArmorBreak();
-
-        CameraShake.Instance?.Shake(
-            0.18f,
-            0.14f
-        );
-
+        // Immunity is core gameplay state, so establish it before optional
+        // stats/audio/haptics. A device-specific feedback/SDK exception must
+        // never consume armor and leave the player immediately vulnerable.
         StartImmunity();
+
+        try
+        {
+            StatsManager.AddArmorSave();
+
+            if (soundManager != null)
+                soundManager.PlayArmorBreakSound(transform.position);
+
+            VibrationManager.Instance?.VibrateArmorBreak();
+
+            CameraShake.Instance?.Shake(
+                0.18f,
+                0.14f
+            );
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[PlayerArmor] Optional armor-break feedback/stat call failed. " +
+                "Immunity remains active and gameplay continues.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
 
         if (shieldVisual == null)
             return;

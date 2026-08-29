@@ -463,13 +463,20 @@ public class EnemyProjectile : MonoBehaviour
 
     private void HandlePlayerHit(GameObject playerObj)
     {
+        if (!GameStateManager.IsGameplayStarted ||
+            GameStateManager.IsGameplayEnded)
+        {
+            ReturnToPool();
+            return;
+        }
+
         nearMissTouchedPlayer = true;
 
         PlayerArmor armor =
-            playerObj.GetComponent<PlayerArmor>();
+            playerObj.GetComponentInParent<PlayerArmor>();
 
         PlayerMovement player =
-            playerObj.GetComponent<PlayerMovement>();
+            playerObj.GetComponentInParent<PlayerMovement>();
 
         if (armor != null && armor.IsImmune)
         {

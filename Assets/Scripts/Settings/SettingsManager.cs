@@ -417,7 +417,7 @@ public class SettingsManager : MonoBehaviour
 
     private void ApplyFPS()
     {
-        Application.targetFrameRate = GetFPS();
+        RuntimePerformancePolicy.ApplyFrameRate(GetFPS());
     }
 
     #endregion

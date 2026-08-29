@@ -65,7 +65,7 @@ public class PlayerDash : MonoBehaviour
     private bool gameOverHandled;
 
     private float cooldownTimer;
-
+    private float dashStartedAtUnscaledTime = -100f;
 
     private float trailStartAlpha = 1f;
     private float trailEndAlpha;
@@ -201,6 +201,7 @@ public class PlayerDash : MonoBehaviour
             return;
         }
 
+        RecoverFromStuckDashIfNeeded();
         HandleKeyboardInput();
         UpdateCooldown();
     }
@@ -216,8 +217,14 @@ public class PlayerDash : MonoBehaviour
 
     public void TryDash()
     {
-        if (!isActiveAndEnabled || IsGameOver())
+        if (!isActiveAndEnabled ||
+            IsGameOver() ||
+            GameStateManager.IsGameplayEnded ||
+            !GameStateManager.IsGameplayStarted ||
+            Time.timeScale <= 0f)
+        {
             return;
+        }
 
         if (!CanDash)
             return;
@@ -235,31 +242,47 @@ public class PlayerDash : MonoBehaviour
         if (dashRoutine != null)
             StopCoroutine(dashRoutine);
 
+        playerMovement?.EnsureGameplayPhysicsReady();
+
         canDash = false;
         isDashing = true;
+        dashStartedAtUnscaledTime = Time.unscaledTime;
 
         cooldownTimer = dashCooldown;
 
-        if (dashCooldown > 0f)
-            ShowCooldownUI();
-
-        if (soundManager != null)
-            soundManager.PlayDashSound(transform.position);
-
-        VibrationManager.Instance?.VibrateDash();
-        StatsManager.AddDashUse();
-
-        dashButtonEffect?.PlayAbilityActivation();
-
-        if (trail != null && clearTrailOnDash)
-            trail.Clear();
-
-        SetTrail(true);
-
-
+        // Start the actual movement immediately after the authoritative dash
+        // state. UI/trail/audio/stats are all optional and must never be able
+        // to leave isDashing=true without a live coroutine.
         dashRoutine = StartCoroutine(
             DashRoutine(dashDirection.normalized)
         );
+
+        try
+        {
+            if (dashCooldown > 0f)
+                ShowCooldownUI();
+
+            if (trail != null && clearTrailOnDash)
+                trail.Clear();
+
+            SetTrail(true);
+
+            if (soundManager != null)
+                soundManager.PlayDashSound(transform.position);
+
+            VibrationManager.Instance?.VibrateDash();
+            StatsManager.AddDashUse();
+            dashButtonEffect?.PlayAbilityActivation();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError(
+                "[PlayerDash] Optional dash feedback/stat call failed. " +
+                "Dash movement continues safely.",
+                this
+            );
+            Debug.LogException(exception, this);
+        }
     }
 
     private IEnumerator DashRoutine(Vector2 dashDirection)
@@ -272,8 +295,9 @@ public class PlayerDash : MonoBehaviour
         targetPosition = ClampToBounds(targetPosition);
 
         float elapsedTime = 0f;
+        float safeDuration = Mathf.Max(0.01f, dashDuration);
 
-        while (elapsedTime < dashDuration)
+        while (elapsedTime < safeDuration)
         {
             if (IsGameOver())
             {
@@ -284,7 +308,7 @@ public class PlayerDash : MonoBehaviour
             elapsedTime += Time.fixedDeltaTime;
 
             float normalizedTime =
-                Mathf.Clamp01(elapsedTime / dashDuration);
+                Mathf.Clamp01(elapsedTime / safeDuration);
 
             float curvedTime = dashMovementCurve != null
                 ? dashMovementCurve.Evaluate(normalizedTime)
@@ -309,11 +333,49 @@ public class PlayerDash : MonoBehaviour
         TryHitBeaconsAlongDash(finalPreviousPosition, targetPosition);
 
 
+        FinishDashMovement();
+    }
+
+    private void FinishDashMovement()
+    {
         isDashing = false;
         dashRoutine = null;
+        dashStartedAtUnscaledTime = -100f;
 
         SetTrail(false);
+        TryFinishCooldown();
+    }
 
+    private void RecoverFromStuckDashIfNeeded()
+    {
+        if (!isDashing ||
+            IsGameOver() ||
+            Time.timeScale <= 0f)
+        {
+            return;
+        }
+
+        float safeDuration = Mathf.Max(0.01f, dashDuration);
+        float watchdogDelay = Mathf.Max(0.75f, safeDuration * 4f);
+
+        if (Time.unscaledTime - dashStartedAtUnscaledTime <= watchdogDelay)
+            return;
+
+        Debug.LogWarning(
+            "[PlayerDash] Dash coroutine beklenenden uzun sürdü. " +
+            "Kalıcı hareket kilidi önlemek için dash state sıfırlanıyor.",
+            this
+        );
+
+        if (dashRoutine != null)
+        {
+            StopCoroutine(dashRoutine);
+            dashRoutine = null;
+        }
+
+        isDashing = false;
+        dashStartedAtUnscaledTime = -100f;
+        SetTrail(false);
         TryFinishCooldown();
     }
 
@@ -619,6 +681,7 @@ public class PlayerDash : MonoBehaviour
         canDash = true;
         isDashing = false;
         gameOverHandled = false;
+        dashStartedAtUnscaledTime = -100f;
 
         cooldownTimer = 0f;
 
@@ -636,6 +699,7 @@ public class PlayerDash : MonoBehaviour
 
         isDashing = false;
         canDash = false;
+        dashStartedAtUnscaledTime = -100f;
 
         cooldownTimer = 0f;
 
@@ -652,6 +716,7 @@ public class PlayerDash : MonoBehaviour
         }
 
         isDashing = false;
+        dashStartedAtUnscaledTime = -100f;
 
         SetTrail(false);
     }

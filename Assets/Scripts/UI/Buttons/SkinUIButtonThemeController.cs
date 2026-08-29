@@ -406,6 +406,31 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
                 continue;
             }
 
+            if (slider.fillRect != null)
+            {
+                Graphic fillGraphic =
+                    slider.fillRect.GetComponent<Graphic>();
+
+                if (fillGraphic == null)
+                {
+                    fillGraphic =
+                        slider.fillRect.GetComponentInChildren
+                            <Graphic>(true);
+                }
+
+                if (fillGraphic != null)
+                {
+                    Color currentFillColor = fillGraphic.color;
+
+                    fillGraphic.color = new Color(
+                        themeColor.r,
+                        themeColor.g,
+                        themeColor.b,
+                        currentFillColor.a
+                    );
+                }
+            }
+
             if (slider.handleRect == null)
                 continue;
 

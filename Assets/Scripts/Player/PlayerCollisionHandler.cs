@@ -65,29 +65,22 @@ public class PlayerCollisionHandler : MonoBehaviour
             return;
         }
 
-        ProjectileEnemyFollow blaster =
-            collision.gameObject.GetComponentInParent<ProjectileEnemyFollow>();
-
-        if (blaster == null || blaster.IsReloading)
-            return;
-
+        // Fallback for rare missed Enter callbacks. HandleHit already filters
+        // reloading Blasters, absorbed Stalkers, immunity and armor.
         HandleHit(collision.gameObject);
     }
 
     private void OnTriggerStay2D(Collider2D other)
     {
         if (IsGameOver() ||
-            !other.CompareTag("Enemy"))
+            (!other.CompareTag("Enemy") &&
+             !other.CompareTag("Laser")))
         {
             return;
         }
 
-        ProjectileEnemyFollow blaster =
-            other.GetComponentInParent<ProjectileEnemyFollow>();
-
-        if (blaster == null || blaster.IsReloading)
-            return;
-
+        // Trigger Stay protects both Enemy and Laser hazards if a mobile hitch
+        // or collider reactivation ever causes the initial Enter to be missed.
         HandleHit(other.gameObject);
     }
 
@@ -155,8 +148,16 @@ public class PlayerCollisionHandler : MonoBehaviour
 
         LastDeathInfo.Cause = deathCause;
 
+        if (gameStateManager == null)
+        {
+            gameStateManager =
+                FindAnyObjectByType<GameStateManager>(
+                    FindObjectsInactive.Include
+                );
+        }
+
         if (gameStateManager != null)
-            gameStateManager.GameOver(finalScore);
+            gameStateManager.GameOver(finalScore, deathCause);
     }
 
     private void RemoveDanger(GameObject danger)
@@ -268,7 +269,9 @@ public class PlayerCollisionHandler : MonoBehaviour
 
     private bool IsGameOver()
     {
-        return playerMovement != null &&
-               playerMovement.IsGameOver;
+        return !GameStateManager.IsGameplayStarted ||
+               GameStateManager.IsGameplayEnded ||
+               (playerMovement != null &&
+                playerMovement.IsGameOver);
     }
 }
