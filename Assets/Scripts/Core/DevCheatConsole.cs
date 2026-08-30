@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -9,21 +10,18 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Runtime cheat console used for balancing / QA on desktop and mobile.
+/// Editor-only cheat console used for balancing / QA.
 /// No scene setup is required: the console bootstraps itself before the first scene.
 ///
-/// Desktop: ` / ~
-/// Mobile: tap the upper-left corner 5 times quickly.
-///
-/// Set EnableInReleaseBuild to false before the final public release if the
-/// console should only exist in Editor / Development builds.
+/// It is excluded from every player build at compile time, including Android,
+/// Google Play Games on PC and native Windows builds.
+/// Editor toggle: ` / ~
 /// </summary>
 public sealed class DevCheatConsole : MonoBehaviour
 {
     public static DevCheatConsole Instance { get; private set; }
     public static bool IsOpen => Instance != null && Instance.isOpen;
 
-    private const bool EnableInReleaseBuild = true;
     private const int MissionCount = 40;
 
     private const int MobileTapCount = 5;
@@ -62,21 +60,11 @@ public sealed class DevCheatConsole : MonoBehaviour
         host.AddComponent<DevCheatConsole>();
     }
 
-    public static bool CheatsAvailable
-    {
-        get
-        {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            return true;
-#else
-            return EnableInReleaseBuild;
-#endif
-        }
-    }
+    public static bool CheatsAvailable => true;
 
     private static bool ShouldExistInCurrentBuild()
     {
-        return CheatsAvailable;
+        return true;
     }
 
     private void Awake()
@@ -699,3 +687,4 @@ public sealed class DevCheatConsole : MonoBehaviour
             .Replace(">", "&gt;");
     }
 }
+#endif

@@ -22,6 +22,13 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         // runtime toggle for this Player Setting.
         PlayerSettings.Android.optimizedFramePacing = false;
 
+        // Store builds must expose exactly one Android application entry
+        // point. Keep the existing Activity path used by the project and
+        // prevent GameActivity from being accidentally enabled as a second
+        // launcher entry in Player Settings.
+        PlayerSettings.Android.applicationEntry =
+            AndroidApplicationEntry.Activity;
+
         // Incremental GC reduces large managed-GC spikes and remains useful
         // on both Android phones and Google Play Games on PC.
         PlayerSettings.gcIncremental = true;

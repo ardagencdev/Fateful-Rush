@@ -225,20 +225,40 @@ public class GameQuit : MonoBehaviour
     {
         PrepareForSceneChange();
 
-        // GameResultUI bulunamayan/fallback cikis yolunda da ayni reklam hakki
-        // denenir. Reklam hicbir durumda scene gecisini bekletmez.
-        FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu();
-
         if (SceneTransition.Instance != null)
         {
+            // Pause/GameResult fallback yolunda da ayni polish: once ekran
+            // tamamen siyaha kapanir, attempt reklami o anda acilir. Reklam
+            // kapaninca SceneTransition MainMenu yuklemesine devam eder.
             SceneTransition.Instance.LoadSceneWithFade(
-                MainMenuSceneName
+                MainMenuSceneName,
+                continueTransition =>
+                    FatefulRushAdManager
+                        .TryShowAttemptAdBeforeReturningToMenu(
+                            continueTransition
+                        )
             );
+
+            return;
         }
-        else
-        {
-            SceneManager.LoadScene(MainMenuSceneName);
-        }
+
+        // SceneTransition bulunamayan nadir fallback'te fade yapamayiz; yine
+        // de reklam varsa scene yuklemeden once tamamlanmasini bekle.
+        bool adStarted =
+            FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu(
+                ContinueLoadMainMenuFallbackAfterAd
+            );
+
+        if (!adStarted)
+            ContinueLoadMainMenuFallbackAfterAd();
+    }
+
+    private void ContinueLoadMainMenuFallbackAfterAd()
+    {
+        if (this == null)
+            return;
+
+        SceneManager.LoadScene(MainMenuSceneName);
     }
 
     public void ExitToMenu()

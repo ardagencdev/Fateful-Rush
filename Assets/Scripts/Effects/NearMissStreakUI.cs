@@ -6,8 +6,6 @@ using UnityEngine;
 public class NearMissStreakUI : MonoBehaviour
 {
     private static NearMissStreakUI instance;
-    private static TMP_FontAsset cachedNearMissFont;
-    private static bool fontLookupAttempted;
 
     [Header("Colors")]
     [SerializeField]
@@ -46,37 +44,54 @@ public class NearMissStreakUI : MonoBehaviour
     private RectTransform rectTransform;
     private Coroutine activeRoutine;
 
+    // These values are captured ONCE from the HUD TMP in Awake.
+    // Every Near Miss effect is calculated relative to these values,
+    // so scale/position/rotation can never accumulate between streaks.
     private Vector2 baseAnchoredPosition;
     private Vector3 baseScale;
     private Quaternion baseRotation;
-    private float baseFontSize;
+    private bool baseTransformCaptured;
 
     private void Awake()
     {
         text = GetComponent<TextMeshProUGUI>();
         rectTransform = GetComponent<RectTransform>();
 
-        ApplyNearMissFont(text);
-        StabilizeTextSizing();
-        CaptureBaseTransform();
+        CaptureBaseTransformOnce();
+        ResetTransform();
         SetVisible(false);
 
         if (instance == null)
+        {
             instance = this;
+        }
+        else if (instance != this)
+        {
+            Debug.LogWarning(
+                "More than one NearMissStreakUI exists in the scene. " +
+                "The first active instance will be used.",
+                this
+            );
+        }
+    }
+
+    private void OnEnable()
+    {
+        // Register again whenever this HUD object becomes active.
+        // This also makes the setup safe when the HUD starts disabled.
+        if (instance == null || instance == this)
+            instance = this;
+
+        // If the object was disabled while an effect was running,
+        // always return to the HUD-authored transform when it comes back.
+        if (baseTransformCaptured)
+            ResetTransform();
     }
 
     private void Update()
     {
         if (GameStateManager.IsGameplayEnded)
-        {
             HideImmediately();
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (instance == this)
-            instance = null;
     }
 
     private void OnDisable()
@@ -87,14 +102,21 @@ public class NearMissStreakUI : MonoBehaviour
             activeRoutine = null;
         }
 
-        ResetTransform();
+        if (baseTransformCaptured)
+            ResetTransform();
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+            instance = null;
     }
 
     public static void ShowNearMiss(
         int streak,
         float closeness01)
     {
-        NearMissStreakUI ui = GetOrCreate();
+        NearMissStreakUI ui = GetExistingUI();
 
         if (ui == null)
             return;
@@ -105,169 +127,39 @@ public class NearMissStreakUI : MonoBehaviour
         );
     }
 
-    private static NearMissStreakUI GetOrCreate()
+    private static NearMissStreakUI GetExistingUI()
     {
         if (instance != null)
             return instance;
 
-        instance =
-            Object.FindAnyObjectByType<NearMissStreakUI>();
+        // Search INCLUDING inactive HUD objects.
+        // FindAnyObjectByType() excludes inactive objects, which could make a
+        // correctly configured NearMissText look as if it did not exist.
+        NearMissStreakUI[] found = Object.FindObjectsByType<NearMissStreakUI>(
+    FindObjectsInactive.Include
+);
 
-        if (instance != null)
+        if (found != null && found.Length > 0)
+        {
+            instance = found[0];
+
+            // NearMissText itself should stay active. Visibility is controlled
+            // only through TMP alpha, never by disabling the GameObject.
+            if (!instance.gameObject.activeSelf)
+                instance.gameObject.SetActive(true);
+
+            if (!instance.enabled)
+                instance.enabled = true;
+
             return instance;
-
-        return CreateRuntimeUI();
-    }
-
-    private static NearMissStreakUI CreateRuntimeUI()
-    {
-        ComboUI comboUI =
-            Object.FindAnyObjectByType<ComboUI>();
-
-        Canvas canvas = null;
-
-        if (comboUI != null)
-            canvas = comboUI.GetComponentInParent<Canvas>();
-
-        if (canvas == null)
-        {
-            Canvas[] canvases =
-                Object.FindObjectsByType<Canvas>();
-
-            for (int i = 0; i < canvases.Length; i++)
-            {
-                if (canvases[i] != null &&
-                    canvases[i].isActiveAndEnabled)
-                {
-                    canvas = canvases[i];
-                    break;
-                }
-            }
         }
 
-        if (canvas == null)
-        {
-            Debug.LogWarning(
-                "NearMissStreakUI could not find an active HUD Canvas."
-            );
-
-            return null;
-        }
-
-        GameObject go = new GameObject(
-            "NearMissStreakUI",
-            typeof(RectTransform),
-            typeof(CanvasRenderer),
-            typeof(TextMeshProUGUI),
-            typeof(NearMissStreakUI)
+        Debug.LogWarning(
+            "NearMissStreakUI could not find the HUD NearMissText. " +
+            "Keep one NearMissStreakUI component on the HUD NearMissText TMP object."
         );
 
-        RectTransform rect =
-            go.GetComponent<RectTransform>();
-
-        rect.SetParent(canvas.transform, false);
-        rect.anchorMin = new Vector2(0.5f, 1f);
-        rect.anchorMax = new Vector2(0.5f, 1f);
-        rect.pivot = new Vector2(0.5f, 1f);
-        rect.sizeDelta = new Vector2(520f, 70f);
-        rect.anchoredPosition = new Vector2(0f, -92f);
-
-        TextMeshProUGUI tmp =
-            go.GetComponent<TextMeshProUGUI>();
-
-        tmp.SetText("NEAR MISS  x1");
-        tmp.alignment = TextAlignmentOptions.Center;
-        tmp.raycastTarget = false;
-        tmp.textWrappingMode = TextWrappingModes.NoWrap;
-        tmp.enableAutoSizing = false;
-        tmp.overflowMode = TextOverflowModes.Overflow;
-        tmp.fontSize = 14f;
-        tmp.color = new Color(1f, 1f, 1f, 0f);
-
-        if (comboUI != null &&
-            comboUI.comboText != null)
-        {
-            // Keep the existing sizing/style relationship with Combo UI,
-            // but the actual font is always Orbitron.
-            tmp.fontSize = Mathf.Max(
-                14f,
-                comboUI.comboText.fontSize * 0.65f
-            );
-            tmp.fontStyle = comboUI.comboText.fontStyle;
-            tmp.characterSpacing =
-                comboUI.comboText.characterSpacing;
-        }
-
-        ApplyNearMissFont(tmp);
-
-        NearMissStreakUI ui =
-            go.GetComponent<NearMissStreakUI>();
-
-        ui.text = tmp;
-        ui.rectTransform = rect;
-        ui.StabilizeTextSizing();
-        ui.CaptureBaseTransform();
-        ui.SetVisible(false);
-
-        instance = ui;
-        return ui;
-    }
-
-    private static void ApplyNearMissFont(TextMeshProUGUI targetText)
-    {
-        if (targetText == null)
-            return;
-
-        TMP_FontAsset orbitron = ResolveNearMissFont();
-
-        if (orbitron != null)
-            targetText.font = orbitron;
-    }
-
-    private static TMP_FontAsset ResolveNearMissFont()
-    {
-        if (cachedNearMissFont != null)
-            return cachedNearMissFont;
-
-        if (!fontLookupAttempted)
-        {
-            fontLookupAttempted = true;
-
-            NearMissUISettings settings =
-                Resources.Load<NearMissUISettings>(
-                    "FatefulRush/NearMissUISettings"
-                );
-
-            if (settings != null)
-                cachedNearMissFont = settings.NearMissFont;
-        }
-
-        if (cachedNearMissFont != null)
-            return cachedNearMissFont;
-
-        // Safe fallback for Editor/domain-reload cases where the Resources
-        // settings asset has not been imported yet.
-        TMP_FontAsset[] loadedFonts =
-            Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
-
-        for (int i = 0; i < loadedFonts.Length; i++)
-        {
-            TMP_FontAsset font = loadedFonts[i];
-
-            if (font == null || string.IsNullOrEmpty(font.name))
-                continue;
-
-            if (font.name.IndexOf(
-                    "Orbitron",
-                    System.StringComparison.OrdinalIgnoreCase
-                ) >= 0)
-            {
-                cachedNearMissFont = font;
-                break;
-            }
-        }
-
-        return cachedNearMissFont;
+        return null;
     }
 
     private void Play(
@@ -281,6 +173,11 @@ public class NearMissStreakUI : MonoBehaviour
             return;
         }
 
+        // IMPORTANT:
+        // Cancel the previous effect and go back to the exact HUD-authored
+        // transform BEFORE calculating the new streak effect.
+        // This prevents a previous x6/x25-looking punch from becoming the
+        // starting scale of a later x1 Near Miss.
         if (activeRoutine != null)
         {
             StopCoroutine(activeRoutine);
@@ -288,12 +185,11 @@ public class NearMissStreakUI : MonoBehaviour
         }
 
         ResetTransform();
-        StabilizeTextSizing();
 
-        text.SetText(
-            "NEAR MISS  x{0}",
-            streak
-        );
+        // Only the displayed string is changed.
+        // Font, font size, Auto Size, alignment, spacing, material, etc.
+        // are completely controlled by the TMP in the HUD Inspector.
+        text.SetText("NEAR MISS  x{0}", streak);
 
         float streak01 = Mathf.InverseLerp(
             1f,
@@ -305,15 +201,13 @@ public class NearMissStreakUI : MonoBehaviour
             )
         );
 
-        Color targetColor =
-            Color.Lerp(
-                firstColor,
-                maxColor,
-                streak01
-            );
+        Color targetColor = Color.Lerp(
+            firstColor,
+            maxColor,
+            streak01
+        );
 
-        text.color =
-            SetAlpha(targetColor, 1f);
+        text.color = SetAlpha(targetColor, 1f);
 
         activeRoutine = StartCoroutine(
             ImpactAndFadeRoutine(
@@ -329,24 +223,25 @@ public class NearMissStreakUI : MonoBehaviour
         float closeness01,
         Color targetColor)
     {
-        float closenessFactor =
-            Mathf.Lerp(0.85f, 1f, closeness01);
+        float closenessFactor = Mathf.Lerp(
+            0.85f,
+            1f,
+            closeness01
+        );
 
-        float punchScale =
-            Mathf.Lerp(
-                minPunchScale,
-                maxPunchScale,
-                streak01
-            ) *
-            Mathf.Lerp(0.96f, 1f, closeness01);
+        // This is a MULTIPLIER of the original HUD scale captured in Awake.
+        // It is never based on the scale left by a previous Near Miss.
+        float punchMultiplier = Mathf.Lerp(
+            minPunchScale,
+            maxPunchScale,
+            streak01
+        ) * Mathf.Lerp(0.96f, 1f, closeness01);
 
-        float shakePixels =
-            Mathf.Lerp(
-                minShakePixels,
-                maxShakePixels,
-                streak01
-            ) *
-            closenessFactor;
+        float shakePixels = Mathf.Lerp(
+            minShakePixels,
+            maxShakePixels,
+            streak01
+        ) * closenessFactor;
 
         float tilt =
             maxTiltDegrees *
@@ -371,13 +266,14 @@ public class NearMissStreakUI : MonoBehaviour
 
             float impact = 1f - progress;
 
+            float currentScaleMultiplier = Mathf.Lerp(
+                1f,
+                punchMultiplier,
+                impact
+            );
+
             rectTransform.localScale =
-                baseScale *
-                Mathf.Lerp(
-                    1f,
-                    punchScale,
-                    impact
-                );
+                baseScale * currentScaleMultiplier;
 
             rectTransform.anchoredPosition =
                 baseAnchoredPosition +
@@ -390,20 +286,19 @@ public class NearMissStreakUI : MonoBehaviour
                 Quaternion.Euler(
                     0f,
                     0f,
-                    Random.Range(-tilt, tilt) *
-                    impact
+                    Random.Range(-tilt, tilt) * impact
                 );
 
             yield return null;
         }
 
+        // Impact is over: return EXACTLY to the original HUD transform.
         ResetTransform();
         text.color = SetAlpha(targetColor, 1f);
 
         float holdDuration = Mathf.Max(
             0f,
-            NearMissFeedback.StreakTimeout -
-            impactDuration
+            NearMissFeedback.StreakTimeout - impactDuration
         );
 
         float holdElapsed = 0f;
@@ -437,6 +332,8 @@ public class NearMissStreakUI : MonoBehaviour
                 1f - progress
             );
 
+            // Keep the old fade shrink effect, but always relative to
+            // the original HUD scale so it cannot accumulate either.
             rectTransform.localScale =
                 baseScale *
                 Mathf.Lerp(1f, 0.92f, progress);
@@ -449,53 +346,25 @@ public class NearMissStreakUI : MonoBehaviour
         activeRoutine = null;
     }
 
-
-    private void StabilizeTextSizing()
+    private void CaptureBaseTransformOnce()
     {
-        if (text == null)
+        if (baseTransformCaptured || rectTransform == null)
             return;
 
-        // TMP Auto Size can progressively shrink this label when the streak
-        // reaches two digits on some canvas/layout combinations. Near Miss
-        // uses transform punch animation, so its font size should stay fixed.
-        text.enableAutoSizing = false;
-        text.textWrappingMode = TextWrappingModes.NoWrap;
-        text.overflowMode = TextOverflowModes.Overflow;
-
-        if (baseFontSize <= 0f)
-            baseFontSize = Mathf.Max(1f, text.fontSize);
-        else
-            text.fontSize = baseFontSize;
-    }
-
-    private void CaptureBaseTransform()
-    {
-        if (rectTransform == null)
-            return;
-
-        baseAnchoredPosition =
-            rectTransform.anchoredPosition;
-
-        baseScale =
-            rectTransform.localScale;
-
-        baseRotation =
-            rectTransform.localRotation;
+        baseAnchoredPosition = rectTransform.anchoredPosition;
+        baseScale = rectTransform.localScale;
+        baseRotation = rectTransform.localRotation;
+        baseTransformCaptured = true;
     }
 
     private void ResetTransform()
     {
-        if (rectTransform == null)
+        if (!baseTransformCaptured || rectTransform == null)
             return;
 
-        rectTransform.anchoredPosition =
-            baseAnchoredPosition;
-
-        rectTransform.localScale =
-            baseScale;
-
-        rectTransform.localRotation =
-            baseRotation;
+        rectTransform.anchoredPosition = baseAnchoredPosition;
+        rectTransform.localScale = baseScale;
+        rectTransform.localRotation = baseRotation;
     }
 
     private void SetVisible(bool visible)
@@ -530,28 +399,16 @@ public class NearMissStreakUI : MonoBehaviour
 
     private void OnValidate()
     {
-        maxVisualStreak =
-            Mathf.Max(2, maxVisualStreak);
+        maxVisualStreak = Mathf.Max(2, maxVisualStreak);
 
-        minPunchScale =
-            Mathf.Max(1f, minPunchScale);
+        minPunchScale = Mathf.Max(1f, minPunchScale);
+        maxPunchScale = Mathf.Max(minPunchScale, maxPunchScale);
 
-        maxPunchScale =
-            Mathf.Max(minPunchScale, maxPunchScale);
+        minShakePixels = Mathf.Max(0f, minShakePixels);
+        maxShakePixels = Mathf.Max(minShakePixels, maxShakePixels);
 
-        minShakePixels =
-            Mathf.Max(0f, minShakePixels);
-
-        maxShakePixels =
-            Mathf.Max(minShakePixels, maxShakePixels);
-
-        maxTiltDegrees =
-            Mathf.Max(0f, maxTiltDegrees);
-
-        impactDuration =
-            Mathf.Max(0.01f, impactDuration);
-
-        fadeDuration =
-            Mathf.Max(0.01f, fadeDuration);
+        maxTiltDegrees = Mathf.Max(0f, maxTiltDegrees);
+        impactDuration = Mathf.Max(0.01f, impactDuration);
+        fadeDuration = Mathf.Max(0.01f, fadeDuration);
     }
 }

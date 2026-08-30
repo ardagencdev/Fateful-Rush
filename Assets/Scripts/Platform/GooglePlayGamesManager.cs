@@ -81,7 +81,7 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
     private const int LaserDeath10Target = 10;
     private const int LaserDeath25Target = 25;
 
-    private static readonly bool DiagnosticsEnabled = true;
+    private static readonly bool DiagnosticsEnabled = false;
 
     private static GooglePlayGamesManager instance;
 
@@ -155,9 +155,7 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
         authenticationStarted = true;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
-        // Keep Google Play Games logs enabled for this diagnostic build even
-        // when the AAB is not a Unity Development Build. Remove / set false
-        // after the issue is diagnosed.
+        // Public release: diagnostic logs/toasts are disabled.
         PlayGamesPlatform.DebugLogEnabled = DiagnosticsEnabled;
 
         LogDiagnostic(

@@ -1,15 +1,17 @@
 using System;
+using System.Collections;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Ump.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Fateful Rush reklam akisini gameplay'den izole tutar.
 /// - Her gameplay attempt basladiginda sayar.
 /// - 5-10 attempt araliginda reklam hakki olusturur.
 /// - Attempt reklami sadece gameplay -> MainMenu gecisinde denenir.
-/// - MainMenu'de aktif gecirilen toplam 7 dakikada bir reklam dener.
+/// - MainMenu'de aktif gecirilen toplam 5 dakikada bir reklam dener.
 /// - Tum sayaçlar PlayerPrefs ile kalicidir.
 /// - Reklam/consent SDK hatalari gameplay veya scene gecisini asla bloklamaz.
 /// </summary>
@@ -23,16 +25,19 @@ public sealed class FatefulRushAdManager : MonoBehaviour
     private const string AndroidProductionInterstitialId =
         "ca-app-pub-4850318886881398/8213391263";
 
-    // Kapali beta / entegrasyon testi boyunca TRUE kalsin.
-    // Production AAB'den once FALSE yapilacak.
-    private const bool ForceTestAds = true;
-
+#if UNITY_EDITOR
+    // Editor testinde reklami hizlica dogrulamak icin her attempt sonrasi hak olustur.
+    // Bu blok build'e GIRMEZ; Android/Google Play Games on PC build'leri 5-10 RNG kullanir.
+    private const int MinimumAttemptsPerAd = 1;
+    private const int MaximumAttemptsPerAd = 1;
+#else
     private const int MinimumAttemptsPerAd = 5;
     private const int MaximumAttemptsPerAd = 10;
+#endif
 
     // Kullanici istegi: MainMenu sahnesinde, panel fark etmeksizin,
-    // aktif gecirilen toplam 7 dakikada bir reklam hakki.
-    private const float MainMenuAdIntervalSeconds = 7f * 60f;
+    // aktif gecirilen toplam 5 dakikada bir reklam hakki.
+    private const float MainMenuAdIntervalSeconds = 5f * 60f;
 
     private const float ProgressSaveIntervalSeconds = 10f;
     private const float FailedLoadRetrySeconds = 30f;
@@ -57,10 +62,25 @@ public sealed class FatefulRushAdManager : MonoBehaviour
     private bool sdkInitialized;
     private bool adLoadInProgress;
     private bool adShowInProgress;
+    private bool adPauseActive;
+
+    private float adPausePreviousTimeScale = 1f;
+    private bool adPausePreviousAudioListenerPause;
+    private Action activeAdFinishedCallback;
 
     private float nextAllowedLoadRealtime;
     private float loadedAdRealtime;
     private float nextProgressSaveRealtime;
+
+#if UNITY_EDITOR
+    // Editor mock reklam bazen transition canvas'inin arkasinda kalabiliyor
+    // veya tek frame gorunup kapanabiliyor. Bu preview yalnizca Editor'da
+    // deterministic bir tam-ekran reklam testi gosterir; build'e GIRMEZ.
+    private const float EditorAdPreviewMinimumSeconds = 1.25f;
+    private GameObject editorAdPreviewRoot;
+    private float editorAdPreviewShownRealtime;
+    private bool editorFinishDelayActive;
+#endif
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -70,17 +90,29 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
     /// <summary>
     /// Gameplay'den MainMenu'ye cikarken cagrilir.
-    /// Reklam hazir/uygun degilse sadece false doner; caller scene gecisine devam eder.
-    /// Bu metot scene gecisini hicbir durumda bekletmez.
+    /// Reklam hazir/uygun degilse false doner. Callback gerektirmeyen
+    /// eski/harici cagrilar icin bu overload korunur.
     /// </summary>
     public static bool TryShowAttemptAdBeforeReturningToMenu()
+    {
+        return TryShowAttemptAdBeforeReturningToMenu(null);
+    }
+
+    /// <summary>
+    /// Gameplay -> MainMenu gecisinde reklam hazirsa once reklami acar.
+    /// Reklam kapandiginda/fail oldugunda onFinished cagrilir; caller ancak
+    /// o noktada scene gecisini devam ettirebilir. Reklam acilamazsa false
+    /// doner ve callback cagrilmaz.
+    /// </summary>
+    public static bool TryShowAttemptAdBeforeReturningToMenu(
+        Action onFinished)
     {
         try
         {
             FatefulRushAdManager manager = EnsureInstance();
 
             return manager != null &&
-                   manager.TryShowAttemptAdInternal();
+                   manager.TryShowAttemptAdInternal(onFinished);
         }
         catch (Exception exception)
         {
@@ -199,6 +231,22 @@ public sealed class FatefulRushAdManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
 
+        // UMP callbacks arrive before MobileAds.Initialize(). Our callback flow
+        // marshals work through MobileAdsEventExecutor, so the executor must
+        // already exist on the Unity main thread. MobileAds.Initialize() also
+        // initializes it later, but that is too late for the consent callbacks.
+        try
+        {
+            GoogleMobileAds.Common.MobileAdsEventExecutor.Initialize();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "[Ads] MobileAdsEventExecutor baslatilamadi: " +
+                exception.Message
+            );
+        }
+
         LoadProgress();
 
         SceneManager.sceneLoaded += HandleSceneLoaded;
@@ -242,6 +290,13 @@ public sealed class FatefulRushAdManager : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
+
+        EndAdPause();
+        activeAdFinishedCallback = null;
+
+#if UNITY_EDITOR
+        EndEditorAdPreview();
+#endif
 
         DestroyAdSafely(ref loadedInterstitial);
         DestroyAdSafely(ref activeInterstitial);
@@ -315,7 +370,7 @@ public sealed class FatefulRushAdManager : MonoBehaviour
             TryShowMainMenuTimedAdIfDue();
     }
 
-    private bool TryShowAttemptAdInternal()
+    private bool TryShowAttemptAdInternal(Action onFinished)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log(
@@ -328,7 +383,7 @@ public sealed class FatefulRushAdManager : MonoBehaviour
         if (attemptCount < attemptTarget)
             return false;
 
-        return TryShowLoadedInterstitial();
+        return TryShowLoadedInterstitial(onFinished);
     }
 
     private void TryShowMainMenuTimedAdIfDue()
@@ -346,11 +401,11 @@ public sealed class FatefulRushAdManager : MonoBehaviour
         }
 
         // Attempt reklami sadece gameplay -> menu gecis noktasina aittir.
-        // Burada yalnizca 7 dakikalik MainMenu hakki reklam acar.
+        // Burada yalnizca 5 dakikalik MainMenu hakki reklam acar.
         TryShowLoadedInterstitial();
     }
 
-    private bool TryShowLoadedInterstitial()
+    private bool TryShowLoadedInterstitial(Action onFinished = null)
     {
         if (!IsAdsRuntimeSupported() ||
             consentFlowActive ||
@@ -393,11 +448,19 @@ public sealed class FatefulRushAdManager : MonoBehaviour
             return false;
         }
 
-        // Show() scene gecisini asla gate etmez. Caller bu metodun sonucunu
-        // beklemek zorunda degildir ve MainMenu yuklemesine hemen devam eder.
+        // Reklam ekrandayken oyun/menunun arkada ilerlememesi icin
+        // Show() isteginden hemen once global oyun akisini dondur.
+        // Gameplay -> MainMenu yolunda caller, onFinished callback'i gelene
+        // kadar scene gecisini de baslatmaz.
         loadedInterstitial = null;
         activeInterstitial = ad;
+        activeAdFinishedCallback = onFinished;
         adShowInProgress = true;
+        BeginAdPause();
+
+#if UNITY_EDITOR
+        BeginEditorAdPreview();
+#endif
 
         try
         {
@@ -421,6 +484,11 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
             adShowInProgress = false;
             activeInterstitial = null;
+            activeAdFinishedCallback = null;
+#if UNITY_EDITOR
+            EndEditorAdPreview();
+#endif
+            EndAdPause();
             DestroySpecificAdSafely(ad);
             ScheduleLoadRetry();
             return false;
@@ -577,7 +645,12 @@ public sealed class FatefulRushAdManager : MonoBehaviour
             }
 
             if (!canRequestAds)
+            {
+                Debug.LogWarning(
+                    "[Ads] UMP CanRequestAds=false; Mobile Ads SDK baslatilmadi."
+                );
                 return;
+            }
         }
 
         sdkInitializationStarted = true;
@@ -690,6 +763,19 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
         if (error != null || ad == null)
         {
+            if (error != null)
+            {
+                Debug.LogWarning(
+                    "[Ads] Interstitial yuklenemedi: " + error
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[Ads] Interstitial load callback null reklam dondurdu."
+                );
+            }
+
             DestroySpecificAdSafely(ad);
             ScheduleLoadRetry();
             return;
@@ -707,7 +793,7 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
         RegisterInterstitialCallbacks(ad);
 
-        // 7 dakika daha once dolduysa ve reklam ancak simdi yuklendiyse
+        // 5 dakika daha once dolduysa ve reklam ancak simdi yuklendiyse
         // MainMenu'de guvenli sekilde hemen denenebilir.
         if (SceneManager.GetActiveScene().name == MainMenuSceneName)
             TryShowMainMenuTimedAdIfDue();
@@ -722,7 +808,10 @@ public sealed class FatefulRushAdManager : MonoBehaviour
                     () =>
                     {
                         if (this != null)
+                        {
                             adShowInProgress = true;
+                            BeginAdPause();
+                        }
                     }
                 );
             };
@@ -752,15 +841,277 @@ public sealed class FatefulRushAdManager : MonoBehaviour
             return;
         }
 
+#if UNITY_EDITOR
+        // Google'in Editor placeholder'i bazi surumlerde tek frame icinde
+        // kapanabiliyor. Scene transition'in hemen devam edip preview'i
+        // yutmamasi icin Editor'da minimum gorunme suresini garanti et.
+        if (editorFinishDelayActive)
+            return;
+
+        if (editorAdPreviewRoot != null &&
+            editorAdPreviewRoot.activeSelf)
+        {
+            float elapsed =
+                Time.realtimeSinceStartup - editorAdPreviewShownRealtime;
+
+            float remaining =
+                EditorAdPreviewMinimumSeconds - elapsed;
+
+            if (remaining > 0f)
+            {
+                editorFinishDelayActive = true;
+                StartCoroutine(
+                    FinishInterstitialAfterEditorPreviewDelay(
+                        ad,
+                        remaining
+                    )
+                );
+                return;
+            }
+        }
+
+        EndEditorAdPreview();
+#endif
+
         if (activeInterstitial == ad)
             activeInterstitial = null;
 
         adShowInProgress = false;
 
+        Action finishedCallback = activeAdFinishedCallback;
+        activeAdFinishedCallback = null;
+
+        // Once oyunu/sesi geri getir, sonra gameplay -> MainMenu gibi
+        // bekleyen akisin devam etmesine izin ver.
+        EndAdPause();
         DestroySpecificAdSafely(ad);
 
         // Full-screen reklam tek kullanimliktir; sonrakini preload et.
         nextAllowedLoadRealtime = Time.realtimeSinceStartup + 0.5f;
+
+        InvokeSafely(finishedCallback);
+    }
+
+#if UNITY_EDITOR
+    private IEnumerator FinishInterstitialAfterEditorPreviewDelay(
+        InterstitialAd ad,
+        float delay)
+    {
+        if (delay > 0f)
+            yield return new WaitForSecondsRealtime(delay);
+
+        editorFinishDelayActive = false;
+        FinishInterstitial(ad);
+    }
+
+    private void BeginEditorAdPreview()
+    {
+        EnsureEditorAdPreviewOverlay();
+
+        editorAdPreviewShownRealtime =
+            Time.realtimeSinceStartup;
+
+        editorFinishDelayActive = false;
+
+        if (SceneTransition.Instance != null)
+            SceneTransition.Instance.SetEditorAdPreviewMode(true);
+
+        if (editorAdPreviewRoot != null)
+        {
+            editorAdPreviewRoot.SetActive(true);
+            editorAdPreviewRoot.transform.SetAsLastSibling();
+        }
+    }
+
+    private void EndEditorAdPreview()
+    {
+        editorFinishDelayActive = false;
+
+        if (editorAdPreviewRoot != null)
+            editorAdPreviewRoot.SetActive(false);
+
+        if (SceneTransition.Instance != null)
+            SceneTransition.Instance.SetEditorAdPreviewMode(false);
+    }
+
+    private void EnsureEditorAdPreviewOverlay()
+    {
+        if (editorAdPreviewRoot != null)
+            return;
+
+        editorAdPreviewRoot =
+            new GameObject(
+                "EditorAdPreviewCanvas",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(GraphicRaycaster)
+            );
+
+        editorAdPreviewRoot.transform.SetParent(
+            transform,
+            false
+        );
+
+        Canvas canvas =
+            editorAdPreviewRoot.GetComponent<Canvas>();
+
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = short.MaxValue;
+        canvas.targetDisplay = 0;
+
+        CanvasScaler scaler =
+            editorAdPreviewRoot.GetComponent<CanvasScaler>();
+
+        scaler.uiScaleMode =
+            CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        GraphicRaycaster raycaster =
+            editorAdPreviewRoot.GetComponent<GraphicRaycaster>();
+        raycaster.enabled = false;
+
+        GameObject panelObject =
+            new GameObject(
+                "EditorTestInterstitial",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image)
+            );
+
+        panelObject.transform.SetParent(
+            editorAdPreviewRoot.transform,
+            false
+        );
+
+        RectTransform panelRect =
+            panelObject.GetComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.pivot = new Vector2(0.5f, 0.5f);
+        panelRect.anchoredPosition = Vector2.zero;
+        panelRect.sizeDelta = new Vector2(760f, 500f);
+
+        Image panelImage =
+            panelObject.GetComponent<Image>();
+        panelImage.color = new Color(0.12f, 0.12f, 0.12f, 1f);
+        panelImage.raycastTarget = false;
+
+        Outline outline = panelObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+        outline.effectDistance = new Vector2(2f, -2f);
+
+        CreateEditorPreviewText(
+            panelObject.transform,
+            "TEST AD",
+            48,
+            new Vector2(0f, 145f),
+            new Vector2(680f, 80f),
+            FontStyle.Bold
+        );
+
+        CreateEditorPreviewText(
+            panelObject.transform,
+            "GOOGLE MOBILE ADS - EDITOR PREVIEW",
+            24,
+            new Vector2(0f, 75f),
+            new Vector2(680f, 50f),
+            FontStyle.Normal
+        );
+
+        CreateEditorPreviewText(
+            panelObject.transform,
+            "Interstitial is being shown here.\nAndroid build uses the native full-screen ad.",
+            28,
+            new Vector2(0f, -20f),
+            new Vector2(660f, 120f),
+            FontStyle.Normal
+        );
+
+        CreateEditorPreviewText(
+            panelObject.transform,
+            "EDITOR ONLY",
+            22,
+            new Vector2(0f, -165f),
+            new Vector2(680f, 50f),
+            FontStyle.Bold
+        );
+
+        editorAdPreviewRoot.SetActive(false);
+    }
+
+    private static void CreateEditorPreviewText(
+        Transform parent,
+        string value,
+        int fontSize,
+        Vector2 anchoredPosition,
+        Vector2 size,
+        FontStyle fontStyle)
+    {
+        GameObject textObject =
+            new GameObject(
+                "Text",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Text)
+            );
+
+        textObject.transform.SetParent(parent, false);
+
+        RectTransform rect =
+            textObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = anchoredPosition;
+        rect.sizeDelta = size;
+
+        Text text = textObject.GetComponent<Text>();
+        text.text = value;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.fontSize = fontSize;
+        text.fontStyle = fontStyle;
+        text.color = Color.white;
+        text.raycastTarget = false;
+        text.horizontalOverflow = HorizontalWrapMode.Wrap;
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+
+        try
+        {
+            text.font = Resources.GetBuiltinResource<Font>(
+                "LegacyRuntime.ttf"
+            );
+        }
+        catch
+        {
+            // Unity default font fallback'i yeterli; Editor testini bloklama.
+        }
+    }
+#endif
+
+    private void BeginAdPause()
+    {
+        if (adPauseActive)
+            return;
+
+        adPauseActive = true;
+        adPausePreviousTimeScale = Time.timeScale;
+        adPausePreviousAudioListenerPause = AudioListener.pause;
+
+        Time.timeScale = 0f;
+        AudioListener.pause = true;
+    }
+
+    private void EndAdPause()
+    {
+        if (!adPauseActive)
+            return;
+
+        Time.timeScale = adPausePreviousTimeScale;
+        AudioListener.pause = adPausePreviousAudioListenerPause;
+        adPauseActive = false;
     }
 
 
@@ -893,9 +1244,14 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
     private static string GetInterstitialAdUnitId()
     {
-        return ForceTestAds
-            ? AndroidTestInterstitialId
-            : AndroidProductionInterstitialId;
+#if UNITY_EDITOR
+        // Play Mode must never request production inventory.
+        return AndroidTestInterstitialId;
+#else
+        // Android player builds use the real AdMob unit. Google Play Games on
+        // PC runs the Android build, so it uses this production ID as well.
+        return AndroidProductionInterstitialId;
+#endif
     }
 
     private static bool IsAdsRuntimeSupported()

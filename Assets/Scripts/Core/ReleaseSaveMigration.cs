@@ -16,10 +16,10 @@ public static class ReleaseSaveMigration
 
     // BUILD SWITCH:
     //   Closed beta / pre-release testing = 0
-    //   First public full release          = 0
+    //   First public full release          = 1
     //
     // Never decrease this number in a later build.
-    public const int CurrentSaveGeneration = 0;
+    public const int CurrentSaveGeneration = 1;
 
     private static bool appliedThisSession;
 
@@ -32,6 +32,11 @@ public static class ReleaseSaveMigration
 
     public static void ApplyIfNeeded()
     {
+#if UNITY_EDITOR
+        // Never touch developer/editor saves. The migration is for shipped
+        // player builds only (Android, Google Play Games on PC, Windows, etc.).
+        return;
+#else
         if (appliedThisSession)
             return;
 
@@ -80,6 +85,7 @@ public static class ReleaseSaveMigration
         );
 
         PlayerPrefs.Save();
+#endif
     }
 
     private static bool HasLegacyGameplaySave()
@@ -96,7 +102,12 @@ public static class ReleaseSaveMigration
         if (PlayerPrefs.HasKey("Stats_TotalRuns") ||
             PlayerPrefs.HasKey("Stats_TotalDeaths") ||
             PlayerPrefs.HasKey("Stats_TotalCoins") ||
-            PlayerPrefs.HasKey("Stats_TotalPlayTime"))
+            PlayerPrefs.HasKey("Stats_TotalPlayTime") ||
+            PlayerPrefs.HasKey("FR_Ads_Attempts") ||
+            PlayerPrefs.HasKey("FR_Ads_AttemptTarget") ||
+            PlayerPrefs.HasKey("FR_Ads_MainMenuSeconds") ||
+            PlayerPrefs.HasKey("FatefulRush_SignalStable") ||
+            PlayerPrefs.HasKey("DebugAllPlayerSkinsUnlocked"))
         {
             return true;
         }
@@ -147,6 +158,23 @@ public static class ReleaseSaveMigration
         PlayerPrefs.DeleteKey(
             "DebugAllPlayerSkinsUnlocked"
         );
+
+        // Closed-beta ad pacing should not carry into the public release.
+        // Otherwise an existing tester could receive an ad immediately after
+        // updating even though their gameplay progress was reset.
+        PlayerPrefs.DeleteKey("FR_Ads_Attempts");
+        PlayerPrefs.DeleteKey("FR_Ads_AttemptTarget");
+        PlayerPrefs.DeleteKey("FR_Ads_MainMenuSeconds");
+
+        // The footer is gameplay-result state too. Full release must always
+        // start from the default SIGNAL // UNSTABLE state.
+        PlayerPrefs.DeleteKey("FatefulRush_SignalStable");
+
+        // Remove diagnostic-only state left by the PGS troubleshooting build.
+        PlayerPrefs.DeleteKey("GPGS_DIAG_LastAuth");
+        PlayerPrefs.DeleteKey("GPGS_DIAG_LastUI");
+        PlayerPrefs.DeleteKey("GPGS_DIAG_LocalAuthenticated");
+        PlayerPrefs.DeleteKey("GPGS_DIAG_PlatformAuthenticated");
 
         PlayerPrefs.Save();
 

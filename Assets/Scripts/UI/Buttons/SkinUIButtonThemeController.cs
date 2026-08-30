@@ -662,7 +662,10 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
         return ContainsIgnoreCase(content, "SIGNAL LOST") ||
                ContainsIgnoreCase(content, "THREAT UNKNOWN") ||
                ContainsIgnoreCase(content, "NO RETURN VECTOR") ||
-               ContainsIgnoreCase(content, "SIGNAL // UNSTABLE");
+               content.TrimStart().StartsWith(
+                   "SIGNAL //",
+                   System.StringComparison.OrdinalIgnoreCase
+               );
     }
 
     private static void ApplyMainMenuRushTitle(

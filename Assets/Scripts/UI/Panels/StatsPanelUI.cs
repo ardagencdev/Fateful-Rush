@@ -16,12 +16,6 @@ public class StatsPanelUI : MonoBehaviour
     [Header("Stats Scroll")]
     [SerializeField] private ScrollRect statsScrollRect;
 
-    [Header("Mobile Scrollbar Touch")]
-    [Tooltip("Vertical scrollbar hitbox'ina soldan ve sagdan eklenecek dokunma payi.")]
-    [SerializeField, Min(0f)] private float scrollbarTouchPaddingX = 42f;
-
-    [Tooltip("Vertical scrollbar hitbox'ina ustten ve alttan eklenecek dokunma payi.")]
-    [SerializeField, Min(0f)] private float scrollbarTouchPaddingY = 12f;
 
     [Header("Text")]
     [SerializeField] private TextMeshProUGUI statsText;
@@ -33,7 +27,7 @@ public class StatsPanelUI : MonoBehaviour
         if (fadeSwitcher == null)
             fadeSwitcher = GetComponent<UIPanelFadeSwitcher>();
 
-        SetupMobileScrollbarTouchArea();
+        HideScrollbarButKeepScrolling();
 
         if (resetConfirmationPanel != null)
         {
@@ -120,70 +114,27 @@ public class StatsPanelUI : MonoBehaviour
             toPanel.SetActive(true);
     }
 
-    private void SetupMobileScrollbarTouchArea()
+    private void HideScrollbarButKeepScrolling()
     {
         if (statsScrollRect == null)
             return;
 
-        Scrollbar scrollbar = statsScrollRect.verticalScrollbar;
+        // Keep vertical scrolling itself fully enabled.
+        statsScrollRect.vertical = true;
 
-        if (scrollbar == null)
-            return;
+        // Remove only the visual Scrollbar link. Drag/swipe/mouse-wheel
+        // scrolling is handled by ScrollRect and continues normally.
+        Scrollbar verticalScrollbar =
+            statsScrollRect.verticalScrollbar;
 
-        const string touchAreaName = "MobileTouchArea";
+        statsScrollRect.verticalScrollbar = null;
 
-        Transform existing = scrollbar.transform.Find(touchAreaName);
-        GameObject touchAreaObject;
-
-        if (existing != null)
+        if (verticalScrollbar != null)
         {
-            touchAreaObject = existing.gameObject;
-        }
-        else
-        {
-            touchAreaObject = new GameObject(
-                touchAreaName,
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(LayoutElement)
-            );
-
-            touchAreaObject.transform.SetParent(
-                scrollbar.transform,
+            verticalScrollbar.gameObject.SetActive(
                 false
             );
         }
-
-        RectTransform touchRect =
-            touchAreaObject.GetComponent<RectTransform>();
-
-        touchRect.anchorMin = Vector2.zero;
-        touchRect.anchorMax = Vector2.one;
-        touchRect.pivot = new Vector2(0.5f, 0.5f);
-        touchRect.offsetMin = new Vector2(
-            -scrollbarTouchPaddingX,
-            -scrollbarTouchPaddingY
-        );
-        touchRect.offsetMax = new Vector2(
-            scrollbarTouchPaddingX,
-            scrollbarTouchPaddingY
-        );
-
-        Image touchImage =
-            touchAreaObject.GetComponent<Image>();
-
-        touchImage.color = new Color(0f, 0f, 0f, 0f);
-        touchImage.raycastTarget = true;
-
-        LayoutElement layoutElement =
-            touchAreaObject.GetComponent<LayoutElement>();
-
-        layoutElement.ignoreLayout = true;
-
-        // Gorunen scrollbar/handle grafiklerinin arkasinda kalir.
-        // Sadece daha genis bir dokunma alani saglar.
-        touchAreaObject.transform.SetAsFirstSibling();
     }
 
     private void RefreshStats()

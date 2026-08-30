@@ -381,6 +381,17 @@ public class GameStateManager : MonoBehaviour
         if (playerDash != null)
             playerDash.StopDash();
 
+        // The footer represents the result of the player's most recent
+        // real numbered-level attempt. Dev Room does not affect it.
+        if (SelectedLevelData.isLevelMode &&
+            CurrentLevel != null)
+        {
+            RunNonCritical(
+                SignalStatusState.MarkStable,
+                "set signal footer stable after level win"
+            );
+        }
+
         int completedLevelNumber = 0;
         bool isFirstCompletion = false;
 
@@ -431,6 +442,20 @@ public class GameStateManager : MonoBehaviour
                         "CompletedLevel_" + levelNumber,
                         1
                     );
+
+                    // Queue the end credits after the FIRST completion
+                    // of Level 40. The flag stays alive until the player
+                    // presses CONTINUE at the end of the Credits scene.
+                    if (levelNumber == 40 &&
+                        isFirstCompletion)
+                    {
+                        PlayerPrefs.SetInt(
+                            FatefulRushCreditsController.PendingKey,
+                            1
+                        );
+                    }
+
+                    PlayerPrefs.Save();
                 },
                 "persist level completion"
             );
@@ -545,6 +570,17 @@ public class GameStateManager : MonoBehaviour
         if (playerDash != null)
             playerDash.StopDash();
 
+        // A failed numbered-level attempt returns the Main Menu signal
+        // to UNSTABLE. Dev Room failures do not affect the footer.
+        if (SelectedLevelData.isLevelMode &&
+            CurrentLevel != null)
+        {
+            RunNonCritical(
+                SignalStatusState.MarkUnstable,
+                "set signal footer unstable after level loss"
+            );
+        }
+
         RunNonCritical(
             () => CameraShake.Instance?.Shake(0.44f, 0.34f),
             "death camera shake"
@@ -623,10 +659,22 @@ public class GameStateManager : MonoBehaviour
                 Mathf.Infinity
             );
 
-        if (gameTimer < bestTime)
+        if (gameTimer >= bestTime)
+            return;
+
+        PlayerPrefs.SetFloat(
+            bestTimeKey,
+            gameTimer
+        );
+
+        // Only real level-mode best times are submitted to Google Play.
+        // Dev Room times remain local.
+        if (SelectedLevelData.isLevelMode &&
+            levelManager != null &&
+            levelManager.currentLevel != null)
         {
-            PlayerPrefs.SetFloat(
-                bestTimeKey,
+            GooglePlayGamesLeaderboards.SubmitBestTime(
+                levelManager.currentLevel.levelNumber,
                 gameTimer
             );
         }

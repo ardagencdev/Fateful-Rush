@@ -27,6 +27,8 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private LevelConfig[] levels;
     [SerializeField] private string gameSceneName = "a";
 
+    private const string CreditsSceneName = "CreditsScene";
+
     [Header("Buttons")]
     [SerializeField] private GameObject tryAgainButton;
     [SerializeField] private GameObject menuButton;
@@ -737,7 +739,10 @@ public class GameResultUI : MonoBehaviour
         {
             SelectedLevelData.Clear();
 
-            if (!LoadScene("MainMenu"))
+            string destinationScene =
+                GetPostFinalLevelDestination();
+
+            if (!LoadScene(destinationScene))
                 CancelSceneChangeRequest();
 
             return;
@@ -851,15 +856,60 @@ public class GameResultUI : MonoBehaviour
         PrepareForSceneChange();
         SelectedLevelData.Clear();
 
-        // Reklam scene gecisini ASLA bloklamaz. Hazirsa ekrana gelir,
-        // MainMenu ise ayni anda arka planda normal sekilde yuklenmeye devam eder.
-        // SDK/reklam hatasi olursa bu cagri sadece false doner ve akisa dokunmaz.
-        FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu();
-
-        if (!LoadScene("MainMenu"))
+        // Level 40's first completion goes straight to the Credits scene.
+        // Do not interrupt the ending with an attempt ad.
+        if (ShouldOpenEndCredits())
         {
-            CancelSceneChangeRequest();
+            if (SceneTransition.Instance != null)
+            {
+                SceneTransition.Instance.LoadSceneWithFade(
+                    CreditsSceneName
+                );
+            }
+            else
+            {
+                SceneManager.LoadScene(
+                    CreditsSceneName
+                );
+            }
+
+            yield break;
         }
+
+        // Once normal scene fade'ini baslat. Attempt reklami ancak fade alpha
+        // tamamen 1 oldugunda (ekran simsiyahken) acilir. Reklam kapaninca
+        // SceneTransition MainMenu'yu yukler ve yeni sahneyi siyahtan acar.
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.LoadSceneWithFade(
+                "MainMenu",
+                continueTransition =>
+                    FatefulRushAdManager
+                        .TryShowAttemptAdBeforeReturningToMenu(
+                            continueTransition
+                        )
+            );
+
+            yield break;
+        }
+
+        // Fade sistemi yoksa son guvenli fallback: eski davranisla reklami
+        // sahne yuklemeden once dene.
+        bool adStarted =
+            FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu(
+                ContinueToMainMenuFallbackAfterAd
+            );
+
+        if (!adStarted)
+            ContinueToMainMenuFallbackAfterAd();
+    }
+
+    private void ContinueToMainMenuFallbackAfterAd()
+    {
+        if (this == null)
+            return;
+
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void Hide()
@@ -1845,6 +1895,23 @@ public class GameResultUI : MonoBehaviour
 
         if (button != null)
             button.interactable = interactable;
+    }
+
+    private bool ShouldOpenEndCredits()
+    {
+        return
+            PlayerPrefs.GetInt(
+                FatefulRushCreditsController.PendingKey,
+                0
+            ) == 1;
+    }
+
+    private string GetPostFinalLevelDestination()
+    {
+        return
+            ShouldOpenEndCredits()
+                ? CreditsSceneName
+                : "MainMenu";
     }
 
     private bool LoadScene(string sceneName)

@@ -8140,16 +8140,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobilePerformanceSettings
   targetFrameRate: 60
-  thermalFallbackFrameRate: 30
   enableAdaptivePerformance: 1
-  useAutomaticPerformanceControl: 1
-  useThermalFrameRateFallback: 1
-  thermalFallbackDelay: 8
-  recoveryDelay: 10
   useAdaptiveRenderScale: 1
   imminentRenderScaleMultiplier: 0.96
   throttlingRenderScaleMultiplier: 0.9
   minimumRenderScale: 0.85
+  recoveryDelay: 10
   preventScreenSleep: 1
   runInBackground: 0
   logStateChanges: 1
@@ -9491,6 +9487,7 @@ RectTransform:
   m_Children:
   - {fileID: 1262024875}
   - {fileID: 1827781982}
+  - {fileID: 1871812724}
   - {fileID: 799240658}
   - {fileID: 1318913966}
   - {fileID: 1686932945}
@@ -27789,7 +27786,6 @@ MonoBehaviour:
   cloneButton: {fileID: 1252523005}
   comboUI: {fileID: 28998267}
   starfieldController: {fileID: 427754826}
-  nearStars: {fileID: 930414941}
 --- !u!1 &1528949890
 GameObject:
   m_ObjectHideFlags: 0
@@ -28602,10 +28598,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d920d9cff4f33c34297b85a96fe66dfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossScreenEffect
-  warningImage: {fileID: 1758175548}
-  fadeDuration: 0.5
-  maxAlpha: 0.18
-  waitBetweenPulses: 1.2
 --- !u!1 &1666102186
 GameObject:
   m_ObjectHideFlags: 0
@@ -29821,6 +29813,166 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsManager
   hudCanvasGroup: {fileID: 517449647}
+--- !u!1 &1871812723
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1871812724}
+  - component: {fileID: 1871812726}
+  - component: {fileID: 1871812725}
+  - component: {fileID: 1871812727}
+  m_Layer: 5
+  m_Name: NearMissText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1871812724
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871812723}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 517449645}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -115}
+  m_SizeDelta: {x: 300, y: 50}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1871812725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871812723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: c70ac34a3185bf440bcc321f23ad52c7, type: 2}
+  m_sharedMaterial: {fileID: 8731101314057958530, guid: c70ac34a3185bf440bcc321f23ad52c7, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 0.27450982}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 30
+  m_fontSizeBase: 30
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1871812726
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871812723}
+  m_CullTransparentMesh: 1
+--- !u!114 &1871812727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871812723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d88472724df4dc6927c37de2f4ac7cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NearMissStreakUI
+  firstColor: {r: 1, g: 1, b: 1, a: 1}
+  maxColor: {r: 1, g: 0.08, b: 0.04, a: 1}
+  maxVisualStreak: 6
+  minPunchScale: 1.14
+  maxPunchScale: 1.36
+  minShakePixels: 1.5
+  maxShakePixels: 7
+  maxTiltDegrees: 3.5
+  impactDuration: 0.18
+  fadeDuration: 0.22
 --- !u!1 &1900544686
 GameObject:
   m_ObjectHideFlags: 0

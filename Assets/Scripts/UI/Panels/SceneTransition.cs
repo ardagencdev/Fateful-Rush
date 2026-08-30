@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,7 +40,24 @@ public class SceneTransition : MonoBehaviour
     private bool isTransitioning;
     private bool isQuitting;
 
+#if UNITY_EDITOR
+    // Google Mobile Ads Editor mock'u da Unity UI olarak cizildigi icin
+    // normalde short.MaxValue olan siyah transition canvas'i mock reklamin
+    // ustunu kapatabiliyor. Reklam preview'i boyunca sadece Editor'da bir
+    // sorting step asagi iner; Android/native build davranisi degismez.
+    private bool editorAdPreviewMode;
+    private const int EditorAdPreviewFadeSortingOrder = short.MaxValue - 1;
+#endif
+
     public bool IsTransitioning => isTransitioning;
+
+#if UNITY_EDITOR
+    public void SetEditorAdPreviewMode(bool active)
+    {
+        editorAdPreviewMode = active;
+        PrepareFadeCanvas();
+    }
+#endif
 
     [RuntimeInitializeOnLoadMethod(
         RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -100,6 +118,19 @@ public class SceneTransition : MonoBehaviour
 
     public void LoadSceneWithFade(string sceneName)
     {
+        LoadSceneWithFade(sceneName, null);
+    }
+
+    /// <summary>
+    /// Normal fade akisini korur; ekran tamamen siyaha ulastiginda istege
+    /// bagli bir gate baslatir. Gate true donerse continueTransition callback'i
+    /// gelene kadar ekran siyah kalir ve sahne yuklenmez. Reklam gibi tam ekran
+    /// gecisler icin kullanilir. Gate false donerse yukleme hemen devam eder.
+    /// </summary>
+    public void LoadSceneWithFade(
+        string sceneName,
+        Func<Action, bool> blackScreenGate)
+    {
         if (isTransitioning)
             return;
 
@@ -118,7 +149,10 @@ public class SceneTransition : MonoBehaviour
         BeginTransition();
 
         StartCoroutine(
-            TransitionRoutine(sceneName)
+            TransitionRoutine(
+                sceneName,
+                blackScreenGate
+            )
         );
     }
 
@@ -171,11 +205,22 @@ public class SceneTransition : MonoBehaviour
     }
 
     private IEnumerator TransitionRoutine(
-        string sceneName)
+        string sceneName,
+        Func<Action, bool> blackScreenGate)
     {
         Time.timeScale = 0f;
 
         yield return FadeOutEverything();
+
+        // Buraya geldigimiz frame'de fade alpha tam 1: ekran tamamen siyah.
+        // Reklam gate'i varsa reklami ancak simdi ac. Reklam kapanana kadar
+        // mevcut sahne siyah perdenin arkasinda kalir; MainMenu henuz yuklenmez.
+        if (blackScreenGate != null)
+        {
+            yield return WaitForBlackScreenGate(
+                blackScreenGate
+            );
+        }
 
         float blackStartTime = Time.realtimeSinceStartup;
 
@@ -198,6 +243,62 @@ public class SceneTransition : MonoBehaviour
             loadOperation,
             blackStartTime
         );
+    }
+
+    private IEnumerator WaitForBlackScreenGate(
+        Func<Action, bool> blackScreenGate)
+    {
+        bool gateCompleted = false;
+
+        Action continueTransition = () =>
+        {
+            gateCompleted = true;
+        };
+
+        bool gateStarted = false;
+
+        try
+        {
+            gateStarted =
+                blackScreenGate.Invoke(
+                    continueTransition
+                );
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning(
+                "[SceneTransition] Siyah ekran gecis aksiyonu " +
+                "baslatilamadi; sahne gecisi devam ediyor. " +
+                exception.Message,
+                this
+            );
+        }
+
+        if (!gateStarted)
+            yield break;
+
+        while (!gateCompleted)
+        {
+            // Reklam callback'i gelene kadar siyah perdeyi ve pause durumunu
+            // garanti et. Unscaled UI/reklam callback'leri calismaya devam eder.
+            Time.timeScale = 0f;
+
+            PrepareFadeCanvas();
+
+            if (fadeImage != null)
+            {
+                fadeImage.gameObject.SetActive(true);
+                fadeImage.raycastTarget = true;
+                SetAlpha(1f);
+            }
+
+            yield return null;
+        }
+
+        // AdManager reklam kapanisinda kendi onceki timeScale degerini geri
+        // yukler. Gate'e girerken o deger 0 oldugu icin burada da siyah gecis
+        // pause'unu net tutuyoruz.
+        Time.timeScale = 0f;
     }
 
     private IEnumerator TransitionRoutine(
@@ -455,6 +556,16 @@ public class SceneTransition : MonoBehaviour
         SetAlpha(to);
     }
 
+    private int GetFadeSortingOrder()
+    {
+#if UNITY_EDITOR
+        if (editorAdPreviewMode)
+            return EditorAdPreviewFadeSortingOrder;
+#endif
+
+        return short.MaxValue;
+    }
+
     private float EvaluateFadeCurve(float progress)
     {
         progress = Mathf.Clamp01(progress);
@@ -498,7 +609,7 @@ public class SceneTransition : MonoBehaviour
 
             canvas.overrideSorting = true;
             canvas.sortingOrder =
-                short.MaxValue;
+                GetFadeSortingOrder();
 
             canvas.targetDisplay = 0;
             canvas.gameObject.SetActive(true);
@@ -569,7 +680,7 @@ public class SceneTransition : MonoBehaviour
 
         canvas.overrideSorting = true;
         canvas.sortingOrder =
-            short.MaxValue;
+            GetFadeSortingOrder();
 
         canvas.targetDisplay = 0;
 

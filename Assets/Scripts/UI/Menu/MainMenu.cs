@@ -12,10 +12,17 @@ public class MainMenu : MonoBehaviour
 
     [Header("Scene")]
     [SerializeField] private string gameSceneName = "a";
+    private const string CreditsSceneName = "CreditsScene";
 
     [Header("UI")]
     [SerializeField] private UIPanelFadeSwitcher fadeSwitcher;
     [SerializeField] private GameObject mainMenuPanel;
+
+    [Header("Footer Signal")]
+    [Tooltip(
+        "Opsiyonel. Boş bırakılırsa Canvas içindeki 'SIGNAL //' TMP otomatik bulunur."
+    )]
+    [SerializeField] private TMP_Text signalStatusText;
 
     [Header("Continue")]
     [Tooltip("LevelSelectPanel üzerindeki 40 LevelConfig kaynağı.")]
@@ -60,6 +67,8 @@ public class MainMenu : MonoBehaviour
         Instance = this;
         Time.timeScale = 1f;
 
+        RefreshSignalStatusText();
+
         isDesktopDevRoomAllowed =
             IsDesktopPlatform();
 
@@ -76,6 +85,42 @@ public class MainMenu : MonoBehaviour
         RefreshContinueState();
     }
 
+    private void Start()
+    {
+        // Safety fallback: if the player finished Level 40 and closed the
+        // game before reaching/finishing the Credits scene, do not lose the
+        // ending. The pending flag is cleared only by the Credits CONTINUE
+        // button.
+        if (PlayerPrefs.GetInt(
+                FatefulRushCreditsController.PendingKey,
+                0
+            ) != 1)
+        {
+            return;
+        }
+
+        SetMainMenuInteraction(false);
+
+        if (Application.CanStreamedLevelBeLoaded(
+                CreditsSceneName
+            ))
+        {
+            SceneManager.LoadScene(
+                CreditsSceneName
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                $"[MainMenu] Credits scene bulunamadı: '{CreditsSceneName}'. " +
+                "Build Profiles > Scene List'e ekle.",
+                this
+            );
+
+            SetMainMenuInteraction(true);
+        }
+    }
+
     private void OnEnable()
     {
         isStartingGame = false;
@@ -83,6 +128,7 @@ public class MainMenu : MonoBehaviour
 
         SetMainMenuInteraction(true);
         RefreshContinueState();
+        RefreshSignalStatusText();
     }
 
     private void OnDisable()
@@ -102,6 +148,65 @@ public class MainMenu : MonoBehaviour
             continueButton.onClick.RemoveListener(
                 ContinueGame
             );
+        }
+    }
+
+    private void RefreshSignalStatusText()
+    {
+        FindSignalStatusTextIfNeeded();
+
+        if (signalStatusText == null)
+            return;
+
+        signalStatusText.text =
+            SignalStatusState.DisplayText;
+    }
+
+    private void FindSignalStatusTextIfNeeded()
+    {
+        if (signalStatusText != null)
+            return;
+
+        Canvas canvas =
+            GetComponentInParent<Canvas>(true);
+
+        if (canvas == null &&
+            mainMenuPanel != null)
+        {
+            canvas =
+                mainMenuPanel.GetComponentInParent<Canvas>(
+                    true
+                );
+        }
+
+        if (canvas == null)
+            return;
+
+        TMP_Text[] texts =
+            canvas.GetComponentsInChildren<TMP_Text>(
+                true
+            );
+
+        for (int i = 0;
+             i < texts.Length;
+             i++)
+        {
+            TMP_Text candidate =
+                texts[i];
+
+            if (candidate == null ||
+                string.IsNullOrWhiteSpace(candidate.text))
+            {
+                continue;
+            }
+
+            if (candidate.text.TrimStart().StartsWith(
+                    "SIGNAL //",
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                signalStatusText = candidate;
+                return;
+            }
         }
     }
 
@@ -204,6 +309,11 @@ public class MainMenu : MonoBehaviour
     public void OpenGooglePlayAchievements()
     {
         GooglePlayGamesManager.ShowAchievementsUI();
+    }
+
+    public void OpenGooglePlayLeaderboards()
+    {
+        GooglePlayGamesLeaderboards.ShowAllLeaderboardsUI();
     }
 
     public void SignInGooglePlayGames()

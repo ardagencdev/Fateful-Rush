@@ -9,6 +9,12 @@ public class MainMenuStarColorRandomizer : MonoBehaviour
         private set;
     }
 
+    /// <summary>
+    /// The exact color currently being used by NearStars.
+    /// Alpha is included; UI callers can override alpha if needed.
+    /// </summary>
+    public Color CurrentColor => currentColor;
+
     [Header("Reference")]
     [SerializeField]
     private ParticleSystem nearStars;

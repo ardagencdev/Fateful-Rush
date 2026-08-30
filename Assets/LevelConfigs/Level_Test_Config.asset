@@ -129,7 +129,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 0
+  projectileEnemyCount: 1
   projectileEnemySpawnInterval: 3
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0

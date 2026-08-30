@@ -6,10 +6,12 @@ using UnityEngine;
 /// </summary>
 public static class RuntimePerformancePolicy
 {
+#if UNITY_ANDROID && !UNITY_EDITOR
     private const string GooglePlayGamesPcFeature =
         "com.google.android.play.feature.HPE_EXPERIENCE";
 
     private static int googlePlayGamesPcState = -1;
+#endif
 
     /// <summary>
     /// True when the Android build is running inside Google Play Games on PC.
