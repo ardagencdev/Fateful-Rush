@@ -94,31 +94,33 @@ public class MainMenu : MonoBehaviour
         if (PlayerPrefs.GetInt(
                 FatefulRushCreditsController.PendingKey,
                 0
-            ) != 1)
+            ) == 1)
         {
+            SetMainMenuInteraction(false);
+
+            if (Application.CanStreamedLevelBeLoaded(
+                    CreditsSceneName
+                ))
+            {
+                SceneManager.LoadScene(
+                    CreditsSceneName
+                );
+            }
+            else
+            {
+                Debug.LogError(
+                    $"[MainMenu] Credits scene bulunamadı: '{CreditsSceneName}'. " +
+                    "Build Profiles > Scene List'e ekle.",
+                    this
+                );
+
+                SetMainMenuInteraction(true);
+            }
+
             return;
         }
 
-        SetMainMenuInteraction(false);
-
-        if (Application.CanStreamedLevelBeLoaded(
-                CreditsSceneName
-            ))
-        {
-            SceneManager.LoadScene(
-                CreditsSceneName
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                $"[MainMenu] Credits scene bulunamadı: '{CreditsSceneName}'. " +
-                "Build Profiles > Scene List'e ekle.",
-                this
-            );
-
-            SetMainMenuInteraction(true);
-        }
+        RestoreExtrasAfterCreditsIfNeeded();
     }
 
     private void OnEnable()
@@ -314,6 +316,94 @@ public class MainMenu : MonoBehaviour
     public void OpenGooglePlayLeaderboards()
     {
         GooglePlayGamesLeaderboards.ShowAllLeaderboardsUI();
+    }
+
+    public void OpenCredits()
+    {
+        OpenCreditsInternal(
+            returnToExtras: false
+        );
+    }
+
+    public void OpenCreditsFromExtras()
+    {
+        OpenCreditsInternal(
+            returnToExtras: true
+        );
+    }
+
+    private void OpenCreditsInternal(bool returnToExtras)
+    {
+        if (isStartingGame || isQuitting)
+            return;
+
+        if (!Application.CanStreamedLevelBeLoaded(
+                CreditsSceneName
+            ))
+        {
+            Debug.LogError(
+                $"[MainMenu] Credits scene bulunamadı: '{CreditsSceneName}'. " +
+                "Build Profiles > Scene List'e ekle.",
+                this
+            );
+
+            return;
+        }
+
+        if (SceneTransition.Instance != null &&
+            SceneTransition.Instance.IsTransitioning)
+        {
+            return;
+        }
+
+        if (returnToExtras)
+        {
+            FatefulRushCreditsController
+                .MarkOpenedFromExtras();
+        }
+
+        Time.timeScale = 1f;
+
+        if (SceneTransition.Instance != null)
+        {
+            SceneTransition.Instance.LoadSceneWithFade(
+                CreditsSceneName
+            );
+
+            return;
+        }
+
+        SceneManager.LoadScene(
+            CreditsSceneName
+        );
+    }
+
+    private void RestoreExtrasAfterCreditsIfNeeded()
+    {
+        if (!FatefulRushCreditsController
+                .HasReturnToExtrasRequest())
+        {
+            return;
+        }
+
+        ExtrasPanelUI extrasPanelUI =
+            FindAnyObjectByType<ExtrasPanelUI>();
+
+        if (extrasPanelUI == null)
+        {
+            Debug.LogError(
+                "[MainMenu] Credits sonrasi ExtrasPanelUI bulunamadi. " +
+                "Return request korunuyor; reference/scene yapisini kontrol et.",
+                this
+            );
+
+            return;
+        }
+
+        FatefulRushCreditsController
+            .ConsumeReturnToExtrasRequest();
+
+        extrasPanelUI.RestoreAfterCredits();
     }
 
     public void SignInGooglePlayGames()

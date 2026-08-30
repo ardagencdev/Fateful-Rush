@@ -37,6 +37,12 @@ public sealed class FatefulRushCreditsController :
     public const string PendingKey =
         "FatefulRush_Level40_Credits_Pending";
 
+    private const string OpenedFromExtrasKey =
+        "FatefulRush_Credits_Opened_From_Extras";
+
+    private const string ReturnToExtrasKey =
+        "FatefulRush_Credits_Return_To_Extras";
+
     private const string DefaultMainMenuSceneName =
         "MainMenu";
 
@@ -89,6 +95,41 @@ public sealed class FatefulRushCreditsController :
     private float resumeAutoScrollAt;
 
     private Coroutine initializeRoutine;
+
+    /// <summary>
+    /// Credits, Main Menu'deki Extras panelinden manuel olarak acildiginda cagrilir.
+    /// Level 40 ending akisi PendingKey ile ayri tutulur.
+    /// </summary>
+    public static void MarkOpenedFromExtras()
+    {
+        PlayerPrefs.SetInt(
+            OpenedFromExtrasKey,
+            1
+        );
+
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// Credits CONTINUE sonrasi MainMenu yuklendiginde Extras'in geri acilmasi gerekip
+    /// gerekmedigini bildirir. Istek sadece gercekten tuketildiginde silinmelidir.
+    /// </summary>
+    public static bool HasReturnToExtrasRequest()
+    {
+        return PlayerPrefs.GetInt(
+            ReturnToExtrasKey,
+            0
+        ) == 1;
+    }
+
+    public static void ConsumeReturnToExtrasRequest()
+    {
+        PlayerPrefs.DeleteKey(
+            ReturnToExtrasKey
+        );
+
+        PlayerPrefs.Save();
+    }
 
     private void Awake()
     {
@@ -317,12 +358,47 @@ public sealed class FatefulRushCreditsController :
         isLeavingScene = true;
         continueButton.interactable = false;
 
+        // Credits'in hangi akisla acildigini transition baslamadan once kaydet.
+        // Level 40 ending her zaman Main Menu'ye doner. Extras'tan manuel
+        // acildiysa MainMenu yuklendikten sonra Extras paneli geri acilir.
+        bool isLevel40Ending =
+            PlayerPrefs.GetInt(
+                PendingKey,
+                0
+            ) == 1;
+
+        bool openedFromExtras =
+            PlayerPrefs.GetInt(
+                OpenedFromExtrasKey,
+                0
+            ) == 1;
+
         // Clear only when a valid transition is actually starting.
-        // If the player quits halfway through credits, the pending flag stays
+        // If the player quits halfway through Level 40 credits, PendingKey stays
         // and MainMenu's fallback can show CreditsScene again next launch.
         PlayerPrefs.DeleteKey(
             PendingKey
         );
+
+        PlayerPrefs.DeleteKey(
+            OpenedFromExtrasKey
+        );
+
+        if (!isLevel40Ending && openedFromExtras)
+        {
+            PlayerPrefs.SetInt(
+                ReturnToExtrasKey,
+                1
+            );
+        }
+        else
+        {
+            // Level 40 ending must never accidentally restore Extras, even if
+            // an old manual-Credits marker survived an interrupted session.
+            PlayerPrefs.DeleteKey(
+                ReturnToExtrasKey
+            );
+        }
 
         PlayerPrefs.Save();
         Time.timeScale = 1f;
