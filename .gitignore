@@ -20,3 +20,10 @@
 all.zip
 .vsconfig
 *.slnx
+# Android signing keys and local signing config
+*.keystore
+*.jks
+*.p12
+*.pfx
+key.properties
+Assets/_Game/Keys/
