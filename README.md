@@ -7,7 +7,7 @@
 
 **Fateful Rush** is a fast-paced 2D arcade survival game developed by **YoungDev Studios**. Movement, timing and risk decide everything as players dodge cosmic hazards, build combos and fight through 40 progressively challenging missions.
 
-## 🎮 Play Now
+## Play Now
 
 **Fateful Rush is officially available on Google Play.**
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 📸 Gameplay
+## Gameplay
 
 <p align="center">
   <img src="docs/screenshots/gameplay-near-miss.jpg" width="48%" alt="Fateful Rush near miss gameplay" />
@@ -28,7 +28,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 - **40 progressively challenging missions** with multiple objective types
 - Fast and responsive **2D arcade survival gameplay**
@@ -44,7 +44,7 @@
 
 ---
 
-## 🕹️ Gameplay
+## Gameplay
 
 Players enter increasingly hostile arenas and complete one of several mission objectives:
 
@@ -58,7 +58,7 @@ New mechanics are introduced gradually across the campaign before being combined
 
 ---
 
-## ⚙️ Technical Highlights
+## Technical Highlights
 
 Fateful Rush was built as both a complete mobile game and a Unity development portfolio project. The project includes:
 
@@ -76,7 +76,7 @@ Fateful Rush was built as both a complete mobile game and a Unity development po
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Unity 6**
 - **C#**
@@ -88,13 +88,13 @@ Fateful Rush was built as both a complete mobile game and a Unity development po
 
 ---
 
-## 📱 Platform
+## Platform
 
 - **Android — Google Play**
 
 ---
 
-## 🚀 Release Status
+## Release Status
 
 **Released.** Fateful Rush is publicly available on Google Play.
 
@@ -113,7 +113,7 @@ The project will continue to receive fixes, balancing improvements and post-rele
 
 ---
 
-## 👨‍💻 Developer
+## Developer
 
 Developed and published by **YoungDev Studios**.
 
