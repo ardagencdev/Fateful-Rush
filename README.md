@@ -1,9 +1,5 @@
 # Fateful Rush
 
-[![Status](https://img.shields.io/badge/status-released-brightgreen)](https://play.google.com/store/apps/details?id=com.youngdevstudios.fatefulrush)
-[![Platform](https://img.shields.io/badge/platform-Android-3DDC84)](https://play.google.com/store/apps/details?id=com.youngdevstudios.fatefulrush)
-[![Engine](https://img.shields.io/badge/engine-Unity%206-black)](https://unity.com/)
-[![Language](https://img.shields.io/badge/language-C%23-512BD4)](https://learn.microsoft.com/dotnet/csharp/)
 
 **Fateful Rush** is a fast-paced 2D arcade survival game developed by **YoungDev Studios**. Movement, timing and risk decide everything as players dodge cosmic hazards, build combos and fight through 40 progressively challenging missions.
 
