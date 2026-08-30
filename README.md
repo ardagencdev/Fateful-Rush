@@ -86,7 +86,8 @@ Fateful Rush was built as both a complete mobile game and a Unity development po
 
 ## Platform
 
-- **Android — Google Play**
+- Android — Google Play
+- Windows — Google Play Games on PC
 
 ---
 
