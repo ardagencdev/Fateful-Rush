@@ -28,7 +28,7 @@ public static class UIRaycastOptimizer
 
     private static void OptimizeLoadedScene()
     {
-        Graphic[] graphics = Object.FindObjectsByType<Graphic>(
+        Graphic[] graphics = UnityFindCompat.FindObjectsByType<Graphic>(
             FindObjectsInactive.Include
         );
 

@@ -162,7 +162,7 @@ public class SettingsManager : MonoBehaviour
             cachedGameplayMusic.Length == 0)
         {
             cachedGameplayMusic =
-                FindObjectsByType<GameplayMusicFade>(
+                UnityFindCompat.FindObjectsByType<GameplayMusicFade>(
                     FindObjectsInactive.Exclude
                 );
         }
@@ -228,7 +228,7 @@ public class SettingsManager : MonoBehaviour
         if (cachedAudioAppliers == null)
         {
             cachedAudioAppliers =
-                FindObjectsByType<AudioSettingsApply>(
+                UnityFindCompat.FindObjectsByType<AudioSettingsApply>(
                 FindObjectsInactive.Exclude
             );
         }
@@ -249,7 +249,7 @@ public class SettingsManager : MonoBehaviour
             FindAnyObjectByType<MenuMusicApply>();
 
         cachedGameplayMusic =
-            FindObjectsByType<GameplayMusicFade>(
+            UnityFindCompat.FindObjectsByType<GameplayMusicFade>(
                 FindObjectsInactive.Exclude
             );
 
@@ -259,7 +259,7 @@ public class SettingsManager : MonoBehaviour
                 : FindAnyObjectByType<SoundManager>();
 
         cachedAudioAppliers =
-            FindObjectsByType<AudioSettingsApply>(
+            UnityFindCompat.FindObjectsByType<AudioSettingsApply>(
                 FindObjectsInactive.Exclude
             );
     }

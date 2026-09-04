@@ -531,7 +531,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
     private static TMP_FontAsset FindSceneFont()
     {
         TextMeshProUGUI[] texts =
-            FindObjectsByType<TextMeshProUGUI>(
+            UnityFindCompat.FindObjectsByType<TextMeshProUGUI>(
                 FindObjectsInactive.Include
             );
 

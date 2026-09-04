@@ -736,7 +736,7 @@ public class GameStateManager : MonoBehaviour
     private static void StopBossAoeSystems()
     {
         BossEnemyFollow[] bosses =
-            FindObjectsByType<BossEnemyFollow>(
+            UnityFindCompat.FindObjectsByType<BossEnemyFollow>(
                 FindObjectsInactive.Exclude
             );
 
@@ -747,7 +747,7 @@ public class GameStateManager : MonoBehaviour
         }
 
         MiniBossFollow[] miniBosses =
-            FindObjectsByType<MiniBossFollow>(
+            UnityFindCompat.FindObjectsByType<MiniBossFollow>(
                 FindObjectsInactive.Exclude
             );
 
@@ -765,7 +765,7 @@ public class GameStateManager : MonoBehaviour
         // Hunter/projectile/laser gibi kendi AudioSource'unu kullanan gameplay
         // objeleri de sonuç ekranından sonra ses üretmeye devam etmesin.
         AudioSource[] activeSources =
-            FindObjectsByType<AudioSource>(
+            UnityFindCompat.FindObjectsByType<AudioSource>(
                 FindObjectsInactive.Exclude
             );
 
@@ -788,7 +788,7 @@ public class GameStateManager : MonoBehaviour
     private static void FreezeActiveRigidbodies()
     {
         Rigidbody2D[] bodies =
-            FindObjectsByType<Rigidbody2D>(
+            UnityFindCompat.FindObjectsByType<Rigidbody2D>(
                 FindObjectsInactive.Exclude
             );
 

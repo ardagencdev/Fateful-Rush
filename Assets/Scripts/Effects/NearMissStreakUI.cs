@@ -135,7 +135,7 @@ public class NearMissStreakUI : MonoBehaviour
         // Search INCLUDING inactive HUD objects.
         // FindAnyObjectByType() excludes inactive objects, which could make a
         // correctly configured NearMissText look as if it did not exist.
-        NearMissStreakUI[] found = Object.FindObjectsByType<NearMissStreakUI>(
+        NearMissStreakUI[] found = UnityFindCompat.FindObjectsByType<NearMissStreakUI>(
     FindObjectsInactive.Include
 );
 

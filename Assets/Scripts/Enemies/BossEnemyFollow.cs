@@ -1420,7 +1420,7 @@ public class BossEnemyFollow : MonoBehaviour
         absorptionStarted = true;
         pendingStalkerAbsorptions = 0;
 
-        EnemyFollow[] stalkers = FindObjectsByType<EnemyFollow>();
+        EnemyFollow[] stalkers = UnityFindCompat.FindObjectsByType<EnemyFollow>();
 
         for (int i = 0; i < stalkers.Length; i++)
         {

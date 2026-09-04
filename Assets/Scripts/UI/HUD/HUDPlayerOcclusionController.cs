@@ -379,7 +379,7 @@ public class HUDPlayerOcclusionController : MonoBehaviour
             return;
 
         Camera[] cameras =
-            FindObjectsByType<Camera>();
+            UnityFindCompat.FindObjectsByType<Camera>();
 
         for (int i = 0; i < cameras.Length; i++)
         {

@@ -22,6 +22,12 @@ dependencyResolutionManagement {
         maven {
             url "https://maven.google.com/" // Assets/GooglePlayGames/com.google.play.games/Editor/GooglePlayGamesPluginDependencies.xml:9, Assets/GooglePlayGames/com.google.play.games/Editor/GooglePlayGamesPluginDependencies.xml:14, Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:7, Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:12, Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:17, Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:22, Packages/com.google.ads.mobile/GoogleMobileAds/Editor/GoogleUmpDependencies.xml:7
         }
+        maven {
+            url "https://repo.maven.apache.org/maven2/" // Packages/com.google.ads.mobile.mediation.unity/source/plugin/Assets/GoogleMobileAds/Mediation/UnityAds/Editor/UnityMediationDependencies.xml:25, Packages/com.google.ads.mobile.mediation.unity/source/plugin/Assets/GoogleMobileAds/Mediation/UnityAds/Editor/UnityMediationDependencies.xml:33
+        }
+        maven {
+            url "https://dl.google.com/dl/android/maven2/" // Packages/com.google.ads.mobile.mediation.unity/source/plugin/Assets/GoogleMobileAds/Mediation/UnityAds/Editor/UnityMediationDependencies.xml:25
+        }
         mavenLocal()
 // Android Resolver Repos End
         flatDir {

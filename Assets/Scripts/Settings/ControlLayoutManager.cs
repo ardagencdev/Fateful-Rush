@@ -31,6 +31,9 @@ public class ControlLayoutManager : MonoBehaviour
     [SerializeField]
     private RectTransform cloneButton;
 
+    [SerializeField]
+    private RectTransform pauseButton;
+
     [Header("Button Positions")]
     [SerializeField]
     private Vector2 dashLeftPos =
@@ -47,6 +50,15 @@ public class ControlLayoutManager : MonoBehaviour
     [SerializeField]
     private Vector2 cloneRightPos =
         new Vector2(-145f, 255f);
+
+    [Header("Pause Button Positions")]
+    [SerializeField]
+    private Vector2 pauseLeftPos =
+        new Vector2(20f, -180f);
+
+    [SerializeField]
+    private Vector2 pauseRightPos =
+        new Vector2(-20f, -180f);
 
     private Coroutine refreshRoutine;
 
@@ -122,24 +134,29 @@ public class ControlLayoutManager : MonoBehaviour
                 .PrepareForJoystickLayoutChange();
         }
 
-        bool buttonsOnLeft =
-            side == JoystickSide.Right;
+        // The selected side now represents the HUD/control side directly:
+        // Left = skill buttons + pause on the left, Right = on the right.
+        bool hudOnLeft =
+            side == JoystickSide.Left;
 
         PrepareFloatingJoystickRect();
 
         ApplyButton(
             dashButton,
-            buttonsOnLeft,
+            hudOnLeft,
             dashLeftPos,
             dashRightPos
         );
 
         ApplyButton(
             cloneButton,
-            buttonsOnLeft,
+            hudOnLeft,
             cloneLeftPos,
             cloneRightPos
         );
+
+        ResolvePauseButton();
+        ApplyPauseButton(hudOnLeft);
 
         RefreshPlayerInputLayout();
     }
@@ -188,6 +205,46 @@ public class ControlLayoutManager : MonoBehaviour
             anchor,
             position
         );
+    }
+
+    private void ApplyPauseButton(bool left)
+    {
+        if (pauseButton == null)
+            return;
+
+        Vector2 anchor = left
+            ? new Vector2(0f, 1f)
+            : Vector2.one;
+
+        Vector2 position = left
+            ? pauseLeftPos
+            : pauseRightPos;
+
+        SetRect(
+            pauseButton,
+            anchor,
+            anchor,
+            position
+        );
+    }
+
+    private void ResolvePauseButton()
+    {
+        if (pauseButton != null)
+            return;
+
+        GameStateManager gameStateManager =
+            FindAnyObjectByType<GameStateManager>();
+
+        if (gameStateManager == null ||
+            gameStateManager.pauseButtonHUD == null)
+        {
+            return;
+        }
+
+        pauseButton =
+            gameStateManager.pauseButtonHUD.transform
+                as RectTransform;
     }
 
     private static void SetRect(
