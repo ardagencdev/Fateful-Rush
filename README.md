@@ -1,17 +1,16 @@
 # Fateful Rush
 
-
 **Fateful Rush** is a fast-paced 2D arcade survival game developed by **YoungDev Studios**. Movement, timing and risk decide everything as players dodge cosmic hazards, build combos and fight through 40 progressively challenging missions.
 
 ## Play Now
 
 **Fateful Rush is officially available on Google Play.**
 
-[▶ Download Fateful Rush on Google Play](https://play.google.com/store/apps/details?id=com.youngdevstudios.fatefulrush)
+[Download Fateful Rush on Google Play](https://play.google.com/store/apps/details?id=com.youngdevstudios.fatefulrush)
 
 ---
 
-## Gameplay
+## Screenshots
 
 <p align="center">
   <img src="docs/screenshots/gameplay-near-miss.jpg" width="48%" alt="Fateful Rush near miss gameplay" />
@@ -84,10 +83,27 @@ Fateful Rush was built as both a complete mobile game and a Unity development po
 
 ---
 
-## Platform
+## Platforms
 
-- Android — Google Play
-- Windows — Google Play Games on PC
+### Android
+
+This repository contains the **Android version** of Fateful Rush.
+
+- Platform: Android
+- Distribution: Google Play
+- Mobile touch controls
+- Haptic feedback
+- Unity Adaptive Performance integration
+
+[Download Fateful Rush on Google Play](https://play.google.com/store/apps/details?id=com.youngdevstudios.fatefulrush)
+
+### Windows
+
+A separate PC version is maintained for **Google Play Games on PC**.
+
+[View the Fateful Rush PC Repository](https://github.com/ardagencdev/Fateful-Rush-PC)
+
+The PC project shares the core gameplay systems with the Android version while maintaining separate platform-specific controls, UI behaviour, performance settings and configuration.
 
 ---
 
@@ -114,4 +130,6 @@ The project will continue to receive fixes, balancing improvements and post-rele
 
 Developed and published by **YoungDev Studios**.
 
-This repository documents the development of Fateful Rush and the systems built for its production release.
+This repository contains the Android version of Fateful Rush and documents the systems built for its production release.
+
+The Windows version is maintained separately in the [Fateful Rush PC repository](https://github.com/ardagencdev/Fateful-Rush-PC).
