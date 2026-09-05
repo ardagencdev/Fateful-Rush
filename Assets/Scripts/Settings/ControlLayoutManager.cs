@@ -62,6 +62,10 @@ public class ControlLayoutManager : MonoBehaviour
 
     private Coroutine refreshRoutine;
 
+    private Rect lastSafeArea;
+    private int lastScreenWidth;
+    private int lastScreenHeight;
+
     public JoystickSide CurrentSide { get; private set; }
 
     private void Awake()
@@ -81,6 +85,24 @@ public class ControlLayoutManager : MonoBehaviour
         }
 
         ApplySavedLayout();
+    }
+
+    private void Start()
+    {
+        CacheSafeAreaState();
+        ApplySavedLayout();
+    }
+
+    private void Update()
+    {
+        // Fold/unfold, window resizing, navigation-mode changes and some
+        // cutout configurations can change Screen.safeArea at runtime.
+        // Re-apply only when the usable display area actually changes.
+        if (!HasSafeAreaChanged())
+            return;
+
+        CacheSafeAreaState();
+        ApplyLayout(CurrentSide);
     }
 
     public void SetJoystickLeft()
@@ -134,10 +156,11 @@ public class ControlLayoutManager : MonoBehaviour
                 .PrepareForJoystickLayoutChange();
         }
 
-        // The selected side now represents the HUD/control side directly:
-        // Left = skill buttons + pause on the left, Right = on the right.
+        // Skill buttons and pause stay on the opposite side of the joystick.
+        // Joystick Left  => skills + pause Right
+        // Joystick Right => skills + pause Left
         bool hudOnLeft =
-            side == JoystickSide.Left;
+            side == JoystickSide.Right;
 
         PrepareFloatingJoystickRect();
 
@@ -199,6 +222,16 @@ public class ControlLayoutManager : MonoBehaviour
                 ? leftPosition
                 : rightPosition;
 
+        AndroidSafeAreaUtility.Insets safeInsets =
+            AndroidSafeAreaUtility.GetCanvasInsets(button);
+
+        // Keep the button clear of left/right cutouts and the bottom
+        // navigation/gesture area while the world/background stays edge-to-edge.
+        position.x += left
+            ? safeInsets.Left
+            : -safeInsets.Right;
+        position.y += safeInsets.Bottom;
+
         SetRect(
             button,
             anchor,
@@ -219,6 +252,14 @@ public class ControlLayoutManager : MonoBehaviour
         Vector2 position = left
             ? pauseLeftPos
             : pauseRightPos;
+
+        AndroidSafeAreaUtility.Insets safeInsets =
+            AndroidSafeAreaUtility.GetCanvasInsets(pauseButton);
+
+        position.x += left
+            ? safeInsets.Left
+            : -safeInsets.Right;
+        position.y -= safeInsets.Top;
 
         SetRect(
             pauseButton,
@@ -303,6 +344,20 @@ public class ControlLayoutManager : MonoBehaviour
 
         playerInputController =
             FindAnyObjectByType<PlayerInputController>();
+    }
+
+    private bool HasSafeAreaChanged()
+    {
+        return Screen.width != lastScreenWidth ||
+               Screen.height != lastScreenHeight ||
+               Screen.safeArea != lastSafeArea;
+    }
+
+    private void CacheSafeAreaState()
+    {
+        lastScreenWidth = Screen.width;
+        lastScreenHeight = Screen.height;
+        lastSafeArea = Screen.safeArea;
     }
 
     [ContextMenu("Reset Joystick Layout Save")]
