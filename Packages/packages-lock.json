@@ -20,11 +20,11 @@
       "url": "https://package.openupm.com"
     },
     "com.google.external-dependency-manager": {
-      "version": "https://github.com/googlesamples/unity-jar-resolver.git?path=upm",
+      "version": "1.2.188",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
       "dependencies": {},
-      "hash": "b38da4950d8439d50e15c71168d70e16fea731b0"
+      "url": "https://package.openupm.com"
     },
     "com.unity.2d.animation": {
       "version": "15.1.0",

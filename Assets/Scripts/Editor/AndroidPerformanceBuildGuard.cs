@@ -43,7 +43,6 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         PlayerSettings.Android.appCategory = "game";
         PlayerSettings.Android.resizeableActivity = true;
 
-        // Landscape-only. Do not change orientation during splash/startup.
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
         PlayerSettings.allowedAutorotateToPortrait = false;
         PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
