@@ -29,6 +29,9 @@ public class ControlLayoutManager : MonoBehaviour
     private RectTransform dashButton;
 
     [SerializeField]
+    private UIHorizontalFlip dashButtonFlip;
+
+    [SerializeField]
     private RectTransform cloneButton;
 
     [SerializeField]
@@ -161,6 +164,13 @@ public class ControlLayoutManager : MonoBehaviour
         // Joystick Right => skills + pause Left
         bool hudOnLeft =
             side == JoystickSide.Right;
+
+        // Dash arrow always points toward the play area.
+        // Skills on the right => mirror the dash arrow to point left.
+        if (dashButtonFlip != null)
+        {
+            dashButtonFlip.SetFlipped(!hudOnLeft);
+        }
 
         PrepareFloatingJoystickRect();
 

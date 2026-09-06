@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/MainMenu.unity
     guid: b18ee1a9ea0d0a949a5cdb5c046abf15
   - enabled: 1
-    path: Assets/a.unity
+    path: Assets/GameScene.unity
     guid: 9f0a7ac94137ab746a6651d72126549c
   - enabled: 1
     path: Assets/CreditsScene.unity

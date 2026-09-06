@@ -16196,7 +16196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf23a7fc756d21478c6d200fe5318ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  gameSceneName: a
+  gameSceneName: GameScene
   fadeSwitcher: {fileID: 658595660}
   mainMenuPanel: {fileID: 558379304}
   signalStatusText: {fileID: 0}
@@ -16601,7 +16601,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e34e1c5fc4c9f684c96bf82605ac313e, type: 2}
   - {fileID: 11400000, guid: 1b3d57da053d5144585258a34abb432d, type: 2}
   - {fileID: 11400000, guid: d9001b5a1ae740c4ca6b2f5063576cae, type: 2}
-  gameSceneName: a
+  gameSceneName: GameScene
   mainMenuSceneName: MainMenu
 --- !u!1 &603588033
 GameObject:
@@ -30291,7 +30291,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: v1.0.2
+  m_text: v1.0.41
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
   m_sharedMaterial: {fileID: -3523414811633075640, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
@@ -31800,6 +31800,7 @@ MonoBehaviour:
   playerInputController: {fileID: 0}
   joystick: {fileID: 0}
   dashButton: {fileID: 0}
+  dashButtonFlip: {fileID: 0}
   cloneButton: {fileID: 0}
   pauseButton: {fileID: 0}
   dashLeftPos: {x: 30, y: 30}
@@ -35282,7 +35283,7 @@ MonoBehaviour:
   navigationAnimDuration: 0.18
   hiddenNavigationScale: 0.85
   missionBriefingPanel: {fileID: 1728042650}
-  gameSceneName: a
+  gameSceneName: GameScene
 --- !u!114 &1781728137
 MonoBehaviour:
   m_ObjectHideFlags: 0

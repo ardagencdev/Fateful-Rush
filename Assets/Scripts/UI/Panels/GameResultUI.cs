@@ -25,7 +25,7 @@ public class GameResultUI : MonoBehaviour
     [Header("Level Mode")]
     [SerializeField] private GameObject nextLevelButton;
     [SerializeField] private LevelConfig[] levels;
-    [SerializeField] private string gameSceneName = "a";
+    [SerializeField] private string gameSceneName = "GameScene";
 
     private const string CreditsSceneName = "CreditsScene";
 

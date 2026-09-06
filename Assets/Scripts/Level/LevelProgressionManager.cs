@@ -9,7 +9,7 @@ public class LevelProgressionManager : MonoBehaviour
     public LevelConfig[] levels;
 
     [Header("Scenes")]
-    public string gameSceneName = "a";
+    public string gameSceneName = "GameScene";
     public string mainMenuSceneName = "MainMenu";
 
     private int currentLevelIndex;

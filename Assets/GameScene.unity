@@ -15754,6 +15754,7 @@ GameObject:
   - component: {fileID: 733837254}
   - component: {fileID: 733837255}
   - component: {fileID: 733837256}
+  - component: {fileID: 733837257}
   m_Layer: 0
   m_Name: PauseManager
   m_TagString: Untagged
@@ -15791,6 +15792,7 @@ MonoBehaviour:
   pausePanel: {fileID: 300344721}
   fadeSwitcher: {fileID: 1304239943}
   optionsUI: {fileID: 733837256}
+  pausePanelTransition: {fileID: 733837257}
   gameplayMusicSource: {fileID: 1117733028}
   musicFadeDuration: 0.25
 --- !u!114 &733837256
@@ -15826,6 +15828,27 @@ MonoBehaviour:
   hudOpacitySlider: {fileID: 45035475}
   sliderTouchPaddingX: 24
   sliderTouchPaddingY: 38
+--- !u!114 &733837257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 733837253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6470125737764cf43a80c9fa9583f1a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PausePanelTransition
+  pausePanel: {fileID: 300344721}
+  backdropImage: {fileID: 300344724}
+  pauseMainPanel: {fileID: 787143110}
+  pauseMainCanvasGroup: {fileID: 787143111}
+  targetBackdropAlpha: 0.68
+  openDuration: 0.22
+  startScale: 0.94
+  closeDuration: 0.18
+  endScale: 0.97
 --- !u!1 &750086564
 GameObject:
   m_ObjectHideFlags: 0
@@ -16248,6 +16271,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 787143110}
+  - component: {fileID: 787143111}
   m_Layer: 5
   m_Name: PauseMainPanel
   m_TagString: Untagged
@@ -16278,6 +16302,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &787143111
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 787143109}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &787376226
 GameObject:
   m_ObjectHideFlags: 0
@@ -25101,7 +25137,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e34e1c5fc4c9f684c96bf82605ac313e, type: 2}
   - {fileID: 11400000, guid: 1b3d57da053d5144585258a34abb432d, type: 2}
   - {fileID: 11400000, guid: d9001b5a1ae740c4ca6b2f5063576cae, type: 2}
-  gameSceneName: a
+  gameSceneName: GameScene
   tryAgainButton: {fileID: 2011239673}
   menuButton: {fileID: 1672707847}
   menuConfirmationPanel: {fileID: 1588835770}
@@ -28876,6 +28912,7 @@ GameObject:
   - component: {fileID: 1686932948}
   - component: {fileID: 1686932947}
   - component: {fileID: 1686932946}
+  - component: {fileID: 1686932950}
   m_Layer: 5
   m_Name: DashButton
   m_TagString: Untagged
@@ -29020,6 +29057,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1686932944}
   m_CullTransparentMesh: 1
+--- !u!114 &1686932950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686932944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fde526f202a1321448afa8107c37543b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIHorizontalFlip
+  flipped: 0
 --- !u!1 &1721580962
 GameObject:
   m_ObjectHideFlags: 0
@@ -29795,12 +29845,13 @@ MonoBehaviour:
   playerInputController: {fileID: 2867039574598277700}
   joystick: {fileID: 1318913966}
   dashButton: {fileID: 1686932945}
+  dashButtonFlip: {fileID: 1686932950}
   cloneButton: {fileID: 1252523009}
-  pauseButton: {fileID: 0}
-  dashLeftPos: {x: 30, y: 30}
-  dashRightPos: {x: -30, y: 30}
-  cloneLeftPos: {x: 250, y: 35}
-  cloneRightPos: {x: -250, y: 35}
+  pauseButton: {fileID: 799240658}
+  dashLeftPos: {x: 60, y: 60}
+  dashRightPos: {x: -60, y: 60}
+  cloneLeftPos: {x: 300, y: 70}
+  cloneRightPos: {x: -300, y: 70}
   pauseLeftPos: {x: 20, y: -180}
   pauseRightPos: {x: -20, y: -180}
 --- !u!114 &1871209721

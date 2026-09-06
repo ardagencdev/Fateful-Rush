@@ -11,7 +11,7 @@ public class MainMenu : MonoBehaviour
     public static MainMenu Instance { get; private set; }
 
     [Header("Scene")]
-    [SerializeField] private string gameSceneName = "a";
+    [SerializeField] private string gameSceneName = "GameScene";
     private const string CreditsSceneName = "CreditsScene";
 
     [Header("UI")]

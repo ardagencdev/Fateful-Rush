@@ -37,7 +37,7 @@ public class LevelSelectPanel : MonoBehaviour
     [SerializeField] private MissionBriefingPanelUI missionBriefingPanel;
 
     [Header("Scene")]
-    [SerializeField] private string gameSceneName = "a";
+    [SerializeField] private string gameSceneName = "GameScene";
 
     private readonly List<LevelButtonUI> createdButtons =
         new List<LevelButtonUI>();

@@ -14,6 +14,7 @@ public class GameQuit : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private UIPanelFadeSwitcher fadeSwitcher;
     [SerializeField] private OptionsUI optionsUI;
+    [SerializeField] private PausePanelTransition pausePanelTransition;
 
     [Header("Audio")]
     [SerializeField] private AudioSource gameplayMusicSource;
@@ -53,10 +54,22 @@ public class GameQuit : MonoBehaviour
 
         if (pausePanel != null)
         {
-            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
-                fadeSwitcher.SetInstant(pausePanel, false);
+            if (pausePanelTransition != null)
+            {
+                pausePanelTransition.SetInstant(false);
+            }
+            else if (fadeSwitcher != null &&
+                     fadeSwitcher.isActiveAndEnabled)
+            {
+                fadeSwitcher.SetInstant(
+                    pausePanel,
+                    false
+                );
+            }
             else
+            {
                 pausePanel.SetActive(false);
+            }
         }
     }
 
@@ -95,8 +108,12 @@ public class GameQuit : MonoBehaviour
 
     public void PauseGame()
     {
-        if (!GameStateManager.IsGameplayStarted || IsPaused || pauseTransitionRoutine != null)
+        if (!GameStateManager.IsGameplayStarted ||
+            IsPaused ||
+            pauseTransitionRoutine != null)
+        {
             return;
+        }
 
         IsPaused = true;
         Time.timeScale = 0f;
@@ -114,19 +131,33 @@ public class GameQuit : MonoBehaviour
 
         if (pausePanel != null)
         {
-            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
+            if (pausePanelTransition != null)
+            {
+                pausePanelTransition.Show();
+            }
+            else if (fadeSwitcher != null &&
+                     fadeSwitcher.isActiveAndEnabled)
+            {
                 fadeSwitcher.ShowPanel(pausePanel);
+            }
             else
+            {
                 pausePanel.SetActive(true);
+            }
         }
     }
 
     public void ResumeGame()
     {
-        if (!IsPaused || pauseTransitionRoutine != null || pauseMenuModalOpen)
+        if (!IsPaused ||
+            pauseTransitionRoutine != null ||
+            pauseMenuModalOpen)
+        {
             return;
+        }
 
-        pauseTransitionRoutine = StartCoroutine(ResumeGameRoutine());
+        pauseTransitionRoutine =
+            StartCoroutine(ResumeGameRoutine());
     }
 
     private IEnumerator ResumeGameRoutine()
@@ -140,7 +171,15 @@ public class GameQuit : MonoBehaviour
         // Keep gameplay frozen while the pause panel finishes its outro.
         if (pausePanel != null)
         {
-            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
+            if (pausePanelTransition != null)
+            {
+                pausePanelTransition.Hide();
+
+                while (pausePanelTransition.IsTransitioning)
+                    yield return null;
+            }
+            else if (fadeSwitcher != null &&
+                     fadeSwitcher.isActiveAndEnabled)
             {
                 fadeSwitcher.HidePanel(pausePanel);
 
@@ -227,9 +266,11 @@ public class GameQuit : MonoBehaviour
 
         if (SceneTransition.Instance != null)
         {
-            // Pause/GameResult fallback yolunda da ayni polish: once ekran
-            // tamamen siyaha kapanir, attempt reklami o anda acilir. Reklam
-            // kapaninca SceneTransition MainMenu yuklemesine devam eder.
+            // Pause/GameResult fallback yolunda da ayni polish:
+            // once ekran tamamen siyaha kapanir,
+            // attempt reklami o anda acilir.
+            // Reklam kapaninca SceneTransition
+            // MainMenu yuklemesine devam eder.
             SceneTransition.Instance.LoadSceneWithFade(
                 MainMenuSceneName,
                 continueTransition =>
@@ -242,12 +283,14 @@ public class GameQuit : MonoBehaviour
             return;
         }
 
-        // SceneTransition bulunamayan nadir fallback'te fade yapamayiz; yine
-        // de reklam varsa scene yuklemeden once tamamlanmasini bekle.
+        // SceneTransition bulunamayan nadir fallback'te
+        // fade yapamayiz; yine de reklam varsa scene
+        // yuklemeden once tamamlanmasini bekle.
         bool adStarted =
-            FatefulRushAdManager.TryShowAttemptAdBeforeReturningToMenu(
-                ContinueLoadMainMenuFallbackAfterAd
-            );
+            FatefulRushAdManager
+                .TryShowAttemptAdBeforeReturningToMenu(
+                    ContinueLoadMainMenuFallbackAfterAd
+                );
 
         if (!adStarted)
             ContinueLoadMainMenuFallbackAfterAd();
@@ -269,6 +312,7 @@ public class GameQuit : MonoBehaviour
     public void QuitGame()
     {
         StopMusicFade();
+
         Time.timeScale = 1f;
         IsPaused = false;
 
@@ -290,9 +334,11 @@ public class GameQuit : MonoBehaviour
         if (gameplayMusicController != null)
         {
             StopMusicFade();
+
             gameplayMusicController.FadeOutAndPause(
                 musicFadeDuration
             );
+
             return;
         }
 
@@ -317,9 +363,11 @@ public class GameQuit : MonoBehaviour
         if (gameplayMusicController != null)
         {
             StopMusicFade();
+
             gameplayMusicController.ResumeFromPause(
                 musicFadeDuration
             );
+
             return;
         }
 
@@ -421,10 +469,16 @@ public class GameQuit : MonoBehaviour
     private float GetTargetGameplayMusicVolume()
     {
         if (gameplayMusicController != null)
-            return gameplayMusicController.CurrentTargetVolume;
+        {
+            return gameplayMusicController
+                .CurrentTargetVolume;
+        }
 
         bool soundEnabled =
-            PlayerPrefs.GetInt(SoundEnabledKey, 1) == 1;
+            PlayerPrefs.GetInt(
+                SoundEnabledKey,
+                1
+            ) == 1;
 
         if (!soundEnabled)
             return 0f;
@@ -460,24 +514,35 @@ public class GameQuit : MonoBehaviour
                 pausePanelCanvasGroup.blocksRaycasts = false;
             }
 
-            // CanvasGroup is normally enough, but the pause UI contains
-            // nested canvases / UI components. Disable them explicitly so
-            // no child button can receive a click through the modal.
+            // CanvasGroup is normally enough, but the pause UI
+            // contains nested canvases / UI components.
+            // Disable them explicitly so no child button can
+            // receive a click through the modal.
             if (pausePanelSelectables != null)
             {
-                for (int i = 0; i < pausePanelSelectables.Length; i++)
+                for (int i = 0;
+                     i < pausePanelSelectables.Length;
+                     i++)
                 {
                     if (pausePanelSelectables[i] != null)
-                        pausePanelSelectables[i].interactable = false;
+                    {
+                        pausePanelSelectables[i].interactable =
+                            false;
+                    }
                 }
             }
 
             if (pausePanelRaycasters != null)
             {
-                for (int i = 0; i < pausePanelRaycasters.Length; i++)
+                for (int i = 0;
+                     i < pausePanelRaycasters.Length;
+                     i++)
                 {
                     if (pausePanelRaycasters[i] != null)
-                        pausePanelRaycasters[i].enabled = false;
+                    {
+                        pausePanelRaycasters[i].enabled =
+                            false;
+                    }
                 }
             }
 
@@ -499,12 +564,16 @@ public class GameQuit : MonoBehaviour
             return;
 
         pausePanelSelectables =
-            pausePanel.GetComponentsInChildren<Selectable>(true);
+            pausePanel.GetComponentsInChildren<Selectable>(
+                true
+            );
 
         pausePanelSelectableStates =
             new bool[pausePanelSelectables.Length];
 
-        for (int i = 0; i < pausePanelSelectables.Length; i++)
+        for (int i = 0;
+             i < pausePanelSelectables.Length;
+             i++)
         {
             pausePanelSelectableStates[i] =
                 pausePanelSelectables[i] != null &&
@@ -512,12 +581,16 @@ public class GameQuit : MonoBehaviour
         }
 
         pausePanelRaycasters =
-            pausePanel.GetComponentsInChildren<GraphicRaycaster>(true);
+            pausePanel.GetComponentsInChildren<GraphicRaycaster>(
+                true
+            );
 
         pausePanelRaycasterStates =
             new bool[pausePanelRaycasters.Length];
 
-        for (int i = 0; i < pausePanelRaycasters.Length; i++)
+        for (int i = 0;
+             i < pausePanelRaycasters.Length;
+             i++)
         {
             pausePanelRaycasterStates[i] =
                 pausePanelRaycasters[i] != null &&
@@ -571,13 +644,20 @@ public class GameQuit : MonoBehaviour
 
     private void CachePausePanelCanvasGroup()
     {
-        if (pausePanel == null || pausePanelCanvasGroup != null)
+        if (pausePanel == null ||
+            pausePanelCanvasGroup != null)
+        {
             return;
+        }
 
-        pausePanelCanvasGroup = pausePanel.GetComponent<CanvasGroup>();
+        pausePanelCanvasGroup =
+            pausePanel.GetComponent<CanvasGroup>();
 
         if (pausePanelCanvasGroup == null)
-            pausePanelCanvasGroup = pausePanel.AddComponent<CanvasGroup>();
+        {
+            pausePanelCanvasGroup =
+                pausePanel.AddComponent<CanvasGroup>();
+        }
     }
 
     private void PrepareForSceneChange()
@@ -587,16 +667,31 @@ public class GameQuit : MonoBehaviour
 
         IsPaused = false;
         pauseMenuModalOpen = false;
+
         Time.timeScale = 1f;
+
         GameAudioMixerController.SetPaused(false);
+
         SetPausePanelInteraction(true);
 
         if (pausePanel != null)
         {
-            if (fadeSwitcher != null && fadeSwitcher.isActiveAndEnabled)
-                fadeSwitcher.SetInstant(pausePanel, false);
+            if (pausePanelTransition != null)
+            {
+                pausePanelTransition.SetInstant(false);
+            }
+            else if (fadeSwitcher != null &&
+                     fadeSwitcher.isActiveAndEnabled)
+            {
+                fadeSwitcher.SetInstant(
+                    pausePanel,
+                    false
+                );
+            }
             else
+            {
                 pausePanel.SetActive(false);
+            }
         }
     }
 
@@ -626,11 +721,20 @@ public class GameQuit : MonoBehaviour
                 FindAnyObjectByType<OptionsUI>();
         }
 
+        if (pausePanelTransition == null)
+        {
+            pausePanelTransition =
+                FindAnyObjectByType<PausePanelTransition>(
+                    FindObjectsInactive.Include
+                );
+        }
+
         if (gameplayMusicController == null &&
             gameplayMusicSource != null)
         {
             gameplayMusicController =
-                gameplayMusicSource.GetComponent<GameplayMusicFade>();
+                gameplayMusicSource
+                    .GetComponent<GameplayMusicFade>();
         }
 
         if (gameplayMusicController == null)
@@ -643,13 +747,17 @@ public class GameQuit : MonoBehaviour
             gameplayMusicController != null)
         {
             gameplayMusicSource =
-                gameplayMusicController.GetComponent<AudioSource>();
+                gameplayMusicController
+                    .GetComponent<AudioSource>();
         }
     }
 
     private void OnValidate()
     {
         musicFadeDuration =
-            Mathf.Max(0f, musicFadeDuration);
+            Mathf.Max(
+                0f,
+                musicFadeDuration
+            );
     }
 }
