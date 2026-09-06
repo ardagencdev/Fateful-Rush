@@ -47,3 +47,9 @@
 -dontwarn com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAd
 -dontwarn com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAdEventCallback
 -dontwarn com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAdPreloader
+
+# Required by the Google Mobile Ads Unity plugin when Android minification is enabled.
+-keep class com.google.** { public *; }
+
+# Called from C# through JNI, so R8 must not rename/remove this helper.
+-keep class com.youngdevstudios.fatefulrush.compat.** { *; }

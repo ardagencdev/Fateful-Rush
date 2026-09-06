@@ -3,19 +3,21 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Moves Unity's first-use shader warm-up cost to the Main Menu instead of
-/// letting the first gameplay levels pay that cost during enemy/effect renders.
-///
-/// This is intentionally Android-only in player builds. It runs once per app
-/// launch, before the ad SDK is allowed to begin its heavier startup work.
+/// Warms the Fateful Rush shader variant collection only after MainMenu is
+/// visible, and spreads the work across frames to avoid blocking startup.
 /// </summary>
 public sealed class AndroidShaderWarmup : MonoBehaviour
 {
     private const string MainMenuSceneName = "MainMenu";
+    private const string CollectionResourceName = "FatefulRushRuntimeShaders";
+    private const int VariantsPerFrame = 2;
+    private const int InitialMenuFrames = 3;
 
     public static bool IsComplete { get; private set; }
 
+    #if UNITY_ANDROID && !UNITY_EDITOR
     private static AndroidShaderWarmup instance;
+    #endif
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -35,32 +37,69 @@ public sealed class AndroidShaderWarmup : MonoBehaviour
     private IEnumerator Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        // Wait until the menu scene is active. This keeps the one-time warm-up
-        // outside active gameplay even if the project boot scene changes later.
         while (SceneManager.GetActiveScene().name != MainMenuSceneName)
             yield return null;
 
-        // Give the scene/UI one frame to initialize before doing the one-time
-        // shader preparation. Any hitch happens here, not during Level 1.
-        yield return null;
+        // Guarantee that the menu gets several rendered frames before warmup.
+        for (int i = 0; i < InitialMenuFrames; i++)
+            yield return null;
 
-        try
-        {
-            Shader.WarmupAllShaders();
-        }
-        catch (System.Exception exception)
+        ShaderVariantCollection collection =
+            Resources.Load<ShaderVariantCollection>(CollectionResourceName);
+
+        if (collection == null || collection.variantCount == 0)
         {
             Debug.LogWarning(
-                "[ShaderWarmup] Warmup failed safely: " + exception.Message
+                "[ShaderWarmup] FatefulRushRuntimeShaders is missing or empty. " +
+                "Warmup skipped safely."
             );
+            Finish();
+            yield break;
         }
 
-        IsComplete = true;
-        instance = null;
-        Destroy(gameObject);
+        bool finished = collection.isWarmedUp;
+
+        while (!finished)
+        {
+            // Only spend warmup time while the player is sitting in MainMenu.
+            if (SceneManager.GetActiveScene().name != MainMenuSceneName)
+            {
+                yield return null;
+                continue;
+            }
+
+            try
+            {
+                finished = collection.WarmUpProgressively(VariantsPerFrame);
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogWarning(
+                    "[ShaderWarmup] Progressive warmup failed safely: " +
+                    exception.Message
+                );
+                break;
+            }
+
+            if (!finished)
+                yield return null;
+        }
+
+        Finish();
 #else
         IsComplete = true;
         yield break;
 #endif
+    }
+
+    private void Finish()
+    {
+        IsComplete = true;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+    instance = null;
+#endif
+
+        Destroy(gameObject);
     }
 }

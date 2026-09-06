@@ -1,0 +1,27 @@
+apply plugin: 'com.android.library'
+
+dependencies {
+    // WindowCompat.setDecorFitsSystemWindows is stable and works across the
+    // Android versions supported by Fateful Rush.
+    implementation 'androidx.core:core:1.17.0'
+}
+
+android {
+    namespace "com.youngdevstudios.fatefulrush.compat"
+    compileSdk getProperty("unity.compileSdkVersion") as int
+    buildToolsVersion = getProperty("unity.buildToolsVersion")
+
+    compileOptions {
+        sourceCompatibility JavaVersion.valueOf(
+            getProperty("unity.javaCompatabilityVersion")
+        )
+        targetCompatibility JavaVersion.valueOf(
+            getProperty("unity.javaCompatabilityVersion")
+        )
+    }
+
+    defaultConfig {
+        minSdk getProperty("unity.minSdkVersion") as int
+        targetSdk getProperty("unity.targetSdkVersion") as int
+    }
+}

@@ -3,22 +3,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-	<uses-permission android:name="android.permission.VIBRATE" />
-	<uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
-	<application>
-		<activity
+    <application
+        android:appCategory="game"
+        android:resizeableActivity="true"
+        tools:replace="android:appCategory,android:resizeableActivity">
+
+        <activity
             android:name="com.unity3d.player.UnityPlayerActivity"
-            android:theme="@style/UnityThemeSelector">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-			<meta-data
+            android:theme="@style/UnityThemeSelector"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:screenOrientation="unspecified"
+            tools:replace="android:resizeableActivity,android:screenOrientation">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
                 android:name="unityplayer.UnityActivity"
                 android:value="true" />
-		</activity>
+        </activity>
 
-	</application>
+    </application>
 
 </manifest>
