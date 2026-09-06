@@ -3,10 +3,11 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <summary>
-/// Enforces Android store/build settings for Fateful Rush before every Android build.
-/// Keeps the project compatible with modern Android, large screens and R8.
+/// Conservative Android startup/render settings for Fateful Rush.
+/// Avoids the Vulkan + autorotation + optimized-frame-pacing startup combination.
 /// </summary>
 public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
 {
@@ -17,50 +18,49 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         if (report.summary.platform != BuildTarget.Android)
             return;
 
-        PlayerSettings.Android.optimizedFramePacing = true;
+        // Stability first: disable Swappy / Optimized Frame Pacing.
+        PlayerSettings.Android.optimizedFramePacing = false;
 
-        // Fateful Rush uses the classic UnityPlayerActivity entry point.
+        // Start with OpenGLES3. Keep Vulkan secondary for later testing.
+        PlayerSettings.SetGraphicsAPIs(
+            BuildTarget.Android,
+            new[]
+            {
+                GraphicsDeviceType.OpenGLES3,
+                GraphicsDeviceType.Vulkan
+            }
+        );
+
         PlayerSettings.Android.applicationEntry =
             AndroidApplicationEntry.Activity;
 
         PlayerSettings.gcIncremental = true;
 
-        // Full-screen / edge-to-edge rendering. Runtime safe-area code keeps
-        // important HUD controls clear of cutouts and gesture regions.
         PlayerSettings.Android.renderOutsideSafeArea = true;
         PlayerSettings.Android.requestedVisibleInsets =
             AndroidWindowInsetsType.None;
 
-        // Android 16+ large-screen behavior explicitly recognizes games.
         PlayerSettings.Android.appCategory = "game";
-
-        // Do not opt out of resize/multi-window support.
         PlayerSettings.Android.resizeableActivity = true;
 
-        // Let the manifest be orientation-adaptive. A runtime policy keeps
-        // phones landscape while tablets/foldables (sw600dp+) can rotate.
-        PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
-        PlayerSettings.allowedAutorotateToPortrait = true;
-        PlayerSettings.allowedAutorotateToPortraitUpsideDown = true;
+        // Landscape-only. Do not change orientation during splash/startup.
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+        PlayerSettings.allowedAutorotateToPortrait = false;
+        PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
         PlayerSettings.allowedAutorotateToLandscapeLeft = true;
         PlayerSettings.allowedAutorotateToLandscapeRight = true;
 
-        // Keep broad aspect-ratio support.
         PlayerSettings.Android.maxAspectRatio = 2.4f;
         PlayerSettings.Android.minAspectRatio = 1.0f;
 
-        // R8 code shrinking for release/store builds.
-        bool developmentBuild =
-            (report.summary.options & BuildOptions.Development) != 0;
-
+        // Keep R8 code shrinking; only the extra resource shrinker is removed.
         PlayerSettings.Android.minifyDebug = false;
-        PlayerSettings.Android.minifyRelease = !developmentBuild;
+        PlayerSettings.Android.minifyRelease = false;
 
         Debug.Log(
             "[AndroidPerformanceBuildGuard] Applied: " +
-            "FramePacing=ON, EdgeToEdge=ON, AppCategory=game, " +
-            "Resizable=ON, AdaptiveOrientation=ON, R8Release=" +
-            (!developmentBuild)
+            "FramePacing=OFF, Graphics=OpenGLES3->Vulkan, " +
+            "LandscapeOnly=ON, R8=OFF"
         );
     }
 }

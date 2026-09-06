@@ -16,7 +16,7 @@
             android:theme="@style/UnityThemeSelector"
             android:exported="true"
             android:resizeableActivity="true"
-            android:screenOrientation="unspecified"
+            android:screenOrientation="userLandscape"
             tools:replace="android:resizeableActivity,android:screenOrientation">
 
             <intent-filter>
