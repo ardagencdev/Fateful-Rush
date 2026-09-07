@@ -6,8 +6,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// Conservative Android startup/render settings for Fateful Rush.
-/// Avoids the Vulkan + autorotation + optimized-frame-pacing startup combination.
+/// Android startup/render settings for Fateful Rush.
+/// Vulkan is preferred, OpenGLES3 is kept as fallback.
 /// </summary>
 public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
 {
@@ -18,16 +18,16 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         if (report.summary.platform != BuildTarget.Android)
             return;
 
-        // Stability first: disable Swappy / Optimized Frame Pacing.
+        // Optimized Frame Pacing
         PlayerSettings.Android.optimizedFramePacing = true;
 
-        // Start with OpenGLES3. Keep Vulkan secondary for later testing.
+        // Prefer Vulkan, keep OpenGLES3 as fallback.
         PlayerSettings.SetGraphicsAPIs(
             BuildTarget.Android,
             new[]
             {
-                GraphicsDeviceType.OpenGLES3,
-                GraphicsDeviceType.Vulkan
+                GraphicsDeviceType.Vulkan,
+                GraphicsDeviceType.OpenGLES3
             }
         );
 
@@ -52,13 +52,12 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         PlayerSettings.Android.maxAspectRatio = 2.4f;
         PlayerSettings.Android.minAspectRatio = 1.0f;
 
-        // Keep R8 code shrinking; only the extra resource shrinker is removed.
         PlayerSettings.Android.minifyDebug = false;
         PlayerSettings.Android.minifyRelease = false;
 
         Debug.Log(
             "[AndroidPerformanceBuildGuard] Applied: " +
-            "FramePacing=ON, Graphics=OpenGLES3->Vulkan, " +
+            "FramePacing=ON, Graphics=Vulkan->OpenGLES3, " +
             "LandscapeOnly=ON, R8=OFF"
         );
     }
