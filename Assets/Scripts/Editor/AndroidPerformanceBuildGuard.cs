@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 
 /// <summary>
 /// Android startup/render settings for Fateful Rush.
-/// Vulkan is preferred, OpenGLES3 is kept as fallback.
+/// OpenGLES3 is preferred, Vulkan is kept as fallback.
 /// </summary>
 public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
 {
@@ -21,13 +21,13 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         // Optimized Frame Pacing
         PlayerSettings.Android.optimizedFramePacing = true;
 
-        // Prefer Vulkan, keep OpenGLES3 as fallback.
+        // Prefer OpenGLES3, keep Vulkan as fallback.
         PlayerSettings.SetGraphicsAPIs(
             BuildTarget.Android,
             new[]
             {
-                GraphicsDeviceType.Vulkan,
-                GraphicsDeviceType.OpenGLES3
+                GraphicsDeviceType.OpenGLES3,
+                GraphicsDeviceType.Vulkan
             }
         );
 
@@ -57,7 +57,7 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
 
         Debug.Log(
             "[AndroidPerformanceBuildGuard] Applied: " +
-            "FramePacing=ON, Graphics=Vulkan->OpenGLES3, " +
+            "FramePacing=ON, Graphics=OpenGLES3->Vulkan, " +
             "LandscapeOnly=ON, R8=OFF"
         );
     }
