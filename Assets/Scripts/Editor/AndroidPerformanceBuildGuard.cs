@@ -19,7 +19,7 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
             return;
 
         // Stability first: disable Swappy / Optimized Frame Pacing.
-        PlayerSettings.Android.optimizedFramePacing = false;
+        PlayerSettings.Android.optimizedFramePacing = true;
 
         // Start with OpenGLES3. Keep Vulkan secondary for later testing.
         PlayerSettings.SetGraphicsAPIs(
@@ -43,7 +43,7 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
         PlayerSettings.Android.appCategory = "game";
         PlayerSettings.Android.resizeableActivity = true;
 
-        PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
         PlayerSettings.allowedAutorotateToPortrait = false;
         PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
         PlayerSettings.allowedAutorotateToLandscapeLeft = true;
@@ -58,7 +58,7 @@ public sealed class AndroidPerformanceBuildGuard : IPreprocessBuildWithReport
 
         Debug.Log(
             "[AndroidPerformanceBuildGuard] Applied: " +
-            "FramePacing=OFF, Graphics=OpenGLES3->Vulkan, " +
+            "FramePacing=ON, Graphics=OpenGLES3->Vulkan, " +
             "LandscapeOnly=ON, R8=OFF"
         );
     }

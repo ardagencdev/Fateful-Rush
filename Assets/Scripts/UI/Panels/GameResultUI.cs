@@ -59,9 +59,39 @@ public class GameResultUI : MonoBehaviour
     [SerializeField, Min(0.05f)] private float skinUnlockAnimationDuration = 0.42f;
     [SerializeField, Min(0f)] private float skinUnlockSlideDistance = 180f;
 
+    [Header("New Best Time Reward")]
+    [SerializeField] private GameObject newBestTimeUI;
+    [SerializeField] private TextMeshProUGUI newBestTimeText;
+    [SerializeField] private CanvasGroup newBestTimeCanvasGroup;
+    [SerializeField] private RectTransform newBestTimeRect;
+
+    [Header("Result Edge Glow")]
+    [SerializeField] private Image resultEdgeGlow;
+    [SerializeField] private Color winEdgeGlowColor = new Color32(70, 255, 120, 255);
+    [SerializeField] private Color loseEdgeGlowColor = new Color32(255, 70, 70, 255);
+    [SerializeField, Range(0f, 1f)] private float edgeGlowMinAlpha = 0.12f;
+    [SerializeField, Range(0f, 1f)] private float edgeGlowMaxAlpha = 0.32f;
+    [SerializeField, Min(0.25f)] private float edgeGlowBreathDuration = 2.8f;
+    [SerializeField, Min(0f)] private float edgeGlowFadeInDuration = 0.35f;
+
+    [Header("Result Intro Animation")]
+    [SerializeField, Min(0.05f)] private float resultIntroDuration = 0.22f;
+    [SerializeField, Range(0.85f, 1f)] private float resultIntroStartScale = 0.94f;
+
     private Coroutine skinUnlockRoutine;
     private Vector2 skinUnlockRestPosition;
     private bool skinUnlockPositionCached;
+
+    private Coroutine newBestTimeRoutine;
+    private Vector2 newBestRestPosition;
+    private bool newBestPositionCached;
+    private Coroutine resultEdgeGlowRoutine;
+
+    private Coroutine resultIntroRoutine;
+    private CanvasGroup resultPanelCanvasGroup;
+    private Vector3 winUIRestScale = Vector3.one;
+    private Vector3 loseUIRestScale = Vector3.one;
+    private bool resultScalesCached;
 
     private LevelManager levelManager;
 
@@ -147,8 +177,13 @@ public class GameResultUI : MonoBehaviour
         CacheMetricLayout();
 
         PrepareSkinUnlockUI();
+        PrepareNewBestTimeUI();
+        PrepareResultIntroUI();
         PrepareMenuConfirmationUI();
+
         HideSkinUnlockImmediate();
+        HideNewBestTimeImmediate();
+        HideResultEdgeGlowImmediate();
         HideMenuConfirmationImmediate();
         Hide();
     }
@@ -169,8 +204,26 @@ public class GameResultUI : MonoBehaviour
         int completedLevelNumber,
         bool isFirstCompletion)
     {
+        ShowWin(
+            score,
+            time,
+            completedLevelNumber,
+            isFirstCompletion,
+            IsCurrentRunBestTime(time)
+        );
+    }
+
+    public void ShowWin(
+        int score,
+        float time,
+        int completedLevelNumber,
+        bool isFirstCompletion,
+        bool isNewBestTime)
+    {
         ShowPanel();
         SetResultState(true);
+        StartResultIntro(true);
+        StartResultEdgeGlow(true);
 
         if (winScoreValue != null)
         {
@@ -191,6 +244,25 @@ public class GameResultUI : MonoBehaviour
             completedLevelNumber,
             isFirstCompletion
         );
+
+        // Caller false gonderse bile GameResultUI mevcut kaydi kontrol eder.
+        // Ilk kaydedilebilir tamamlama da doğal olarak yeni best time'dir.
+        LevelConfig currentLevel =
+            GetCurrentLevel();
+
+        bool firstCompletionIsBestTime =
+            isFirstCompletion &&
+            currentLevel != null &&
+            currentLevel.CanSaveBestTime;
+
+        bool shouldShowNewBestTime =
+            isNewBestTime ||
+            firstCompletionIsBestTime ||
+            IsCurrentRunBestTime(time);
+
+        UpdateNewBestTimeReward(
+            shouldShowNewBestTime
+        );
     }
 
     public void ShowLose(int score, float time)
@@ -209,6 +281,8 @@ public class GameResultUI : MonoBehaviour
     {
         ShowPanel();
         SetResultState(false);
+        StartResultIntro(false);
+        StartResultEdgeGlow(false);
 
         if (destroyedByText != null)
         {
@@ -238,6 +312,7 @@ public class GameResultUI : MonoBehaviour
         }
 
         HideSkinUnlockImmediate();
+        HideNewBestTimeImmediate();
     }
 
     private void ApplyMetricVisibility(bool won)
@@ -914,8 +989,14 @@ public class GameResultUI : MonoBehaviour
 
     public void Hide()
     {
+        StopResultIntro();
+
         HideSkinUnlockImmediate();
+        HideNewBestTimeImmediate();
+        HideResultEdgeGlowImmediate();
         HideMenuConfirmationImmediate();
+
+        RestoreResultIntroState();
 
         if (resultPanel != null)
         {
@@ -955,6 +1036,196 @@ public class GameResultUI : MonoBehaviour
         if (menuButton != null)
         {
             menuButton.SetActive(true);
+        }
+    }
+
+    private void PrepareResultIntroUI()
+    {
+        if (resultPanel == null)
+            return;
+
+        if (resultPanelCanvasGroup == null)
+        {
+            resultPanelCanvasGroup =
+                resultPanel.GetComponent<CanvasGroup>();
+
+            if (resultPanelCanvasGroup == null)
+            {
+                resultPanelCanvasGroup =
+                    resultPanel.AddComponent<CanvasGroup>();
+            }
+        }
+
+        CacheResultScales();
+    }
+
+    private void CacheResultScales()
+    {
+        if (resultScalesCached)
+            return;
+
+        if (winUI != null)
+        {
+            winUIRestScale =
+                winUI.transform.localScale;
+
+            if (winUIRestScale == Vector3.zero)
+                winUIRestScale = Vector3.one;
+        }
+
+        if (loseUI != null)
+        {
+            loseUIRestScale =
+                loseUI.transform.localScale;
+
+            if (loseUIRestScale == Vector3.zero)
+                loseUIRestScale = Vector3.one;
+        }
+
+        resultScalesCached = true;
+    }
+
+    private void StartResultIntro(bool won)
+    {
+        StopResultIntro();
+        PrepareResultIntroUI();
+
+        resultIntroRoutine =
+            StartCoroutine(
+                ResultIntroRoutine(won)
+            );
+    }
+
+    private IEnumerator ResultIntroRoutine(bool won)
+    {
+        if (resultPanel == null)
+        {
+            resultIntroRoutine = null;
+            yield break;
+        }
+
+        PrepareResultIntroUI();
+
+        GameObject content =
+            won ? winUI : loseUI;
+
+        Vector3 restScale =
+            won
+                ? winUIRestScale
+                : loseUIRestScale;
+
+        float duration =
+            Mathf.Max(
+                0.05f,
+                resultIntroDuration
+            );
+
+        float startScaleFactor =
+            Mathf.Clamp(
+                resultIntroStartScale,
+                0.85f,
+                1f
+            );
+
+        Vector3 startScale =
+            restScale * startScaleFactor;
+
+        if (resultPanelCanvasGroup != null)
+        {
+            resultPanelCanvasGroup.alpha = 0f;
+            resultPanelCanvasGroup.interactable = false;
+            resultPanelCanvasGroup.blocksRaycasts = false;
+        }
+
+        if (content != null)
+        {
+            content.transform.localScale =
+                startScale;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+            float eased =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            if (resultPanelCanvasGroup != null)
+            {
+                resultPanelCanvasGroup.alpha =
+                    eased;
+            }
+
+            if (content != null)
+            {
+                content.transform.localScale =
+                    Vector3.LerpUnclamped(
+                        startScale,
+                        restScale,
+                        eased
+                    );
+            }
+
+            yield return null;
+        }
+
+        if (resultPanelCanvasGroup != null)
+        {
+            resultPanelCanvasGroup.alpha = 1f;
+            resultPanelCanvasGroup.interactable = true;
+            resultPanelCanvasGroup.blocksRaycasts = true;
+        }
+
+        if (content != null)
+        {
+            content.transform.localScale =
+                restScale;
+        }
+
+        resultIntroRoutine = null;
+    }
+
+    private void StopResultIntro()
+    {
+        if (resultIntroRoutine == null)
+            return;
+
+        StopCoroutine(resultIntroRoutine);
+        resultIntroRoutine = null;
+    }
+
+    private void RestoreResultIntroState()
+    {
+        PrepareResultIntroUI();
+
+        if (resultPanelCanvasGroup != null)
+        {
+            resultPanelCanvasGroup.alpha = 1f;
+            resultPanelCanvasGroup.interactable = true;
+            resultPanelCanvasGroup.blocksRaycasts = true;
+        }
+
+        if (winUI != null)
+        {
+            winUI.transform.localScale =
+                winUIRestScale;
+        }
+
+        if (loseUI != null)
+        {
+            loseUI.transform.localScale =
+                loseUIRestScale;
         }
     }
 
@@ -1429,6 +1700,375 @@ public class GameResultUI : MonoBehaviour
         }
 
         menuConfirmationPanel.SetActive(false);
+    }
+
+    private void StartResultEdgeGlow(bool won)
+    {
+        HideResultEdgeGlowImmediate();
+
+        if (resultEdgeGlow == null)
+            return;
+
+        Color glowColor = won ? winEdgeGlowColor : loseEdgeGlowColor;
+        glowColor.a = 0f;
+
+        resultEdgeGlow.color = glowColor;
+        resultEdgeGlow.raycastTarget = false;
+        resultEdgeGlow.gameObject.SetActive(true);
+        resultEdgeGlowRoutine = StartCoroutine(AnimateResultEdgeGlow(glowColor));
+    }
+
+    private IEnumerator AnimateResultEdgeGlow(Color glowColor)
+    {
+        float minAlpha =
+            Mathf.Clamp01(
+                Mathf.Min(
+                    edgeGlowMinAlpha,
+                    edgeGlowMaxAlpha
+                )
+            );
+
+        float maxAlpha =
+            Mathf.Clamp01(
+                Mathf.Max(
+                    edgeGlowMinAlpha,
+                    edgeGlowMaxAlpha
+                )
+            );
+
+        // Fade directly to the brightest point of the breathe cycle.
+        // SmootherStep keeps both the start and end velocity at zero,
+        // so the glow appears without visible stepping/jolts.
+        if (edgeGlowFadeInDuration > 0f)
+        {
+            float fadeElapsed = 0f;
+
+            while (fadeElapsed < edgeGlowFadeInDuration)
+            {
+                fadeElapsed +=
+                    Time.unscaledDeltaTime;
+
+                float t =
+                    Mathf.Clamp01(
+                        fadeElapsed /
+                        edgeGlowFadeInDuration
+                    );
+
+                float smootherT =
+                    t * t * t *
+                    (t * (t * 6f - 15f) + 10f);
+
+                glowColor.a =
+                    Mathf.Lerp(
+                        0f,
+                        maxAlpha,
+                        smootherT
+                    );
+
+                resultEdgeGlow.color =
+                    glowColor;
+
+                yield return null;
+            }
+        }
+
+        glowColor.a = maxAlpha;
+        resultEdgeGlow.color = glowColor;
+
+        float elapsed = 0f;
+        float duration =
+            Mathf.Max(
+                0.25f,
+                edgeGlowBreathDuration
+            );
+
+        while (true)
+        {
+            elapsed +=
+                Time.unscaledDeltaTime;
+
+            // Starts at max alpha, smoothly breathes down to min,
+            // then back to max. SmootherStep softens the turning points.
+            float rawPulse =
+                (Mathf.Cos(
+                    (elapsed / duration) *
+                    Mathf.PI * 2f
+                ) + 1f) * 0.5f;
+
+            float smoothPulse =
+                rawPulse * rawPulse * rawPulse *
+                (
+                    rawPulse *
+                    (rawPulse * 6f - 15f) +
+                    10f
+                );
+
+            glowColor.a =
+                Mathf.Lerp(
+                    minAlpha,
+                    maxAlpha,
+                    smoothPulse
+                );
+
+            resultEdgeGlow.color =
+                glowColor;
+
+            yield return null;
+        }
+    }
+
+    private void HideResultEdgeGlowImmediate()
+    {
+        if (resultEdgeGlowRoutine != null)
+        {
+            StopCoroutine(resultEdgeGlowRoutine);
+            resultEdgeGlowRoutine = null;
+        }
+
+        if (resultEdgeGlow != null)
+            resultEdgeGlow.gameObject.SetActive(false);
+    }
+
+    private void PrepareNewBestTimeUI()
+    {
+        // New Best Time referanslari Inspector'dan atanir.
+        // Runtime'da component arama/ekleme yapilmaz.
+        if (newBestTimeUI == null ||
+            newBestTimeText == null ||
+            newBestTimeCanvasGroup == null ||
+            newBestTimeRect == null)
+        {
+            return;
+        }
+
+        newBestTimeText.text = "NEW BEST TIME";
+
+        if (!newBestPositionCached)
+        {
+            newBestRestPosition =
+                newBestTimeRect.anchoredPosition;
+
+            newBestPositionCached = true;
+        }
+    }
+
+    private bool IsCurrentRunBestTime(float time)
+    {
+        LevelConfig currentLevel = GetCurrentLevel();
+
+        if (currentLevel == null ||
+            !currentLevel.CanSaveBestTime)
+        {
+            return false;
+        }
+
+        string bestTimeKey =
+            SelectedLevelData.IsLevelMode
+                ? "BestTime_Level_" + currentLevel.levelNumber
+                : "BestTime_DevRoom";
+
+        // Henuz bu level icin kayit yoksa bu ilk gecerli tamamlama
+        // otomatik olarak NEW BEST TIME'dir. Kayit ShowWin'den once veya
+        // sonra yapilsa da bu kontrol dogru sonucu verir.
+        if (!PlayerPrefs.HasKey(bestTimeKey))
+            return true;
+
+        float savedBestTime =
+            PlayerPrefs.GetFloat(
+                bestTimeKey,
+                Mathf.Infinity
+            );
+
+        return
+            !float.IsInfinity(savedBestTime) &&
+            Mathf.Abs(savedBestTime - time) <= 0.0001f;
+    }
+
+    private void UpdateNewBestTimeReward(
+        bool isNewBestTime)
+    {
+        HideNewBestTimeImmediate();
+
+        if (!isNewBestTime ||
+            newBestTimeUI == null)
+        {
+            return;
+        }
+
+        PrepareNewBestTimeUI();
+
+        if (newBestTimeText != null)
+            newBestTimeText.text = "NEW BEST TIME";
+
+        newBestTimeUI.SetActive(true);
+
+        newBestTimeRoutine =
+            StartCoroutine(
+                AnimateNewBestTime()
+            );
+    }
+
+    private IEnumerator AnimateNewBestTime()
+    {
+        if (newBestTimeUI == null)
+            yield break;
+
+        PrepareNewBestTimeUI();
+
+        float effectiveDelay =
+            Mathf.Max(0f, skinUnlockDelay);
+
+        SoundManager soundManager = SoundManager.Instance;
+
+        if (soundManager != null &&
+            soundManager.WinSoundDuration > 0f)
+        {
+            float delayFromWinSound = Mathf.Max(
+                0f,
+                soundManager.WinSoundDuration -
+                skinUnlockWinSoundTailOverlap
+            );
+
+            effectiveDelay = Mathf.Max(
+                effectiveDelay,
+                delayFromWinSound
+            );
+        }
+
+        if (effectiveDelay > 0f)
+        {
+            yield return
+                new WaitForSecondsRealtime(
+                    effectiveDelay
+                );
+        }
+
+        if (newBestTimeUI == null)
+            yield break;
+
+        if (!newBestPositionCached &&
+            newBestTimeRect != null)
+        {
+            newBestRestPosition =
+                newBestTimeRect.anchoredPosition;
+
+            newBestPositionCached = true;
+        }
+
+        Vector2 startPosition =
+            newBestRestPosition +
+            Vector2.left *
+            skinUnlockSlideDistance;
+
+        Vector3 startScale =
+            Vector3.one * 0.92f;
+
+        if (newBestTimeRect != null)
+        {
+            newBestTimeRect.anchoredPosition =
+                startPosition;
+
+            newBestTimeRect.localScale =
+                startScale;
+        }
+
+        if (newBestTimeCanvasGroup != null)
+        {
+            newBestTimeCanvasGroup.alpha = 0f;
+            newBestTimeCanvasGroup.interactable = false;
+            newBestTimeCanvasGroup.blocksRaycasts = false;
+        }
+
+        float duration =
+            Mathf.Max(
+                0.05f,
+                skinUnlockAnimationDuration
+            );
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+            float eased =
+                EaseOutBack(progress);
+
+            if (newBestTimeRect != null)
+            {
+                newBestTimeRect.anchoredPosition =
+                    Vector2.LerpUnclamped(
+                        startPosition,
+                        newBestRestPosition,
+                        eased
+                    );
+
+                newBestTimeRect.localScale =
+                    Vector3.LerpUnclamped(
+                        startScale,
+                        Vector3.one,
+                        eased
+                    );
+            }
+
+            if (newBestTimeCanvasGroup != null)
+            {
+                newBestTimeCanvasGroup.alpha =
+                    Mathf.Clamp01(
+                        progress / 0.65f
+                    );
+            }
+
+            yield return null;
+        }
+
+        if (newBestTimeRect != null)
+        {
+            newBestTimeRect.anchoredPosition =
+                newBestRestPosition;
+
+            newBestTimeRect.localScale =
+                Vector3.one;
+        }
+
+        if (newBestTimeCanvasGroup != null)
+            newBestTimeCanvasGroup.alpha = 1f;
+
+        newBestTimeRoutine = null;
+    }
+
+    private void HideNewBestTimeImmediate()
+    {
+        if (newBestTimeRoutine != null)
+        {
+            StopCoroutine(newBestTimeRoutine);
+            newBestTimeRoutine = null;
+        }
+
+        if (newBestTimeRect != null &&
+            newBestPositionCached)
+        {
+            newBestTimeRect.anchoredPosition =
+                newBestRestPosition;
+
+            newBestTimeRect.localScale =
+                Vector3.one;
+        }
+
+        if (newBestTimeCanvasGroup != null)
+        {
+            newBestTimeCanvasGroup.alpha = 0f;
+            newBestTimeCanvasGroup.interactable = false;
+            newBestTimeCanvasGroup.blocksRaycasts = false;
+        }
+
+        if (newBestTimeUI != null)
+            newBestTimeUI.SetActive(false);
     }
 
     private void PrepareSkinUnlockUI()
@@ -1987,12 +2627,33 @@ public class GameResultUI : MonoBehaviour
             Mathf.Max(0.05f, skinUnlockAnimationDuration);
         skinUnlockSlideDistance =
             Mathf.Max(0f, skinUnlockSlideDistance);
+
+        edgeGlowMinAlpha = Mathf.Clamp01(edgeGlowMinAlpha);
+        edgeGlowMaxAlpha = Mathf.Clamp(edgeGlowMaxAlpha, edgeGlowMinAlpha, 1f);
+        edgeGlowBreathDuration = Mathf.Max(0.25f, edgeGlowBreathDuration);
+        edgeGlowFadeInDuration = Mathf.Max(0f, edgeGlowFadeInDuration);
+
+        resultIntroDuration =
+            Mathf.Max(0.05f, resultIntroDuration);
+
+        resultIntroStartScale =
+            Mathf.Clamp(
+                resultIntroStartScale,
+                0.85f,
+                1f
+            );
     }
 
     private void OnDisable()
     {
+        StopResultIntro();
+
         HideSkinUnlockImmediate();
+        HideNewBestTimeImmediate();
+        HideResultEdgeGlowImmediate();
         HideMenuConfirmationImmediate();
+
+        RestoreResultIntroState();
 
         if (menuConfirmationModalRoot != null)
         {

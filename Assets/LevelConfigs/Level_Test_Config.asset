@@ -43,7 +43,7 @@ MonoBehaviour:
   - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
-  winScore: 10000
+  winScore: 1
   timeLimit: 30
   showGameTimerHUD: 0
   playerMoveSpeed: 6.5

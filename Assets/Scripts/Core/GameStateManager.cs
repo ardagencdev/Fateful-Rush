@@ -394,12 +394,22 @@ public class GameStateManager : MonoBehaviour
 
         int completedLevelNumber = 0;
         bool isFirstCompletion = false;
+        bool isNewBestTime = false;
 
         if (CurrentLevel != null &&
             CurrentLevel.CanSaveBestTime)
         {
             RunNonCritical(
-                SaveBestTime,
+                () =>
+                {
+                    bool savedNewBest = SaveBestTime();
+
+                    // NEW BEST TIME is a numbered-level reward only.
+                    // Dev Room can still keep its local best time silently.
+                    isNewBestTime =
+                        savedNewBest &&
+                        SelectedLevelData.isLevelMode;
+                },
                 "save best time"
             );
         }
@@ -475,7 +485,8 @@ public class GameStateManager : MonoBehaviour
                 score,
                 gameTimer,
                 completedLevelNumber,
-                isFirstCompletion
+                isFirstCompletion,
+                isNewBestTime
             );
         }
 
@@ -648,7 +659,7 @@ public class GameStateManager : MonoBehaviour
         );
     }
 
-    private void SaveBestTime()
+    private bool SaveBestTime()
     {
         string bestTimeKey =
             GetBestTimeKey();
@@ -660,7 +671,7 @@ public class GameStateManager : MonoBehaviour
             );
 
         if (gameTimer >= bestTime)
-            return;
+            return false;
 
         PlayerPrefs.SetFloat(
             bestTimeKey,
@@ -678,6 +689,8 @@ public class GameStateManager : MonoBehaviour
                 gameTimer
             );
         }
+
+        return true;
     }
 
     private string GetBestTimeKey()
