@@ -817,12 +817,6 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
             }
         }
 
-        if (trimmed.StartsWith("Dev Room:", StringComparison.OrdinalIgnoreCase))
-        {
-            string rest = trimmed.Substring("Dev Room:".Length).Trim();
-            return FatefulRushLocalization.Text("stats.dev_room", "Dev Room") + ": " + rest;
-        }
-
         int separator = line.IndexOf(':');
         if (separator > 0)
         {

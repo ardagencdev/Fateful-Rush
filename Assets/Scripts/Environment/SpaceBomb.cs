@@ -10,14 +10,54 @@ public class SpaceBomb : MonoBehaviour
     [Header("Spawn Safety")]
     public float spawnSafeTime = 0.35f;
 
+    [Header("Visibility Assist")]
+    [Tooltip("Keeps the existing red bomb pulse and adds a fading expanding electromagnetic warning wave.")]
+    public bool visibilityAssistEnabled = true;
+
+    [Tooltip("Pale cyan/white so the warning stays readable even on red chaos backgrounds.")]
+    public Color electromagneticColor = new Color(0.72f, 0.94f, 1f, 1f);
+
+    [Tooltip("Bir pulse'un başlangıcından sonraki pulse'un başlangıcına kadar geçen süre.")]
+    [Min(0.4f)]
+    public float waveInterval = 1.45f;
+
+    [Tooltip("Wave'in görünür şekilde büyüyüp kaybolma süresi. Interval'dan kısa tutulursa arada sakin bir boşluk oluşur.")]
+    [Min(0.1f)]
+    public float waveDuration = 0.58f;
+
+    [Tooltip("Wave bombanın gerçek görsel kenarından bu kadar dışarıda başlar.")]
+    [Min(0f)]
+    public float waveStartPadding = 0.035f;
+
+    [Tooltip("Bombanın görsel yarıçapına eklenecek dış büyüme mesafesi.")]
+    [Min(0.1f)]
+    public float waveTravelDistance = 1.75f;
+
+    [Range(0f, 1f)]
+    public float waveMaxAlpha = 0.34f;
+
+    [Min(0.005f)]
+    public float waveWidth = 0.07f;
+
     private bool triggered;
     private Collider2D bombCollider;
+    private SpriteRenderer bombRenderer;
+
+    private LineRenderer waveRenderer;
+    private Material warningMaterial;
+    private float visibilityTimer;
+    private float runtimeWaveStartRadius;
+    private float runtimeWaveEndRadius;
+
+    private const int RingSegments = 48;
 
     private void Awake()
     {
         bombCollider = GetComponent<Collider2D>();
+        bombRenderer = GetComponent<SpriteRenderer>();
 
         SetColliderEnabled(false);
+        SetupVisibilityAssist();
     }
 
     private IEnumerator Start()
@@ -31,6 +71,283 @@ public class SpaceBomb : MonoBehaviour
             SetColliderEnabled(true);
     }
 
+    private void Update()
+    {
+        if (!visibilityAssistEnabled ||
+            triggered ||
+            waveRenderer == null)
+        {
+            return;
+        }
+
+        UpdateVisibilityAssist();
+    }
+
+    private void SetupVisibilityAssist()
+    {
+        if (!visibilityAssistEnabled)
+            return;
+
+        Material sourceMaterial = bombRenderer != null
+            ? bombRenderer.sharedMaterial
+            : null;
+
+        if (sourceMaterial != null)
+        {
+            warningMaterial = new Material(sourceMaterial);
+        }
+        else
+        {
+            Shader shader = Shader.Find("Sprites/Default");
+
+            if (shader == null)
+                return;
+
+            warningMaterial = new Material(shader);
+        }
+
+        warningMaterial.name = "SpaceBomb_RuntimeWarningMaterial";
+        warningMaterial.hideFlags = HideFlags.HideAndDontSave;
+
+        int sortingLayerId = bombRenderer != null
+            ? bombRenderer.sortingLayerID
+            : 0;
+
+        int baseOrder = bombRenderer != null
+            ? bombRenderer.sortingOrder
+            : 0;
+
+        waveRenderer = CreateRingRenderer(
+            "ElectromagneticWave",
+            sortingLayerId,
+            baseOrder + 4,
+            waveWidth
+        );
+
+        runtimeWaveStartRadius =
+            GetBombVisualRadiusInLocalSpace() +
+            Mathf.Max(0f, waveStartPadding);
+
+        runtimeWaveEndRadius =
+            runtimeWaveStartRadius +
+            Mathf.Max(0.1f, waveTravelDistance);
+
+        DrawRing(
+            waveRenderer,
+            runtimeWaveStartRadius
+        );
+
+        // İlk karede parlak bir halka patlamasın.
+        // İlk pulse UpdateVisibilityAssist tarafından kontrollü şekilde başlatılır.
+        Color wave = electromagneticColor;
+        wave.a = 0f;
+        SetLineColor(waveRenderer, wave);
+    }
+
+    private LineRenderer CreateRingRenderer(
+        string objectName,
+        int sortingLayerId,
+        int sortingOrder,
+        float width)
+    {
+        GameObject ringObject = new GameObject(objectName);
+        ringObject.transform.SetParent(transform, false);
+        ringObject.layer = gameObject.layer;
+
+        LineRenderer line = ringObject.AddComponent<LineRenderer>();
+        line.useWorldSpace = false;
+        line.loop = true;
+        line.positionCount = RingSegments;
+        line.widthMultiplier = width;
+        line.numCornerVertices = 2;
+        line.numCapVertices = 0;
+        line.alignment = LineAlignment.TransformZ;
+        line.textureMode = LineTextureMode.Stretch;
+        line.sharedMaterial = warningMaterial;
+        line.sortingLayerID = sortingLayerId;
+        line.sortingOrder = sortingOrder;
+        line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        line.receiveShadows = false;
+
+        return line;
+    }
+
+    private void UpdateVisibilityAssist()
+    {
+        float interval =
+            Mathf.Max(0.4f, waveInterval);
+
+        float duration =
+            Mathf.Clamp(
+                waveDuration,
+                0.1f,
+                interval
+            );
+
+        visibilityTimer += Time.deltaTime;
+
+        float cycleTime =
+            Mathf.Repeat(
+                visibilityTimer,
+                interval
+            );
+
+        // Pulse bittikten sonra kısa bir tamamen görünmez boşluk bırak.
+        // Böylece efekt sürekli yanıp sönüyormuş gibi dikkat dağıtmaz.
+        if (cycleTime >= duration)
+        {
+            Color hiddenColor = electromagneticColor;
+            hiddenColor.a = 0f;
+            SetLineColor(
+                waveRenderer,
+                hiddenColor
+            );
+            return;
+        }
+
+        float phase =
+            Mathf.Clamp01(
+                cycleTime / duration
+            );
+
+        float eased =
+            1f -
+            Mathf.Pow(
+                1f - phase,
+                2.2f
+            );
+
+        float radius =
+            Mathf.Lerp(
+                runtimeWaveStartRadius,
+                runtimeWaveEndRadius,
+                eased
+            );
+
+        DrawRing(
+            waveRenderer,
+            radius
+        );
+
+        Color waveColor =
+            electromagneticColor;
+
+        // İlk anda hızlıca görünür olur, büyürken sakin şekilde fade olur.
+        float fade =
+            Mathf.Pow(
+                1f - phase,
+                1.45f
+            );
+
+        float fadeIn =
+            Mathf.SmoothStep(
+                0f,
+                1f,
+                Mathf.Clamp01(
+                    phase / 0.10f
+                )
+            );
+
+        waveColor.a =
+            waveMaxAlpha *
+            fade *
+            fadeIn;
+
+        SetLineColor(
+            waveRenderer,
+            waveColor
+        );
+    }
+
+    private float GetBombVisualRadiusInLocalSpace()
+    {
+        if (bombRenderer == null)
+            return 0.55f;
+
+        Bounds worldBounds =
+            bombRenderer.bounds;
+
+        Vector3 center =
+            worldBounds.center;
+
+        Vector3 rightPoint =
+            center +
+            Vector3.right *
+            worldBounds.extents.x;
+
+        Vector3 upPoint =
+            center +
+            Vector3.up *
+            worldBounds.extents.y;
+
+        Vector3 localCenter =
+            transform.InverseTransformPoint(
+                center
+            );
+
+        Vector3 localRight =
+            transform.InverseTransformPoint(
+                rightPoint
+            );
+
+        Vector3 localUp =
+            transform.InverseTransformPoint(
+                upPoint
+            );
+
+        float horizontalRadius =
+            Vector2.Distance(
+                localCenter,
+                localRight
+            );
+
+        float verticalRadius =
+            Vector2.Distance(
+                localCenter,
+                localUp
+            );
+
+        float radius =
+            Mathf.Max(
+                horizontalRadius,
+                verticalRadius
+            );
+
+        return radius > 0.01f
+            ? radius
+            : 0.55f;
+    }
+
+    private static void DrawRing(LineRenderer line, float radius)
+    {
+        if (line == null)
+            return;
+
+        float safeRadius = Mathf.Max(0.01f, radius);
+
+        for (int i = 0; i < RingSegments; i++)
+        {
+            float angle = (Mathf.PI * 2f * i) / RingSegments;
+            line.SetPosition(
+                i,
+                new Vector3(
+                    Mathf.Cos(angle) * safeRadius,
+                    Mathf.Sin(angle) * safeRadius,
+                    0f
+                )
+            );
+        }
+    }
+
+    private static void SetLineColor(LineRenderer line, Color color)
+    {
+        if (line == null)
+            return;
+
+        line.startColor = color;
+        line.endColor = color;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         TryTrigger(other);
@@ -38,8 +355,6 @@ public class SpaceBomb : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        // Safe fallback if enabling the bomb collider while the Player is
-        // already overlapping it does not produce Enter on a specific device.
         TryTrigger(other);
     }
 
@@ -85,9 +400,6 @@ public class SpaceBomb : MonoBehaviour
             !isImmune &&
             !willBreakArmor;
 
-        // A lethal bomb hit is special: its explosion should remain visible and
-        // audible after GameOver. Still, VFX/audio/haptics are optional: an
-        // exception there must never prevent armor/death handling.
         try
         {
             Explode(lethalHit);
@@ -168,7 +480,6 @@ public class SpaceBomb : MonoBehaviour
         Destroy(gameObject);
     }
 
-
     private void ConfigurePersistentExplosionVisual(GameObject effect)
     {
         if (effect == null)
@@ -248,8 +559,6 @@ public class SpaceBomb : MonoBehaviour
         source.volume = SoundManager.SFXVolume;
         source.pitch = 1f;
 
-        // Keep the emergency path on the same mixer routing as the normal
-        // SoundManager path so Slow/Boss/Pause snapshots still behave.
         SoundManager.ConfigureAsWorld3D(source);
         GameAudioMixerController.Route(
             source,
@@ -270,8 +579,24 @@ public class SpaceBomb : MonoBehaviour
             bombCollider.enabled = enabledState;
     }
 
+    private void OnDestroy()
+    {
+        if (warningMaterial != null)
+        {
+            if (Application.isPlaying)
+                Destroy(warningMaterial);
+            else
+                DestroyImmediate(warningMaterial);
+        }
+    }
+
     private void OnValidate()
     {
         spawnSafeTime = Mathf.Max(0f, spawnSafeTime);
+        waveInterval = Mathf.Max(0.4f, waveInterval);
+        waveDuration = Mathf.Clamp(waveDuration, 0.1f, waveInterval);
+        waveStartPadding = Mathf.Max(0f, waveStartPadding);
+        waveTravelDistance = Mathf.Max(0.1f, waveTravelDistance);
+        waveWidth = Mathf.Max(0.005f, waveWidth);
     }
 }

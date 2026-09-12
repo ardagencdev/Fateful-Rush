@@ -15,6 +15,9 @@ public class Coin : MonoBehaviour
     [SerializeField]
     private CoinType coinType = CoinType.Normal;
 
+    private const float Combo4MagnetRadius = 1.25f;
+    private const float Combo4MagnetMaxSpeed = 5.5f;
+
     private bool isCollected;
     private Collider2D[] cachedColliders;
     private Rigidbody2D[] cachedRigidbodies;
@@ -52,12 +55,24 @@ public class Coin : MonoBehaviour
             return;
         }
 
-        if (!collector.TryGetComboMagnetSettings(
-                transform.position,
-                out float maxSpeed,
-                out float smoothTime))
+        bool hasMagnet = collector.TryGetComboMagnetSettings(
+            transform.position,
+            out float maxSpeed,
+            out float smoothTime
+        );
+
+        if (!hasMagnet)
         {
-            // Combo bittiğinde coin kendi kendine kaymaya devam etmesin.
+            hasMagnet = TryGetCombo4MagnetSettings(
+                collector,
+                transform.position,
+                out maxSpeed,
+                out smoothTime
+            );
+        }
+
+        if (!hasMagnet)
+        {
             magnetVelocity = Vector3.zero;
             return;
         }
@@ -78,17 +93,62 @@ public class Coin : MonoBehaviour
         );
     }
 
+    private static bool TryGetCombo4MagnetSettings(
+        PlayerCoinCollector collector,
+        Vector3 coinPosition,
+        out float maxSpeed,
+        out float smoothTime)
+    {
+        maxSpeed = 0f;
+        smoothTime = collector != null
+            ? Mathf.Max(0.04f, collector.comboMagnetSmoothTime)
+            : 0.16f;
+
+        if (collector == null ||
+            !collector.comboMagnetEnabled ||
+            !collector.comboEnabled ||
+            collector.Combo != 4 ||
+            GameStateManager.IsGameplayEnded ||
+            !GameStateManager.IsGameplayStarted)
+        {
+            return false;
+        }
+
+        float distance = Vector2.Distance(
+            collector.transform.position,
+            coinPosition
+        );
+
+        if (distance > Combo4MagnetRadius)
+            return false;
+
+        float normalized = 1f - Mathf.Clamp01(
+            distance / Combo4MagnetRadius
+        );
+
+        float edgeFactor = Mathf.Clamp01(
+            collector.comboMagnetEdgeSpeedFactor
+        );
+
+        float speedFactor = Mathf.SmoothStep(
+            edgeFactor,
+            1f,
+            normalized
+        );
+
+        maxSpeed = Mathf.Max(
+            0.1f,
+            Combo4MagnetMaxSpeed * speedFactor
+        );
+        return true;
+    }
+
     public void Configure(CoinType type, int coinValue)
     {
         coinType = type;
         value = Mathf.Max(1, coinValue);
     }
 
-    /// <summary>
-    /// Coin toplama işlemini yalnızca bir kez başlatır.
-    /// Aynı fizik karesinde birden fazla trigger çağrısı gelse bile
-    /// skorun ikinci kez eklenmesini engeller.
-    /// </summary>
     public bool TryBeginCollection()
     {
         if (isCollected)

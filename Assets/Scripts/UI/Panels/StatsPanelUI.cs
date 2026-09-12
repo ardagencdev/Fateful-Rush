@@ -356,14 +356,6 @@ public class StatsPanelUI : MonoBehaviour
             hasAny = true;
         }
 
-        float devRoom = StatsManager.GetDevRoomBestTime();
-        if (devRoom > 0f)
-        {
-            builder.Append("Dev Room: ")
-                .AppendLine(FormatPreciseTime(devRoom));
-            hasAny = true;
-        }
-
         if (!hasAny)
             builder.AppendLine("No best-time records yet.");
     }

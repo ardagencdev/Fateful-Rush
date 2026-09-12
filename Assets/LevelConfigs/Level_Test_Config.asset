@@ -113,7 +113,7 @@ MonoBehaviour:
     enabled: 1
   randomObstacleCount: 5
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 1
+  normalEnemyCount: 0
   normalEnemySpawnInterval: 2.5
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
@@ -269,7 +269,7 @@ MonoBehaviour:
     width: 5.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 2
+  bombDanger: 5
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
@@ -17,10 +18,26 @@ public sealed class LanguageSettingsUI : MonoBehaviour
     [SerializeField] private Button nextButton;
     [SerializeField] private TMP_Text languageValueText;
 
+    [Header("Language Transition")]
+    [Tooltip("Toplam dil yazisi gecis suresi.")]
+    [SerializeField, Min(0.08f)]
+    private float transitionDuration = 0.30f;
+
+    [Tooltip("Yeni dil yazisinin sagdan/soldan gelecegi mesafe.")]
+    [SerializeField, Min(0f)]
+    private float transitionDistance = 72f;
+
     private readonly List<Locale> availableLocales = new List<Locale>();
 
     private int currentIndex = -1;
     private bool initialized;
+    private bool isTransitioning;
+
+    private Coroutine transitionRoutine;
+    private RectTransform languageValueRect;
+    private Vector2 languageValueRestPosition;
+    private Color languageValueBaseColor;
+    private bool languageVisualCached;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void ApplySavedLocaleAtStartup()
@@ -51,6 +68,8 @@ public sealed class LanguageSettingsUI : MonoBehaviour
             nextButton.onClick.RemoveListener(SelectNextLanguage);
             nextButton.onClick.AddListener(SelectNextLanguage);
         }
+
+        CacheLanguageVisual();
     }
 
     private void OnEnable()
@@ -65,6 +84,8 @@ public sealed class LanguageSettingsUI : MonoBehaviour
     {
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
+
+        CancelTransitionAndRestoreVisual();
     }
 
     private void OnDestroy()
@@ -78,26 +99,158 @@ public sealed class LanguageSettingsUI : MonoBehaviour
 
     public void SelectPreviousLanguage()
     {
-        if (!initialized || availableLocales.Count == 0)
-            return;
-
-        int targetIndex =
-            (currentIndex - 1 + availableLocales.Count) %
-            availableLocales.Count;
-
-        SelectLocale(targetIndex);
+        BeginLanguageTransition(-1);
     }
 
     public void SelectNextLanguage()
     {
-        if (!initialized || availableLocales.Count == 0)
+        BeginLanguageTransition(1);
+    }
+
+    private void BeginLanguageTransition(int direction)
+    {
+        if (!initialized ||
+            availableLocales.Count == 0 ||
+            isTransitioning)
+        {
             return;
+        }
 
         int targetIndex =
-            (currentIndex + 1) %
+            (currentIndex + direction + availableLocales.Count) %
             availableLocales.Count;
 
-        SelectLocale(targetIndex);
+        if (targetIndex == currentIndex)
+            return;
+
+        if (languageValueText == null)
+        {
+            ApplyLocale(targetIndex, true);
+            return;
+        }
+
+        CacheLanguageVisual();
+
+        if (!languageVisualCached)
+        {
+            ApplyLocale(targetIndex, true);
+            return;
+        }
+
+        if (transitionRoutine != null)
+            StopCoroutine(transitionRoutine);
+
+        transitionRoutine =
+            StartCoroutine(
+                LanguageTransitionRoutine(
+                    targetIndex,
+                    direction
+                )
+            );
+    }
+
+    private IEnumerator LanguageTransitionRoutine(
+        int targetIndex,
+        int direction)
+    {
+        isTransitioning = true;
+        RefreshButtonState();
+
+        float totalDuration =
+            Mathf.Max(0.08f, transitionDuration);
+
+        float halfDuration =
+            totalDuration * 0.5f;
+
+        float signedDirection =
+            direction >= 0 ? 1f : -1f;
+
+        Vector2 exitPosition =
+            languageValueRestPosition +
+            Vector2.left *
+            (transitionDistance * signedDirection);
+
+        Vector2 enterPosition =
+            languageValueRestPosition +
+            Vector2.right *
+            (transitionDistance * signedDirection);
+
+        // NEXT/right: current text exits left.
+        // PREVIOUS/left: current text exits right.
+        float elapsed = 0f;
+
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(elapsed / halfDuration);
+
+            float eased =
+                EaseInCubic(t);
+
+            languageValueRect.anchoredPosition =
+                Vector2.LerpUnclamped(
+                    languageValueRestPosition,
+                    exitPosition,
+                    eased
+                );
+
+            SetLanguageTextAlpha(
+                Mathf.Lerp(1f, 0f, Smooth01(t))
+            );
+
+            yield return null;
+        }
+
+        languageValueRect.anchoredPosition =
+            exitPosition;
+
+        SetLanguageTextAlpha(0f);
+
+        // Locale only changes once the old text is fully out.
+        // This prevents the new language from popping at center.
+        ApplyLocale(targetIndex, false);
+        RefreshLanguageValueOnly();
+
+        languageValueRect.anchoredPosition =
+            enterPosition;
+
+        elapsed = 0f;
+
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(elapsed / halfDuration);
+
+            float eased =
+                EaseOutCubic(t);
+
+            languageValueRect.anchoredPosition =
+                Vector2.LerpUnclamped(
+                    enterPosition,
+                    languageValueRestPosition,
+                    eased
+                );
+
+            SetLanguageTextAlpha(
+                Mathf.Lerp(0f, 1f, Smooth01(t))
+            );
+
+            yield return null;
+        }
+
+        languageValueRect.anchoredPosition =
+            languageValueRestPosition;
+
+        SetLanguageTextAlpha(1f);
+
+        isTransitioning = false;
+        transitionRoutine = null;
+
+        RefreshUI();
     }
 
     private void InitializeWhenReady()
@@ -138,6 +291,8 @@ public sealed class LanguageSettingsUI : MonoBehaviour
 
         initialized = true;
 
+        CacheLanguageVisual();
+
         SaveCurrentLocale();
         RefreshUI();
     }
@@ -165,7 +320,9 @@ public sealed class LanguageSettingsUI : MonoBehaviour
         }
     }
 
-    private void SelectLocale(int index)
+    private void ApplyLocale(
+        int index,
+        bool refreshUI)
     {
         if (index < 0 || index >= availableLocales.Count)
             return;
@@ -178,7 +335,9 @@ public sealed class LanguageSettingsUI : MonoBehaviour
         LocalizationSettings.SelectedLocale = locale;
 
         SaveLocale(locale);
-        RefreshUI();
+
+        if (refreshUI)
+            RefreshUI();
     }
 
     private void OnSelectedLocaleChanged(Locale locale)
@@ -192,7 +351,11 @@ public sealed class LanguageSettingsUI : MonoBehaviour
             currentIndex = index;
 
         SaveLocale(locale);
-        RefreshUI();
+
+        // During our slide animation the coroutine controls exactly
+        // when the new language name appears.
+        if (!isTransitioning)
+            RefreshUI();
     }
 
     private int FindLocaleIndex(Locale locale)
@@ -219,22 +382,40 @@ public sealed class LanguageSettingsUI : MonoBehaviour
 
     private void RefreshUI()
     {
+        RefreshButtonState();
+        RefreshLanguageValueOnly();
+    }
+
+    private void RefreshButtonState()
+    {
         bool hasLocales =
             initialized &&
             availableLocales.Count > 0 &&
             currentIndex >= 0 &&
             currentIndex < availableLocales.Count;
 
+        bool canChange =
+            hasLocales &&
+            availableLocales.Count > 1 &&
+            !isTransitioning;
+
         if (previousButton != null)
-            previousButton.interactable =
-                hasLocales && availableLocales.Count > 1;
+            previousButton.interactable = canChange;
 
         if (nextButton != null)
-            nextButton.interactable =
-                hasLocales && availableLocales.Count > 1;
+            nextButton.interactable = canChange;
+    }
 
+    private void RefreshLanguageValueOnly()
+    {
         if (languageValueText == null)
             return;
+
+        bool hasLocales =
+            initialized &&
+            availableLocales.Count > 0 &&
+            currentIndex >= 0 &&
+            currentIndex < availableLocales.Count;
 
         if (!hasLocales)
         {
@@ -246,6 +427,67 @@ public sealed class LanguageSettingsUI : MonoBehaviour
             GetNativeDisplayName(
                 availableLocales[currentIndex]
             );
+    }
+
+    private void CacheLanguageVisual()
+    {
+        if (languageValueText == null)
+            return;
+
+        languageValueRect =
+            languageValueText.rectTransform;
+
+        if (languageValueRect == null)
+            return;
+
+        languageValueRestPosition =
+            languageValueRect.anchoredPosition;
+
+        languageValueBaseColor =
+            languageValueText.color;
+
+        languageVisualCached = true;
+    }
+
+    private void CancelTransitionAndRestoreVisual()
+    {
+        if (transitionRoutine != null)
+        {
+            StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+        }
+
+        isTransitioning = false;
+
+        if (!languageVisualCached)
+            return;
+
+        if (languageValueRect != null)
+        {
+            languageValueRect.anchoredPosition =
+                languageValueRestPosition;
+        }
+
+        if (languageValueText != null)
+        {
+            Color color = languageValueBaseColor;
+            color.a = languageValueBaseColor.a;
+            languageValueText.color = color;
+        }
+    }
+
+    private void SetLanguageTextAlpha(float normalizedAlpha)
+    {
+        if (languageValueText == null)
+            return;
+
+        Color color = languageValueBaseColor;
+
+        color.a =
+            languageValueBaseColor.a *
+            Mathf.Clamp01(normalizedAlpha);
+
+        languageValueText.color = color;
     }
 
     private void SaveCurrentLocale()
@@ -361,5 +603,33 @@ public sealed class LanguageSettingsUI : MonoBehaviour
             fallback = code;
 
         return fallback.ToUpperInvariant();
+    }
+
+    private static float Smooth01(float value)
+    {
+        value = Mathf.Clamp01(value);
+        return value * value * (3f - 2f * value);
+    }
+
+    private static float EaseInCubic(float value)
+    {
+        value = Mathf.Clamp01(value);
+        return value * value * value;
+    }
+
+    private static float EaseOutCubic(float value)
+    {
+        value = Mathf.Clamp01(value);
+        float inverse = 1f - value;
+        return 1f - inverse * inverse * inverse;
+    }
+
+    private void OnValidate()
+    {
+        transitionDuration =
+            Mathf.Max(0.08f, transitionDuration);
+
+        transitionDistance =
+            Mathf.Max(0f, transitionDistance);
     }
 }

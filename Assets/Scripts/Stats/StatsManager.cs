@@ -28,7 +28,6 @@ public static class StatsManager
 
     private const string TotalPlayTimeKey = "Stats_TotalPlayTime";
     private const string BestTimeLevelPrefix = "BestTime_Level_";
-    private const string BestTimeDevRoomKey = "BestTime_DevRoom";
 
     // Performance / records.
     private const string TotalScoreKey = "Stats_TotalScore";
@@ -578,11 +577,6 @@ public static class StatsManager
         return PlayerPrefs.GetFloat(BestTimeLevelPrefix + levelNumber, -1f);
     }
 
-    public static float GetDevRoomBestTime()
-    {
-        return PlayerPrefs.GetFloat(BestTimeDevRoomKey, -1f);
-    }
-
     public static int GetInt(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -742,8 +736,6 @@ public static class StatsManager
         {
             PlayerPrefs.DeleteKey(BestTimeLevelPrefix + levelNumber);
         }
-
-        PlayerPrefs.DeleteKey(BestTimeDevRoomKey);
 
         PlayerPrefs.Save();
         dirty = false;

@@ -12,36 +12,54 @@ public class VoidClone : MonoBehaviour
     public float maxAlpha = 0.75f;
 
     [Header("Movement")]
-    [Tooltip("Player inputu bunun altindaysa clone tamamen sabit kalir.")]
+    [Tooltip("Kept for prefab compatibility. The clone now always chooses a useful route, even if the player is standing still.")]
     public float minimumMovementSpeed = 0.1f;
 
-    [Tooltip("Clone hizinin player hizina orani.")]
+    [Tooltip("Clone speed relative to the player's movement speed.")]
     [Range(0.5f, 1.5f)]
     public float speedMultiplier = 0.9f;
 
-    [Tooltip("Player ayarlari alinamazsa kullanilacak hizlanma.")]
     public float fallbackAcceleration = 55f;
-
-    [Tooltip("Player ayarlari alinamazsa kullanilacak donus hizlanmasi.")]
     public float fallbackTurnAcceleration = 90f;
 
     [Header("Natural Movement")]
-    [Tooltip("Clone'un sakin bir sekilde yeni rota secme araligi.")]
-    public Vector2 directionChangeInterval = new Vector2(0.75f, 1.25f);
+    [Tooltip("How often the clone gently varies its route.")]
+    public Vector2 directionChangeInterval = new Vector2(0.55f, 0.95f);
 
-    [Tooltip("Dogal rota degisimindeki maksimum aci.")]
+    [Tooltip("Maximum angle used for a natural route variation.")]
     [Range(0f, 60f)]
-    public float maximumTurnAngle = 18f;
+    public float maximumTurnAngle = 24f;
 
-    [Tooltip("Clone'un ilk kacis yonunu ne kadar koruyacagi.")]
+    [Tooltip("Small memory of the initial escape direction. Internally capped so it never becomes robotic.")]
     [Range(0f, 1f)]
-    public float originalDirectionInfluence = 0.35f;
+    public float originalDirectionInfluence = 0.12f;
+
+    [Header("Human-like Steering")]
+    [Tooltip("Clone tries to stay at least this far from the real player so enemies targeting it do not line up through the player.")]
+    [Min(0.5f)]
+    public float playerSeparationRadius = 2.8f;
+
+    [Range(0f, 3f)]
+    public float playerSeparationStrength = 1.6f;
+
+    [Tooltip("Viewport edge zone where the clone starts curving away before reaching the border.")]
+    [Range(0.05f, 0.35f)]
+    public float borderSoftZone = 0.16f;
+
+    [Range(0f, 3f)]
+    public float borderSteeringStrength = 1.45f;
+
+    [Range(0f, 1f)]
+    public float borderTangentAmount = 0.38f;
+
+    [Tooltip("How quickly strategic steering affects the chosen route. Lower values are smoother.")]
+    [Range(0.02f, 0.5f)]
+    public float strategicSteeringResponse = 0.18f;
 
     [Header("Obstacle Avoidance - Same System As Stalker")]
-    [Tooltip("Ek layerlar. Obstacle ve Wall layerlari otomatik eklenir.")]
+    [Tooltip("Extra layers. Obstacle and Wall layers are added automatically.")]
     public LayerMask solidLayers;
 
-    [Tooltip("Clone'un obstacle'i kac birim onceden fark edecegi.")]
     public float avoidanceLookAhead = 1.25f;
 
     [Range(2, 8)]
@@ -50,7 +68,6 @@ public class VoidClone : MonoBehaviour
     [Range(0f, 1f)]
     public float obstacleOutwardBias = 0.25f;
 
-    [Tooltip("Collider ile engel arasinda birakilacak guvenlik payi.")]
     public float collisionSkin = 0.04f;
 
     [Header("Advanced Unstuck")]
@@ -68,6 +85,8 @@ public class VoidClone : MonoBehaviour
 
     private Rigidbody2D rb;
     private Collider2D cloneCollider;
+    private Transform realPlayer;
+    private Camera mainCamera;
 
     private Vector2 originalDirection;
     private Vector2 desiredDirection;
@@ -85,8 +104,8 @@ public class VoidClone : MonoBehaviour
     private bool shouldMove;
 
     private Vector3 originalScale;
-
     private int obstacleAvoidanceSide = 1;
+    private int borderTangentSide = 1;
 
     private ContactFilter2D navigationFilter;
     private readonly RaycastHit2D[] avoidanceHits = new RaycastHit2D[16];
@@ -94,8 +113,6 @@ public class VoidClone : MonoBehaviour
 
     private GameObject clonedArmorVisual;
 
-    // ShieldRotate clone armorunda bu yonu kullanir.
-    // Clone sabitse Vector2.zero doner ve armor da aninda durur.
     public Vector2 VisualMoveDirection
     {
         get
@@ -133,10 +150,8 @@ public class VoidClone : MonoBehaviour
 
         RebuildNavigationFilter();
 
-        obstacleAvoidanceSide = Random.value < 0.5f
-            ? -1
-            : 1;
-
+        obstacleAvoidanceSide = Random.value < 0.5f ? -1 : 1;
+        borderTangentSide = Random.value < 0.5f ? -1 : 1;
         lastPosition = rb.position;
     }
 
@@ -153,16 +168,10 @@ public class VoidClone : MonoBehaviour
     public void SetSkin(Sprite skinSprite)
     {
         if (spriteRenderer == null)
-        {
-            spriteRenderer =
-                GetComponentInChildren<SpriteRenderer>(true);
-        }
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
 
-        if (spriteRenderer != null &&
-            skinSprite != null)
-        {
+        if (spriteRenderer != null && skinSprite != null)
             spriteRenderer.sprite = skinSprite;
-        }
     }
 
     public void CopyArmorVisual(PlayerArmor sourceArmor)
@@ -176,8 +185,7 @@ public class VoidClone : MonoBehaviour
             return;
         }
 
-        GameObject sourceVisual =
-            sourceArmor.ArmorVisualObject;
+        GameObject sourceVisual = sourceArmor.ArmorVisualObject;
 
         clonedArmorVisual = Instantiate(
             sourceVisual,
@@ -186,18 +194,10 @@ public class VoidClone : MonoBehaviour
         );
 
         clonedArmorVisual.name = "CloneArmorVisual";
+        clonedArmorVisual.transform.localPosition = sourceVisual.transform.localPosition;
+        clonedArmorVisual.transform.localRotation = sourceVisual.transform.localRotation;
+        clonedArmorVisual.transform.localScale = sourceVisual.transform.localScale;
 
-        // Armor visual player'a gore nasil konumlandiysa clone'da da aynisini koru.
-        clonedArmorVisual.transform.localPosition =
-            sourceVisual.transform.localPosition;
-
-        clonedArmorVisual.transform.localRotation =
-            sourceVisual.transform.localRotation;
-
-        clonedArmorVisual.transform.localScale =
-            sourceVisual.transform.localScale;
-
-        // Clone armor sadece gorseldir; fizik/collision uretmemeli.
         Collider2D[] armorColliders =
             clonedArmorVisual.GetComponentsInChildren<Collider2D>(true);
 
@@ -210,24 +210,16 @@ public class VoidClone : MonoBehaviour
         for (int i = 0; i < armorBodies.Length; i++)
             armorBodies[i].simulated = false;
 
-        // Player armorundaki mevcut ShieldRotate ayarlarini aynen koruyoruz.
-        // Tek fark hareket kaynagi PlayerMovement yerine bu clone oluyor.
-        // Boylece saga giderken saat yonu, sola giderken ters yon ve
-        // clone sabitken tam durma davranisi player ile birebir ayni kalir.
         ShieldRotate[] armorRotators =
             clonedArmorVisual.GetComponentsInChildren<ShieldRotate>(true);
 
         for (int i = 0; i < armorRotators.Length; i++)
-        {
             armorRotators[i].ConfigureForClone(this);
-        }
 
         clonedArmorVisual.SetActive(true);
     }
 
-    public void StartClone(
-        float duration,
-        PlayerMovement playerMovement)
+    public void StartClone(float duration, PlayerMovement playerMovement)
     {
         StopAllCoroutines();
 
@@ -237,6 +229,11 @@ public class VoidClone : MonoBehaviour
 
         acceleration = fallbackAcceleration;
         turnAcceleration = fallbackTurnAcceleration;
+        realPlayer = playerMovement != null
+            ? playerMovement.transform
+            : null;
+
+        mainCamera = Camera.main;
 
         if (playerMovement != null)
         {
@@ -244,75 +241,60 @@ public class VoidClone : MonoBehaviour
             playerInput = playerMovement.CurrentMoveInput;
             playerMoveSpeed = playerMovement.CurrentMoveSpeed;
 
-            acceleration = Mathf.Max(
-                0.01f,
-                playerMovement.acceleration
-            );
-
-            turnAcceleration = Mathf.Max(
-                0.01f,
-                playerMovement.turnAcceleration
-            );
+            acceleration = Mathf.Max(0.01f, playerMovement.acceleration);
+            turnAcceleration = Mathf.Max(0.01f, playerMovement.turnAcceleration);
         }
 
-        // Kritik fark: Clone'un hareket edip etmeyecegine residual velocity degil,
-        // oyuncunun o anda gercekten input verip vermedigi karar verir.
-        // Oyuncu joystick'i biraktiysa player yavasliyor olsa bile clone sabit kalir.
-        bool hasLivePlayerInput =
-            playerMovement != null
-                ? playerInput.magnitude >= minimumMovementSpeed
-                : playerVelocity.magnitude >= minimumMovementSpeed;
+        Vector2 sourceDirection;
 
-        shouldMove = hasLivePlayerInput;
-
-        if (shouldMove)
+        if (playerVelocity.sqrMagnitude > 0.04f)
         {
-            Vector2 sourceDirection =
-                playerVelocity.sqrMagnitude > 0.01f
-                    ? playerVelocity.normalized
-                    : playerInput.normalized;
-
-            originalDirection = -sourceDirection;
-            desiredDirection = originalDirection;
-
-            float effectivePlayerSpeed = Mathf.Max(
-                playerVelocity.magnitude,
-                playerMoveSpeed * Mathf.Clamp01(playerInput.magnitude)
-            );
-
-            targetSpeed = Mathf.Max(
-                effectivePlayerSpeed,
-                playerMoveSpeed * 0.7f
-            ) * speedMultiplier;
-
-            currentVelocity =
-                originalDirection *
-                Mathf.Min(effectivePlayerSpeed, targetSpeed) *
-                0.55f;
-
-            directionTimer = 0f;
-            ScheduleNextDirectionChange();
+            sourceDirection = playerVelocity.normalized;
+        }
+        else if (playerInput.sqrMagnitude > 0.04f)
+        {
+            sourceDirection = playerInput.normalized;
         }
         else
         {
-            originalDirection = Vector2.zero;
-            desiredDirection = Vector2.zero;
-            currentVelocity = Vector2.zero;
-            targetSpeed = 0f;
+            sourceDirection = Random.insideUnitCircle.normalized;
+
+            if (sourceDirection.sqrMagnitude <= 0.001f)
+                sourceDirection = Vector2.right;
         }
 
-        obstacleAvoidanceSide = Random.value < 0.5f
-            ? -1
-            : 1;
+        // Start by splitting away from the player, then become independent.
+        originalDirection = -sourceDirection;
+        desiredDirection = RotateVector(
+            originalDirection,
+            Random.Range(-18f, 18f)
+        ).normalized;
 
+        float referenceSpeed = Mathf.Max(
+            playerMoveSpeed * 0.82f,
+            playerVelocity.magnitude * 0.9f,
+            3.6f
+        );
+
+        targetSpeed = referenceSpeed * speedMultiplier;
+        currentVelocity = desiredDirection * Mathf.Max(1.4f, targetSpeed * 0.55f);
+
+        // A clone that stands still is a poor decoy. Even when spawned while
+        // the player is idle it now chooses a natural route of its own.
+        shouldMove = true;
+        cloneActive = true;
+
+        directionTimer = 0f;
+        ScheduleNextDirectionChange();
+
+        obstacleAvoidanceSide = Random.value < 0.5f ? -1 : 1;
+        borderTangentSide = Random.value < 0.5f ? -1 : 1;
         stuckTimer = 0f;
         lastPosition = rb != null
             ? rb.position
             : (Vector2)transform.position;
 
-        cloneActive = true;
         UpdateFacing(currentVelocity);
-
         StartCoroutine(CloneLifetimeRoutine(duration));
     }
 
@@ -330,6 +312,7 @@ public class VoidClone : MonoBehaviour
         float delta = GetCloneDeltaTime();
 
         UpdateNaturalDirection(delta);
+        ApplyHumanSteering();
         UpdateVelocity(delta);
 
         if (currentVelocity.sqrMagnitude <= 0.0001f)
@@ -338,8 +321,7 @@ public class VoidClone : MonoBehaviour
             return;
         }
 
-        float movementDistance =
-            currentVelocity.magnitude * delta;
+        float movementDistance = currentVelocity.magnitude * delta;
 
         Vector2 steeredDirection =
             EnemyObstacleSteering2D.GetSteeredDirection(
@@ -360,20 +342,15 @@ public class VoidClone : MonoBehaviour
         {
             float currentSpeed = currentVelocity.magnitude;
 
-            currentVelocity =
-                steeredDirection.normalized * currentSpeed;
+            currentVelocity = steeredDirection.normalized * currentSpeed;
 
             desiredDirection = Vector2.Lerp(
                 desiredDirection,
                 steeredDirection.normalized,
-                0.72f
+                0.58f
             ).normalized;
 
-            rb.MovePosition(
-                rb.position +
-                currentVelocity * delta
-            );
-
+            rb.MovePosition(rb.position + currentVelocity * delta);
             UpdateFacing(currentVelocity);
         }
         else
@@ -399,31 +376,149 @@ public class VoidClone : MonoBehaviour
         );
 
         Vector2 naturalDirection = RotateVector(
-            desiredDirection,
+            desiredDirection.sqrMagnitude > 0.001f
+                ? desiredDirection
+                : originalDirection,
             randomAngle
         ).normalized;
+
+        float initialMemory = Mathf.Min(
+            originalDirectionInfluence,
+            0.12f
+        );
 
         desiredDirection = Vector2.Lerp(
             naturalDirection,
             originalDirection,
-            originalDirectionInfluence
+            initialMemory
         ).normalized;
 
         ScheduleNextDirectionChange();
     }
 
+    private void ApplyHumanSteering()
+    {
+        Vector2 steering = desiredDirection.sqrMagnitude > 0.001f
+            ? desiredDirection.normalized
+            : originalDirection;
+
+        Vector2 playerAvoidance = GetPlayerSeparationSteering();
+        Vector2 borderAvoidance = GetBorderSteering();
+
+        steering += playerAvoidance;
+        steering += borderAvoidance;
+
+        if (steering.sqrMagnitude <= 0.001f)
+            return;
+
+        desiredDirection = Vector2.Lerp(
+            desiredDirection,
+            steering.normalized,
+            strategicSteeringResponse
+        ).normalized;
+    }
+
+    private Vector2 GetPlayerSeparationSteering()
+    {
+        if (realPlayer == null || playerSeparationStrength <= 0f)
+            return Vector2.zero;
+
+        Vector2 away = rb.position - (Vector2)realPlayer.position;
+        float distance = away.magnitude;
+
+        if (distance >= playerSeparationRadius)
+            return Vector2.zero;
+
+        if (distance <= 0.001f)
+        {
+            away = originalDirection.sqrMagnitude > 0.001f
+                ? originalDirection
+                : Vector2.right;
+            distance = 0f;
+        }
+
+        float closeness = 1f - Mathf.Clamp01(
+            distance / Mathf.Max(0.01f, playerSeparationRadius)
+        );
+
+        // Strong close-range push prevents the decoy from crossing directly
+        // through the real player while enemies are aiming at the clone.
+        float weight = playerSeparationStrength *
+            Mathf.Lerp(closeness, closeness * closeness, 0.35f);
+
+        return away.normalized * weight;
+    }
+
+    private Vector2 GetBorderSteering()
+    {
+        if (borderSteeringStrength <= 0f)
+            return Vector2.zero;
+
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        if (mainCamera == null)
+            return Vector2.zero;
+
+        Vector3 viewport = mainCamera.WorldToViewportPoint(rb.position);
+        float zone = Mathf.Clamp(borderSoftZone, 0.01f, 0.45f);
+
+        Vector2 inward = Vector2.zero;
+        float strongest = 0f;
+
+        if (viewport.x < zone)
+        {
+            float w = 1f - Mathf.Clamp01(viewport.x / zone);
+            inward.x += w;
+            strongest = Mathf.Max(strongest, w);
+        }
+        else if (viewport.x > 1f - zone)
+        {
+            float w = 1f - Mathf.Clamp01((1f - viewport.x) / zone);
+            inward.x -= w;
+            strongest = Mathf.Max(strongest, w);
+        }
+
+        if (viewport.y < zone)
+        {
+            float w = 1f - Mathf.Clamp01(viewport.y / zone);
+            inward.y += w;
+            strongest = Mathf.Max(strongest, w);
+        }
+        else if (viewport.y > 1f - zone)
+        {
+            float w = 1f - Mathf.Clamp01((1f - viewport.y) / zone);
+            inward.y -= w;
+            strongest = Mathf.Max(strongest, w);
+        }
+
+        if (inward.sqrMagnitude <= 0.001f)
+            return Vector2.zero;
+
+        Vector2 inwardDirection = inward.normalized;
+        Vector2 tangent = new Vector2(
+            -inwardDirection.y,
+            inwardDirection.x
+        ) * borderTangentSide;
+
+        // Curving along the edge first looks much more human than bouncing
+        // straight back toward the centre of the screen.
+        Vector2 curvedDirection = (
+            inwardDirection + tangent * borderTangentAmount
+        ).normalized;
+
+        return curvedDirection *
+            borderSteeringStrength *
+            Mathf.Clamp01(strongest);
+    }
+
     private void UpdateVelocity(float delta)
     {
-        Vector2 targetVelocity =
-            desiredDirection * targetSpeed;
+        Vector2 targetVelocity = desiredDirection * targetSpeed;
 
-        float angle =
-            currentVelocity.sqrMagnitude > 0.001f
-                ? Vector2.Angle(
-                    currentVelocity,
-                    targetVelocity
-                )
-                : 0f;
+        float angle = currentVelocity.sqrMagnitude > 0.001f
+            ? Vector2.Angle(currentVelocity, targetVelocity)
+            : 0f;
 
         float rate = angle > 35f
             ? turnAcceleration
@@ -441,19 +536,24 @@ public class VoidClone : MonoBehaviour
         Vector2 escapeDirection = GetEscapeDirection();
 
         if (escapeDirection.sqrMagnitude <= 0.001f)
+        {
+            escapeDirection = GetBorderSteering();
+
+            if (escapeDirection.sqrMagnitude <= 0.001f)
+                escapeDirection = RotateVector(desiredDirection, 90f * obstacleAvoidanceSide);
+        }
+
+        if (escapeDirection.sqrMagnitude <= 0.001f)
             return;
 
-        float escapeSpeed = Mathf.Max(
-            targetSpeed,
-            currentVelocity.magnitude
-        );
+        escapeDirection.Normalize();
+
+        float escapeSpeed = Mathf.Max(targetSpeed, currentVelocity.magnitude);
 
         if (escapeSpeed <= 0.01f)
             return;
 
-        currentVelocity =
-            escapeDirection * escapeSpeed;
-
+        currentVelocity = escapeDirection * escapeSpeed;
         desiredDirection = escapeDirection;
 
         rb.MovePosition(
@@ -475,38 +575,40 @@ public class VoidClone : MonoBehaviour
         if (stuckTimer < stuckCheckTime)
             return;
 
-        float movedSqrDistance =
-            (rb.position - lastPosition).sqrMagnitude;
-
-        float stuckSqrDistance =
-            stuckDistance * stuckDistance;
+        float movedSqrDistance = (rb.position - lastPosition).sqrMagnitude;
+        float stuckSqrDistance = stuckDistance * stuckDistance;
 
         if (movedSqrDistance < stuckSqrDistance)
         {
             Vector2 escapeDirection = GetEscapeDirection();
 
+            if (escapeDirection.sqrMagnitude <= 0.001f)
+            {
+                escapeDirection = RotateVector(
+                    desiredDirection.sqrMagnitude > 0.001f
+                        ? desiredDirection
+                        : Vector2.right,
+                    Random.Range(75f, 130f) * obstacleAvoidanceSide
+                ).normalized;
+            }
+
             if (escapeDirection.sqrMagnitude > 0.001f)
             {
-                float escapeSpeed = Mathf.Max(
-                    targetSpeed,
-                    0.1f
-                );
+                float escapeSpeed = Mathf.Max(targetSpeed, 0.1f);
 
-                currentVelocity =
-                    escapeDirection * escapeSpeed;
-
-                desiredDirection = escapeDirection;
+                currentVelocity = escapeDirection.normalized * escapeSpeed;
+                desiredDirection = escapeDirection.normalized;
 
                 rb.MovePosition(
                     rb.position +
-                    escapeDirection *
+                    desiredDirection *
                     escapeSpeed *
                     escapeSpeedMultiplier *
                     delta
                 );
 
-                obstacleAvoidanceSide =
-                    Random.value < 0.5f ? -1 : 1;
+                obstacleAvoidanceSide *= -1;
+                borderTangentSide *= -1;
             }
         }
 
@@ -538,24 +640,16 @@ public class VoidClone : MonoBehaviour
             if (hit.attachedRigidbody == rb)
                 continue;
 
-            Vector2 closestPoint =
-                hit.ClosestPoint(rb.position);
-
-            Vector2 awayFromObstacle =
-                rb.position - closestPoint;
+            Vector2 closestPoint = hit.ClosestPoint(rb.position);
+            Vector2 awayFromObstacle = rb.position - closestPoint;
 
             if (awayFromObstacle.sqrMagnitude <= 0.001f)
             {
-                awayFromObstacle =
-                    rb.position -
-                    (Vector2)hit.bounds.center;
+                awayFromObstacle = rb.position - (Vector2)hit.bounds.center;
             }
 
             if (awayFromObstacle.sqrMagnitude > 0.001f)
-            {
-                escapeDirection +=
-                    awayFromObstacle.normalized;
-            }
+                escapeDirection += awayFromObstacle.normalized;
         }
 
         return escapeDirection.sqrMagnitude > 0.001f
@@ -571,25 +665,20 @@ public class VoidClone : MonoBehaviour
 
     private void ScheduleNextDirectionChange()
     {
-        float minimum = Mathf.Min(
-            directionChangeInterval.x,
-            directionChangeInterval.y
+        float minimum = Mathf.Max(
+            0.1f,
+            Mathf.Min(directionChangeInterval.x, directionChangeInterval.y)
         );
 
         float maximum = Mathf.Max(
-            directionChangeInterval.x,
-            directionChangeInterval.y
+            minimum,
+            Mathf.Max(directionChangeInterval.x, directionChangeInterval.y)
         );
 
-        nextDirectionChange = Random.Range(
-            minimum,
-            maximum
-        );
+        nextDirectionChange = Random.Range(minimum, maximum);
     }
 
-    private static Vector2 RotateVector(
-        Vector2 vector,
-        float angle)
+    private static Vector2 RotateVector(Vector2 vector, float angle)
     {
         float radians = angle * Mathf.Deg2Rad;
         float sin = Mathf.Sin(radians);
@@ -625,10 +714,7 @@ public class VoidClone : MonoBehaviour
         color.a = Mathf.Lerp(
             minAlpha,
             maxAlpha,
-            Mathf.PingPong(
-                Time.time * blinkSpeed,
-                1f
-            )
+            Mathf.PingPong(Time.time * blinkSpeed, 1f)
         );
 
         spriteRenderer.color = color;
@@ -660,6 +746,7 @@ public class VoidClone : MonoBehaviour
     {
         cloneActive = false;
         shouldMove = false;
+        realPlayer = null;
         originalDirection = Vector2.zero;
         desiredDirection = Vector2.zero;
         currentVelocity = Vector2.zero;
@@ -690,40 +777,14 @@ public class VoidClone : MonoBehaviour
 
     private void OnValidate()
     {
-        minimumMovementSpeed = Mathf.Max(
-            0f,
-            minimumMovementSpeed
-        );
-
-        avoidanceLookAhead = Mathf.Max(
-            0.05f,
-            avoidanceLookAhead
-        );
-
-        collisionSkin = Mathf.Max(
-            0f,
-            collisionSkin
-        );
-
-        stuckCheckTime = Mathf.Max(
-            0.1f,
-            stuckCheckTime
-        );
-
-        stuckDistance = Mathf.Max(
-            0.001f,
-            stuckDistance
-        );
-
-        escapeCheckRadius = Mathf.Max(
-            0.1f,
-            escapeCheckRadius
-        );
-
-        escapeSpeedMultiplier = Mathf.Max(
-            1f,
-            escapeSpeedMultiplier
-        );
+        minimumMovementSpeed = Mathf.Max(0f, minimumMovementSpeed);
+        playerSeparationRadius = Mathf.Max(0.5f, playerSeparationRadius);
+        avoidanceLookAhead = Mathf.Max(0.05f, avoidanceLookAhead);
+        collisionSkin = Mathf.Max(0f, collisionSkin);
+        stuckCheckTime = Mathf.Max(0.1f, stuckCheckTime);
+        stuckDistance = Mathf.Max(0.001f, stuckDistance);
+        escapeCheckRadius = Mathf.Max(0.1f, escapeCheckRadius);
+        escapeSpeedMultiplier = Mathf.Max(1f, escapeSpeedMultiplier);
 
         if (Application.isPlaying)
             RebuildNavigationFilter();

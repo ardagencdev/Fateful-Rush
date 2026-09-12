@@ -17243,22 +17243,22 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1282595318}
+  - {fileID: 1547656629}
   - {fileID: 1785599306}
   - {fileID: 4023838829864494742}
   - {fileID: 8315328339303095150}
-  - {fileID: 1272588393}
-  - {fileID: 1734443693}
-  - {fileID: 653434497}
-  - {fileID: 733837254}
-  - {fileID: 1062955814}
+  - {fileID: 1282595318}
   - {fileID: 1040834708}
-  - {fileID: 239009355}
-  - {fileID: 919869634}
-  - {fileID: 1514441762}
-  - {fileID: 1547656629}
+  - {fileID: 653434497}
   - {fileID: 750086566}
+  - {fileID: 1734443693}
+  - {fileID: 1514441762}
+  - {fileID: 1062955814}
+  - {fileID: 1272588393}
+  - {fileID: 733837254}
+  - {fileID: 239009355}
   - {fileID: 1871209719}
+  - {fileID: 919869634}
   m_Father: {fileID: 368244543}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &797794837
@@ -18532,6 +18532,8 @@ MonoBehaviour:
   previousButton: {fileID: 1303787531}
   nextButton: {fileID: 1481890006}
   languageValueText: {fileID: 2013158328}
+  transitionDuration: 0.3
+  transitionDistance: 72
 --- !u!114 &907479692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30839,6 +30841,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoseDeathMessageUI
   messageText: {fileID: 1642027387}
   avoidImmediateRepeat: 1
+  revealDelay: 0.9
+  secondsPerCharacter: 0.032
+  punctuationPause: 0.055
 --- !u!114 &1642027387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33624,7 +33629,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c70ac34a3185bf440bcc321f23ad52c7, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -33691,7 +33696,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &2013158329

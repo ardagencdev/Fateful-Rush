@@ -396,19 +396,14 @@ public class GameStateManager : MonoBehaviour
         bool isFirstCompletion = false;
         bool isNewBestTime = false;
 
-        if (CurrentLevel != null &&
+        if (SelectedLevelData.isLevelMode &&
+            CurrentLevel != null &&
             CurrentLevel.CanSaveBestTime)
         {
             RunNonCritical(
                 () =>
                 {
-                    bool savedNewBest = SaveBestTime();
-
-                    // NEW BEST TIME is a numbered-level reward only.
-                    // Dev Room can still keep its local best time silently.
-                    isNewBestTime =
-                        savedNewBest &&
-                        SelectedLevelData.isLevelMode;
+                    isNewBestTime = SaveBestTime();
                 },
                 "save best time"
             );
@@ -661,8 +656,16 @@ public class GameStateManager : MonoBehaviour
 
     private bool SaveBestTime()
     {
+        if (!SelectedLevelData.isLevelMode ||
+            levelManager == null ||
+            levelManager.currentLevel == null)
+        {
+            return false;
+        }
+
         string bestTimeKey =
-            GetBestTimeKey();
+            "BestTime_Level_" +
+            levelManager.currentLevel.levelNumber;
 
         float bestTime =
             PlayerPrefs.GetFloat(
@@ -678,10 +681,7 @@ public class GameStateManager : MonoBehaviour
             gameTimer
         );
 
-        // Only real level-mode best times are submitted to Google Play.
-        // Dev Room times remain local.
-        if (SelectedLevelData.isLevelMode &&
-            levelManager != null &&
+        if (levelManager != null &&
             levelManager.currentLevel != null)
         {
             GooglePlayGamesLeaderboards.SubmitBestTime(
@@ -691,19 +691,6 @@ public class GameStateManager : MonoBehaviour
         }
 
         return true;
-    }
-
-    private string GetBestTimeKey()
-    {
-        if (SelectedLevelData.isLevelMode &&
-            levelManager != null &&
-            levelManager.currentLevel != null)
-        {
-            return "BestTime_Level_" +
-                   levelManager.currentLevel.levelNumber;
-        }
-
-        return "BestTime_DevRoom";
     }
 
     private void StopGameplayImmediately()

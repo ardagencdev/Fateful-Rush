@@ -1,13 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 /// <summary>
 /// Displays a short randomized death message on the Lose UI.
-/// Place this component on the TMP object that should show the message.
-///
-/// The text is chosen from LastDeathInfo.Cause whenever the Lose UI becomes active.
-/// No GameResultUI reference is required.
+/// The message stays hidden while the main Lose/result intro finishes, then
+/// reveals left-to-right with a typewriter effect.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(TextMeshProUGUI))]
@@ -20,8 +19,23 @@ public sealed class LoseDeathMessageUI : MonoBehaviour
     [Tooltip("Prevents the same message from being selected twice in a row for the same death cause.")]
     [SerializeField] private bool avoidImmediateRepeat = true;
 
+    [Header("Typewriter")]
+    [Tooltip("Lose ekraninin ana giris animasyonlari bittikten sonra death message'in baslamadan once bekleyecegi sure.")]
+    [SerializeField, Min(0f)]
+    private float revealDelay = 0.90f;
+
+    [Tooltip("Her gorunur karakter arasindaki sure.")]
+    [SerializeField, Min(0.005f)]
+    private float secondsPerCharacter = 0.032f;
+
+    [Tooltip("Nokta, virgul, iki nokta vb. sonrasinda eklenecek kisa ekstra bekleme.")]
+    [SerializeField, Min(0f)]
+    private float punctuationPause = 0.055f;
+
     private static readonly Dictionary<string, int> LastMessageIndexByCause =
         new Dictionary<string, int>();
+
+    private Coroutine typewriterRoutine;
 
     private void Awake()
     {
@@ -34,6 +48,14 @@ public sealed class LoseDeathMessageUI : MonoBehaviour
         Refresh(LastDeathInfo.Cause);
     }
 
+    private void OnDisable()
+    {
+        StopTypewriter();
+
+        if (messageText != null)
+            messageText.maxVisibleCharacters = int.MaxValue;
+    }
+
     public void Refresh()
     {
         Refresh(LastDeathInfo.Cause);
@@ -44,12 +66,15 @@ public sealed class LoseDeathMessageUI : MonoBehaviour
         if (messageText == null)
             return;
 
+        StopTypewriter();
+
         string normalizedCause = NormalizeCause(deathCause);
         string[] messages = GetMessages(normalizedCause);
 
         if (messages == null || messages.Length == 0)
         {
             messageText.text = string.Empty;
+            messageText.maxVisibleCharacters = 0;
             return;
         }
 
@@ -58,10 +83,137 @@ public sealed class LoseDeathMessageUI : MonoBehaviour
             messages.Length
         );
 
+        // Localization runtime can translate this full English source string
+        // while it is hidden. The reveal coroutine later uses the CURRENT text,
+        // so Turkish and future locales type out correctly as well.
         messageText.text = messages[selectedIndex];
+        messageText.maxVisibleCharacters = 0;
+        messageText.ForceMeshUpdate();
 
         LastMessageIndexByCause[normalizedCause] =
             selectedIndex;
+
+        if (isActiveAndEnabled)
+        {
+            typewriterRoutine =
+                StartCoroutine(
+                    TypewriterRoutine()
+                );
+        }
+    }
+
+    private IEnumerator TypewriterRoutine()
+    {
+        // Keep the death message completely hidden until the rest of the Lose
+        // presentation has had time to finish.
+        float delay = Mathf.Max(0f, revealDelay);
+
+        if (delay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(
+                delay
+            );
+        }
+
+        if (messageText == null ||
+            !isActiveAndEnabled)
+        {
+            typewriterRoutine = null;
+            yield break;
+        }
+
+        // Give localization/layout one final frame to settle, then reveal the
+        // localized text without changing its layout width.
+        yield return null;
+
+        messageText.ForceMeshUpdate(
+            true,
+            true
+        );
+
+        int characterCount =
+            messageText.textInfo.characterCount;
+
+        messageText.maxVisibleCharacters = 0;
+
+        for (int visible = 1;
+             visible <= characterCount;
+             visible++)
+        {
+            if (messageText == null ||
+                !isActiveAndEnabled)
+            {
+                typewriterRoutine = null;
+                yield break;
+            }
+
+            messageText.maxVisibleCharacters =
+                visible;
+
+            float wait =
+                Mathf.Max(
+                    0.005f,
+                    secondsPerCharacter
+                );
+
+            int characterIndex =
+                visible - 1;
+
+            if (characterIndex >= 0 &&
+                characterIndex <
+                messageText.textInfo.characterCount)
+            {
+                char character =
+                    messageText
+                        .textInfo
+                        .characterInfo[characterIndex]
+                        .character;
+
+                if (IsPunctuation(character))
+                {
+                    wait +=
+                        Mathf.Max(
+                            0f,
+                            punctuationPause
+                        );
+                }
+            }
+
+            yield return new WaitForSecondsRealtime(
+                wait
+            );
+        }
+
+        messageText.maxVisibleCharacters =
+            int.MaxValue;
+
+        typewriterRoutine = null;
+    }
+
+    private void StopTypewriter()
+    {
+        if (typewriterRoutine == null)
+            return;
+
+        StopCoroutine(typewriterRoutine);
+        typewriterRoutine = null;
+    }
+
+    private static bool IsPunctuation(char character)
+    {
+        switch (character)
+        {
+            case '.':
+            case ',':
+            case '!':
+            case '?':
+            case ':':
+            case ';':
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     private int PickMessageIndex(
@@ -79,7 +231,6 @@ public sealed class LoseDeathMessageUI : MonoBehaviour
             return Random.Range(0, messageCount);
         }
 
-        // Pick from every entry except the previous one without a reroll loop.
         int index = Random.Range(0, messageCount - 1);
 
         if (index >= previousIndex)
@@ -193,5 +344,23 @@ public sealed class LoseDeathMessageUI : MonoBehaviour
                     "THIS RUN WASN'T MEANT TO LAST."
                 };
         }
+    }
+
+    private void OnValidate()
+    {
+        revealDelay =
+            Mathf.Max(0f, revealDelay);
+
+        secondsPerCharacter =
+            Mathf.Max(
+                0.005f,
+                secondsPerCharacter
+            );
+
+        punctuationPause =
+            Mathf.Max(
+                0f,
+                punctuationPause
+            );
     }
 }

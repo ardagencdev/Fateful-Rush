@@ -286,6 +286,7 @@ public class GameResultUI : MonoBehaviour
             GetCurrentLevel();
 
         bool firstCompletionIsBestTime =
+            SelectedLevelData.IsLevelMode &&
             isFirstCompletion &&
             currentLevel != null &&
             currentLevel.CanSaveBestTime;
@@ -2276,10 +2277,12 @@ public class GameResultUI : MonoBehaviour
             return false;
         }
 
+        if (!SelectedLevelData.IsLevelMode)
+            return false;
+
         string bestTimeKey =
-            SelectedLevelData.IsLevelMode
-                ? "BestTime_Level_" + currentLevel.levelNumber
-                : "BestTime_DevRoom";
+            "BestTime_Level_" +
+            currentLevel.levelNumber;
 
         // Henuz bu level icin kayit yoksa bu ilk gecerli tamamlama
         // otomatik olarak NEW BEST TIME'dir. Kayit ShowWin'den once veya

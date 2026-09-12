@@ -592,11 +592,6 @@ public sealed class FatefulRushCloudSave : MonoBehaviour
             );
         }
 
-        AddFloat(
-            snapshot,
-            "BestTime_DevRoom",
-            PlayerPrefs.GetFloat("BestTime_DevRoom", -1f)
-        );
 
         for (int i = 0; i < MonotonicIntKeys.Length; i++)
         {
