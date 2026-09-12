@@ -1,0 +1,320 @@
+﻿=== LEVEL 01 ===
+LEVEL NAME: First Signal
+BRIEFING TITLE: MISSION 01 — FIRST SIGNAL
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 15 points before the 20 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.0c148bdf
+PAGE 1 EN: First signal acquired. Begin your mission by learning movement and establishing safe coin routes.
+
+=== LEVEL 02 ===
+LEVEL NAME: Chain Reaction
+BRIEFING TITLE: MISSION 02 — CHAINED PURSUIT
+MODE: SCORE MISSION
+OBJECTIVE: Collect 25 points to complete the mission.
+PAGE 1 KEY: briefing.tip.4204a777
+PAGE 1 EN: Combos reward consecutive coin pickups, while the new Stalker relentlessly pursues you and accelerates over time.
+
+=== LEVEL 03 ===
+LEVEL NAME: First Pursuit
+BRIEFING TITLE: MISSION 03 — SUSTAINED PURSUIT
+MODE: SCORE MISSION
+OBJECTIVE: Collect 35 points to complete the mission.
+PAGE 1 KEY: briefing.tip.083542a0
+PAGE 1 EN: Two Stalkers now pressure you at once. Keep them grouped to one side, then cut across open space for coins.
+
+=== LEVEL 04 ===
+LEVEL NAME: Broken Orbit
+BRIEFING TITLE: MISSION 04 — BROKEN ORBIT
+MODE: SCORE MISSION
+OBJECTIVE: Collect 45 points to complete the mission.
+PAGE 1 KEY: briefing.tip.e4869cf4
+PAGE 1 EN: Static obstacles now block routes. Use them to bend Stalker paths, but always leave yourself a second exit.
+
+=== LEVEL 05 ===
+LEVEL NAME: Emergency Burn
+BRIEFING TITLE: MISSION 05 — EMERGENCY BURN
+MODE: SCORE MISSION
+OBJECTIVE: Collect 55 points to complete the mission.
+PAGE 1 KEY: briefing.tip.057cf834
+PAGE 1 EN: Dash is now available. Save it for blocked routes or close threats instead of spending it in open space.
+
+=== LEVEL 06 ===
+LEVEL NAME: Golden Route
+BRIEFING TITLE: MISSION 06 — GOLDEN ROUTE
+MODE: SCORE MISSION
+OBJECTIVE: Collect 65 points to complete the mission.
+PAGE 1 KEY: briefing.tip.a5ae9dea
+PAGE 1 EN: Gold Coins are worth 3 points. Take them when the route is safe; their value is not worth getting trapped.
+
+=== LEVEL 07 ===
+LEVEL NAME: Crossfire
+BRIEFING TITLE: MISSION 07 — CROSSFIRE
+MODE: SCORE MISSION
+OBJECTIVE: Collect 75 points to complete the mission.
+PAGE 1 KEY: briefing.tip.b5a52989
+PAGE 1 EN: Blasters keep their distance and fire predictive shots. Change direction after a shot commits, and never use enemies as bullet cover.
+
+=== LEVEL 08 ===
+LEVEL NAME: One More Chance
+BRIEFING TITLE: MISSION 08 — ONE MORE CHANCE
+MODE: SCORE MISSION
+OBJECTIVE: Collect 85 points to complete the mission.
+PAGE 1 KEY: briefing.tip.a4d5f554
+PAGE 1 EN: Armor absorbs one lethal hit and grants brief immunity after breaking. Use that window to escape immediately.
+
+=== LEVEL 09 ===
+LEVEL NAME: Red Line
+BRIEFING TITLE: MISSION 09 — BLAST RADIUS
+MODE: SCORE MISSION
+OBJECTIVE: Collect 100 points to complete the mission.
+PAGE 1 KEY: briefing.tip.e35801b9
+PAGE 1 EN: Space Bombs arm after a short delay and then become lethal zones. Track the minefield before committing to a coin route.
+
+=== LEVEL 10 ===
+LEVEL NAME: Hold the Void
+BRIEFING TITLE: MISSION 10 — HOLD THE VOID
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 40 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.6873f782
+PAGE 1 EN: This is your first Survival mission. Preserve open space as Space Bombs accumulate and use Armor only as a recovery tool.
+
+=== LEVEL 11 ===
+LEVEL NAME: Split Horizon
+BRIEFING TITLE: MISSION 11 — SPLIT HORIZON
+MODE: SCORE MISSION
+OBJECTIVE: Collect 110 points to complete the mission.
+PAGE 1 KEY: briefing.tip.c1a289b4
+PAGE 1 EN: Horizontal Lasers warn their lane before firing. Leave the warning band early, then react to incoming Blaster shots.
+
+=== LEVEL 12 ===
+LEVEL NAME: Against the Divine Clock
+BRIEFING TITLE: MISSION 12 — AGAINST THE DIVINE CLOCK
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 70 points before the 30 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.9dfd489a
+PAGE 1 EN: This is your first Timed Score mission. Build consistent combos, but abandon a chain when the arena starts closing around you.
+
+=== LEVEL 13 ===
+LEVEL NAME: Time Distortion
+BRIEFING TITLE: MISSION 13 — TIME DISTORTION
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 45 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.afc4480c
+PAGE 1 EN: Slow temporarily reduces game speed and gives you breathing room. Use it when several threats overlap, not while the arena is calm.
+
+=== LEVEL 14 ===
+LEVEL NAME: Rare Window
+BRIEFING TITLE: MISSION 14 — RARE WINDOW
+MODE: SCORE MISSION
+OBJECTIVE: Collect 120 points to complete the mission.
+PAGE 1 KEY: briefing.tip.59c45885
+PAGE 1 EN: Rare Coins are worth 5 points. Take them when accessible, but never enter a sealed route just for the extra score.
+
+=== LEVEL 15 ===
+LEVEL NAME: Hunter's Mark
+BRIEFING TITLE: MISSION 15 — HUNTER'S MARK
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 80 points before the 35 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.b936ba74
+PAGE 1 EN: Hunters show a warning line before charging. Let the line commit, sidestep the charge, and watch both Hunters before using Dash.
+
+=== LEVEL 16 ===
+LEVEL NAME: False Target
+BRIEFING TITLE: MISSION 16 — FALSE TARGET
+MODE: SCORE MISSION
+OBJECTIVE: Collect 135 points to complete the mission.
+PAGE 1 KEY: briefing.tip.1fa93703
+PAGE 1 EN: Clone redirects enemies for a short time. Its cooldown begins after the Clone disappears, so use it to reset collapsing formations.
+
+=== LEVEL 17 ===
+LEVEL NAME: Blast Radius
+BRIEFING TITLE: MISSION 17 — RED LINE
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 50 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.d77bf53b
+PAGE 1 EN: Vertical Lasers warn a column before firing. Move out early and save Clone for overlaps with Hunters or Blaster fire.
+
+=== LEVEL 18 ===
+LEVEL NAME: Signal Boost
+BRIEFING TITLE: MISSION 18 — SIGNAL BREAKER
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 100 points before the 40 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.f0779c3f
+PAGE 1 EN: Beacons buff nearby enemies. Destroy a Beacon by dashing into it; its active buffs disappear immediately, but another Beacon can return.
+
+=== LEVEL 19 ===
+LEVEL NAME: Heavy Arrival
+BRIEFING TITLE: MISSION 19 — HEAVY ARRIVAL
+MODE: SCORE MISSION
+OBJECTIVE: Collect 150 points to complete the mission.
+PAGE 1 KEY: briefing.tip.5cc6531c
+PAGE 1 EN: The first Boss enters at 90 score. Armor can absorb its hit; when that happens, the Boss splits into two Mini-Bosses.
+
+=== LEVEL 20 ===
+LEVEL NAME: System Check
+BRIEFING TITLE: MISSION 20 — SYSTEM CHECK
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 125 points before the 50 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.10c90984
+PAGE 1 EN: Both Laser directions, Space Bombs and a Boss at 50 score overlap here. Score early, then prioritize survival once the arena fills.
+
+=== LEVEL 21 ===
+LEVEL NAME: Narrow Escape
+BRIEFING TITLE: MISSION 21 — NARROW ESCAPE
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 55 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.91c028a8
+PAGE 1 EN: Both Laser directions remain active in this Survival mission. Stay central until a warning appears, then move toward the cleaner side.
+
+=== LEVEL 22 ===
+LEVEL NAME: Risk Circuit
+BRIEFING TITLE: MISSION 22 — DARK ORBIT
+MODE: SCORE MISSION
+OBJECTIVE: Collect 150 points to complete the mission.
+PAGE 1 KEY: briefing.tip.b3f32dd3
+PAGE 1 EN: Space Bombs return without Armor or Slow support. Keep routes short and change direction only after Hunter charges commit.
+
+=== LEVEL 23 ===
+LEVEL NAME: Amplified Pursuit
+BRIEFING TITLE: MISSION 23 — AMPLIFIED PURSUIT
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 105 points before the 60 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.db8403d4
+PAGE 1 EN: A recurring Beacon supports the enemy wave. Destroy it with Dash, then use the quiet interval before it returns to rebuild control.
+
+=== LEVEL 24 ===
+LEVEL NAME: Falling Stars
+BRIEFING TITLE: MISSION 24 — FALLING STARS
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 55 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.0253d3d2
+PAGE 1 EN: Vertical Lasers, Space Bombs and Hunters steadily reduce safe space. Move zones before a Bomb finishes arming instead of escaping late.
+
+=== LEVEL 25 ===
+LEVEL NAME: Midpoint Crisis
+BRIEFING TITLE: MISSION 25 — MIDPOINT CRISIS
+MODE: SCORE MISSION
+OBJECTIVE: Collect 160 points to complete the mission.
+PAGE 1 KEY: briefing.tip.594df230
+PAGE 1 EN: The Boss enters at 100 score while Horizontal Lasers restrict exits. Reach that phase with Dash ready and keep scoring routes clear.
+
+=== LEVEL 26 ===
+LEVEL NAME: Ghost Protocol
+BRIEFING TITLE: MISSION 26 — CROSSED LINES
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 60 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.b018f580
+PAGE 1 EN: Both Laser directions are active during a long Survival mission. Use Slow for one pressure spike and save Clone for the next overlap.
+
+=== LEVEL 27 ===
+LEVEL NAME: Velocity Chain
+BRIEFING TITLE: MISSION 27 — VELOCITY CHAIN
+MODE: SCORE MISSION
+OBJECTIVE: Collect 170 points to complete the mission.
+PAGE 1 KEY: briefing.tip.9f0ce819
+PAGE 1 EN: Heavy Blaster and Hunter pressure combines with Space Bombs. Move in deliberate arcs and change direction after nearby shots commit.
+
+=== LEVEL 28 ===
+LEVEL NAME: Laser Grid
+BRIEFING TITLE: MISSION 28 — LASER GRID
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 120 points before the 60 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.17a7b142
+PAGE 1 EN: Both Laser directions can chain together during this Timed Score mission. Collect from the safe quadrant and abandon distant coins early.
+
+=== LEVEL 29 ===
+LEVEL NAME: Overcharged
+BRIEFING TITLE: MISSION 29 — OVERCHARGED
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 60 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.92c52b1f
+PAGE 1 EN: A recurring Beacon and two Hunters create repeated pressure spikes. Destroy the Beacon whenever a safe Dash line opens.
+
+=== LEVEL 30 ===
+LEVEL NAME: Breaking Point
+BRIEFING TITLE: MISSION 30 — BREAKING POINT
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 125 points before the 65 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.9746a8fe
+PAGE 1 EN: A Beacon, Space Bombs and a Boss at 90 score overlap before the timer ends. Remove Beacon buffs before forcing long scoring routes.
+
+=== LEVEL 31 ===
+LEVEL NAME: No Safe Orbit
+BRIEFING TITLE: MISSION 31 — NO SAFE ORBIT
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 60 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.bfc063a1
+PAGE 1 EN: Both Laser directions and Space Bombs combine in a long Survival mission. Keep Armor and Clone for separate emergencies.
+
+=== LEVEL 32 ===
+LEVEL NAME: Deadline
+BRIEFING TITLE: MISSION 32 — DEADLINE
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 135 points before the 70 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.e211848b
+PAGE 1 EN: A recurring Beacon and Space Bombs disrupt this Timed Score mission. Remove the Beacon before committing to a long combo chain.
+
+=== LEVEL 33 ===
+LEVEL NAME: Minefield Run
+BRIEFING TITLE: MISSION 33 — MINEFIELD RUN
+MODE: SCORE MISSION
+OBJECTIVE: Collect 180 points to complete the mission.
+PAGE 1 KEY: briefing.tip.6c32ef1c
+PAGE 1 EN: Five obstacles and fast Space Bomb pressure turn this into a minefield score test. Move from one open sector to the next.
+
+=== LEVEL 34 ===
+LEVEL NAME: Resonance
+BRIEFING TITLE: MISSION 34 — RESONANCE
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 60 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.2fea83f0
+PAGE 1 EN: Beacon buffs, a Vertical Laser and Hunters create repeated Survival spikes. Remove the Beacon before spending Slow when possible.
+
+=== LEVEL 35 ===
+LEVEL NAME: Twin Collapse
+BRIEFING TITLE: MISSION 35 — TWIN COLLAPSE
+MODE: SCORE MISSION
+OBJECTIVE: Collect 190 points to complete the mission.
+PAGE 1 KEY: briefing.tip.0c8b09c5
+PAGE 1 EN: The Boss enters at 120 score while Space Bombs keep shrinking safe routes. Build momentum before the Boss phase.
+
+=== LEVEL 36 ===
+LEVEL NAME: Event Horizon
+BRIEFING TITLE: MISSION 36 — EVENT HORIZON
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 140 points before the 75 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.8549734e
+PAGE 1 EN: A recurring Beacon, both Laser directions and Space Bombs share this Timed Score mission. Treat each Beacon death as a scoring window.
+
+=== LEVEL 37 ===
+LEVEL NAME: Last Stand
+BRIEFING TITLE: MISSION 37 — LAST STAND
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 65 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.c388b658
+PAGE 1 EN: Both Laser directions and Space Bombs stay active through a long Survival mission. Rotate Armor, Slow and Clone across separate emergencies.
+
+=== LEVEL 38 ===
+LEVEL NAME: Perfect Chain
+BRIEFING TITLE: MISSION 38 — PERFECT CHAIN
+MODE: SCORE MISSION
+OBJECTIVE: Collect 200 points to complete the mission.
+PAGE 1 KEY: briefing.tip.7ec9bb59
+PAGE 1 EN: A recurring Beacon, Space Bombs and five obstacles guard the highest pure score target. Keep combos local and clear Beacon buffs first.
+
+=== LEVEL 39 ===
+LEVEL NAME: Final Intercept
+BRIEFING TITLE: MISSION 39 — FINAL INTERCEPT
+MODE: TIMED SCORE MISSION
+OBJECTIVE: Collect 150 points before the 75 seconds countdown reaches zero.
+PAGE 1 KEY: briefing.tip.e482958d
+PAGE 1 EN: The Boss enters at 105 score while Vertical Lasers, Space Bombs, Hunters and Blasters pressure the timer. Save a defensive option for that phase.
+
+=== LEVEL 40 ===
+LEVEL NAME: Singularity
+BRIEFING TITLE: MISSION 40 — SINGULARITY
+MODE: SURVIVAL MISSION
+OBJECTIVE: Stay alive for 60 seconds. Coins and combos are disabled in this mission.
+PAGE 1 KEY: briefing.tip.028a7195
+PAGE 1 EN: Final Challenge. Survive every major hazard with recurring Beacons and a Boss entering at 35 seconds. Stagger Armor, Slow and Clone carefully.
+

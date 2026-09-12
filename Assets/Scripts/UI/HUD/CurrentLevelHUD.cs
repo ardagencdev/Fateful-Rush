@@ -1,13 +1,19 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class CurrentLevelHUD : MonoBehaviour
 {
     private const float FontSize = 18f;
     private const float TopOffset = 3f;
+    private const string LocalizationTable = "UI";
+    private const string LevelKey = "hud.level";
 
     private TextMeshProUGUI levelText;
     private Color nearStarsColor = Color.white;
+    private int currentLevelNumber;
 
     public static CurrentLevelHUD Create(
         LevelConfig level,
@@ -74,14 +80,12 @@ public class CurrentLevelHUD : MonoBehaviour
         if (sceneFont != null)
             text.font = sceneFont;
 
-        text.text =
-            $"LEVEL {level.levelNumber}";
-
         text.fontSize = FontSize;
         text.fontStyle = FontStyles.Bold;
         text.alignment = TextAlignmentOptions.Center;
         text.characterSpacing = 2f;
         text.raycastTarget = false;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
         text.overflowMode = TextOverflowModes.Overflow;
 
         CurrentLevelHUD levelHud =
@@ -89,7 +93,8 @@ public class CurrentLevelHUD : MonoBehaviour
 
         levelHud.Configure(
             text,
-            appliedNearStarsColor
+            appliedNearStarsColor,
+            level.levelNumber
         );
 
         levelHud.SetVisible(false);
@@ -105,30 +110,130 @@ public class CurrentLevelHUD : MonoBehaviour
 
     private void Configure(
         TextMeshProUGUI text,
-        Color appliedNearStarsColor)
+        Color appliedNearStarsColor,
+        int levelNumber)
     {
         levelText = text;
-        nearStarsColor = ForceOpaque(appliedNearStarsColor);
+        nearStarsColor =
+            ForceOpaque(appliedNearStarsColor);
+
+        currentLevelNumber = levelNumber;
 
         ApplyNearStarsColor();
+        RefreshLocalizedText();
     }
 
     private void OnEnable()
     {
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+
         if (levelText == null)
-            levelText = GetComponent<TextMeshProUGUI>();
+            levelText =
+                GetComponent<TextMeshProUGUI>();
 
         ApplyNearStarsColor();
         RegisterWithOcclusionController();
+        RefreshLocalizedText();
 
         if (levelText != null)
             levelText.SetVerticesDirty();
     }
 
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+    }
+
+    private void OnSelectedLocaleChanged(Locale locale)
+    {
+        RefreshLocalizedText();
+    }
+
+    private void RefreshLocalizedText()
+    {
+        if (levelText == null ||
+            currentLevelNumber <= 0)
+        {
+            return;
+        }
+
+        string template =
+            GetLocalizedLevelTemplate();
+
+        try
+        {
+            levelText.text =
+                string.Format(
+                    template,
+                    currentLevelNumber
+                );
+        }
+        catch (FormatException)
+        {
+            levelText.text =
+                $"LEVEL {currentLevelNumber}";
+        }
+    }
+
+    private static string GetLocalizedLevelTemplate()
+    {
+        const string fallback = "LEVEL {0}";
+
+        try
+        {
+            var operation =
+                LocalizationSettings.StringDatabase
+                    .GetLocalizedStringAsync(
+                        LocalizationTable,
+                        LevelKey
+                    );
+
+            string value =
+                operation.IsDone
+                    ? operation.Result
+                    : operation.WaitForCompletion();
+
+            if (IsValidLocalizedValue(value))
+                return value;
+        }
+        catch
+        {
+            // Keep the HUD usable even if localization is not ready.
+        }
+
+        return fallback;
+    }
+
+    private static bool IsValidLocalizedValue(
+        string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        if (value.StartsWith(
+                "No translation found",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (value.StartsWith(
+                "No table found",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private void RegisterWithOcclusionController()
     {
         HUDPlayerOcclusionController controller =
-            FindAnyObjectByType<HUDPlayerOcclusionController>();
+            FindAnyObjectByType<
+                HUDPlayerOcclusionController>();
 
         if (controller != null)
             controller.RegisterHUDRoot(gameObject);
@@ -137,12 +242,14 @@ public class CurrentLevelHUD : MonoBehaviour
     private void ApplyNearStarsColor()
     {
         if (levelText == null)
-            levelText = GetComponent<TextMeshProUGUI>();
+            levelText =
+                GetComponent<TextMeshProUGUI>();
 
         if (levelText == null)
             return;
 
-        levelText.color = ForceOpaque(nearStarsColor);
+        levelText.color =
+            ForceOpaque(nearStarsColor);
     }
 
     private static Color ForceOpaque(Color color)
@@ -197,7 +304,7 @@ public class CurrentLevelHUD : MonoBehaviour
             !string.IsNullOrEmpty(font.name) &&
             font.name.IndexOf(
                 "Michroma",
-                System.StringComparison.OrdinalIgnoreCase
+                StringComparison.OrdinalIgnoreCase
             ) >= 0;
     }
 }

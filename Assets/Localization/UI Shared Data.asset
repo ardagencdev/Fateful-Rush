@@ -1,0 +1,1328 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: UI
+  m_TableCollectionNameGuidString: aa6a097d7296d884a9d5dfed78a2349d
+  m_Entries:
+  - m_Id: 23311593472
+    m_Key: menu.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008454893568
+    m_Key: menu.level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253696
+    m_Key: menu.signal_stable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253697
+    m_Key: menu.signal_unstable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253698
+    m_Key: hud.level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253699
+    m_Key: hud.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253700
+    m_Key: hud.near_miss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253701
+    m_Key: objective.reach_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253702
+    m_Key: objective.survive_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253703
+    m_Key: objective.reach_score_in_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253704
+    m_Key: result.new_best
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253705
+    m_Key: result.new_best_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253706
+    m_Key: result.new_skin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253707
+    m_Key: intro.tap_to_skip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253708
+    m_Key: scene.mainmenu.canvas_1.mainmenupanel_0.ambienttexts_0.signallosttext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253709
+    m_Key: scene.mainmenu.canvas_1.mainmenupanel_0.ambienttexts_0.threatunknowntext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253710
+    m_Key: scene.mainmenu.canvas_1.mainmenupanel_0.ambienttexts_0.noreturnvectortext_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253711
+    m_Key: scene.mainmenu.canvas_1.mainmenupanel_0.header_1.titletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253712
+    m_Key: menu.missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253713
+    m_Key: menu.skins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253714
+    m_Key: menu.stats
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253715
+    m_Key: menu.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253716
+    m_Key: menu.extras
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253717
+    m_Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.achievementsbutton_0.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253718
+    m_Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.leaderboardsbutton_1.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253719
+    m_Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.privacypolicybutton_2.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253720
+    m_Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.creditsbutton_3.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253721
+    m_Key: common.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253722
+    m_Key: options.audio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253723
+    m_Key: options.sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253724
+    m_Key: common.on
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253725
+    m_Key: common.off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253726
+    m_Key: scene.mainmenu.canvas_1.optionspanel_2.settingscontainer_0.audiosettingspanel_0.audiocontent_0.menumusicrow_2.menumusictext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448000
+    m_Key: scene.mainmenu.canvas_1.optionspanel_2.settingscontainer_0.audiosettingspanel_0.audiocontent_0.musicrow_3.musictext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448001
+    m_Key: options.sfx
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448002
+    m_Key: options.game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448003
+    m_Key: scene.mainmenu.canvas_1.optionspanel_2.settingscontainer_0.gamesettingspanel_1.gamecontent_0.joystickrow_1.joysticktext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448004
+    m_Key: common.left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448005
+    m_Key: common.right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448006
+    m_Key: scene.mainmenu.canvas_1.optionspanel_2.settingscontainer_0.gamesettingspanel_1.gamecontent_0.vibrationrow_2.vibrationtext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448007
+    m_Key: options.fps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448008
+    m_Key: scene.mainmenu.canvas_1.optionspanel_2.settingscontainer_0.gamesettingspanel_1.gamecontent_0.hudopacitycontainer_4.hudopacityrow_0.hudopacitytext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448009
+    m_Key: options.language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448010
+    m_Key: options.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448011
+    m_Key: scene.mainmenu.canvas_1.levelselectpanel_3.titletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448012
+    m_Key: scene.mainmenu.canvas_1.levelselectpanel_3.devroombutton_6.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448013
+    m_Key: scene.mainmenu.canvas_1.levelselectpanel_3.missionbriefingpanel_8.briefingwindow_1.besttimegroup_3.besttimelabel_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448014
+    m_Key: scene.mainmenu.canvas_1.levelselectpanel_3.missionbriefingpanel_8.briefingwindow_1.startbutton_6.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448015
+    m_Key: scene.mainmenu.canvas_1.levelselectpanel_3.missionbriefingpanel_8.briefingwindow_1.closebutton_7.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448016
+    m_Key: scene.mainmenu.canvas_1.statspanel_4.statsscrollview_1.viewport_0.content_0.statstext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448017
+    m_Key: scene.mainmenu.canvas_1.statspanel_4.resetstatsbutton_4.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448018
+    m_Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.titletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448019
+    m_Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.confirmationbox_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448020
+    m_Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.cancelbutton_2.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448021
+    m_Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.resetbutton_3.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448022
+    m_Key: scene.mainmenu.canvas_1.playerskinpanel_5.titletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448023
+    m_Key: scene.mainmenu.canvas_1.playerskinpanel_5.skinpagecontainer_1.selectedskinnametext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448024
+    m_Key: scene.mainmenu.canvas_1.playerskinpanel_5.skinpagecontainer_1.selectedskinstatustext_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448025
+    m_Key: scene.mainmenu.canvas_1.playerskinpanel_5.skinpagecontainer_1.skinrequirementtext_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448026
+    m_Key: scene.mainmenu.canvas_1.footer_6.statustext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448027
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.hud_0.scoretext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448028
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.hud_0.timertext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448029
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.objectiveroot_0.objectivetitletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448030
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.objectiveroot_0.objectivevaluetext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448031
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.restartbutton_2.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448032
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.menubutton_4.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448033
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.optionspanel_1.settingscontainer_2.audiosettingspanel_0.audiocontent_0.musicrow_2.musictext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448034
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.optionspanel_1.settingscontainer_2.gamesettingspanel_1.gamecontent_0.joystickrow_1.joysticktext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448035
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.optionspanel_1.settingscontainer_2.gamesettingspanel_1.gamecontent_0.vibrationrow_2.vibrationtext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448036
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.optionspanel_1.settingscontainer_2.gamesettingspanel_1.gamecontent_0.hudopacitycontainer_4.hudopacityrow_0.hudopacitytext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448037
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.optionspanel_1.settingscontainer_2.title_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448038
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.wintitletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448039
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.missionreporttext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448040
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.scorelabel_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448041
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.timelabel_4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448042
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.timevalue_5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448043
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.nextlevelbutton_6.nextleveltext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448044
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.skinunlockui_7.skinunlockedtitletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448045
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.skinunlockui_7.unlockedskinnametext_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448046
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.newbesttimeui_8.newbesttimetext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448047
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.losetitletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448048
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.destroyedbylabel_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448049
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.destroyedbytext_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448050
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.deathmessagetext_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448051
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.scorelabel_4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448052
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.survivedlabel_6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448053
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.survivedvalue_7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448054
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.restartbutton_4.tekrar_ba_la_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448055
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menubutton_5.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448056
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menuconfirmationpanel_6.confirmationbox_1.titletext_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448057
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menuconfirmationpanel_6.confirmationbox_1.staybutton_1.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448058
+    m_Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menuconfirmationpanel_6.confirmationbox_1.mainmenubutton_2.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448059
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.title_fatefulrush_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448060
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.header_createdby_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448061
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.name_createdby_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448062
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.header_playtesting_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448063
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.names_playtesting_4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448064
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.header_specialthanks_5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448065
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.names_specialthanks_6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448066
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.finalmessage_7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448067
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.thankyouforplaying_8
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448068
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.studiosignature_9
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448069
+    m_Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.continueholder_10.continuebutton_0.text_tmp_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362292338688
+    m_Key: options.menu_music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893120
+    m_Key: options.music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893121
+    m_Key: options.joystick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893122
+    m_Key: options.vibration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893123
+    m_Key: options.hud_opacity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54355386085376
+    m_Key: hud.time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54355415445504
+    m_Key: hud.time.default
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562713399296
+    m_Key: objective.pause_reach_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953728
+    m_Key: objective.pause_survive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953729
+    m_Key: objective.pause_reach_score_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953730
+    m_Key: objective.complete_mission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953731
+    m_Key: skin.status.equipped
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953732
+    m_Key: skin.status.equip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953733
+    m_Key: skin.status.available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953734
+    m_Key: skin.status.unlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953735
+    m_Key: skin.status.locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953736
+    m_Key: skin.requirement.complete_level_to_unlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953737
+    m_Key: skin.name.white
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953738
+    m_Key: skin.name.blue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953739
+    m_Key: skin.name.orange
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953740
+    m_Key: skin.name.red
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953741
+    m_Key: skin.name.green
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953742
+    m_Key: skin.name.pink
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953743
+    m_Key: skin.name.yellow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953744
+    m_Key: skin.name.cyan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953745
+    m_Key: skin.name.purple
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953746
+    m_Key: skin.name.dark
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953747
+    m_Key: skin.name.golden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953748
+    m_Key: ambient.fate_is_closing_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953749
+    m_Key: ambient.stars_gone_silent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953750
+    m_Key: ambient.every_second_seals_path
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953751
+    m_Key: ambient.no_signal_reaches_home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953752
+    m_Key: ambient.something_following_you
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953753
+    m_Key: ambient.future_collapsing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953754
+    m_Key: ambient.time_refuses_to_wait
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953755
+    m_Key: ambient.next_move_is_final
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953756
+    m_Key: ambient.dark_remembers_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953757
+    m_Key: ambient.survival_never_promised
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953758
+    m_Key: ambient.no_safe_vector
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953759
+    m_Key: ambient.end_gaining_ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953760
+    m_Key: ambient.run_before_fate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953761
+    m_Key: ambient.fate_moves_faster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953762
+    m_Key: ambient.countdown_begun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953763
+    m_Key: ambient.motion_keeps_alive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953764
+    m_Key: ambient.signal_lost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953765
+    m_Key: ambient.threat_unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953766
+    m_Key: ambient.no_return_vector
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953767
+    m_Key: death.cause.stalker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953768
+    m_Key: death.cause.hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953769
+    m_Key: death.cause.blaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953770
+    m_Key: death.cause.laser_bullet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953771
+    m_Key: death.cause.laser_wall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953772
+    m_Key: death.cause.boss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953773
+    m_Key: death.cause.mini_boss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953774
+    m_Key: death.cause.space_bomb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953775
+    m_Key: death.cause.time_expired
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953776
+    m_Key: death.cause.unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953777
+    m_Key: death.message.stalker.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953778
+    m_Key: death.message.stalker.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953779
+    m_Key: death.message.stalker.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953780
+    m_Key: death.message.stalker.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953781
+    m_Key: death.message.hunter.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953782
+    m_Key: death.message.hunter.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953783
+    m_Key: death.message.hunter.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953784
+    m_Key: death.message.hunter.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953785
+    m_Key: death.message.blaster.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953786
+    m_Key: death.message.blaster.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953787
+    m_Key: death.message.blaster.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953788
+    m_Key: death.message.blaster.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953789
+    m_Key: death.message.laser_bullet.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953790
+    m_Key: death.message.laser_bullet.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953791
+    m_Key: death.message.laser_bullet.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953792
+    m_Key: death.message.laser_bullet.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953793
+    m_Key: death.message.laser_wall.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953794
+    m_Key: death.message.laser_wall.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953795
+    m_Key: death.message.laser_wall.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953796
+    m_Key: death.message.laser_wall.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953797
+    m_Key: death.message.boss.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953798
+    m_Key: death.message.boss.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953799
+    m_Key: death.message.boss.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953800
+    m_Key: death.message.boss.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953801
+    m_Key: death.message.mini_boss.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953802
+    m_Key: death.message.mini_boss.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953803
+    m_Key: death.message.mini_boss.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953804
+    m_Key: death.message.mini_boss.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953805
+    m_Key: death.message.space_bomb.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953806
+    m_Key: death.message.space_bomb.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953807
+    m_Key: death.message.space_bomb.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953808
+    m_Key: death.message.space_bomb.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953809
+    m_Key: death.message.time_expired.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953810
+    m_Key: death.message.time_expired.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953811
+    m_Key: death.message.time_expired.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953812
+    m_Key: death.message.time_expired.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953813
+    m_Key: death.message.unknown.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953814
+    m_Key: death.message.unknown.2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953815
+    m_Key: death.message.unknown.3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953816
+    m_Key: death.message.unknown.4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960169603072
+    m_Key: common.objective
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157504
+    m_Key: briefing.level_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157505
+    m_Key: briefing.mode.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157506
+    m_Key: briefing.mode.survival
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157507
+    m_Key: briefing.mode.timed_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157508
+    m_Key: briefing.mode.mission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157509
+    m_Key: briefing.objective.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157510
+    m_Key: briefing.objective.survive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157511
+    m_Key: briefing.objective.timed_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157512
+    m_Key: briefing.objective.default
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157513
+    m_Key: stats.section.general
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157514
+    m_Key: stats.section.progression
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157515
+    m_Key: stats.section.mission_modes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157516
+    m_Key: stats.section.performance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157517
+    m_Key: stats.section.near_miss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157518
+    m_Key: stats.section.collectibles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157519
+    m_Key: stats.section.abilities
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157520
+    m_Key: stats.section.danger_mastery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157521
+    m_Key: stats.section.death_analysis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157522
+    m_Key: stats.section.level_best_times
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157523
+    m_Key: stats.total_runs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157524
+    m_Key: stats.total_wins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157525
+    m_Key: stats.total_deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157526
+    m_Key: stats.win_rate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157527
+    m_Key: stats.current_win_streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157528
+    m_Key: stats.best_win_streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157529
+    m_Key: stats.total_play_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157530
+    m_Key: stats.average_run_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157531
+    m_Key: stats.longest_run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157532
+    m_Key: stats.levels_completed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157533
+    m_Key: stats.completion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157534
+    m_Key: stats.highest_level_completed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157535
+    m_Key: stats.skins_unlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157536
+    m_Key: stats.score_missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157537
+    m_Key: stats.survival_missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157538
+    m_Key: stats.timed_score_missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157539
+    m_Key: stats.total_score_earned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157540
+    m_Key: stats.best_run_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157541
+    m_Key: stats.average_score_per_run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157542
+    m_Key: stats.highest_combo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157543
+    m_Key: stats.longest_combo_chain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157544
+    m_Key: stats.combo_6x_reached
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157545
+    m_Key: stats.combo_bonus_points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157546
+    m_Key: stats.total_near_misses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157547
+    m_Key: stats.best_near_miss_streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157548
+    m_Key: stats.total_coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157549
+    m_Key: stats.normal_coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157550
+    m_Key: stats.gold_coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157551
+    m_Key: stats.rare_coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157552
+    m_Key: stats.most_coins_run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157553
+    m_Key: stats.base_coin_value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157554
+    m_Key: stats.magnet_coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157555
+    m_Key: stats.dash_uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157556
+    m_Key: stats.clone_uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157557
+    m_Key: stats.slow_uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157558
+    m_Key: stats.armor_uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157559
+    m_Key: stats.armor_saves
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157560
+    m_Key: stats.armor_save_rate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157561
+    m_Key: stats.beacons_destroyed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157562
+    m_Key: stats.hunters_stunned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157563
+    m_Key: stats.boss_encounters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157564
+    m_Key: stats.boss_splits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157565
+    m_Key: stats.boss_aoe_evades
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157566
+    m_Key: stats.mini_boss_aoe_evades
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157567
+    m_Key: stats.nemesis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157568
+    m_Key: stats.death_stalker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157569
+    m_Key: stats.death_hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157570
+    m_Key: stats.death_blaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157571
+    m_Key: stats.death_boss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157572
+    m_Key: stats.death_laser_bullet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157573
+    m_Key: stats.death_laser_wall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157574
+    m_Key: stats.death_mini_boss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157575
+    m_Key: stats.death_space_bomb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157576
+    m_Key: stats.death_time_expired
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157577
+    m_Key: stats.death_unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157578
+    m_Key: stats.no_death_causes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157579
+    m_Key: stats.no_best_times
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157580
+    m_Key: stats.none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157581
+    m_Key: stats.level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157582
+    m_Key: stats.dev_room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157583
+    m_Key: stats.unit.wins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157584
+    m_Key: stats.unit.coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157585
+    m_Key: stats.unit.hours_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157586
+    m_Key: stats.unit.minutes_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157587
+    m_Key: stats.unit.seconds_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521024
+    m_Key: briefing.tip.0c148bdf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521025
+    m_Key: briefing.tip.4204a777
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521026
+    m_Key: briefing.tip.083542a0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521027
+    m_Key: briefing.tip.e4869cf4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521028
+    m_Key: briefing.tip.057cf834
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521029
+    m_Key: briefing.tip.a5ae9dea
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521030
+    m_Key: briefing.tip.b5a52989
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521031
+    m_Key: briefing.tip.a4d5f554
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521032
+    m_Key: briefing.tip.e35801b9
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521033
+    m_Key: briefing.tip.6873f782
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521034
+    m_Key: briefing.tip.c1a289b4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521035
+    m_Key: briefing.tip.9dfd489a
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521036
+    m_Key: briefing.tip.afc4480c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521037
+    m_Key: briefing.tip.59c45885
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521038
+    m_Key: briefing.tip.b936ba74
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521039
+    m_Key: briefing.tip.1fa93703
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521040
+    m_Key: briefing.tip.d77bf53b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521041
+    m_Key: briefing.tip.f0779c3f
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521042
+    m_Key: briefing.tip.5cc6531c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521043
+    m_Key: briefing.tip.10c90984
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521044
+    m_Key: briefing.tip.91c028a8
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521045
+    m_Key: briefing.tip.b3f32dd3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521046
+    m_Key: briefing.tip.db8403d4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521047
+    m_Key: briefing.tip.0253d3d2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521048
+    m_Key: briefing.tip.594df230
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521049
+    m_Key: briefing.tip.b018f580
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521050
+    m_Key: briefing.tip.9f0ce819
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521051
+    m_Key: briefing.tip.17a7b142
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521052
+    m_Key: briefing.tip.92c52b1f
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521053
+    m_Key: briefing.tip.9746a8fe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521054
+    m_Key: briefing.tip.bfc063a1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521055
+    m_Key: briefing.tip.e211848b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521056
+    m_Key: briefing.tip.6c32ef1c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521057
+    m_Key: briefing.tip.2fea83f0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521058
+    m_Key: briefing.tip.0c8b09c5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521059
+    m_Key: briefing.tip.8549734e
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521060
+    m_Key: briefing.tip.c388b658
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521061
+    m_Key: briefing.tip.7ec9bb59
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521062
+    m_Key: briefing.tip.e482958d
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521063
+    m_Key: briefing.tip.028a7195
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 6905218079203262750
+  references:
+    version: 2
+    RefIds:
+    - rid: 6905218079203262750
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1789215264360

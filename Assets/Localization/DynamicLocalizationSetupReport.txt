@@ -1,0 +1,66 @@
+﻿FATEFUL RUSH DYNAMIC LOCALIZATION SETUP
+========================================
+New components: 13
+Updated components: 0
+Intentional skips: 1
+
+=== CONFIGURED ===
+
+[MainMenu] Canvas/MainMenuPanel/AmbientTexts/SignalLostText
+Mode: AmbientMessage
+
+
+[MainMenu] Canvas/MainMenuPanel/AmbientTexts/ThreatUnknownText
+Mode: AmbientMessage
+
+
+[MainMenu] Canvas/MainMenuPanel/AmbientTexts/NoReturnVectorText
+Mode: AmbientMessage
+
+
+[MainMenu] Canvas/MainMenuPanel/Header/TipText5
+Mode: AmbientMessage
+
+
+[MainMenu] Canvas/PlayerSkinPanel/SkinPageContainer/SelectedSkinNameText
+Mode: SkinName
+
+
+[MainMenu] Canvas/PlayerSkinPanel/SkinPageContainer/SelectedSkinStatusText
+Mode: SkinStatus
+
+
+[MainMenu] Canvas/PlayerSkinPanel/SkinPageContainer/SkinRequirementText
+Mode: SkinRequirement
+
+
+[MainMenu] Canvas/Footer/StatusText
+Mode: FooterSignal
+
+
+[GameScene] Game_/UI/Canvas/HUD/ScoreText
+Mode: Score
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/ObjectiveRoot/ObjectiveValueText
+Mode: PauseObjective
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/SkinUnlockUI/UnlockedSkinNameText
+Mode: SkinName
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/DestroyedByText
+Mode: DeathCause
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/DeathMessageText
+Mode: DeathMessage
+
+
+=== INTENTIONAL SKIPS ===
+
+[GameScene] Game_/UI/Canvas/HUD/TimerText
+TimerText atlandı: GameTimer runtime'da 00:00 formatı kullanıyor.
+
+

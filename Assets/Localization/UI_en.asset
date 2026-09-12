@@ -1,0 +1,1374 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: aa6a097d7296d884a9d5dfed78a2349d, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 23311593472
+    m_Localized: CONTINUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008454893568
+    m_Localized: LEVEL {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253696
+    m_Localized: SIGNAL // STABLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253697
+    m_Localized: SIGNAL // UNSTABLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253698
+    m_Localized: LEVEL {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253699
+    m_Localized: 'SCORE: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253700
+    m_Localized: NEAR MISS  x{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253701
+    m_Localized: REACH {0} SCORE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253702
+    m_Localized: SURVIVE FOR {0} SECONDS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253703
+    m_Localized: REACH {0} SCORE IN {1} SECONDS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253704
+    m_Localized: NEW BEST!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253705
+    m_Localized: NEW BEST TIME!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253706
+    m_Localized: NEW SKIN UNLOCKED!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253707
+    m_Localized: Tap anywhere to skip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253708
+    m_Localized: SIGNAL LOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253709
+    m_Localized: 'THREAT: UNKNOWN'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253710
+    m_Localized: NO RETURN VECTOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253711
+    m_Localized: FATEFUL <color=#B946FF>RUSH</color>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253712
+    m_Localized: MISSIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253713
+    m_Localized: SKINS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253714
+    m_Localized: STATS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253715
+    m_Localized: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253716
+    m_Localized: EXTRAS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253717
+    m_Localized: ACHIEVEMENTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253718
+    m_Localized: LEADERBOARDS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253719
+    m_Localized: PRIVACY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253720
+    m_Localized: CREDITS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253721
+    m_Localized: BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253722
+    m_Localized: AUDIO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253723
+    m_Localized: Sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253724
+    m_Localized: ON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253725
+    m_Localized: OFF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253726
+    m_Localized: "Menu Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448000
+    m_Localized: "Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448001
+    m_Localized: Sfx
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448002
+    m_Localized: GAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448003
+    m_Localized: "Joyst\u0131ck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448004
+    m_Localized: Left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448005
+    m_Localized: Right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448006
+    m_Localized: "V\u0131brat\u0131on"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448007
+    m_Localized: Fps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448008
+    m_Localized: "Hud Opac\u0131ty"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448009
+    m_Localized: LANGUAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448010
+    m_Localized: OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448011
+    m_Localized: Level Section
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448012
+    m_Localized: TEST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448013
+    m_Localized: BEST TIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448014
+    m_Localized: START
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448015
+    m_Localized: CLOSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448016
+    m_Localized: New Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448017
+    m_Localized: RESET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448018
+    m_Localized: RESET STATISTICS?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448019
+    m_Localized: 'Are you sure you want to reset all statistics?
+
+      This action
+      cannot be undone.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448020
+    m_Localized: CANCEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448021
+    m_Localized: RESET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448022
+    m_Localized: PLAYER SKINS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448023
+    m_Localized: WHITE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448024
+    m_Localized: EQUIPPED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448025
+    m_Localized: COMPLETE LEVEL 4 TO UNLOCK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448026
+    m_Localized: SIGNAL // UNSTABLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448027
+    m_Localized: 'Score: 0'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448028
+    m_Localized: 'Time: 0'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448029
+    m_Localized: OBJECTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448030
+    m_Localized: 'REACH SCORE: 120'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448031
+    m_Localized: RESTART
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448032
+    m_Localized: MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448033
+    m_Localized: "Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448034
+    m_Localized: "Joyst\u0131ck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448035
+    m_Localized: "V\u0131brat\u0131on"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448036
+    m_Localized: "Hud Opac\u0131ty"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448037
+    m_Localized: "Opt\u0131ons"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448038
+    m_Localized: MISSION COMPLETE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448039
+    m_Localized: MISSION REPORT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448040
+    m_Localized: SCORE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448041
+    m_Localized: TIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448042
+    m_Localized: 0.0 s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448043
+    m_Localized: NEXT LEVEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448044
+    m_Localized: NEW SKIN UNLOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448045
+    m_Localized: BLUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448046
+    m_Localized: NEW BEST TIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448047
+    m_Localized: MISSION FAILED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448048
+    m_Localized: Destroyed By
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448049
+    m_Localized: SPACE BOMB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448050
+    m_Localized: New Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448051
+    m_Localized: SCORE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448052
+    m_Localized: SURVIVED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448053
+    m_Localized: 0.0 s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448054
+    m_Localized: PLAY AGAIN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448055
+    m_Localized: MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448056
+    m_Localized: Return to Main Menu?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448057
+    m_Localized: Stay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448058
+    m_Localized: "Ma\u0131n Menu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448059
+    m_Localized: FATEFUL RUSH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448060
+    m_Localized: CREATED & DEVELOPED BY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448061
+    m_Localized: "ARDA \u2014 YOUNGDEV STUDIOS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448062
+    m_Localized: PLAYTESTING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448063
+    m_Localized: "Recep Eray Gen\xE7\nAybars Duran\nOsman Kerem \u015Eener\nMuhammed
+      Sait K\u0131l\u0131\xE7\nBurak Ayd\u0131n\nSoner Pupa\nMustafa Rubaye"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448064
+    m_Localized: SPECIAL THANKS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448065
+    m_Localized: "Recep Eray Gen\xE7\nAybars Duran\nOsman Kerem \u015Eener\nMuhammed
+      Sait K\u0131l\u0131\xE7\nBurak Ayd\u0131n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448066
+    m_Localized: "To everyone who played, tested, supported, shared feedback, and
+      stayed with this project along the way \u2014 thank you.\n\nFateful Rush was
+      built one level, one challenge, and one breakthrough at a time.\n\nReaching
+      the end means more than completing 40 missions. It means being part of the
+      journey that brought this game to life.\n\nYour time, support, and belief made
+      this possible.\n\nThe stars may have gone silent, but the rush lives on."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448067
+    m_Localized: THANK YOU FOR PLAYING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448068
+    m_Localized: "YOUNGDEV STUDIOS \u2014 2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448069
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362292338688
+    m_Localized: "Menu Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893120
+    m_Localized: "Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893121
+    m_Localized: "Joyst\u0131ck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893122
+    m_Localized: "V\u0131brat\u0131on"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893123
+    m_Localized: "Hud Opac\u0131ty"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54355386085376
+    m_Localized: 'TIME: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54355415445504
+    m_Localized: 'Time: 0'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562713399296
+    m_Localized: 'REACH SCORE: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953728
+    m_Localized: 'SURVIVE: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953729
+    m_Localized: "REACH SCORE: {0} \xB7 {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953730
+    m_Localized: COMPLETE THE MISSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953731
+    m_Localized: EQUIPPED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953732
+    m_Localized: EQUIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953733
+    m_Localized: AVAILABLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953734
+    m_Localized: UNLOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953735
+    m_Localized: LOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953736
+    m_Localized: COMPLETE LEVEL {0} TO UNLOCK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953737
+    m_Localized: WHITE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953738
+    m_Localized: BLUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953739
+    m_Localized: ORANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953740
+    m_Localized: RED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953741
+    m_Localized: GREEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953742
+    m_Localized: PINK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953743
+    m_Localized: YELLOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953744
+    m_Localized: CYAN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953745
+    m_Localized: PURPLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953746
+    m_Localized: DARK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953747
+    m_Localized: GOLDEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953748
+    m_Localized: Fate Is Closing In
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953749
+    m_Localized: The Stars Have Gone Silent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953750
+    m_Localized: Every Second Seals Your Path
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953751
+    m_Localized: No Signal Reaches Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953752
+    m_Localized: Something Is Following You
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953753
+    m_Localized: The Future Is Collapsing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953754
+    m_Localized: Time Refuses To Wait
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953755
+    m_Localized: Your Next Move Is Final
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953756
+    m_Localized: The Dark Remembers Your Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953757
+    m_Localized: Survival Was Never Promised
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953758
+    m_Localized: There Is No Safe Vector
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953759
+    m_Localized: The End Is Gaining Ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953760
+    m_Localized: Run Before Fate Finds You
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953761
+    m_Localized: Fate Moves Faster Than You
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953762
+    m_Localized: The Countdown Has Begun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953763
+    m_Localized: Only Motion Keeps You Alive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953764
+    m_Localized: SIGNAL LOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953765
+    m_Localized: 'THREAT: UNKNOWN'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953766
+    m_Localized: NO RETURN VECTOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953767
+    m_Localized: STALKER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953768
+    m_Localized: HUNTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953769
+    m_Localized: BLASTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953770
+    m_Localized: LASER BULLET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953771
+    m_Localized: LASER WALL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953772
+    m_Localized: BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953773
+    m_Localized: MINI BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953774
+    m_Localized: SPACE BOMB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953775
+    m_Localized: TIME EXPIRED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953776
+    m_Localized: UNKNOWN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953777
+    m_Localized: YOU LET IT GET TOO CLOSE.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953778
+    m_Localized: THE STALKER FOUND ITS OPENING.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953779
+    m_Localized: YOU COULDN'T SHAKE IT.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953780
+    m_Localized: IT NEVER STOPPED CHASING.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953781
+    m_Localized: THE HUNTER CAUGHT ITS PREY.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953782
+    m_Localized: YOU COULDN'T OUTRUN THE HUNT.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953783
+    m_Localized: THE HUNTER CLOSED THE DISTANCE.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953784
+    m_Localized: THERE WAS NOWHERE LEFT TO RUN.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953785
+    m_Localized: YOU CROSSED THE BLASTER'S PATH.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953786
+    m_Localized: THE BLASTER HAD YOU LINED UP.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953787
+    m_Localized: YOU STAYED TOO CLOSE FOR TOO LONG.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953788
+    m_Localized: THE BLASTER WON THE STANDOFF.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953789
+    m_Localized: ONE SHOT WAS ALL IT TOOK.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953790
+    m_Localized: YOU NEVER SAW THAT SHOT COMING.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953791
+    m_Localized: THE LASER FOUND ITS MARK.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953792
+    m_Localized: ONE HIT ENDED THE RUN.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953793
+    m_Localized: THERE WAS NO GAP TO ESCAPE.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953794
+    m_Localized: THE LASER WALL CLOSED YOU IN.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953795
+    m_Localized: YOU RAN OUT OF ROOM.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953796
+    m_Localized: THE WALL LEFT NO WAY THROUGH.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953797
+    m_Localized: THE VOID CLAIMED ANOTHER RUN.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953798
+    m_Localized: THE BOSS OVERWHELMED YOU.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953799
+    m_Localized: YOU COULDN'T SURVIVE ITS ATTACK.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953800
+    m_Localized: THE BOSS ENDED YOUR RUN.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953801
+    m_Localized: YOU UNDERESTIMATED THE THREAT.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953802
+    m_Localized: THE MINI-BOSS CAUGHT YOU OFF GUARD.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953803
+    m_Localized: YOU DIDN'T CLEAR THE DANGER ZONE.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953804
+    m_Localized: THE THREAT WAS SMALLER. NOT WEAKER.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953805
+    m_Localized: YOU WERE CAUGHT IN THE BLAST.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953806
+    m_Localized: THE EXPLOSION LEFT NO ESCAPE.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953807
+    m_Localized: YOU STAYED TOO CLOSE TO THE BOMB.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953808
+    m_Localized: THE BLAST RADIUS GOT YOU.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953809
+    m_Localized: TIME RAN OUT.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953810
+    m_Localized: YOU NEEDED A FEW MORE SECONDS.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953811
+    m_Localized: THE CLOCK WON THIS ROUND.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953812
+    m_Localized: YOU RAN OUT OF TIME.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953813
+    m_Localized: THE RUN ENDED HERE.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953814
+    m_Localized: SOMETHING WENT VERY WRONG.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953815
+    m_Localized: THE VOID HAD OTHER PLANS.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953816
+    m_Localized: THIS RUN WASN'T MEANT TO LAST.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960169603072
+    m_Localized: OBJECTIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157504
+    m_Localized: "LEVEL {0} \u2014 {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157505
+    m_Localized: SCORE MISSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157506
+    m_Localized: SURVIVAL MISSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157507
+    m_Localized: TIMED SCORE MISSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157508
+    m_Localized: MISSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157509
+    m_Localized: Collect {0} points to complete the mission.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157510
+    m_Localized: Stay alive for {0} seconds. Coins and combos are disabled in this
+      mission.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157511
+    m_Localized: Collect {0} points before the {1} seconds countdown reaches zero.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157512
+    m_Localized: Complete the mission objective.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157513
+    m_Localized: GENERAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157514
+    m_Localized: PROGRESSION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157515
+    m_Localized: MISSION MODES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157516
+    m_Localized: PERFORMANCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157517
+    m_Localized: NEAR MISS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157518
+    m_Localized: COLLECTIBLES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157519
+    m_Localized: ABILITIES & POWER-UPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157520
+    m_Localized: DANGER MASTERY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157521
+    m_Localized: DEATH ANALYSIS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157522
+    m_Localized: LEVEL BEST TIMES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157523
+    m_Localized: Total Runs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157524
+    m_Localized: Total Wins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157525
+    m_Localized: Total Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157526
+    m_Localized: Win Rate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157527
+    m_Localized: Current Win Streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157528
+    m_Localized: Best Win Streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157529
+    m_Localized: Total Play Time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157530
+    m_Localized: Average Run Time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157531
+    m_Localized: Longest Run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157532
+    m_Localized: Levels Completed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157533
+    m_Localized: Completion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157534
+    m_Localized: Highest Level Completed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157535
+    m_Localized: Skins Unlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157536
+    m_Localized: Score Missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157537
+    m_Localized: Survival Missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157538
+    m_Localized: Timed Score Missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157539
+    m_Localized: Total Score Earned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157540
+    m_Localized: Best Run Score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157541
+    m_Localized: Average Score / Score Run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157542
+    m_Localized: Highest Combo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157543
+    m_Localized: Longest Combo Chain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157544
+    m_Localized: 6x Combo Reached
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157545
+    m_Localized: Combo Bonus Points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157546
+    m_Localized: Total Near Misses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157547
+    m_Localized: Best Near Miss Streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157548
+    m_Localized: Total Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157549
+    m_Localized: Normal Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157550
+    m_Localized: Gold Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157551
+    m_Localized: Rare Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157552
+    m_Localized: Most Coins in a Run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157553
+    m_Localized: Base Coin Value Collected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157554
+    m_Localized: Magnet Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157555
+    m_Localized: Dash Uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157556
+    m_Localized: Clone Uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157557
+    m_Localized: Slow Buff Uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157558
+    m_Localized: Armor Buff Uses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157559
+    m_Localized: Armor Saves
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157560
+    m_Localized: Armor Save Rate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157561
+    m_Localized: Beacons Destroyed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157562
+    m_Localized: Hunters Stunned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157563
+    m_Localized: Boss Encounters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157564
+    m_Localized: Boss Splits Triggered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157565
+    m_Localized: Boss AOE Evades
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157566
+    m_Localized: Mini-Boss AOE Evades
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157567
+    m_Localized: Nemesis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157568
+    m_Localized: Stalker Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157569
+    m_Localized: Hunter Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157570
+    m_Localized: Blaster Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157571
+    m_Localized: Boss Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157572
+    m_Localized: Laser Bullet Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157573
+    m_Localized: Laser Wall Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157574
+    m_Localized: Mini-Boss Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157575
+    m_Localized: Space Bomb Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157576
+    m_Localized: Time Expired
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157577
+    m_Localized: Unknown Deaths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157578
+    m_Localized: No recorded death causes yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157579
+    m_Localized: No best-time records yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157580
+    m_Localized: NONE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157581
+    m_Localized: Level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157582
+    m_Localized: Dev Room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157583
+    m_Localized: wins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157584
+    m_Localized: coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157585
+    m_Localized: h
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157586
+    m_Localized: m
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157587
+    m_Localized: s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521024
+    m_Localized: First signal acquired. Begin your mission by learning movement and
+      establishing safe coin routes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521025
+    m_Localized: Combos reward consecutive coin pickups, while the new Stalker relentlessly
+      pursues you and accelerates over time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521026
+    m_Localized: Two Stalkers now pressure you at once. Keep them grouped to one
+      side, then cut across open space for coins.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521027
+    m_Localized: Static obstacles now block routes. Use them to bend Stalker paths,
+      but always leave yourself a second exit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521028
+    m_Localized: Dash is now available. Save it for blocked routes or close threats
+      instead of spending it in open space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521029
+    m_Localized: Gold Coins are worth 3 points. Take them when the route is safe;
+      their value is not worth getting trapped.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521030
+    m_Localized: Blasters keep their distance and fire predictive shots. Change direction
+      after a shot commits, and never use enemies as bullet cover.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521031
+    m_Localized: Armor absorbs one lethal hit and grants brief immunity after breaking.
+      Use that window to escape immediately.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521032
+    m_Localized: Space Bombs arm after a short delay and then become lethal zones.
+      Track the minefield before committing to a coin route.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521033
+    m_Localized: This is your first Survival mission. Preserve open space as Space
+      Bombs accumulate and use Armor only as a recovery tool.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521034
+    m_Localized: Horizontal Lasers warn their lane before firing. Leave the warning
+      band early, then react to incoming Blaster shots.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521035
+    m_Localized: This is your first Timed Score mission. Build consistent combos,
+      but abandon a chain when the arena starts closing around you.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521036
+    m_Localized: Slow temporarily reduces game speed and gives you breathing room.
+      Use it when several threats overlap, not while the arena is calm.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521037
+    m_Localized: Rare Coins are worth 5 points. Take them when accessible, but never
+      enter a sealed route just for the extra score.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521038
+    m_Localized: Hunters show a warning line before charging. Let the line commit,
+      sidestep the charge, and watch both Hunters before using Dash.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521039
+    m_Localized: Clone redirects enemies for a short time. Its cooldown begins after
+      the Clone disappears, so use it to reset collapsing formations.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521040
+    m_Localized: Vertical Lasers warn a column before firing. Move out early and
+      save Clone for overlaps with Hunters or Blaster fire.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521041
+    m_Localized: Beacons buff nearby enemies. Destroy a Beacon by dashing into it;
+      its active buffs disappear immediately, but another Beacon can return.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521042
+    m_Localized: The first Boss enters at 90 score. Armor can absorb its hit; when
+      that happens, the Boss splits into two Mini-Bosses.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521043
+    m_Localized: Both Laser directions, Space Bombs and a Boss at 50 score overlap
+      here. Score early, then prioritize survival once the arena fills.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521044
+    m_Localized: Both Laser directions remain active in this Survival mission. Stay
+      central until a warning appears, then move toward the cleaner side.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521045
+    m_Localized: Space Bombs return without Armor or Slow support. Keep routes short
+      and change direction only after Hunter charges commit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521046
+    m_Localized: A recurring Beacon supports the enemy wave. Destroy it with Dash,
+      then use the quiet interval before it returns to rebuild control.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521047
+    m_Localized: Vertical Lasers, Space Bombs and Hunters steadily reduce safe space.
+      Move zones before a Bomb finishes arming instead of escaping late.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521048
+    m_Localized: The Boss enters at 100 score while Horizontal Lasers restrict exits.
+      Reach that phase with Dash ready and keep scoring routes clear.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521049
+    m_Localized: Both Laser directions are active during a long Survival mission.
+      Use Slow for one pressure spike and save Clone for the next overlap.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521050
+    m_Localized: Heavy Blaster and Hunter pressure combines with Space Bombs. Move
+      in deliberate arcs and change direction after nearby shots commit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521051
+    m_Localized: Both Laser directions can chain together during this Timed Score
+      mission. Collect from the safe quadrant and abandon distant coins early.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521052
+    m_Localized: A recurring Beacon and two Hunters create repeated pressure spikes.
+      Destroy the Beacon whenever a safe Dash line opens.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521053
+    m_Localized: A Beacon, Space Bombs and a Boss at 90 score overlap before the
+      timer ends. Remove Beacon buffs before forcing long scoring routes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521054
+    m_Localized: Both Laser directions and Space Bombs combine in a long Survival
+      mission. Keep Armor and Clone for separate emergencies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521055
+    m_Localized: A recurring Beacon and Space Bombs disrupt this Timed Score mission.
+      Remove the Beacon before committing to a long combo chain.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521056
+    m_Localized: Five obstacles and fast Space Bomb pressure turn this into a minefield
+      score test. Move from one open sector to the next.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521057
+    m_Localized: Beacon buffs, a Vertical Laser and Hunters create repeated Survival
+      spikes. Remove the Beacon before spending Slow when possible.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521058
+    m_Localized: The Boss enters at 120 score while Space Bombs keep shrinking safe
+      routes. Build momentum before the Boss phase.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521059
+    m_Localized: A recurring Beacon, both Laser directions and Space Bombs share
+      this Timed Score mission. Treat each Beacon death as a scoring window.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521060
+    m_Localized: Both Laser directions and Space Bombs stay active through a long
+      Survival mission. Rotate Armor, Slow and Clone across separate emergencies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521061
+    m_Localized: A recurring Beacon, Space Bombs and five obstacles guard the highest
+      pure score target. Keep combos local and clear Beacon buffs first.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521062
+    m_Localized: The Boss enters at 105 score while Vertical Lasers, Space Bombs,
+      Hunters and Blasters pressure the timer. Save a defensive option for that phase.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521063
+    m_Localized: Final Challenge. Survive every major hazard with recurring Beacons
+      and a Boss entering at 35 seconds. Stagger Armor, Slow and Clone carefully.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

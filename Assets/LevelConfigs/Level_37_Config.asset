@@ -40,8 +40,8 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions and Space Bombs stay active through a long Survival mission. Rotate Armor,
-    Slow and Clone across separate emergencies.
+  - Both Laser directions and Space Bombs stay active through a long Survival mission.
+    Rotate Armor, Slow and Clone across separate emergencies.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
@@ -55,7 +55,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
@@ -67,7 +66,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.681
   nearStarsSizeMultiplier: 1.177
   starfieldDensityMultiplier: 1.212
-  nearStarsEmissionRate: 58
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -110,7 +108,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 6.8
+  normalEnemySpawnInterval: 8
   normalEnemyDanger: 4
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -126,7 +124,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 12.5
+  projectileEnemySpawnInterval: 13
   projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -135,6 +133,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5
@@ -261,7 +263,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 3
+  bombDanger: 4
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

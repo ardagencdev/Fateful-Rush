@@ -1,0 +1,733 @@
+﻿FATEFUL RUSH LOCALIZATION SCAN REPORT
+=====================================
+Scene TMP texts processed: 114
+Untranslated/TODO: 0
+
+=== NEEDS TURKISH REVIEW ===
+
+No untranslated scene strings found.
+
+=== ALL SCANNED STRINGS ===
+
+[IntroScene] Canvas/TapToSkipText
+Key: intro.tap_to_skip
+EN: Tap anywhere to skip
+TR: Atlamak için ekrana dokun
+
+
+[MainMenu] Canvas/MainMenuPanel/AmbientTexts/SignalLostText
+Key: scene.mainmenu.canvas_1.mainmenupanel_0.ambienttexts_0.signallosttext_0
+EN: SIGNAL LOST
+TR: SİNYAL KAYIP
+
+
+[MainMenu] Canvas/MainMenuPanel/AmbientTexts/ThreatUnknownText
+Key: scene.mainmenu.canvas_1.mainmenupanel_0.ambienttexts_0.threatunknowntext_1
+EN: THREAT: UNKNOWN
+TR: TEHDİT: BİLİNMİYOR
+
+
+[MainMenu] Canvas/MainMenuPanel/AmbientTexts/NoReturnVectorText
+Key: scene.mainmenu.canvas_1.mainmenupanel_0.ambienttexts_0.noreturnvectortext_2
+EN: NO RETURN VECTOR
+TR: GERİ DÖNÜŞ VEKTÖRÜ YOK
+
+
+[MainMenu] Canvas/MainMenuPanel/Header/TitleText
+Key: scene.mainmenu.canvas_1.mainmenupanel_0.header_1.titletext_0
+EN: FATEFUL <color=#B946FF>RUSH</color>
+TR: FATEFUL <color=#B946FF>RUSH</color>
+
+
+[MainMenu] Canvas/MainMenuPanel/ButtonGroup/ContinueButton/Text (TMP)
+Key: menu.continue
+EN: CONTINUE
+TR: DEVAM ET
+
+
+[MainMenu] Canvas/MainMenuPanel/ButtonGroup/MissionsButton/Text (TMP)
+Key: menu.missions
+EN: MISSIONS
+TR: GÖREVLER
+
+
+[MainMenu] Canvas/MainMenuPanel/ButtonGroup/SkinsButton/Text (TMP)
+Key: menu.skins
+EN: SKINS
+TR: GÖRÜNÜMLER
+
+
+[MainMenu] Canvas/MainMenuPanel/ButtonGroup/StatsButton/Text (TMP)
+Key: menu.stats
+EN: STATS
+TR: İSTATİSTİKLER
+
+
+[MainMenu] Canvas/MainMenuPanel/ButtonGroup/SettingsButton/Text (TMP)
+Key: menu.settings
+EN: SETTINGS
+TR: AYARLAR
+
+
+[MainMenu] Canvas/MainMenuPanel/ButtonGroup/ExtrasButton/Text (TMP)
+Key: menu.extras
+EN: EXTRAS
+TR: EKSTRALAR
+
+
+[MainMenu] Canvas/ExtrasPanel/TitleText
+Key: menu.extras
+EN: EXTRAS
+TR: EKSTRALAR
+
+
+[MainMenu] Canvas/ExtrasPanel/ButtonGroup/AchievementsButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.achievementsbutton_0.text_tmp_0
+EN: ACHIEVEMENTS
+TR: BAŞARIMLAR
+
+
+[MainMenu] Canvas/ExtrasPanel/ButtonGroup/LeaderboardsButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.leaderboardsbutton_1.text_tmp_0
+EN: LEADERBOARDS
+TR: LİDERLİK TABLOLARI
+
+
+[MainMenu] Canvas/ExtrasPanel/ButtonGroup/PrivacyPolicyButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.privacypolicybutton_2.text_tmp_0
+EN: PRIVACY
+TR: GİZLİLİK
+
+
+[MainMenu] Canvas/ExtrasPanel/ButtonGroup/CreditsButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.extraspanel_1.buttongroup_1.creditsbutton_3.text_tmp_0
+EN: CREDITS
+TR: JENERİK
+
+
+[MainMenu] Canvas/ExtrasPanel/ButtonGroup/BackButton/Text (TMP)
+Key: common.back
+EN: BACK
+TR: GERİ
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/AudioTitle
+Key: options.audio
+EN: AUDIO
+TR: SES
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SoundRow/SoundText
+Key: options.sound
+EN: Sound
+TR: SES
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SoundRow/SoundOnButton/Text (TMP)
+Key: common.on
+EN: ON
+TR: AÇIK
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SoundRow/SoundOffButton/Text (TMP)
+Key: common.off
+EN: OFF
+TR: KAPALI
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/MenuMusicRow/MenuMusicText
+Key: options.menu_music
+EN: Menu Musıc
+TR: MENÜ MÜZİĞİ
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/MenuMusicRow/MenuMusicOnButton/Text (TMP)
+Key: common.on
+EN: ON
+TR: AÇIK
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/MenuMusicRow/MenuMusicOffButton/Text (TMP)
+Key: common.off
+EN: OFF
+TR: KAPALI
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/MusicRow/MusicText
+Key: options.music
+EN: Musıc
+TR: MÜZİK
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SFXRow/SFXText
+Key: options.sfx
+EN: Sfx
+TR: SFX
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/GameTitle
+Key: options.game
+EN: GAME
+TR: OYUN
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/JoystickRow/JoystickText
+Key: options.joystick
+EN: Joystıck
+TR: JOYSTICK
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/JoystickRow/JoystickLeftButton/Text (TMP)
+Key: common.left
+EN: Left
+TR: SOL
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/JoystickRow/JoystickRightButton/Text (TMP)
+Key: common.right
+EN: Right
+TR: SAĞ
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/VibrationRow/VibrationText
+Key: options.vibration
+EN: Vıbratıon
+TR: TİTREŞİM
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/VibrationRow/VibrationOnButton/Text (TMP)
+Key: common.on
+EN: ON
+TR: AÇIK
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/VibrationRow/VibrationOffButton/Text (TMP)
+Key: common.off
+EN: OFF
+TR: KAPALI
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/FPSRow/FPSText
+Key: options.fps
+EN: Fps
+TR: FPS
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/HUDOpacityContainer/HUDOpacityRow/HUDOpacityText
+Key: options.hud_opacity
+EN: Hud Opacıty
+TR: HUD SAYDAMLIĞI
+
+
+[MainMenu] Canvas/OptionsPanel/SettingsContainer/LanguageSettingsPanel/LanguageContent/LanguageTitle
+Key: options.language
+EN: LANGUAGE
+TR: DİL
+
+
+[MainMenu] Canvas/OptionsPanel/Title
+Key: options.title
+EN: OPTIONS
+TR: AYARLAR
+
+
+[MainMenu] Canvas/OptionsPanel/BackButton/Text (TMP)
+Key: common.back
+EN: BACK
+TR: GERİ
+
+
+[MainMenu] Canvas/LevelSelectPanel/TitleText
+Key: scene.mainmenu.canvas_1.levelselectpanel_3.titletext_0
+EN: Level Section
+TR: BÖLÜM SEÇİMİ
+
+
+[MainMenu] Canvas/LevelSelectPanel/BackButton/Text (TMP)
+Key: common.back
+EN: BACK
+TR: GERİ
+
+
+[MainMenu] Canvas/LevelSelectPanel/DevRoomButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.levelselectpanel_3.devroombutton_6.text_tmp_0
+EN: TEST
+TR: TEST
+
+
+[MainMenu] Canvas/LevelSelectPanel/MissionBriefingPanel/BriefingWindow/BestTimeGroup/BestTimeLabel
+Key: scene.mainmenu.canvas_1.levelselectpanel_3.missionbriefingpanel_8.briefingwindow_1.besttimegroup_3.besttimelabel_0
+EN: BEST TIME
+TR: EN İYİ SÜRE
+
+
+[MainMenu] Canvas/LevelSelectPanel/MissionBriefingPanel/BriefingWindow/StartButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.levelselectpanel_3.missionbriefingpanel_8.briefingwindow_1.startbutton_6.text_tmp_0
+EN: START
+TR: BAŞLA
+
+
+[MainMenu] Canvas/LevelSelectPanel/MissionBriefingPanel/BriefingWindow/CloseButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.levelselectpanel_3.missionbriefingpanel_8.briefingwindow_1.closebutton_7.text_tmp_0
+EN: CLOSE
+TR: KAPAT
+
+
+[MainMenu] Canvas/StatsPanel/TitleText
+Key: menu.stats
+EN: STATS
+TR: İSTATİSTİKLER
+
+
+[MainMenu] Canvas/StatsPanel/ResetStatsButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.statspanel_4.resetstatsbutton_4.text_tmp_0
+EN: RESET
+TR: SIFIRLA
+
+
+[MainMenu] Canvas/StatsPanel/BackButton/Text (TMP)
+Key: common.back
+EN: BACK
+TR: GERİ
+
+
+[MainMenu] Canvas/StatsPanel/ResetConfirmationPanel/ConfirmationBox/TitleText
+Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.titletext_0
+EN: RESET STATISTICS?
+TR: İSTATİSTİKLER SIFIRLANSIN MI?
+
+
+[MainMenu] Canvas/StatsPanel/ResetConfirmationPanel/ConfirmationBox/ConfirmationBox
+Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.confirmationbox_1
+EN: Are you sure you want to reset all statistics?
+This action cannot be undone.
+TR: Tüm istatistikleri sıfırlamak istediğine emin misin?
+Bu işlem geri alınamaz.
+
+
+[MainMenu] Canvas/StatsPanel/ResetConfirmationPanel/ConfirmationBox/CancelButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.cancelbutton_2.text_tmp_0
+EN: CANCEL
+TR: İPTAL
+
+
+[MainMenu] Canvas/StatsPanel/ResetConfirmationPanel/ConfirmationBox/ResetButton/Text (TMP)
+Key: scene.mainmenu.canvas_1.statspanel_4.resetconfirmationpanel_6.confirmationbox_1.resetbutton_3.text_tmp_0
+EN: RESET
+TR: SIFIRLA
+
+
+[MainMenu] Canvas/PlayerSkinPanel/TitleText
+Key: scene.mainmenu.canvas_1.playerskinpanel_5.titletext_0
+EN: PLAYER SKINS
+TR: OYUNCU GÖRÜNÜMLERİ
+
+
+[MainMenu] Canvas/PlayerSkinPanel/SkinPageContainer/SelectedSkinNameText
+Key: scene.mainmenu.canvas_1.playerskinpanel_5.skinpagecontainer_1.selectedskinnametext_1
+EN: WHITE
+TR: BEYAZ
+
+
+[MainMenu] Canvas/PlayerSkinPanel/SkinPageContainer/SelectedSkinStatusText
+Key: scene.mainmenu.canvas_1.playerskinpanel_5.skinpagecontainer_1.selectedskinstatustext_2
+EN: EQUIPPED
+TR: KUŞANILDI
+
+
+[MainMenu] Canvas/PlayerSkinPanel/SkinPageContainer/SkinRequirementText
+Key: scene.mainmenu.canvas_1.playerskinpanel_5.skinpagecontainer_1.skinrequirementtext_3
+EN: COMPLETE LEVEL 4 TO UNLOCK
+TR: AÇMAK İÇİN 4. BÖLÜMÜ TAMAMLA
+
+
+[MainMenu] Canvas/PlayerSkinPanel/BackButton/Text (TMP)
+Key: common.back
+EN: BACK
+TR: GERİ
+
+
+[MainMenu] Canvas/Footer/StatusText
+Key: scene.mainmenu.canvas_1.footer_6.statustext_1
+EN: SIGNAL // UNSTABLE
+TR: SİNYAL // KARARSIZ
+
+
+[GameScene] Game_/UI/Canvas/HUD/ScoreText
+Key: scene.gamescene.game_0.ui_3.canvas_0.hud_0.scoretext_0
+EN: Score: 0
+TR: SKOR: 0
+
+
+[GameScene] Game_/UI/Canvas/HUD/TimerText
+Key: hud.time.default
+EN: Time: 0
+TR: SÜRE: 0
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/ObjectiveRoot/ObjectiveTitleText
+Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.objectiveroot_0.objectivetitletext_0
+EN: OBJECTIVE
+TR: HEDEF
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/ObjectiveRoot/ObjectiveValueText
+Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.objectiveroot_0.objectivevaluetext_1
+EN: REACH SCORE: 120
+TR: 120 SKORA ULAŞ
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/ContinueButton/Text (TMP)
+Key: menu.continue
+EN: CONTINUE
+TR: DEVAM ET
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/RestartButton/Text (TMP)
+Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.restartbutton_2.text_tmp_0
+EN: RESTART
+TR: YENİDEN BAŞLAT
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/OptionsButton/Text (TMP)
+Key: options.title
+EN: OPTIONS
+TR: AYARLAR
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/PauseMainPanel/MenuButton/Text (TMP)
+Key: scene.gamescene.game_0.ui_3.canvas_0.pausepanel_6.pausemainpanel_0.menubutton_4.text_tmp_0
+EN: MAIN MENU
+TR: ANA MENÜ
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/Title
+Key: options.title
+EN: OPTIONS
+TR: AYARLAR
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/AudioTitle
+Key: options.audio
+EN: AUDIO
+TR: SES
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SoundRow/SoundText
+Key: options.sound
+EN: Sound
+TR: SES
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SoundRow/SoundOnButton/Text (TMP)
+Key: common.on
+EN: ON
+TR: AÇIK
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SoundRow/SoundOffButton/Text (TMP)
+Key: common.off
+EN: OFF
+TR: KAPALI
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/MusicRow/MusicText
+Key: options.music
+EN: Musıc
+TR: MÜZİK
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/AudioSettingsPanel/AudioContent/SFXRow/SFXText
+Key: options.sfx
+EN: Sfx
+TR: SFX
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/GameTitle
+Key: options.game
+EN: GAME
+TR: OYUN
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/JoystickRow/JoystickText
+Key: options.joystick
+EN: Joystıck
+TR: JOYSTICK
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/JoystickRow/JoystickLeftButton/Text (TMP)
+Key: common.left
+EN: Left
+TR: SOL
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/JoystickRow/JoystickRightButton/Text (TMP)
+Key: common.right
+EN: Right
+TR: SAĞ
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/VibrationRow/VibrationText
+Key: options.vibration
+EN: Vıbratıon
+TR: TİTREŞİM
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/VibrationRow/VibrationOnButton/Text (TMP)
+Key: common.on
+EN: ON
+TR: AÇIK
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/VibrationRow/VibrationOffButton/Text (TMP)
+Key: common.off
+EN: OFF
+TR: KAPALI
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/FPSRow/FPSText
+Key: options.fps
+EN: Fps
+TR: FPS
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/GameSettingsPanel/GameContent/HUDOpacityContainer/HUDOpacityRow/HUDOpacityText
+Key: options.hud_opacity
+EN: Hud Opacıty
+TR: HUD SAYDAMLIĞI
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/SettingsContainer/LanguageSettingsPanel/LanguageContent/LanguageTitle
+Key: options.language
+EN: LANGUAGE
+TR: DİL
+
+
+[GameScene] Game_/UI/Canvas/PausePanel/OptionsPanel/BackButton/Text (TMP)
+Key: common.back
+EN: BACK
+TR: GERİ
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/WinTitleText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.wintitletext_0
+EN: MISSION COMPLETE
+TR: GÖREV TAMAMLANDI
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/MissionReportText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.missionreporttext_1
+EN: MISSION REPORT
+TR: GÖREV RAPORU
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/ScoreLabel
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.scorelabel_2
+EN: SCORE
+TR: SKOR
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/TimeLabel
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.timelabel_4
+EN: TIME
+TR: SÜRE
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/TimeValue
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.timevalue_5
+EN: 0.0 s
+TR: 0.0 s
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/NextLevelButton/NextLevelText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.nextlevelbutton_6.nextleveltext_0
+EN: NEXT LEVEL
+TR: SONRAKİ BÖLÜM
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/SkinUnlockUI/SkinUnlockedTitleText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.skinunlockui_7.skinunlockedtitletext_0
+EN: NEW SKIN UNLOCKED
+TR: YENİ GÖRÜNÜM AÇILDI
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/SkinUnlockUI/UnlockedSkinNameText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.skinunlockui_7.unlockedskinnametext_1
+EN: BLUE
+TR: MAVİ
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/WinUI/NewBestTimeUI/NewBestTimeText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.winui_2.newbesttimeui_8.newbesttimetext_0
+EN: NEW BEST TIME
+TR: YENİ EN İYİ SÜRE
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/LoseTitleText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.losetitletext_0
+EN: MISSION FAILED
+TR: GÖREV BAŞARISIZ
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/DestroyedByLabel
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.destroyedbylabel_1
+EN: Destroyed By
+TR: ÖLÜM NEDENİ
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/DestroyedByText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.destroyedbytext_2
+EN: SPACE BOMB
+TR: UZAY BOMBASI
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/ScoreLabel
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.scorelabel_4
+EN: SCORE
+TR: SKOR
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/SurvivedLabel
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.survivedlabel_6
+EN: SURVIVED
+TR: HAYATTA KALDIN
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/LoseUI/SurvivedValue
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.loseui_3.survivedvalue_7
+EN: 0.0 s
+TR: 0.0 s
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/RestartButton/Tekrar Başla
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.restartbutton_4.tekrar_ba_la_0
+EN: PLAY AGAIN
+TR: TEKRAR OYNA
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/MenuButton/Text (TMP)
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menubutton_5.text_tmp_0
+EN: MAIN MENU
+TR: ANA MENÜ
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/MenuConfirmationPanel/ConfirmationBox/TitleText
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menuconfirmationpanel_6.confirmationbox_1.titletext_0
+EN: Return to Main Menu?
+TR: ANA MENÜYE DÖNÜLSÜN MÜ?
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/MenuConfirmationPanel/ConfirmationBox/StayButton/Text (TMP)
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menuconfirmationpanel_6.confirmationbox_1.staybutton_1.text_tmp_0
+EN: Stay
+TR: KAL
+
+
+[GameScene] Game_/UI/Canvas/ResultsUIController/ResultsPanel/MenuConfirmationPanel/ConfirmationBox/MainMenuButton/Text (TMP)
+Key: scene.gamescene.game_0.ui_3.canvas_0.resultsuicontroller_7.resultspanel_0.menuconfirmationpanel_6.confirmationbox_1.mainmenubutton_2.text_tmp_0
+EN: Maın Menu
+TR: ANA MENÜ
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Title_FatefulRush
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.title_fatefulrush_0
+EN: FATEFUL RUSH
+TR: FATEFUL RUSH
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Header_CreatedBy
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.header_createdby_1
+EN: CREATED & DEVELOPED BY
+TR: GELİŞTİREN
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Name_CreatedBy
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.name_createdby_2
+EN: ARDA — YOUNGDEV STUDIOS
+TR: ARDA — YOUNGDEV STUDIOS
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Header_Playtesting
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.header_playtesting_3
+EN: PLAYTESTING
+TR: OYUN TESTİ
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Names_Playtesting
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.names_playtesting_4
+EN: Recep Eray Genç
+Aybars Duran
+Osman Kerem Şener
+Muhammed Sait Kılıç
+Burak Aydın
+Soner Pupa
+Mustafa Rubaye
+TR: Recep Eray Genç
+Aybars Duran
+Osman Kerem Şener
+Muhammed Sait Kılıç
+Burak Aydın
+Soner Pupa
+Mustafa Rubaye
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Header_SpecialThanks
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.header_specialthanks_5
+EN: SPECIAL THANKS
+TR: ÖZEL TEŞEKKÜRLER
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/Names_SpecialThanks
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.names_specialthanks_6
+EN: Recep Eray Genç
+Aybars Duran
+Osman Kerem Şener
+Muhammed Sait Kılıç
+Burak Aydın
+TR: Recep Eray Genç
+Aybars Duran
+Osman Kerem Şener
+Muhammed Sait Kılıç
+Burak Aydın
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/FinalMessage
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.finalmessage_7
+EN: To everyone who played, tested, supported, shared feedback, and stayed with this project along the way — thank you.
+
+Fateful Rush was built one level, one challenge, and one breakthrough at a time.
+
+Reaching the end means more than completing 40 missions. It means being part of the journey that brought this game to life.
+
+Your time, support, and belief made this possible.
+
+The stars may have gone silent, but the rush lives on.
+TR: Bu oyunu oynayan, test eden, destekleyen, geri bildirim paylaşan ve bu proje boyunca yanımda olan herkese — teşekkür ederim.
+
+Fateful Rush; her seferinde bir bölüm, bir zorluk ve bir dönüm noktası aşılarak geliştirildi.
+
+Sona ulaşmak, 40 görevi tamamlamaktan daha fazlası demek. Bu oyunu hayata geçiren yolculuğun bir parçası olmak demek.
+
+Ayırdığınız zaman, desteğiniz ve inancınız bunu mümkün kıldı.
+
+Yıldızlar sessizliğe bürünmüş olabilir, ama Rush yaşamaya devam ediyor.
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/ThankYouForPlaying
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.thankyouforplaying_8
+EN: THANK YOU FOR PLAYING
+TR: OYUNU OYNADIĞIN İÇİN TEŞEKKÜRLER
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/StudioSignature
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.studiosignature_9
+EN: YOUNGDEV STUDIOS — 2026
+TR: YOUNGDEV STUDIOS — 2026
+
+
+[CreditsScene] Canvas/CreditsRoot/CreditsScrollView/Viewport/Content/ContinueHolder/ContinueButton/Text (TMP)
+Key: scene.creditsscene.canvas_1.creditsroot_0.creditsscrollview_0.viewport_0.content_0.continueholder_10.continuebutton_0.text_tmp_0
+EN: Continue
+TR: DEVAM ET
+
+

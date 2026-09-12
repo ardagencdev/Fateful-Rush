@@ -1,0 +1,1375 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_tr
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: tr
+  m_SharedData: {fileID: 11400000, guid: aa6a097d7296d884a9d5dfed78a2349d, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 23311593472
+    m_Localized: DEVAM ET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008454893568
+    m_Localized: "B\xD6L\xDCM {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253696
+    m_Localized: "S\u0130NYAL // KARARLI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253697
+    m_Localized: "S\u0130NYAL // KARARSIZ"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253698
+    m_Localized: "B\xD6L\xDCM {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253699
+    m_Localized: 'SKOR: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253700
+    m_Localized: KIL PAYI  x{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253701
+    m_Localized: "{0} SKORA ULA\u015E"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253702
+    m_Localized: "{0} SAN\u0130YE HAYATTA KAL"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253703
+    m_Localized: "{1} SAN\u0130YE \u0130\xC7\u0130NDE {0} SKORA ULA\u015E"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253704
+    m_Localized: "YEN\u0130 REKOR!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253705
+    m_Localized: "YEN\u0130 EN \u0130Y\u0130 S\xDCRE!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253706
+    m_Localized: "YEN\u0130 G\xD6R\xDCN\xDCM A\xC7ILDI!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253707
+    m_Localized: "Atlamak i\xE7in ekrana dokun"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253708
+    m_Localized: "S\u0130NYAL KAYIP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253709
+    m_Localized: "TEHD\u0130T: B\u0130L\u0130NM\u0130YOR"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253710
+    m_Localized: "GER\u0130 D\xD6N\xDC\u015E VEKT\xD6R\xDC YOK"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253711
+    m_Localized: FATEFUL <color=#B946FF>RUSH</color>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253712
+    m_Localized: "G\xD6REVLER"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253713
+    m_Localized: "G\xD6R\xDCN\xDCMLER"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253714
+    m_Localized: "\u0130STAT\u0130ST\u0130KLER"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253715
+    m_Localized: AYARLAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253716
+    m_Localized: EKSTRALAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253717
+    m_Localized: "BA\u015EARIMLAR"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253718
+    m_Localized: "L\u0130DERL\u0130K TABLOLARI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253719
+    m_Localized: "G\u0130ZL\u0130L\u0130K"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253720
+    m_Localized: "JENER\u0130K"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253721
+    m_Localized: "GER\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253722
+    m_Localized: SES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253723
+    m_Localized: SES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253724
+    m_Localized: "A\xC7IK"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253725
+    m_Localized: KAPALI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008484253726
+    m_Localized: "Menu Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448000
+    m_Localized: "Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448001
+    m_Localized: SFX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448002
+    m_Localized: OYUN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448003
+    m_Localized: "Joyst\u0131ck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448004
+    m_Localized: SOL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448005
+    m_Localized: "SA\u011E"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448006
+    m_Localized: "V\u0131brat\u0131on"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448007
+    m_Localized: FPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448008
+    m_Localized: "Hud Opac\u0131ty"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448009
+    m_Localized: "D\u0130L"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448010
+    m_Localized: AYARLAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448011
+    m_Localized: "B\xD6L\xDCM SE\xC7\u0130M\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448012
+    m_Localized: TEST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448013
+    m_Localized: "EN \u0130Y\u0130 S\xDCRE"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448014
+    m_Localized: "BA\u015ELA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448015
+    m_Localized: KAPAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448016
+    m_Localized: New Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448017
+    m_Localized: SIFIRLA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448018
+    m_Localized: "\u0130STAT\u0130ST\u0130KLER SIFIRLANSIN MI?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448019
+    m_Localized: "T\xFCm istatistikleri s\u0131f\u0131rlamak istedi\u011Fine emin
+      misin?\nBu i\u015Flem geri al\u0131namaz."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448020
+    m_Localized: "\u0130PTAL"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448021
+    m_Localized: SIFIRLA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448022
+    m_Localized: "OYUNCU G\xD6R\xDCN\xDCMLER\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448023
+    m_Localized: BEYAZ
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448024
+    m_Localized: "KU\u015EANILDI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448025
+    m_Localized: "A\xC7MAK \u0130\xC7\u0130N 4. B\xD6L\xDCM\xDC TAMAMLA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448026
+    m_Localized: "S\u0130NYAL // KARARSIZ"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448027
+    m_Localized: 'SKOR: 0'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448028
+    m_Localized: 'Time: 0'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448029
+    m_Localized: HEDEF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448030
+    m_Localized: "120 SKORA ULA\u015E"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448031
+    m_Localized: "YEN\u0130DEN BA\u015ELAT"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448032
+    m_Localized: "ANA MEN\xDC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448033
+    m_Localized: "Mus\u0131c"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448034
+    m_Localized: "Joyst\u0131ck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448035
+    m_Localized: "V\u0131brat\u0131on"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448036
+    m_Localized: "Hud Opac\u0131ty"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448037
+    m_Localized: AYARLAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448038
+    m_Localized: "G\xD6REV TAMAMLANDI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448039
+    m_Localized: "G\xD6REV RAPORU"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448040
+    m_Localized: SKOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448041
+    m_Localized: "S\xDCRE"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448042
+    m_Localized: 0.0 s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448043
+    m_Localized: "SONRAK\u0130 B\xD6L\xDCM"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448044
+    m_Localized: "YEN\u0130 G\xD6R\xDCN\xDCM A\xC7ILDI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448045
+    m_Localized: "MAV\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448046
+    m_Localized: "YEN\u0130 EN \u0130Y\u0130 S\xDCRE"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448047
+    m_Localized: "G\xD6REV BA\u015EARISIZ"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448048
+    m_Localized: "\xD6L\xDCM NEDEN\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448049
+    m_Localized: UZAY BOMBASI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448050
+    m_Localized: New Text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448051
+    m_Localized: SKOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448052
+    m_Localized: HAYATTA KALDIN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448053
+    m_Localized: 0.0 s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448054
+    m_Localized: TEKRAR OYNA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448055
+    m_Localized: "ANA MEN\xDC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448056
+    m_Localized: "ANA MEN\xDCYE D\xD6N\xDCLS\xDCN M\xDC?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448057
+    m_Localized: KAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448058
+    m_Localized: "ANA MEN\xDC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448059
+    m_Localized: FATEFUL RUSH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448060
+    m_Localized: "GEL\u0130\u015ET\u0130REN"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448061
+    m_Localized: "ARDA \u2014 YOUNGDEV STUDIOS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448062
+    m_Localized: "OYUN TEST\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448063
+    m_Localized: "Recep Eray Gen\xE7\nAybars Duran\nOsman Kerem \u015Eener\nMuhammed
+      Sait K\u0131l\u0131\xE7\nBurak Ayd\u0131n\nSoner Pupa\nMustafa Rubaye"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448064
+    m_Localized: "\xD6ZEL TE\u015EEKK\xDCRLER"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448065
+    m_Localized: "Recep Eray Gen\xE7\nAybars Duran\nOsman Kerem \u015Eener\nMuhammed
+      Sait K\u0131l\u0131\xE7\nBurak Ayd\u0131n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448066
+    m_Localized: "Bu oyunu oynayan, test eden, destekleyen, geri bildirim payla\u015Fan
+      ve bu proje boyunca yan\u0131mda olan herkese \u2014 te\u015Fekk\xFCr ederim.\n\nFateful
+      Rush; her seferinde bir b\xF6l\xFCm, bir zorluk ve bir d\xF6n\xFCm noktas\u0131
+      a\u015F\u0131larak geli\u015Ftirildi.\n\nSona ula\u015Fmak, 40 g\xF6revi tamamlamaktan
+      daha fazlas\u0131 demek. Bu oyunu hayata ge\xE7iren yolculu\u011Fun bir par\xE7as\u0131
+      olmak demek.\n\nAy\u0131rd\u0131\u011F\u0131n\u0131z zaman, deste\u011Finiz
+      ve inanc\u0131n\u0131z bunu m\xFCmk\xFCn k\u0131ld\u0131.\n\nY\u0131ld\u0131zlar
+      sessizli\u011Fe b\xFCr\xFCnm\xFC\u015F olabilir, ama Rush ya\u015Famaya devam
+      ediyor."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448067
+    m_Localized: "OYUNU OYNADI\u011EIN \u0130\xC7\u0130N TE\u015EEKK\xDCRLER"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448068
+    m_Localized: "YOUNGDEV STUDIOS \u2014 2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52008488448069
+    m_Localized: DEVAM ET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362292338688
+    m_Localized: "MEN\xDC M\xDCZ\u0130\u011E\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893120
+    m_Localized: "M\xDCZ\u0130K"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893121
+    m_Localized: JOYSTICK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893122
+    m_Localized: "T\u0130TRE\u015E\u0130M"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 53362325893123
+    m_Localized: "HUD SAYDAMLI\u011EI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54355386085376
+    m_Localized: "S\xDCRE: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54355415445504
+    m_Localized: "S\xDCRE: 0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562713399296
+    m_Localized: "{0} SKORA ULA\u015E"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953728
+    m_Localized: 'HAYATTA KAL: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953729
+    m_Localized: "{0} SKORA ULA\u015E \xB7 {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953730
+    m_Localized: "G\xD6REV\u0130 TAMAMLA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953731
+    m_Localized: "KU\u015EANILDI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953732
+    m_Localized: "KU\u015EAN"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953733
+    m_Localized: "KULLANILAB\u0130L\u0130R"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953734
+    m_Localized: "A\xC7ILDI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953735
+    m_Localized: "K\u0130L\u0130TL\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953736
+    m_Localized: "A\xC7MAK \u0130\xC7\u0130N {0}. B\xD6L\xDCM\xDC TAMAMLA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953737
+    m_Localized: BEYAZ
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953738
+    m_Localized: "MAV\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953739
+    m_Localized: TURUNCU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953740
+    m_Localized: KIRMIZI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953741
+    m_Localized: "YE\u015E\u0130L"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953742
+    m_Localized: PEMBE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953743
+    m_Localized: SARI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953744
+    m_Localized: "CAMG\xD6BE\u011E\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953745
+    m_Localized: MOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953746
+    m_Localized: KARANLIK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953747
+    m_Localized: ALTIN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953748
+    m_Localized: "Kader Yakla\u015F\u0131yor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953749
+    m_Localized: "Y\u0131ld\u0131zlar Sessizli\u011Fe B\xFCr\xFCnd\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953750
+    m_Localized: "Her Saniye Yolunu M\xFCh\xFCrl\xFCyor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953751
+    m_Localized: "Eve Hi\xE7bir Sinyal Ula\u015Fm\u0131yor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953752
+    m_Localized: "Bir \u015Eey Seni Takip Ediyor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953753
+    m_Localized: "Gelecek \xC7\xF6k\xFCyor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953754
+    m_Localized: Zaman Beklemeyi Reddediyor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953755
+    m_Localized: "S\u0131radaki Hamlen Son Hamlen Olabilir"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953756
+    m_Localized: "Karanl\u0131k Ad\u0131n\u0131 Hat\u0131rl\u0131yor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953757
+    m_Localized: "Hayatta Kalmak Hi\xE7 Garanti De\u011Fildi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953758
+    m_Localized: "G\xFCvenli Bir Vekt\xF6r Yok"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953759
+    m_Localized: "Son Giderek Yakla\u015F\u0131yor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953760
+    m_Localized: "Kader Seni Bulmadan Ka\xE7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953761
+    m_Localized: "Kader Senden Daha H\u0131zl\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953762
+    m_Localized: "Geri Say\u0131m Ba\u015Flad\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953763
+    m_Localized: "Seni Hayatta Tutan Tek \u015Eey Hareket"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953764
+    m_Localized: "S\u0130NYAL KAYIP"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953765
+    m_Localized: "TEHD\u0130T: B\u0130L\u0130NM\u0130YOR"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953766
+    m_Localized: "GER\u0130 D\xD6N\xDC\u015E VEKT\xD6R\xDC YOK"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953767
+    m_Localized: STALKER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953768
+    m_Localized: HUNTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953769
+    m_Localized: BLASTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953770
+    m_Localized: "LAZER MERM\u0130S\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953771
+    m_Localized: LAZER DUVARI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953772
+    m_Localized: BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953773
+    m_Localized: MINI-BOSS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953774
+    m_Localized: UZAY BOMBASI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953775
+    m_Localized: "S\xDCRE DOLDU"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953776
+    m_Localized: "B\u0130L\u0130NM\u0130YOR"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953777
+    m_Localized: "FAZLA YAKLA\u015EMASINA \u0130Z\u0130N VERD\u0130N."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953778
+    m_Localized: "STALKER A\xC7I\u011EINI BULDU."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953779
+    m_Localized: "PE\u015E\u0130NDEN KURTULAMADIN."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953780
+    m_Localized: "TAK\u0130B\u0130 H\u0130\xC7 BIRAKMADI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953781
+    m_Localized: HUNTER AVINI YAKALADI.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953782
+    m_Localized: "AVDAN KA\xC7AMADIN."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953783
+    m_Localized: "HUNTER ARADAK\u0130 MESAFEY\u0130 KAPATTI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953784
+    m_Localized: "KA\xC7ACAK YER KALMADI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953785
+    m_Localized: "BLASTER'IN HATTINA G\u0130RD\u0130N."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953786
+    m_Localized: "BLASTER SEN\u0130 HEDEFE ALDI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953787
+    m_Localized: "FAZLA UZUN S\xDCRE \xC7OK YAKINDA KALDIN."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953788
+    m_Localized: "D\xDCELLOYU BLASTER KAZANDI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953789
+    m_Localized: "TEK ATI\u015E YETT\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953790
+    m_Localized: "O ATI\u015EIN GELD\u0130\u011E\u0130N\u0130 H\u0130\xC7 G\xD6RMED\u0130N."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953791
+    m_Localized: "LAZER HEDEF\u0130N\u0130 BULDU."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953792
+    m_Localized: "TEK \u0130SABET KO\u015EUNU B\u0130T\u0130RD\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953793
+    m_Localized: "KA\xC7ACAK BO\u015ELUK YOKTU."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953794
+    m_Localized: "LAZER DUVARI SEN\u0130 SIKI\u015ETIRDI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953795
+    m_Localized: ALANIN KALMADI.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953796
+    m_Localized: "DUVAR GE\xC7ECEK YOL BIRAKMADI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953797
+    m_Localized: "VOID B\u0130R KO\u015EUYU DAHA YUTTU."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953798
+    m_Localized: "BOSS SEN\u0130 EZ\u0130P GE\xC7T\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953799
+    m_Localized: "SALDIRISINDAN SA\u011E \xC7IKAMADIN."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953800
+    m_Localized: "BOSS KO\u015EUNU B\u0130T\u0130RD\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953801
+    m_Localized: "TEHD\u0130D\u0130 K\xDC\xC7\xDCMSED\u0130N."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953802
+    m_Localized: "MINI-BOSS SEN\u0130 HAZIRLIKSIZ YAKALADI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953803
+    m_Localized: "TEHL\u0130KE B\xD6LGES\u0130NDEN \xC7IKAMADIN."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953804
+    m_Localized: "TEHD\u0130T DAHA K\xDC\xC7\xDCKT\xDC. DAHA ZAYIF DE\u011E\u0130L."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953805
+    m_Localized: "PATLAMANIN \u0130\xC7\u0130NDE KALDIN."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953806
+    m_Localized: "PATLAMA KA\xC7I\u015E \u015EANSI BIRAKMADI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953807
+    m_Localized: BOMBAYA FAZLA YAKIN KALDIN.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953808
+    m_Localized: "PATLAMA YARI\xC7API SEN\u0130 YAKALADI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953809
+    m_Localized: "S\xDCRE DOLDU."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953810
+    m_Localized: "B\u0130RKA\xC7 SAN\u0130YEYE DAHA \u0130HT\u0130YACIN VARDI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953811
+    m_Localized: BU RAUNDU SAAT KAZANDI.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953812
+    m_Localized: "ZAMANIN T\xDCKEND\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953813
+    m_Localized: "BU KO\u015EU BURADA SONA ERD\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953814
+    m_Localized: "B\u0130R \u015EEYLER \xC7OK TERS G\u0130TT\u0130."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953815
+    m_Localized: "VOID'\u0130N BA\u015EKA PLANLARI VARDI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58562746953816
+    m_Localized: "BU KO\u015EUNUN UZUN S\xDCRMES\u0130 YAZILMAMI\u015ETI."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960169603072
+    m_Localized: HEDEF
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157504
+    m_Localized: "B\xD6L\xDCM {0} \u2014 {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157505
+    m_Localized: "SKOR G\xD6REV\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157506
+    m_Localized: "HAYATTA KALMA G\xD6REV\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157507
+    m_Localized: "S\xDCREL\u0130 SKOR G\xD6REV\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157508
+    m_Localized: "G\xD6REV"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157509
+    m_Localized: "G\xF6revi tamamlamak i\xE7in {0} puan topla."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157510
+    m_Localized: "{0} saniye hayatta kal. Bu g\xF6revde coinler ve kombolar devre
+      d\u0131\u015F\u0131."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157511
+    m_Localized: "{1} saniyelik geri say\u0131m bitmeden {0} puan topla."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157512
+    m_Localized: "G\xF6rev hedefini tamamla."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157513
+    m_Localized: GENEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157514
+    m_Localized: "\u0130LERLEME"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157515
+    m_Localized: "G\xD6REV MODLARI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157516
+    m_Localized: PERFORMANS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157517
+    m_Localized: KIL PAYI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157518
+    m_Localized: TOPLANANLAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157519
+    m_Localized: "YETENEKLER & G\xDC\xC7LEND\u0130RMELER"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157520
+    m_Localized: "TEHL\u0130KE USTALI\u011EI"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157521
+    m_Localized: "\xD6L\xDCM ANAL\u0130Z\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157522
+    m_Localized: "B\xD6L\xDCM EN \u0130Y\u0130 S\xDCRELER\u0130"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157523
+    m_Localized: Toplam Oyun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157524
+    m_Localized: Toplam Galibiyet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157525
+    m_Localized: "Toplam \xD6l\xFCm"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157526
+    m_Localized: "Kazanma Oran\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157527
+    m_Localized: Mevcut Galibiyet Serisi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157528
+    m_Localized: "En \u0130yi Galibiyet Serisi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157529
+    m_Localized: "Toplam Oynama S\xFCresi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157530
+    m_Localized: "Ortalama Oyun S\xFCresi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157531
+    m_Localized: En Uzun Oyun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157532
+    m_Localized: "Tamamlanan B\xF6l\xFCmler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157533
+    m_Localized: Tamamlama
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157534
+    m_Localized: "Tamamlanan En Y\xFCksek B\xF6l\xFCm"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157535
+    m_Localized: "A\xE7\u0131lan G\xF6r\xFCn\xFCmler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157536
+    m_Localized: "Skor G\xF6revleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157537
+    m_Localized: "Hayatta Kalma G\xF6revleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157538
+    m_Localized: "S\xFCreli Skor G\xF6revleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157539
+    m_Localized: "Toplam Kazan\u0131lan Skor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157540
+    m_Localized: "En \u0130yi Oyun Skoru"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157541
+    m_Localized: "Skor G\xF6revi Ba\u015F\u0131na Ortalama"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157542
+    m_Localized: "En Y\xFCksek Kombo"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157543
+    m_Localized: En Uzun Kombo Zinciri
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157544
+    m_Localized: "6x Komboya Ula\u015Fma"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157545
+    m_Localized: "Kombo Bonus Puan\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157546
+    m_Localized: "Toplam K\u0131l Pay\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157547
+    m_Localized: "En \u0130yi K\u0131l Pay\u0131 Serisi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157548
+    m_Localized: Toplam Coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157549
+    m_Localized: Normal Coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157550
+    m_Localized: "Alt\u0131n Coin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157551
+    m_Localized: Nadir Coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157552
+    m_Localized: "Bir Oyunda En \xC7ok Coin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157553
+    m_Localized: "Toplanan Temel Coin De\u011Feri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157554
+    m_Localized: "M\u0131knat\u0131s Coinleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157555
+    m_Localized: "Dash Kullan\u0131m\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157556
+    m_Localized: "Klon Kullan\u0131m\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157557
+    m_Localized: "Yava\u015Flatma Kullan\u0131m\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157558
+    m_Localized: "Z\u0131rh Kullan\u0131m\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157559
+    m_Localized: "Z\u0131rh Kurtar\u0131\u015Flar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157560
+    m_Localized: "Z\u0131rh Kurtarma Oran\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157561
+    m_Localized: Yok Edilen Beaconlar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157562
+    m_Localized: Sersemletilen Hunterlar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157563
+    m_Localized: "Boss Kar\u015F\u0131la\u015Fmalar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157564
+    m_Localized: "Boss B\xF6l\xFCnmeleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157565
+    m_Localized: "Boss AOE Ka\xE7\u0131\u015Flar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157566
+    m_Localized: "Mini-Boss AOE Ka\xE7\u0131\u015Flar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157567
+    m_Localized: "Ba\u015F D\xFC\u015Fman"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157568
+    m_Localized: "Stalker \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157569
+    m_Localized: "Hunter \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157570
+    m_Localized: "Blaster \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157571
+    m_Localized: "Boss \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157572
+    m_Localized: "Lazer Mermisi \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157573
+    m_Localized: "Lazer Duvar\u0131 \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157574
+    m_Localized: "Mini-Boss \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157575
+    m_Localized: "Uzay Bombas\u0131 \xD6l\xFCmleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157576
+    m_Localized: "S\xFCre Doldu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157577
+    m_Localized: "Bilinmeyen \xD6l\xFCmler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157578
+    m_Localized: "Hen\xFCz kay\u0131tl\u0131 \xF6l\xFCm nedeni yok."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157579
+    m_Localized: "Hen\xFCz en iyi s\xFCre kayd\u0131 yok."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157580
+    m_Localized: YOK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157581
+    m_Localized: "B\xF6l\xFCm"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157582
+    m_Localized: "Geli\u015Ftirici Odas\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157583
+    m_Localized: galibiyet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157584
+    m_Localized: coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157585
+    m_Localized: sa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157586
+    m_Localized: dk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84960203157587
+    m_Localized: sn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521024
+    m_Localized: First signal acquired. Begin your mission by learning movement and
+      establishing safe coin routes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521025
+    m_Localized: Combos reward consecutive coin pickups, while the new Stalker relentlessly
+      pursues you and accelerates over time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521026
+    m_Localized: Two Stalkers now pressure you at once. Keep them grouped to one
+      side, then cut across open space for coins.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521027
+    m_Localized: Static obstacles now block routes. Use them to bend Stalker paths,
+      but always leave yourself a second exit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521028
+    m_Localized: Dash is now available. Save it for blocked routes or close threats
+      instead of spending it in open space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521029
+    m_Localized: Gold Coins are worth 3 points. Take them when the route is safe;
+      their value is not worth getting trapped.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521030
+    m_Localized: Blasters keep their distance and fire predictive shots. Change direction
+      after a shot commits, and never use enemies as bullet cover.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521031
+    m_Localized: Armor absorbs one lethal hit and grants brief immunity after breaking.
+      Use that window to escape immediately.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521032
+    m_Localized: Space Bombs arm after a short delay and then become lethal zones.
+      Track the minefield before committing to a coin route.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521033
+    m_Localized: This is your first Survival mission. Preserve open space as Space
+      Bombs accumulate and use Armor only as a recovery tool.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521034
+    m_Localized: Horizontal Lasers warn their lane before firing. Leave the warning
+      band early, then react to incoming Blaster shots.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521035
+    m_Localized: This is your first Timed Score mission. Build consistent combos,
+      but abandon a chain when the arena starts closing around you.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521036
+    m_Localized: Slow temporarily reduces game speed and gives you breathing room.
+      Use it when several threats overlap, not while the arena is calm.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521037
+    m_Localized: Rare Coins are worth 5 points. Take them when accessible, but never
+      enter a sealed route just for the extra score.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521038
+    m_Localized: Hunters show a warning line before charging. Let the line commit,
+      sidestep the charge, and watch both Hunters before using Dash.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521039
+    m_Localized: Clone redirects enemies for a short time. Its cooldown begins after
+      the Clone disappears, so use it to reset collapsing formations.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521040
+    m_Localized: Vertical Lasers warn a column before firing. Move out early and
+      save Clone for overlaps with Hunters or Blaster fire.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521041
+    m_Localized: Beacons buff nearby enemies. Destroy a Beacon by dashing into it;
+      its active buffs disappear immediately, but another Beacon can return.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521042
+    m_Localized: The first Boss enters at 90 score. Armor can absorb its hit; when
+      that happens, the Boss splits into two Mini-Bosses.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521043
+    m_Localized: Both Laser directions, Space Bombs and a Boss at 50 score overlap
+      here. Score early, then prioritize survival once the arena fills.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521044
+    m_Localized: Both Laser directions remain active in this Survival mission. Stay
+      central until a warning appears, then move toward the cleaner side.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521045
+    m_Localized: Space Bombs return without Armor or Slow support. Keep routes short
+      and change direction only after Hunter charges commit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521046
+    m_Localized: A recurring Beacon supports the enemy wave. Destroy it with Dash,
+      then use the quiet interval before it returns to rebuild control.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521047
+    m_Localized: Vertical Lasers, Space Bombs and Hunters steadily reduce safe space.
+      Move zones before a Bomb finishes arming instead of escaping late.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521048
+    m_Localized: The Boss enters at 100 score while Horizontal Lasers restrict exits.
+      Reach that phase with Dash ready and keep scoring routes clear.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521049
+    m_Localized: Both Laser directions are active during a long Survival mission.
+      Use Slow for one pressure spike and save Clone for the next overlap.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521050
+    m_Localized: Heavy Blaster and Hunter pressure combines with Space Bombs. Move
+      in deliberate arcs and change direction after nearby shots commit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521051
+    m_Localized: Both Laser directions can chain together during this Timed Score
+      mission. Collect from the safe quadrant and abandon distant coins early.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521052
+    m_Localized: A recurring Beacon and two Hunters create repeated pressure spikes.
+      Destroy the Beacon whenever a safe Dash line opens.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521053
+    m_Localized: A Beacon, Space Bombs and a Boss at 90 score overlap before the
+      timer ends. Remove Beacon buffs before forcing long scoring routes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521054
+    m_Localized: Both Laser directions and Space Bombs combine in a long Survival
+      mission. Keep Armor and Clone for separate emergencies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521055
+    m_Localized: A recurring Beacon and Space Bombs disrupt this Timed Score mission.
+      Remove the Beacon before committing to a long combo chain.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521056
+    m_Localized: Five obstacles and fast Space Bomb pressure turn this into a minefield
+      score test. Move from one open sector to the next.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521057
+    m_Localized: Beacon buffs, a Vertical Laser and Hunters create repeated Survival
+      spikes. Remove the Beacon before spending Slow when possible.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521058
+    m_Localized: The Boss enters at 120 score while Space Bombs keep shrinking safe
+      routes. Build momentum before the Boss phase.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521059
+    m_Localized: A recurring Beacon, both Laser directions and Space Bombs share
+      this Timed Score mission. Treat each Beacon death as a scoring window.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521060
+    m_Localized: Both Laser directions and Space Bombs stay active through a long
+      Survival mission. Rotate Armor, Slow and Clone across separate emergencies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521061
+    m_Localized: A recurring Beacon, Space Bombs and five obstacles guard the highest
+      pure score target. Keep combos local and clear Beacon buffs first.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521062
+    m_Localized: The Boss enters at 105 score while Vertical Lasers, Space Bombs,
+      Hunters and Blasters pressure the timer. Save a defensive option for that phase.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85017371521063
+    m_Localized: Final Challenge. Survive every major hazard with recurring Beacons
+      and a Boss entering at 35 seconds. Stagger Armor, Slow and Clone carefully.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

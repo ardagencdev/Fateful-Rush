@@ -4,6 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public sealed class OptionsCategorySwitcher : MonoBehaviour
@@ -13,25 +15,26 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
     private enum OptionsCategory
     {
         Audio = 0,
-        Game = 1
+        Game = 1,
+        Language = 2
     }
 
     [Header("Pages")]
-    [Tooltip("Swipe sadece bu alanın içinde başlar.")]
+    [Tooltip("Swipe sadece bu alanın icinde baslar.")]
     [SerializeField] private RectTransform swipeArea;
     [SerializeField] private RectTransform audioPage;
     [SerializeField] private RectTransform gamePage;
+    [SerializeField] private RectTransform languagePage;
 
     [Header("Category Button")]
     [SerializeField] private Button switchCategoryButton;
     [SerializeField] private TMP_Text switchCategoryButtonText;
     [SerializeField] private string audioButtonLabel = "AUDIO";
     [SerializeField] private string gameButtonLabel = "GAME";
+    [SerializeField] private string languageButtonLabel = "LANGUAGE";
 
     [Header("Page Indicator")]
     [SerializeField] private TMP_Text pageIndicatorText;
-    [SerializeField] private string audioPageIndicator = "1 / 2";
-    [SerializeField] private string gamePageIndicator = "2 / 2";
 
     [Header("Swipe")]
     [SerializeField] private bool swipeEnabled = true;
@@ -43,12 +46,12 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
     [SerializeField, Min(1f)] private float slideDistance = 850f;
     [SerializeField, Min(0.01f)] private float transitionDuration = 0.22f;
 
-    private readonly List<RaycastResult> raycastResults =
-        new List<RaycastResult>();
+    private readonly List<RaycastResult> raycastResults = new List<RaycastResult>();
 
     private OptionsCategory currentCategory;
     private CanvasGroup audioCanvasGroup;
     private CanvasGroup gameCanvasGroup;
+    private CanvasGroup languageCanvasGroup;
     private Canvas rootCanvas;
     private Coroutine transitionRoutine;
 
@@ -61,41 +64,43 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
         audioCanvasGroup = GetOrAddCanvasGroup(audioPage);
         gameCanvasGroup = GetOrAddCanvasGroup(gamePage);
+        languageCanvasGroup = GetOrAddCanvasGroup(languagePage);
 
         if (switchCategoryButton != null)
         {
-            switchCategoryButton.onClick.RemoveListener(
-                ToggleCategoryFromButton
-            );
-
-            switchCategoryButton.onClick.AddListener(
-                ToggleCategoryFromButton
-            );
+            switchCategoryButton.onClick.RemoveListener(ToggleCategoryFromButton);
+            switchCategoryButton.onClick.AddListener(ToggleCategoryFromButton);
         }
     }
 
     private void OnEnable()
     {
-        StopTransition();
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnLocaleChanged;
 
+        StopTransition();
         currentCategory = LoadSavedCategory();
         ApplyCategoryInstant(currentCategory);
     }
 
     private void OnDisable()
     {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnLocaleChanged;
+
         StopTransition();
         isTrackingPointer = false;
+    }
+
+    private void OnLocaleChanged(Locale locale)
+    {
+        UpdateSwitchButtonText();
     }
 
     private void OnDestroy()
     {
         if (switchCategoryButton != null)
-        {
-            switchCategoryButton.onClick.RemoveListener(
-                ToggleCategoryFromButton
-            );
-        }
+            switchCategoryButton.onClick.RemoveListener(ToggleCategoryFromButton);
     }
 
     private void Update()
@@ -104,7 +109,6 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
             return;
 
         bool touchHandled = HandleTouchSwipe();
-
         if (!touchHandled)
             HandleMouseSwipe();
     }
@@ -119,6 +123,11 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         SwitchToCategory(OptionsCategory.Game);
     }
 
+    public void ShowLanguage()
+    {
+        SwitchToCategory(OptionsCategory.Language);
+    }
+
     public void ToggleCategory()
     {
         ToggleCategoryFromButton();
@@ -126,12 +135,7 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
     private void ToggleCategoryFromButton()
     {
-        OptionsCategory targetCategory =
-            currentCategory == OptionsCategory.Audio
-                ? OptionsCategory.Game
-                : OptionsCategory.Audio;
-
-        SwitchToCategory(targetCategory);
+        SwitchToCategory(GetNextCategory(currentCategory), 1);
     }
 
     private bool HandleTouchSwipe()
@@ -143,19 +147,13 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
         if (touch.press.wasPressedThisFrame)
         {
-            BeginPointerTracking(
-                touch.position.ReadValue()
-            );
-
+            BeginPointerTracking(touch.position.ReadValue());
             return true;
         }
 
         if (touch.press.wasReleasedThisFrame)
         {
-            EndPointerTracking(
-                touch.position.ReadValue()
-            );
-
+            EndPointerTracking(touch.position.ReadValue());
             return true;
         }
 
@@ -168,18 +166,10 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
             return;
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            BeginPointerTracking(
-                Mouse.current.position.ReadValue()
-            );
-        }
+            BeginPointerTracking(Mouse.current.position.ReadValue());
 
         if (Mouse.current.leftButton.wasReleasedThisFrame)
-        {
-            EndPointerTracking(
-                Mouse.current.position.ReadValue()
-            );
-        }
+            EndPointerTracking(Mouse.current.position.ReadValue());
     }
 
     private void BeginPointerTracking(Vector2 screenPosition)
@@ -189,8 +179,6 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         if (!IsInsideSwipeArea(screenPosition))
             return;
 
-        // Slider veya buton üstünden başlayan hareketler swipe sayılmaz.
-        // Böylece ses seviyesi sürüklerken sayfa yanlışlıkla değişmez.
         if (IsPointerOverSelectable(screenPosition))
             return;
 
@@ -205,73 +193,47 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
         isTrackingPointer = false;
 
-        Vector2 swipeDelta =
-            screenPosition - pointerStartPosition;
-
-        float horizontalDistance =
-            Mathf.Abs(swipeDelta.x);
-
-        float verticalDistance =
-            Mathf.Abs(swipeDelta.y);
+        Vector2 swipeDelta = screenPosition - pointerStartPosition;
+        float horizontalDistance = Mathf.Abs(swipeDelta.x);
+        float verticalDistance = Mathf.Abs(swipeDelta.y);
 
         if (horizontalDistance < minSwipeDistance)
             return;
 
-        if (verticalDistance >
-            horizontalDistance * maxVerticalToHorizontalRatio)
-        {
+        if (verticalDistance > horizontalDistance * maxVerticalToHorizontalRatio)
             return;
-        }
 
-        // There are only two pages, so a valid horizontal swipe in
-        // either direction switches to the other page. This makes
-        // page 2 reachable with both left and right swipes.
-        OptionsCategory targetCategory =
-            currentCategory == OptionsCategory.Audio
-                ? OptionsCategory.Game
-                : OptionsCategory.Audio;
+        bool swipedLeft = swipeDelta.x < 0f;
 
-        // Keep the slide animation consistent with the swipe direction.
-        int swipeDirection = swipeDelta.x < 0f ? 1 : -1;
+        OptionsCategory targetCategory = swipedLeft
+            ? GetNextCategory(currentCategory)
+            : GetPreviousCategory(currentCategory);
 
-        SwitchToCategory(
-            targetCategory,
-            swipeDirection
-        );
+        int swipeDirection = swipedLeft ? 1 : -1;
+        SwitchToCategory(targetCategory, swipeDirection);
     }
 
     private void SwitchToCategory(
         OptionsCategory targetCategory,
         int? directionOverride = null)
     {
-        if (transitionRoutine != null ||
-            targetCategory == currentCategory)
-        {
+        if (transitionRoutine != null || targetCategory == currentCategory)
             return;
-        }
 
         if (switchCategoryButton != null)
             switchCategoryButton.interactable = false;
 
-        OptionsCategory previousCategory =
-            currentCategory;
+        OptionsCategory previousCategory = currentCategory;
+
+        int direction = directionOverride ?? GetDirection(previousCategory, targetCategory);
 
         currentCategory = targetCategory;
         SaveCurrentCategory();
         UpdateSwitchButtonText();
         UpdatePageIndicator();
 
-        int direction = directionOverride ??
-            (targetCategory == OptionsCategory.Game
-                ? 1
-                : -1);
-
         transitionRoutine = StartCoroutine(
-            AnimateCategorySwitch(
-                previousCategory,
-                targetCategory,
-                direction
-            )
+            AnimateCategorySwitch(previousCategory, targetCategory, direction)
         );
     }
 
@@ -280,17 +242,10 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         OptionsCategory targetCategory,
         int direction)
     {
-        RectTransform previousPage =
-            GetPage(previousCategory);
-
-        RectTransform targetPage =
-            GetPage(targetCategory);
-
-        CanvasGroup previousGroup =
-            GetCanvasGroup(previousCategory);
-
-        CanvasGroup targetGroup =
-            GetCanvasGroup(targetCategory);
+        RectTransform previousPage = GetPage(previousCategory);
+        RectTransform targetPage = GetPage(targetCategory);
+        CanvasGroup previousGroup = GetCanvasGroup(previousCategory);
+        CanvasGroup targetGroup = GetCanvasGroup(targetCategory);
 
         if (previousPage == null || targetPage == null ||
             previousGroup == null || targetGroup == null)
@@ -308,48 +263,36 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         targetPage.gameObject.SetActive(true);
 
         previousPage.anchoredPosition = Vector2.zero;
-        targetPage.anchoredPosition =
-            Vector2.right * slideDistance * direction;
+        targetPage.anchoredPosition = Vector2.right * slideDistance * direction;
 
         SetCanvasGroupState(previousGroup, 1f, false);
         SetCanvasGroupState(targetGroup, 0f, false);
 
         float timer = 0f;
-        float safeDuration =
-            Mathf.Max(0.01f, transitionDuration);
-
-        Vector2 previousTargetPosition =
-            Vector2.left * slideDistance * direction;
+        float safeDuration = Mathf.Max(0.01f, transitionDuration);
+        Vector2 previousTargetPosition = Vector2.left * slideDistance * direction;
 
         while (timer < safeDuration)
         {
             timer += Time.unscaledDeltaTime;
 
-            float progress =
-                Mathf.Clamp01(timer / safeDuration);
+            float progress = Mathf.Clamp01(timer / safeDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
 
-            float easedProgress =
-                Mathf.SmoothStep(0f, 1f, progress);
+            previousPage.anchoredPosition = Vector2.LerpUnclamped(
+                Vector2.zero,
+                previousTargetPosition,
+                easedProgress
+            );
 
-            previousPage.anchoredPosition =
-                Vector2.LerpUnclamped(
-                    Vector2.zero,
-                    previousTargetPosition,
-                    easedProgress
-                );
+            targetPage.anchoredPosition = Vector2.LerpUnclamped(
+                Vector2.right * slideDistance * direction,
+                Vector2.zero,
+                easedProgress
+            );
 
-            targetPage.anchoredPosition =
-                Vector2.LerpUnclamped(
-                    Vector2.right * slideDistance * direction,
-                    Vector2.zero,
-                    easedProgress
-                );
-
-            previousGroup.alpha =
-                1f - easedProgress;
-
-            targetGroup.alpha =
-                easedProgress;
+            previousGroup.alpha = 1f - easedProgress;
+            targetGroup.alpha = easedProgress;
 
             yield return null;
         }
@@ -369,22 +312,24 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
             switchCategoryButton.interactable = true;
     }
 
-    private void ApplyCategoryInstant(
-        OptionsCategory category)
+    private void ApplyCategoryInstant(OptionsCategory category)
     {
-        bool showAudio =
-            category == OptionsCategory.Audio;
-
         ApplyPageInstant(
             audioPage,
             audioCanvasGroup,
-            showAudio
+            category == OptionsCategory.Audio
         );
 
         ApplyPageInstant(
             gamePage,
             gameCanvasGroup,
-            !showAudio
+            category == OptionsCategory.Game
+        );
+
+        ApplyPageInstant(
+            languagePage,
+            languageCanvasGroup,
+            category == OptionsCategory.Language
         );
 
         UpdateSwitchButtonText();
@@ -414,10 +359,76 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         if (switchCategoryButtonText == null)
             return;
 
+        OptionsCategory target =
+            GetNextCategory(currentCategory);
+
         switchCategoryButtonText.text =
-            currentCategory == OptionsCategory.Audio
-                ? gameButtonLabel
-                : audioButtonLabel;
+            GetLocalizedCategoryLabel(target);
+    }
+
+    private string GetLocalizedCategoryLabel(
+        OptionsCategory category)
+    {
+        switch (category)
+        {
+            case OptionsCategory.Audio:
+                return GetLocalizedString(
+                    "options.audio",
+                    audioButtonLabel
+                );
+
+            case OptionsCategory.Game:
+                return GetLocalizedString(
+                    "options.game",
+                    gameButtonLabel
+                );
+
+            case OptionsCategory.Language:
+                return GetLocalizedString(
+                    "options.language",
+                    languageButtonLabel
+                );
+
+            default:
+                return string.Empty;
+        }
+    }
+
+    private static string GetLocalizedString(
+        string key,
+        string fallback)
+    {
+        try
+        {
+            var operation =
+                LocalizationSettings.StringDatabase
+                    .GetLocalizedStringAsync(
+                        "UI",
+                        key
+                    );
+
+            string value =
+                operation.IsDone
+                    ? operation.Result
+                    : operation.WaitForCompletion();
+
+            if (!string.IsNullOrWhiteSpace(value) &&
+                !value.StartsWith(
+                    "No translation found",
+                    System.StringComparison.OrdinalIgnoreCase) &&
+                !value.StartsWith(
+                    "No table found",
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return value;
+            }
+        }
+        catch
+        {
+            // Keep the options menu usable if localization is not ready.
+        }
+
+        return fallback;
     }
 
     private void UpdatePageIndicator()
@@ -425,10 +436,20 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         if (pageIndicatorText == null)
             return;
 
-        pageIndicatorText.text =
-            currentCategory == OptionsCategory.Audio
-                ? audioPageIndicator
-                : gamePageIndicator;
+        switch (currentCategory)
+        {
+            case OptionsCategory.Audio:
+                pageIndicatorText.text = "1 / 3";
+                break;
+
+            case OptionsCategory.Game:
+                pageIndicatorText.text = "2 / 3";
+                break;
+
+            case OptionsCategory.Language:
+                pageIndicatorText.text = "3 / 3";
+                break;
+        }
     }
 
     private OptionsCategory LoadSavedCategory()
@@ -438,67 +459,92 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
             (int)OptionsCategory.Audio
         );
 
-        return savedValue == (int)OptionsCategory.Game
-            ? OptionsCategory.Game
-            : OptionsCategory.Audio;
+        if (savedValue < (int)OptionsCategory.Audio ||
+            savedValue > (int)OptionsCategory.Language)
+        {
+            return OptionsCategory.Audio;
+        }
+
+        return (OptionsCategory)savedValue;
     }
 
     private void SaveCurrentCategory()
     {
-        PlayerPrefs.SetInt(
-            SavedCategoryKey,
-            (int)currentCategory
-        );
-
+        PlayerPrefs.SetInt(SavedCategoryKey, (int)currentCategory);
         PlayerPrefs.Save();
     }
 
-    private bool IsInsideSwipeArea(
-        Vector2 screenPosition)
+    private static OptionsCategory GetNextCategory(OptionsCategory category)
+    {
+        switch (category)
+        {
+            case OptionsCategory.Audio:
+                return OptionsCategory.Game;
+            case OptionsCategory.Game:
+                return OptionsCategory.Language;
+            default:
+                return OptionsCategory.Audio;
+        }
+    }
+
+    private static OptionsCategory GetPreviousCategory(OptionsCategory category)
+    {
+        switch (category)
+        {
+            case OptionsCategory.Audio:
+                return OptionsCategory.Language;
+            case OptionsCategory.Game:
+                return OptionsCategory.Audio;
+            default:
+                return OptionsCategory.Game;
+        }
+    }
+
+    private static int GetDirection(OptionsCategory from, OptionsCategory to)
+    {
+        if (GetNextCategory(from) == to)
+            return 1;
+
+        if (GetPreviousCategory(from) == to)
+            return -1;
+
+        return 1;
+    }
+
+    private bool IsInsideSwipeArea(Vector2 screenPosition)
     {
         if (swipeArea == null)
             return true;
 
-        return RectTransformUtility
-            .RectangleContainsScreenPoint(
-                swipeArea,
-                screenPosition,
-                GetUICamera()
-            );
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            swipeArea,
+            screenPosition,
+            GetUICamera()
+        );
     }
 
-    private bool IsPointerOverSelectable(
-        Vector2 screenPosition)
+    private bool IsPointerOverSelectable(Vector2 screenPosition)
     {
         if (EventSystem.current == null)
             return false;
 
-        PointerEventData pointerData =
-            new PointerEventData(EventSystem.current)
-            {
-                position = screenPosition
-            };
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition
+        };
 
         raycastResults.Clear();
-        EventSystem.current.RaycastAll(
-            pointerData,
-            raycastResults
-        );
+        EventSystem.current.RaycastAll(pointerData, raycastResults);
 
         foreach (RaycastResult result in raycastResults)
         {
             if (result.gameObject == null)
                 continue;
 
-            Selectable selectable =
-                result.gameObject
-                    .GetComponentInParent<Selectable>();
+            Selectable selectable = result.gameObject.GetComponentInParent<Selectable>();
 
-            if (selectable != null &&
-                selectable.IsInteractable())
-            {
+            if (selectable != null && selectable.IsInteractable())
                 return true;
-            }
         }
 
         return false;
@@ -507,8 +553,7 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
     private Camera GetUICamera()
     {
         if (rootCanvas == null ||
-            rootCanvas.renderMode ==
-            RenderMode.ScreenSpaceOverlay)
+            rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
         {
             return null;
         }
@@ -516,30 +561,42 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
         return rootCanvas.worldCamera;
     }
 
-    private RectTransform GetPage(
-        OptionsCategory category)
+    private RectTransform GetPage(OptionsCategory category)
     {
-        return category == OptionsCategory.Audio
-            ? audioPage
-            : gamePage;
+        switch (category)
+        {
+            case OptionsCategory.Audio:
+                return audioPage;
+            case OptionsCategory.Game:
+                return gamePage;
+            case OptionsCategory.Language:
+                return languagePage;
+            default:
+                return null;
+        }
     }
 
-    private CanvasGroup GetCanvasGroup(
-        OptionsCategory category)
+    private CanvasGroup GetCanvasGroup(OptionsCategory category)
     {
-        return category == OptionsCategory.Audio
-            ? audioCanvasGroup
-            : gameCanvasGroup;
+        switch (category)
+        {
+            case OptionsCategory.Audio:
+                return audioCanvasGroup;
+            case OptionsCategory.Game:
+                return gameCanvasGroup;
+            case OptionsCategory.Language:
+                return languageCanvasGroup;
+            default:
+                return null;
+        }
     }
 
-    private static CanvasGroup GetOrAddCanvasGroup(
-        RectTransform page)
+    private static CanvasGroup GetOrAddCanvasGroup(RectTransform page)
     {
         if (page == null)
             return null;
 
-        CanvasGroup canvasGroup =
-            page.GetComponent<CanvasGroup>();
+        CanvasGroup canvasGroup = page.GetComponent<CanvasGroup>();
 
         if (canvasGroup == null)
             canvasGroup = page.gameObject.AddComponent<CanvasGroup>();
@@ -574,18 +631,9 @@ public sealed class OptionsCategorySwitcher : MonoBehaviour
 
     private void OnValidate()
     {
-        minSwipeDistance =
-            Mathf.Max(1f, minSwipeDistance);
-
-        slideDistance =
-            Mathf.Max(1f, slideDistance);
-
-        transitionDuration =
-            Mathf.Max(0.01f, transitionDuration);
-
-        maxVerticalToHorizontalRatio =
-            Mathf.Clamp01(
-                maxVerticalToHorizontalRatio
-            );
+        minSwipeDistance = Mathf.Max(1f, minSwipeDistance);
+        slideDistance = Mathf.Max(1f, slideDistance);
+        transitionDuration = Mathf.Max(0.01f, transitionDuration);
+        maxVerticalToHorizontalRatio = Mathf.Clamp01(maxVerticalToHorizontalRatio);
     }
 }
