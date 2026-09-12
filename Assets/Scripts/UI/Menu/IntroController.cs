@@ -37,9 +37,6 @@ public class IntroController : MonoBehaviour
     [SerializeField, Min(0f)]
     private float finalFadeOutDuration = 0.55f;
 
-    [SerializeField, Min(0f)]
-    private float minimumSkipDelay = 0.60f;
-
     [Header("Studio Logo - YoungDev Studios")]
     [SerializeField]
     private CanvasGroup studioLogoGroup;
@@ -136,7 +133,6 @@ public class IntroController : MonoBehaviour
     private bool canSkip;
     private bool introSoundPlayed;
 
-    private float introStartTime;
     private GameObject spatialIntroAudioObject;
 
     private void Awake()
@@ -151,7 +147,6 @@ public class IntroController : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        introStartTime = Time.unscaledTime;
         canSkip = false;
         introSoundPlayed = false;
 
@@ -163,18 +158,8 @@ public class IntroController : MonoBehaviour
 
     private void Update()
     {
-        if (isLoading)
+        if (isLoading || !canSkip)
             return;
-
-        if (!canSkip)
-        {
-            canSkip =
-                Time.unscaledTime - introStartTime >=
-                minimumSkipDelay;
-
-            if (!canSkip)
-                return;
-        }
 
         if (WasSkipInputPressed())
             SkipIntro();
@@ -209,13 +194,17 @@ public class IntroController : MonoBehaviour
         else
             ApplyPreRevealGlowState();
 
+        /*
+         * Skip becomes available exactly when the Fateful Rush logo reveal begins.
+         * Any input during the studio-logo section is intentionally ignored.
+         */
+        canSkip = true;
+
         // 3) Main Fateful Rush logo reveal.
         if (gameLogoRevealDuration > 0f)
             yield return GameLogoRevealRoutine();
         else
             ApplyGameLogoVisibleState();
-
-        canSkip = true;
 
         if (gameLogoHoldDuration > 0f)
             yield return WaitRealtime(gameLogoHoldDuration);
@@ -332,6 +321,9 @@ public class IntroController : MonoBehaviour
 
             SetAlpha(logoGroup, alphaProgress);
 
+            // "Tap to Skip" now appears together with the game logo.
+            SetAlpha(tapToSkipGroup, alphaProgress);
+
             SetAlpha(
                 gameBackdropGroup,
                 Mathf.Lerp(
@@ -384,18 +376,6 @@ public class IntroController : MonoBehaviour
 
                 glowTransform.localScale =
                     Vector3.one * scale;
-            }
-
-            if (tapToSkipGroup != null)
-            {
-                float skipProgress = Mathf.Clamp01(
-                    (progress - 0.55f) / 0.45f
-                );
-
-                SetAlpha(
-                    tapToSkipGroup,
-                    Smooth01(skipProgress)
-                );
             }
 
             yield return null;
@@ -891,7 +871,6 @@ public class IntroController : MonoBehaviour
         gameLogoRevealDuration = Mathf.Max(0f, gameLogoRevealDuration);
         gameLogoHoldDuration = Mathf.Max(0f, gameLogoHoldDuration);
         finalFadeOutDuration = Mathf.Max(0f, finalFadeOutDuration);
-        minimumSkipDelay = Mathf.Max(0f, minimumSkipDelay);
 
         studioStartScale = Mathf.Max(0f, studioStartScale);
         studioEndScale = Mathf.Max(0f, studioEndScale);

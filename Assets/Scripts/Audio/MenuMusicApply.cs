@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(AudioSource))]
 public class MenuMusicApply : MonoBehaviour
@@ -22,8 +23,18 @@ public class MenuMusicApply : MonoBehaviour
     [SerializeField, Min(0f)]
     private float fadeInDuration = 1.5f;
 
+    [Tooltip(
+        "Bir sonraki menü müziği başladıktan sonra tam ses seviyesine ulaşma süresi."
+    )]
+    [FormerlySerializedAs("crossfadeDuration")]
     [SerializeField, Min(0.1f)]
-    private float crossfadeDuration = 3f;
+    private float nextTrackFadeInDuration = 3f;
+
+    [Tooltip(
+        "Bir parça tamamen bittikten sonra sıradaki parça başlamadan önce beklenecek süre."
+    )]
+    [SerializeField, Range(1f, 2f)]
+    private float interTrackDelay = 1.5f;
 
     [SerializeField, Min(0f)]
     private float fadeOutDuration = 0.8f;
@@ -141,6 +152,12 @@ public class MenuMusicApply : MonoBehaviour
         sourceA.Stop();
         sourceB.Stop();
 
+        sourceA.clip = null;
+        sourceB.clip = null;
+
+        activeSource = sourceA;
+        standbySource = sourceB;
+
         isStoppingMusic = false;
 
         AudioClip firstClip =
@@ -162,13 +179,14 @@ public class MenuMusicApply : MonoBehaviour
 
         activeSource.clip = firstClip;
         activeSource.volume = 0f;
-        activeSource.Play();
 
         activeGain = 1f;
         standbyGain = 0f;
         masterVolume = 0f;
 
         ApplySourceVolumes();
+
+        activeSource.Play();
 
         StartMasterVolumeFade(
             GetTargetVolume(),
@@ -183,47 +201,58 @@ public class MenuMusicApply : MonoBehaviour
 
     private IEnumerator MenuPlaylistRoutine()
     {
-        while (activeSource != null &&
+        while (!isStoppingMusic &&
+               activeSource != null &&
                activeSource.clip != null)
         {
-            float transitionDuration =
-                GetSafeCrossfadeDuration(
-                    activeSource.clip
-                );
+            // Aktif parça gerçekten tamamen bitene kadar bekle.
+            while (!isStoppingMusic &&
+                   activeSource.isPlaying)
+            {
+                yield return null;
+            }
 
-            float remainingTime =
-                Mathf.Max(
-                    0f,
-                    activeSource.clip.length -
-                    activeSource.time -
-                    transitionDuration
-                );
+            if (isStoppingMusic)
+                break;
 
-            yield return new WaitForSecondsRealtime(
-                remainingTime
-            );
+            activeSource.Stop();
+            activeSource.clip = null;
+
+            activeGain = 0f;
+            ApplySourceVolumes();
+
+            // Parçalar üst üste binmesin. Önce sessiz bir nefes aralığı bırak.
+            if (interTrackDelay > 0f)
+            {
+                yield return new WaitForSecondsRealtime(
+                    interTrackDelay
+                );
+            }
+
+            if (isStoppingMusic)
+                break;
 
             AudioClip nextClip =
                 GetNextShuffledMusic();
 
             if (nextClip == null)
-            {
-                playlistRoutine = null;
-                yield break;
-            }
+                break;
 
             standbySource.clip = nextClip;
             standbySource.volume = 0f;
-            standbySource.Play();
-
             standbyGain = 0f;
 
-            yield return CrossfadeRoutine(
-                transitionDuration
+            ApplySourceVolumes();
+            standbySource.Play();
+
+            yield return FadeInStandbyRoutine(
+                GetSafeNextTrackFadeInDuration(
+                    nextClip
+                )
             );
 
-            activeSource.Stop();
-            activeSource.clip = null;
+            if (isStoppingMusic)
+                break;
 
             SwapSources();
 
@@ -236,7 +265,7 @@ public class MenuMusicApply : MonoBehaviour
         playlistRoutine = null;
     }
 
-    private IEnumerator CrossfadeRoutine(
+    private IEnumerator FadeInStandbyRoutine(
         float duration
     )
     {
@@ -254,16 +283,9 @@ public class MenuMusicApply : MonoBehaviour
                 );
 
             /*
-             * Equal-power crossfade:
-             * Ortada iki müzik de duyulurken ses seviyesinin
-             * aniden düşmesini engeller.
+             * Eski equal-power crossfade'deki incoming eğriyi koruyoruz.
+             * Böylece yeni parça 0'dan sertçe değil, aynı smooth karakterle girer.
              */
-            activeGain = Mathf.Cos(
-                progress *
-                Mathf.PI *
-                0.5f
-            );
-
             standbyGain = Mathf.Sin(
                 progress *
                 Mathf.PI *
@@ -275,9 +297,7 @@ public class MenuMusicApply : MonoBehaviour
             yield return null;
         }
 
-        activeGain = 0f;
         standbyGain = 1f;
-
         ApplySourceVolumes();
     }
 
@@ -416,7 +436,7 @@ public class MenuMusicApply : MonoBehaviour
         playlistPosition = 0;
     }
 
-    private float GetSafeCrossfadeDuration(
+    private float GetSafeNextTrackFadeInDuration(
         AudioClip clip
     )
     {
@@ -424,7 +444,7 @@ public class MenuMusicApply : MonoBehaviour
             return 0.01f;
 
         return Mathf.Clamp(
-            crossfadeDuration,
+            nextTrackFadeInDuration,
             0.01f,
             Mathf.Max(
                 0.01f,
@@ -649,10 +669,17 @@ public class MenuMusicApply : MonoBehaviour
                 fadeInDuration
             );
 
-        crossfadeDuration =
+        nextTrackFadeInDuration =
             Mathf.Max(
                 0.1f,
-                crossfadeDuration
+                nextTrackFadeInDuration
+            );
+
+        interTrackDelay =
+            Mathf.Clamp(
+                interTrackDelay,
+                1f,
+                2f
             );
 
         fadeOutDuration =

@@ -48,8 +48,46 @@
 -dontwarn com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAdEventCallback
 -dontwarn com.google.android.libraries.ads.mobile.sdk.rewardedinterstitial.RewardedInterstitialAdPreloader
 
-# Required by the Google Mobile Ads Unity plugin when Android minification is enabled.
+
+# ============================================================
+# Google Mobile Ads Unity
+# ============================================================
+
+# Required by the Google Mobile Ads Unity plugin when
+# Android minification is enabled.
 -keep class com.google.** { public *; }
 
-# Called from C# through JNI, so R8 must not rename/remove this helper.
+
+# ============================================================
+# Google Play Games Services 2.2.0
+# ============================================================
+
+-keep class com.google.android.gms.games.leaderboard.** { *; }
+-keep class com.google.android.gms.games.snapshot.** { *; }
+-keep class com.google.android.gms.games.achievement.** { *; }
+-keep class com.google.android.gms.games.event.** { *; }
+-keep class com.google.android.gms.games.stats.** { *; }
+-keep class com.google.android.gms.games.* { *; }
+-keep class com.google.android.gms.common.api.ResultCallback { *; }
+-keep class com.google.android.gms.signin.** { *; }
+-keep class com.google.android.gms.dynamic.** { *; }
+-keep class com.google.android.gms.dynamite.** { *; }
+-keep class com.google.android.gms.tasks.** { *; }
+-keep class com.google.android.gms.security.** { *; }
+-keep class com.google.android.gms.base.** { *; }
+-keep class com.google.android.gms.actions.** { *; }
+-keep class com.google.games.bridge.** { *; }
+-keep class com.google.android.gms.common.ConnectionResult { *; }
+-keep class com.google.android.gms.common.GooglePlayServicesUtil { *; }
+-keep class com.google.android.gms.common.api.** { *; }
+-keep class com.google.android.gms.common.data.DataBufferUtils { *; }
+-keep class com.google.android.gms.nearby.** { *; }
+
+
+# ============================================================
+# Fateful Rush Android JNI
+# ============================================================
+
+# Called from C# through AndroidJavaClass/JNI.
+# R8 cannot statically detect this reference.
 -keep class com.youngdevstudios.fatefulrush.compat.** { *; }
