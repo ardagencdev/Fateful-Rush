@@ -25,11 +25,18 @@ public sealed class StatsPersistenceHook : MonoBehaviour
             StatsManager.SaveIfDirty();
     }
 
-    private void OnApplicationFocus(bool hasFocus)
-    {
-        if (!hasFocus)
-            StatsManager.SaveIfDirty();
-    }
+    /*
+     * IMPORTANT:
+     * Do not save on OnApplicationFocus(false).
+     *
+     * Android system overlays such as heads-up notifications can temporarily
+     * remove window focus while the game is still visible and running.
+     * StatsManager.SaveIfDirty() eventually calls PlayerPrefs.Save(), which is
+     * a synchronous disk flush and can create a visible gameplay hitch.
+     *
+     * Real app backgrounding is still covered by OnApplicationPause(true),
+     * while normal run completion already saves stats through GameStateManager.
+     */
 
     private void OnApplicationQuit()
     {

@@ -55,7 +55,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
@@ -82,7 +81,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.288
   nearStarsSizeMultiplier: 1.046
   starfieldDensityMultiplier: 0.994
-  nearStarsEmissionRate: 46
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -125,7 +123,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 7.5
+  normalEnemySpawnInterval: 9
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,7 +139,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 13
+  projectileEnemySpawnInterval: 14
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:

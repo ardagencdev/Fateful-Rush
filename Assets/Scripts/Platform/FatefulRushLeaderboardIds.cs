@@ -8,45 +8,45 @@ using UnityEngine;
 /// </summary>
 public static class FatefulRushLeaderboardIds
 {
-    public const string Level01 = "CgkIsrqqqssOEAIQKg";
-    public const string Level02 = "CgkIsrqqqssOEAIQKw";
-    public const string Level03 = "CgkIsrqqqssOEAIQLA";
-    public const string Level04 = "CgkIsrqqqssOEAIQLQ";
-    public const string Level05 = "CgkIsrqqqssOEAIQLg";
-    public const string Level06 = "CgkIsrqqqssOEAIQLw";
-    public const string Level07 = "CgkIsrqqqssOEAIQMA";
-    public const string Level08 = "CgkIsrqqqssOEAIQMQ";
-    public const string Level09 = "CgkIsrqqqssOEAIQMg";
+    public const string Level01 = "CgkIsrqqqssOEAIQRw";
+    public const string Level02 = "CgkIsrqqqssOEAIQSA";
+    public const string Level03 = "CgkIsrqqqssOEAIQSQ";
+    public const string Level04 = "CgkIsrqqqssOEAIQSg";
+    public const string Level05 = "CgkIsrqqqssOEAIQSw";
+    public const string Level06 = "CgkIsrqqqssOEAIQTA";
+    public const string Level07 = "CgkIsrqqqssOEAIQTQ";
+    public const string Level08 = "CgkIsrqqqssOEAIQTg";
+    public const string Level09 = "CgkIsrqqqssOEAIQTw";
 
-    public const string Level11 = "CgkIsrqqqssOEAIQMw";
-    public const string Level12 = "CgkIsrqqqssOEAIQNA";
+    public const string Level11 = "CgkIsrqqqssOEAIQUA";
+    public const string Level12 = "CgkIsrqqqssOEAIQUQ";
 
-    public const string Level14 = "CgkIsrqqqssOEAIQNQ";
-    public const string Level15 = "CgkIsrqqqssOEAIQNg";
-    public const string Level16 = "CgkIsrqqqssOEAIQNw";
+    public const string Level14 = "CgkIsrqqqssOEAIQUg";
+    public const string Level15 = "CgkIsrqqqssOEAIQUw";
+    public const string Level16 = "CgkIsrqqqssOEAIQVA";
 
-    public const string Level18 = "CgkIsrqqqssOEAIQOA";
-    public const string Level19 = "CgkIsrqqqssOEAIQOQ";
-    public const string Level20 = "CgkIsrqqqssOEAIQOg";
+    public const string Level18 = "CgkIsrqqqssOEAIQVQ";
+    public const string Level19 = "CgkIsrqqqssOEAIQVg";
+    public const string Level20 = "CgkIsrqqqssOEAIQVw";
 
-    public const string Level22 = "CgkIsrqqqssOEAIQOw";
-    public const string Level23 = "CgkIsrqqqssOEAIQPA";
+    public const string Level22 = "CgkIsrqqqssOEAIQWA";
+    public const string Level23 = "CgkIsrqqqssOEAIQWQ";
 
-    public const string Level25 = "CgkIsrqqqssOEAIQPQ";
+    public const string Level25 = "CgkIsrqqqssOEAIQWg";
 
-    public const string Level27 = "CgkIsrqqqssOEAIQPg";
-    public const string Level28 = "CgkIsrqqqssOEAIQPw";
+    public const string Level27 = "CgkIsrqqqssOEAIQWw";
+    public const string Level28 = "CgkIsrqqqssOEAIQXA";
 
-    public const string Level30 = "CgkIsrqqqssOEAIQQA";
+    public const string Level30 = "CgkIsrqqqssOEAIQXQ";
 
-    public const string Level32 = "CgkIsrqqqssOEAIQQQ";
-    public const string Level33 = "CgkIsrqqqssOEAIQQg";
+    public const string Level32 = "CgkIsrqqqssOEAIQXg";
+    public const string Level33 = "CgkIsrqqqssOEAIQXw";
 
-    public const string Level35 = "CgkIsrqqqssOEAIQQw";
-    public const string Level36 = "CgkIsrqqqssOEAIQRA";
+    public const string Level35 = "CgkIsrqqqssOEAIQYA";
+    public const string Level36 = "CgkIsrqqqssOEAIQYQ";
 
-    public const string Level38 = "CgkIsrqqqssOEAIQRQ";
-    public const string Level39 = "CgkIsrqqqssOEAIQRg";
+    public const string Level38 = "CgkIsrqqqssOEAIQYg";
+    public const string Level39 = "CgkIsrqqqssOEAIQYw";
 
     public static bool TryGetId(
         int levelNumber,
@@ -54,15 +54,15 @@ public static class FatefulRushLeaderboardIds
     {
         switch (levelNumber)
         {
-            case 1:  leaderboardId = Level01; return true;
-            case 2:  leaderboardId = Level02; return true;
-            case 3:  leaderboardId = Level03; return true;
-            case 4:  leaderboardId = Level04; return true;
-            case 5:  leaderboardId = Level05; return true;
-            case 6:  leaderboardId = Level06; return true;
-            case 7:  leaderboardId = Level07; return true;
-            case 8:  leaderboardId = Level08; return true;
-            case 9:  leaderboardId = Level09; return true;
+            case 1: leaderboardId = Level01; return true;
+            case 2: leaderboardId = Level02; return true;
+            case 3: leaderboardId = Level03; return true;
+            case 4: leaderboardId = Level04; return true;
+            case 5: leaderboardId = Level05; return true;
+            case 6: leaderboardId = Level06; return true;
+            case 7: leaderboardId = Level07; return true;
+            case 8: leaderboardId = Level08; return true;
+            case 9: leaderboardId = Level09; return true;
 
             case 11: leaderboardId = Level11; return true;
             case 12: leaderboardId = Level12; return true;
