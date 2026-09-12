@@ -8,8 +8,6 @@ public class CurrentLevelHUD : MonoBehaviour
 {
     private const float FontSize = 18f;
     private const float TopOffset = 3f;
-    private const string LocalizationTable = "UI";
-    private const string LevelKey = "hud.level";
 
     private TextMeshProUGUI levelText;
     private Color nearStarsColor = Color.white;
@@ -129,8 +127,10 @@ public class CurrentLevelHUD : MonoBehaviour
             OnSelectedLocaleChanged;
 
         if (levelText == null)
+        {
             levelText =
                 GetComponent<TextMeshProUGUI>();
+        }
 
         ApplyNearStarsColor();
         RegisterWithOcclusionController();
@@ -148,6 +148,7 @@ public class CurrentLevelHUD : MonoBehaviour
 
     private void OnSelectedLocaleChanged(Locale locale)
     {
+        FatefulRushLocalization.ClearCache();
         RefreshLocalizedText();
     }
 
@@ -160,7 +161,12 @@ public class CurrentLevelHUD : MonoBehaviour
         }
 
         string template =
-            GetLocalizedLevelTemplate();
+            FatefulRushLocalization.Text(
+                "hud.level",
+                FatefulRushLocalization.IsTurkish
+                    ? "BÖLÜM {0}"
+                    : "LEVEL {0}"
+            );
 
         try
         {
@@ -173,60 +179,14 @@ public class CurrentLevelHUD : MonoBehaviour
         catch (FormatException)
         {
             levelText.text =
-                $"LEVEL {currentLevelNumber}";
-        }
-    }
-
-    private static string GetLocalizedLevelTemplate()
-    {
-        const string fallback = "LEVEL {0}";
-
-        try
-        {
-            var operation =
-                LocalizationSettings.StringDatabase
-                    .GetLocalizedStringAsync(
-                        LocalizationTable,
-                        LevelKey
-                    );
-
-            string value =
-                operation.IsDone
-                    ? operation.Result
-                    : operation.WaitForCompletion();
-
-            if (IsValidLocalizedValue(value))
-                return value;
-        }
-        catch
-        {
-            // Keep the HUD usable even if localization is not ready.
+                FatefulRushLocalization.IsTurkish
+                    ? $"BÖLÜM {currentLevelNumber}"
+                    : $"LEVEL {currentLevelNumber}";
         }
 
-        return fallback;
-    }
-
-    private static bool IsValidLocalizedValue(
-        string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-
-        if (value.StartsWith(
-                "No translation found",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (value.StartsWith(
-                "No table found",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return true;
+        // Localization changes only the text. This HUD intentionally uses
+        // the current level's NearStars color, never the player skin theme.
+        ApplyNearStarsColor();
     }
 
     private void RegisterWithOcclusionController()
@@ -242,8 +202,10 @@ public class CurrentLevelHUD : MonoBehaviour
     private void ApplyNearStarsColor()
     {
         if (levelText == null)
+        {
             levelText =
                 GetComponent<TextMeshProUGUI>();
+        }
 
         if (levelText == null)
             return;

@@ -50,7 +50,7 @@ public class MenuMusicApply : MonoBehaviour
     private Coroutine playlistRoutine;
     private Coroutine volumeRoutine;
 
-    private readonly List<int> shuffledPlaylist = new List<int>();
+    private readonly List<int> shuffledPlaylist = new();
 
     private int playlistPosition;
     private int lastPlayedIndex = -1;
@@ -61,23 +61,8 @@ public class MenuMusicApply : MonoBehaviour
 
     private bool isStoppingMusic;
 
-    // Full-screen ads and app backgrounding can temporarily make
-    // AudioSource.isPlaying return false. Without this guard the playlist
-    // interprets the interruption as "track ended" and starts over.
-    private bool isApplicationPaused;
-    private bool hasApplicationFocus = true;
-    private bool interruptionSnapshotCaptured;
-
-    private AudioClip sourceASuspendedClip;
-    private AudioClip sourceBSuspendedClip;
-    private int sourceASuspendedTimeSamples;
-    private int sourceBSuspendedTimeSamples;
-    private bool sourceAShouldResume;
-    private bool sourceBShouldResume;
-
     private void Awake()
     {
-        hasApplicationFocus = Application.isFocused;
         PrepareAudioSources();
     }
 
@@ -163,7 +148,6 @@ public class MenuMusicApply : MonoBehaviour
     private void StartMenuPlaylist()
     {
         StopActiveRoutines();
-        ClearInterruptionSnapshot();
 
         sourceA.Stop();
         sourceB.Stop();
@@ -221,26 +205,11 @@ public class MenuMusicApply : MonoBehaviour
                activeSource != null &&
                activeSource.clip != null)
         {
-            // Do not treat ad/background suspension as the end of a song.
-            while (!isStoppingMusic)
+            // Aktif parça gerçekten tamamen bitene kadar bekle.
+            while (!isStoppingMusic &&
+                   activeSource.isPlaying)
             {
-                if (IsPlaybackInterrupted())
-                {
-                    CaptureInterruptionSnapshot();
-                    yield return null;
-                    continue;
-                }
-
-                RestoreInterruptionSnapshotIfReady();
-
-                if (activeSource != null &&
-                    activeSource.isPlaying)
-                {
-                    yield return null;
-                    continue;
-                }
-
-                break;
+                yield return null;
             }
 
             if (isStoppingMusic)
@@ -252,9 +221,10 @@ public class MenuMusicApply : MonoBehaviour
             activeGain = 0f;
             ApplySourceVolumes();
 
+            // Parçalar üst üste binmesin. Önce sessiz bir nefes aralığı bırak.
             if (interTrackDelay > 0f)
             {
-                yield return WaitForPlaybackAwareDelay(
+                yield return new WaitForSecondsRealtime(
                     interTrackDelay
                 );
             }
@@ -295,29 +265,6 @@ public class MenuMusicApply : MonoBehaviour
         playlistRoutine = null;
     }
 
-    private IEnumerator WaitForPlaybackAwareDelay(
-        float duration
-    )
-    {
-        float elapsed = 0f;
-        duration = Mathf.Max(0f, duration);
-
-        while (!isStoppingMusic &&
-               elapsed < duration)
-        {
-            if (IsPlaybackInterrupted())
-            {
-                CaptureInterruptionSnapshot();
-                yield return null;
-                continue;
-            }
-
-            RestoreInterruptionSnapshotIfReady();
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
-    }
-
     private IEnumerator FadeInStandbyRoutine(
         float duration
     )
@@ -328,14 +275,6 @@ public class MenuMusicApply : MonoBehaviour
 
         while (timer < duration)
         {
-            if (IsPlaybackInterrupted())
-            {
-                CaptureInterruptionSnapshot();
-                yield return null;
-                continue;
-            }
-
-            RestoreInterruptionSnapshotIfReady();
             timer += Time.unscaledDeltaTime;
 
             float progress =
@@ -464,9 +403,14 @@ public class MenuMusicApply : MonoBehaviour
                     shuffledPlaylist.Count
                 );
 
-            int temporary = shuffledPlaylist[i];
-            shuffledPlaylist[i] = shuffledPlaylist[randomIndex];
-            shuffledPlaylist[randomIndex] = temporary;
+            (
+                shuffledPlaylist[i],
+                shuffledPlaylist[randomIndex]
+            ) =
+            (
+                shuffledPlaylist[randomIndex],
+                shuffledPlaylist[i]
+            );
         }
 
         if (shuffledPlaylist.Count > 1 &&
@@ -479,9 +423,14 @@ public class MenuMusicApply : MonoBehaviour
                     shuffledPlaylist.Count
                 );
 
-            int temporary = shuffledPlaylist[0];
-            shuffledPlaylist[0] = shuffledPlaylist[swapIndex];
-            shuffledPlaylist[swapIndex] = temporary;
+            (
+                shuffledPlaylist[0],
+                shuffledPlaylist[swapIndex]
+            ) =
+            (
+                shuffledPlaylist[swapIndex],
+                shuffledPlaylist[0]
+            );
         }
 
         playlistPosition = 0;
@@ -583,14 +532,6 @@ public class MenuMusicApply : MonoBehaviour
 
         while (timer < duration)
         {
-            if (IsPlaybackInterrupted())
-            {
-                CaptureInterruptionSnapshot();
-                yield return null;
-                continue;
-            }
-
-            RestoreInterruptionSnapshotIfReady();
             timer += Time.unscaledDeltaTime;
 
             float progress =
@@ -680,176 +621,6 @@ public class MenuMusicApply : MonoBehaviour
                menuMusicBaseVolume;
     }
 
-    private bool IsPlaybackInterrupted()
-    {
-        return isApplicationPaused ||
-               !hasApplicationFocus ||
-               AudioListener.pause;
-    }
-
-    private void CaptureInterruptionSnapshot()
-    {
-        if (interruptionSnapshotCaptured ||
-            isStoppingMusic)
-        {
-            return;
-        }
-
-        interruptionSnapshotCaptured = true;
-
-        CaptureSourceState(
-            sourceA,
-            sourceA == activeSource,
-            sourceA == standbySource && standbyGain > 0f,
-            out sourceASuspendedClip,
-            out sourceASuspendedTimeSamples,
-            out sourceAShouldResume
-        );
-
-        CaptureSourceState(
-            sourceB,
-            sourceB == activeSource,
-            sourceB == standbySource && standbyGain > 0f,
-            out sourceBSuspendedClip,
-            out sourceBSuspendedTimeSamples,
-            out sourceBShouldResume
-        );
-    }
-
-    private static void CaptureSourceState(
-        AudioSource source,
-        bool isActive,
-        bool isAudibleStandby,
-        out AudioClip capturedClip,
-        out int capturedTimeSamples,
-        out bool shouldResume
-    )
-    {
-        capturedClip = source != null
-            ? source.clip
-            : null;
-
-        capturedTimeSamples =
-            source != null && source.clip != null
-                ? Mathf.Max(0, source.timeSamples)
-                : 0;
-
-        shouldResume =
-            source != null &&
-            capturedClip != null &&
-            (source.isPlaying ||
-             isActive ||
-             isAudibleStandby);
-
-        if (source != null && source.isPlaying)
-            source.Pause();
-    }
-
-    private void RestoreInterruptionSnapshotIfReady()
-    {
-        if (!interruptionSnapshotCaptured ||
-            IsPlaybackInterrupted() ||
-            isStoppingMusic)
-        {
-            return;
-        }
-
-        RestoreSourceState(
-            sourceA,
-            sourceASuspendedClip,
-            sourceASuspendedTimeSamples,
-            sourceAShouldResume
-        );
-
-        RestoreSourceState(
-            sourceB,
-            sourceBSuspendedClip,
-            sourceBSuspendedTimeSamples,
-            sourceBShouldResume
-        );
-
-        ClearInterruptionSnapshot();
-    }
-
-    private static void RestoreSourceState(
-        AudioSource source,
-        AudioClip capturedClip,
-        int capturedTimeSamples,
-        bool shouldResume
-    )
-    {
-        if (!shouldResume ||
-            source == null ||
-            capturedClip == null ||
-            source.clip != capturedClip)
-        {
-            return;
-        }
-
-        int sampleCount =
-            Mathf.Max(0, capturedClip.samples);
-
-        if (sampleCount <= 1)
-            return;
-
-        int safeSample = Mathf.Clamp(
-            capturedTimeSamples,
-            0,
-            sampleCount - 1
-        );
-
-        // A track that genuinely ended should still be allowed to advance.
-        if (safeSample >= sampleCount - 2)
-            return;
-
-        source.timeSamples = safeSample;
-        source.UnPause();
-
-        if (!source.isPlaying)
-        {
-            source.Play();
-            source.timeSamples = safeSample;
-        }
-    }
-
-    private void ClearInterruptionSnapshot()
-    {
-        interruptionSnapshotCaptured = false;
-
-        sourceASuspendedClip = null;
-        sourceBSuspendedClip = null;
-        sourceASuspendedTimeSamples = 0;
-        sourceBSuspendedTimeSamples = 0;
-        sourceAShouldResume = false;
-        sourceBShouldResume = false;
-    }
-
-    private void OnApplicationPause(bool paused)
-    {
-        isApplicationPaused = paused;
-
-        if (paused)
-        {
-            CaptureInterruptionSnapshot();
-            return;
-        }
-
-        RestoreInterruptionSnapshotIfReady();
-    }
-
-    private void OnApplicationFocus(bool hasFocus)
-    {
-        hasApplicationFocus = hasFocus;
-
-        if (!hasFocus)
-        {
-            CaptureInterruptionSnapshot();
-            return;
-        }
-
-        RestoreInterruptionSnapshotIfReady();
-    }
-
     private void StopActiveRoutines()
     {
         if (playlistRoutine != null)
@@ -868,7 +639,6 @@ public class MenuMusicApply : MonoBehaviour
     private void OnDisable()
     {
         StopActiveRoutines();
-        ClearInterruptionSnapshot();
 
         if (sourceA != null)
         {

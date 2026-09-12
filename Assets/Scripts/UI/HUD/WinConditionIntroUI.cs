@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public sealed class WinConditionIntroUI : MonoBehaviour
@@ -26,17 +28,46 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         if (level == null)
             yield break;
 
-        DestroyOverlay();
-        CreateOverlay();
+        // IMPORTANT:
+        // Do not create any visible TMP object before localization is ready.
+        // The old implementation created the overlay in English first and a
+        // separate runtime script replaced the strings afterwards, which is
+        // exactly what caused the visible EN -> TR flash.
+        yield return EnsureLocalizationReady();
 
-        levelText.text =
+        string localizedLevel =
             BuildLevelText(level);
 
-        objectiveText.text =
+        string localizedObjective =
             BuildObjectiveText(level);
 
         string introducedMechanics =
             BuildIntroducedMechanicsText(level);
+
+        string localizedTitle =
+            FatefulRushLocalization.Text(
+                "intro.win_condition",
+                FatefulRushLocalization.IsTurkish
+                    ? "KAZANMA KOŞULU"
+                    : "WIN CONDITION"
+            );
+
+        // Android project only. The PC port lives in a separate project, so
+        // this project must never advertise SPACE/keyboard input.
+        string localizedInputHint =
+            FatefulRushLocalization.Text(
+                "intro.tap_to_start",
+                FatefulRushLocalization.IsTurkish
+                    ? "BAŞLAMAK İÇİN DOKUN"
+                    : "TAP TO START"
+            );
+
+        DestroyOverlay();
+        CreateOverlay(localizedTitle);
+
+        // All strings are already final before the first rendered frame.
+        levelText.text = localizedLevel;
+        objectiveText.text = localizedObjective;
 
         bool hasIntroducedMechanic =
             !string.IsNullOrWhiteSpace(introducedMechanics);
@@ -50,10 +81,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 hasIntroducedMechanic ? -180f : -142f
             );
 
-        inputHintText.text =
-            Application.isMobilePlatform
-                ? "TAP TO START"
-                : "CLICK OR PRESS SPACE TO START";
+        inputHintText.text = localizedInputHint;
 
         float safeTotalDuration =
             Mathf.Max(0.5f, totalDuration);
@@ -212,7 +240,27 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         DestroyOverlay();
     }
 
-    private void CreateOverlay()
+    private static IEnumerator EnsureLocalizationReady()
+    {
+        var initialization =
+            LocalizationSettings.InitializationOperation;
+
+        while (!initialization.IsDone)
+            yield return null;
+
+        // The saved menu choice is authoritative. Re-apply it after Unity
+        // Localization initialization, then discard any early fallback cache.
+        FatefulRushLocalization.ClearCache();
+        FatefulRushLocalization.ApplySavedLocaleIfPossible();
+        FatefulRushLocalization.ClearCache();
+
+        // Locale assignment can notify Unity systems on this frame.
+        // Nothing has been rendered yet, so waiting one frame is safe and
+        // guarantees that the intro never exposes a fallback language.
+        yield return null;
+    }
+
+    private void CreateOverlay(string localizedTitle)
     {
         GameObject canvasObject =
             new GameObject(
@@ -325,7 +373,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                 "Title",
                 contentTransform,
                 sceneFont,
-                "WIN CONDITION",
+                localizedTitle,
                 34f,
                 new Vector2(0f, 122f),
                 new Vector2(1450f, 70f)
@@ -396,7 +444,6 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         if (catalog != null)
             return catalog.GetSelectedUIThemeColor();
 
-        // Catalog bulunamazsa eski briefing morunu koru.
         return new Color(0.78f, 0.72f, 1f, 1f);
     }
 
@@ -555,21 +602,49 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         if (level == null)
             return string.Empty;
 
-        string levelName = string.IsNullOrWhiteSpace(level.levelName)
-            ? string.Empty
-            : level.levelName.Trim().ToUpperInvariant();
+        string originalName =
+            string.IsNullOrWhiteSpace(level.levelName)
+                ? string.Empty
+                : level.levelName.Trim();
+
+        string localizedName =
+            FatefulRushLocalization.LevelName(
+                level.levelNumber,
+                originalName
+            );
+
+        localizedName =
+            ToDisplayUpper(localizedName);
 
         if (level.levelNumber > 0)
         {
-            return string.IsNullOrEmpty(levelName)
-                ? $"LEVEL {level.levelNumber}"
-                : $"LEVEL {level.levelNumber} — {levelName}";
+            if (string.IsNullOrWhiteSpace(localizedName))
+            {
+                return FatefulRushLocalization.Text(
+                    "hud.level",
+                    FatefulRushLocalization.IsTurkish
+                        ? "BÖLÜM {0}"
+                        : "LEVEL {0}",
+                    level.levelNumber
+                );
+            }
+
+            return FatefulRushLocalization.Text(
+                "briefing.level_title",
+                FatefulRushLocalization.IsTurkish
+                    ? "BÖLÜM {0} — {1}"
+                    : "LEVEL {0} — {1}",
+                level.levelNumber,
+                localizedName
+            );
         }
 
-        if (!string.IsNullOrEmpty(levelName))
-            return levelName;
+        if (!string.IsNullOrWhiteSpace(localizedName))
+            return localizedName;
 
-        return "MISSION";
+        return FatefulRushLocalization.IsTurkish
+            ? "GÖREV"
+            : "MISSION";
     }
 
     private static string BuildObjectiveText(
@@ -578,22 +653,40 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         switch (level.winCondition)
         {
             case WinConditionType.ReachScore:
-                return
-                    $"{level.SafeWinScore} " +
-                    "POINTS TO WIN";
+                return FatefulRushLocalization.Text(
+                    "objective.reach_score",
+                    FatefulRushLocalization.IsTurkish
+                        ? "{0} SKORA ULAŞ"
+                        : "REACH {0} SCORE",
+                    level.SafeWinScore
+                );
 
             case WinConditionType.SurviveTime:
-                return
-                    "SURVIVE FOR " +
-                    FormatTime(level.SafeTimeLimit);
+                return FatefulRushLocalization.Text(
+                    "objective.survive_time",
+                    FatefulRushLocalization.IsTurkish
+                        ? "{0} SANİYE HAYATTA KAL"
+                        : "SURVIVE FOR {0} SECONDS",
+                    FormatNumber(level.SafeTimeLimit)
+                );
 
             case WinConditionType.ReachScoreWithinTime:
-                return
-                    $"{level.SafeWinScore} POINTS\n" +
-                    $"IN {FormatTime(level.SafeTimeLimit)}";
+                return FatefulRushLocalization.Text(
+                    "objective.reach_score_in_time",
+                    FatefulRushLocalization.IsTurkish
+                        ? "{1} SANİYE İÇİNDE {0} SKORA ULAŞ"
+                        : "REACH {0} SCORE IN {1} SECONDS",
+                    level.SafeWinScore,
+                    FormatNumber(level.SafeTimeLimit)
+                );
 
             default:
-                return "COMPLETE THE MISSION";
+                return FatefulRushLocalization.Text(
+                    "objective.complete_mission",
+                    FatefulRushLocalization.IsTurkish
+                        ? "GÖREVİ TAMAMLA"
+                        : "COMPLETE THE MISSION"
+                );
         }
     }
 
@@ -615,169 +708,115 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         AddIfIntroduced(
             introduced,
             progression.reachScoreMode,
-            "SCORE MODE"
+            "mechanic.score_mode",
+            "SCORE MODE",
+            "SKOR MODU"
         );
 
         AddIfIntroduced(
             introduced,
             progression.surviveTimeMode,
-            "SURVIVAL MODE"
+            "mechanic.survival_mode",
+            "SURVIVAL MODE",
+            "HAYATTA KALMA MODU"
         );
 
         AddIfIntroduced(
             introduced,
             progression.timedScoreMode,
-            "TIMED SCORE"
+            "mechanic.timed_score",
+            "TIMED SCORE",
+            "SÜRELİ SKOR"
         );
 
-        AddIfIntroduced(
-            introduced,
-            progression.dash,
-            "DASH"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.clone,
-            "CLONE"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.combo,
-            "COMBO"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.normalCoin,
-            "COINS"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.goldCoin,
-            "GOLD COINS"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.rareCoin,
-            "RARE COINS"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.staticObstacles,
-            "OBSTACLES"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.normalEnemy,
-            "STALKER"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.projectileEnemy,
-            "BLASTER"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.hunterEnemy,
-            "HUNTER"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.boss,
-            "BOSS"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.beaconEnemy,
-            "BEACON"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.armor,
-            "ARMOR"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.slow,
-            "SLOW"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.verticalLaser,
-            "VERTICAL LASER"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.horizontalLaser,
-            "HORIZONTAL LASER"
-        );
-
-        AddIfIntroduced(
-            introduced,
-            progression.spaceBomb,
-            "SPACE BOMB"
-        );
+        AddIfIntroduced(introduced, progression.dash, "mechanic.dash", "DASH", "DASH");
+        AddIfIntroduced(introduced, progression.clone, "mechanic.clone", "CLONE", "KLON");
+        AddIfIntroduced(introduced, progression.combo, "mechanic.combo", "COMBO", "KOMBO");
+        AddIfIntroduced(introduced, progression.normalCoin, "mechanic.coins", "COINS", "COINLER");
+        AddIfIntroduced(introduced, progression.goldCoin, "mechanic.gold_coins", "GOLD COINS", "ALTIN COINLER");
+        AddIfIntroduced(introduced, progression.rareCoin, "mechanic.rare_coins", "RARE COINS", "NADİR COINLER");
+        AddIfIntroduced(introduced, progression.staticObstacles, "mechanic.obstacles", "OBSTACLES", "ENGELLER");
+        AddIfIntroduced(introduced, progression.normalEnemy, "mechanic.stalker", "STALKER", "STALKER");
+        AddIfIntroduced(introduced, progression.projectileEnemy, "mechanic.blaster", "BLASTER", "BLASTER");
+        AddIfIntroduced(introduced, progression.hunterEnemy, "mechanic.hunter", "HUNTER", "HUNTER");
+        AddIfIntroduced(introduced, progression.boss, "mechanic.boss", "BOSS", "BOSS");
+        AddIfIntroduced(introduced, progression.beaconEnemy, "mechanic.beacon", "BEACON", "BEACON");
+        AddIfIntroduced(introduced, progression.armor, "mechanic.armor", "ARMOR", "ZIRH");
+        AddIfIntroduced(introduced, progression.slow, "mechanic.slow", "SLOW", "YAVAŞLATMA");
+        AddIfIntroduced(introduced, progression.verticalLaser, "mechanic.vertical_laser", "VERTICAL LASER", "DİKEY LAZER");
+        AddIfIntroduced(introduced, progression.horizontalLaser, "mechanic.horizontal_laser", "HORIZONTAL LASER", "YATAY LAZER");
+        AddIfIntroduced(introduced, progression.spaceBomb, "mechanic.space_bomb", "SPACE BOMB", "UZAY BOMBASI");
 
         if (introduced.Count == 0)
             return string.Empty;
 
-        return "NEW  •  " +
+        string newLabel =
+            FatefulRushLocalization.Text(
+                "intro.new",
+                FatefulRushLocalization.IsTurkish
+                    ? "YENİ"
+                    : "NEW"
+            );
+
+        return newLabel +
+               "  •  " +
                string.Join("  •  ", introduced);
     }
 
     private static void AddIfIntroduced(
         List<string> target,
         MechanicProgressionStatus status,
-        string label)
+        string key,
+        string englishFallback,
+        string turkishFallback)
     {
-        if (status ==
+        if (status !=
             MechanicProgressionStatus.IntroducedHere)
         {
-            target.Add(label);
+            return;
         }
+
+        target.Add(
+            FatefulRushLocalization.Text(
+                key,
+                FatefulRushLocalization.IsTurkish
+                    ? turkishFallback
+                    : englishFallback
+            )
+        );
     }
 
-    private static string FormatTime(float seconds)
+    private static string ToDisplayUpper(string value)
     {
-        float safeSeconds =
-            Mathf.Max(0f, seconds);
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
 
-        bool isWholeNumber =
-            Mathf.Approximately(
-                safeSeconds,
-                Mathf.Round(safeSeconds)
-            );
+        if (FatefulRushLocalization.IsTurkish)
+        {
+            try
+            {
+                return value.ToUpper(
+                    CultureInfo.GetCultureInfo("tr-TR")
+                );
+            }
+            catch
+            {
+                // Safe fallback below.
+            }
+        }
 
-        string value =
-            isWholeNumber
-                ? Mathf.RoundToInt(safeSeconds)
-                    .ToString()
-                : safeSeconds.ToString("0.#");
+        return value.ToUpperInvariant();
+    }
 
-        bool isSingleSecond =
-            Mathf.Approximately(
-                safeSeconds,
-                1f
-            );
+    private static string FormatNumber(float value)
+    {
+        float safe = Mathf.Max(0f, value);
 
-        return value +
-               (isSingleSecond
-                   ? " SECOND"
-                   : " SECONDS");
+        return Mathf.Approximately(
+                safe,
+                Mathf.Round(safe))
+            ? Mathf.RoundToInt(safe).ToString()
+            : safe.ToString("0.#");
     }
 
     private static bool WasStartInputPressed()
@@ -791,6 +830,8 @@ public sealed class WinConditionIntroUI : MonoBehaviour
             return true;
         }
 
+        // Keeping mouse/keyboard/gamepad as silent Editor testing inputs is
+        // useful, but the Android UI never advertises them to the player.
         if (Mouse.current != null &&
             Mouse.current
                 .leftButton
@@ -842,9 +883,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
     private void DestroyOverlay()
     {
         if (overlayCanvas != null)
-        {
             Destroy(overlayCanvas.gameObject);
-        }
 
         overlayCanvas = null;
         overlayGroup = null;
