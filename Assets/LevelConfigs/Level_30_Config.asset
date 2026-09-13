@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A Beacon, Space Bombs and a Boss at 90 score overlap before the timer ends. Remove Beacon buffs
-    before forcing long scoring routes.
+  - A Beacon, Space Bombs and a Boss at 90 score overlap before the timer ends. Remove
+    Beacon buffs before forcing long scoring routes.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
-  winScore: 125
+  winScore: 160
   timeLimit: 65
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
@@ -55,7 +55,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
@@ -82,7 +81,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.519
   nearStarsSizeMultiplier: 1.123
   starfieldDensityMultiplier: 1.122
-  nearStarsEmissionRate: 54
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -150,6 +148,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5

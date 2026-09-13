@@ -44,7 +44,7 @@ MonoBehaviour:
     direction only after Hunter charges commit.
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
-  winScore: 150
+  winScore: 165
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -55,7 +55,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
@@ -82,7 +81,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.335
   nearStarsSizeMultiplier: 1.062
   starfieldDensityMultiplier: 1.019
-  nearStarsEmissionRate: 44
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -125,7 +123,7 @@ MonoBehaviour:
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 7.5
+  normalEnemySpawnInterval: 7
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -141,7 +139,7 @@ MonoBehaviour:
     separationRadius: 0.75
     separationStrength: 0.65
   projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 14
+  projectileEnemySpawnInterval: 12
   projectileEnemyDanger: 2
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -166,9 +164,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 1
-  hunterEnemySpawnInterval: 17
-  hunterEnemyDanger: 2
+  hunterEnemyCount: 2
+  hunterEnemySpawnInterval: 15
+  hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -280,7 +278,7 @@ MonoBehaviour:
     width: 0.5
     sizeExtra: 1
   bombTrapEnabled: 1
-  bombDanger: 1
+  bombDanger: 2
   bombCustomOverride: 0
   bombOverride:
     minSpawnTime: 6

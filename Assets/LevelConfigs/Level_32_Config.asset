@@ -44,7 +44,7 @@ MonoBehaviour:
     Beacon before committing to a long combo chain.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 2
-  winScore: 135
+  winScore: 175
   timeLimit: 70
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4

@@ -180,7 +180,7 @@ MonoBehaviour:
   bossSpawnCondition: 0
   bossSpawnScore: 50
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 3
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2
