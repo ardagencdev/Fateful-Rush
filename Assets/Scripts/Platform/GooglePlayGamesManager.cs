@@ -695,12 +695,14 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
             () =>
             {
                 SyncProgressFromLocalSave();
+                FatefulRushGameStats.SyncProgress();
                 GooglePlayGamesLeaderboards.SyncLocalBestTimes();
                 onFinished?.Invoke();
             }
         );
 #else
         SyncProgressFromLocalSave();
+        FatefulRushGameStats.SyncProgress();
         onFinished?.Invoke();
 #endif
     }
@@ -1363,3 +1365,4 @@ public sealed class GooglePlayGamesManager : MonoBehaviour
 #endif
     }
 }
+

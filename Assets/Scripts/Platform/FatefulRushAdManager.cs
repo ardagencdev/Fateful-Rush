@@ -9,9 +9,11 @@ using UnityEngine.UI;
 /// <summary>
 /// Fateful Rush reklam akisini gameplay'den izole tutar.
 /// - Her gameplay attempt basladiginda sayar.
-/// - 5-10 attempt araliginda reklam hakki olusturur.
+/// - Remote Config ile belirlenen attempt araliginda reklam hakki olusturur
+///   (varsayilan 5-10).
 /// - Attempt reklami sadece gameplay -> MainMenu gecisinde denenir.
-/// - MainMenu'de aktif gecirilen toplam 5 dakikada bir reklam dener.
+/// - MainMenu'de Remote Config ile belirlenen aktif surede reklam dener
+///   (varsayilan 5 dakika).
 /// - Tum sayaçlar PlayerPrefs ile kalicidir.
 /// - Reklam/consent SDK hatalari gameplay veya scene gecisini asla bloklamaz.
 /// </summary>
@@ -191,6 +193,17 @@ public sealed class FatefulRushAdManager : MonoBehaviour
         }
     }
 
+    public static bool IsFullScreenBusy
+    {
+        get
+        {
+            return instance != null &&
+                   (instance.adShowInProgress ||
+                    instance.consentFlowActive ||
+                    instance.adPauseActive);
+        }
+    }
+
     public static bool IsPrivacyOptionsRequired
     {
         get
@@ -339,6 +352,8 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
     private void TrackGameplayAttempt()
     {
+        NormalizeAttemptTargetToConfig();
+
         Scene activeScene = SceneManager.GetActiveScene();
 
         bool gameplayStarted =
@@ -380,14 +395,16 @@ public sealed class FatefulRushAdManager : MonoBehaviour
         // kullanicinin menu suresini ilerletme.
         if (!Application.isFocused ||
             consentFlowActive ||
-            adShowInProgress)
+            adShowInProgress ||
+            FatefulRushReviewPrompt.IsBusy ||
+            FatefulRushInAppUpdateManager.IsBusy)
         {
             return;
         }
 
         mainMenuActiveSeconds += Time.unscaledDeltaTime;
 
-        if (mainMenuActiveSeconds >= MainMenuAdIntervalSeconds)
+        if (mainMenuActiveSeconds >= GetMainMenuAdIntervalSeconds())
             TryShowMainMenuTimedAdIfDue();
     }
 
@@ -409,7 +426,7 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
     private void TryShowMainMenuTimedAdIfDue()
     {
-        if (mainMenuActiveSeconds < MainMenuAdIntervalSeconds)
+        if (mainMenuActiveSeconds < GetMainMenuAdIntervalSeconds())
             return;
 
         // Kullanici tam o anda bir scene gecisi baslattiysa reklam yeni
@@ -431,7 +448,9 @@ public sealed class FatefulRushAdManager : MonoBehaviour
         if (!IsAdsRuntimeSupported() ||
             consentFlowActive ||
             !sdkInitialized ||
-            adShowInProgress)
+            adShowInProgress ||
+            FatefulRushReviewPrompt.IsBusy ||
+            FatefulRushInAppUpdateManager.IsBusy)
         {
             return false;
         }
@@ -570,7 +589,8 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
         return activeScene.IsValid() &&
                activeScene.name == MainMenuSceneName &&
-               !GameStateManager.IsGameplayStarted;
+               !GameStateManager.IsGameplayStarted &&
+               !FatefulRushInAppUpdateManager.IsBusy;
     }
 
     private void BeginConsentFlowSafely()
@@ -1235,8 +1255,11 @@ public sealed class FatefulRushAdManager : MonoBehaviour
                 0
             );
 
-        if (attemptTarget < MinimumAttemptsPerAd ||
-            attemptTarget > MaximumAttemptsPerAd)
+        int minimumAttempts = GetMinimumAttemptsPerAd();
+        int maximumAttempts = GetMaximumAttemptsPerAd();
+
+        if (attemptTarget < minimumAttempts ||
+            attemptTarget > maximumAttempts)
         {
             attemptTarget = RollNextAttemptTarget();
 
@@ -1303,10 +1326,81 @@ public sealed class FatefulRushAdManager : MonoBehaviour
 
     private static int RollNextAttemptTarget()
     {
+        int minimumAttempts = GetMinimumAttemptsPerAd();
+        int maximumAttempts = GetMaximumAttemptsPerAd();
+
         return UnityEngine.Random.Range(
-            MinimumAttemptsPerAd,
-            MaximumAttemptsPerAd + 1
+            minimumAttempts,
+            maximumAttempts + 1
         );
+    }
+
+    private void NormalizeAttemptTargetToConfig()
+    {
+        int minimumAttempts = GetMinimumAttemptsPerAd();
+        int maximumAttempts = GetMaximumAttemptsPerAd();
+
+        if (attemptTarget >= minimumAttempts &&
+            attemptTarget <= maximumAttempts)
+        {
+            return;
+        }
+
+        attemptTarget = RollNextAttemptTarget();
+        PlayerPrefs.SetInt(AttemptTargetKey, attemptTarget);
+    }
+
+    private static int GetMinimumAttemptsPerAd()
+    {
+#if UNITY_EDITOR
+        return MinimumAttemptsPerAd;
+#else
+        return Mathf.Clamp(
+            FatefulRushFirebaseServices.GetInt(
+                FatefulRushFirebaseServices.AdsMinimumAttemptsKey,
+                MinimumAttemptsPerAd
+            ),
+            1,
+            50
+        );
+#endif
+    }
+
+    private static int GetMaximumAttemptsPerAd()
+    {
+#if UNITY_EDITOR
+        return MaximumAttemptsPerAd;
+#else
+        int minimumAttempts = GetMinimumAttemptsPerAd();
+
+        return Mathf.Max(
+            minimumAttempts,
+            Mathf.Clamp(
+                FatefulRushFirebaseServices.GetInt(
+                    FatefulRushFirebaseServices.AdsMaximumAttemptsKey,
+                    MaximumAttemptsPerAd
+                ),
+                1,
+                50
+            )
+        );
+#endif
+    }
+
+    private static float GetMainMenuAdIntervalSeconds()
+    {
+#if UNITY_EDITOR
+        return MainMenuAdIntervalSeconds;
+#else
+        return Mathf.Clamp(
+            FatefulRushFirebaseServices.GetFloat(
+                FatefulRushFirebaseServices.AdsMainMenuIntervalSecondsKey,
+                MainMenuAdIntervalSeconds
+            ),
+            1f,
+            24f * 60f * 60f
+        );
+#endif
     }
 
     private static string GetInterstitialAdUnitId()

@@ -202,6 +202,7 @@ public static class StatsManager
 
         SetMaxInt(HighestComboKey, safeCombo);
         SetMaxInt(LongestComboChainKey, safeChain);
+        FatefulRushGameStats.RecordCombo(safeCombo);
 
         if (reachedNewStage && safeCombo == 6)
             AddInt(MaxComboReachedKey);
@@ -218,6 +219,7 @@ public static class StatsManager
     {
         AddInt(NearMissesKey);
         SetMaxInt(BestNearMissStreakKey, Mathf.Max(1, streak));
+        FatefulRushGameStats.RecordNearMiss();
 
         GooglePlayGamesManager.NotifyNearMissTotal(
             GetNearMisses()
@@ -750,3 +752,4 @@ public static class StatsManager
         }
     }
 }
+

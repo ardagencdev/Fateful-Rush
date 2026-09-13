@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "226158916130",
+    "project_id": "fateful-rush",
+    "storage_bucket": "fateful-rush.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226158916130:android:4a0b4458a8f8e700d9d07b",
+        "android_client_info": {
+          "package_name": "com.youngdevstudios.fatefulrush"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUQxFPrOQ7RV0hqj8ydL3SuEEBZi7A-xQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

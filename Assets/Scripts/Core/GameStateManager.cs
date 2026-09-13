@@ -208,6 +208,9 @@ public class GameStateManager : MonoBehaviour
         yield return
             new WaitForSecondsRealtime(0.05f);
 
+        FatefulRushGameStats.BeginRun(
+            currentLevel != null ? currentLevel.levelNumber : 0
+        );
         IsGameplayStarted = true;
     }
 
@@ -507,6 +510,18 @@ public class GameStateManager : MonoBehaviour
             "record win stats"
         );
 
+        RunNonCritical(
+            () => FatefulRushGameStats.EndRun(
+                true,
+                score,
+                gameTimer,
+                playerCoinCollector != null
+                    ? playerCoinCollector.CoinsCollectedThisRun
+                    : 0
+            ),
+            "record Google Play Game Stats win event"
+        );
+
         if (completedLevelNumber > 0)
         {
             int levelToNotify = completedLevelNumber;
@@ -632,6 +647,18 @@ public class GameStateManager : MonoBehaviour
         );
 
         RunNonCritical(
+            () => FatefulRushGameStats.EndRun(
+                false,
+                score,
+                gameTimer,
+                playerCoinCollector != null
+                    ? playerCoinCollector.CoinsCollectedThisRun
+                    : 0
+            ),
+            "record Google Play Game Stats loss event"
+        );
+
+        RunNonCritical(
             () => gameTimerComponent?.StopTimer(),
             "stop timer on game over"
         );
@@ -730,6 +757,10 @@ public class GameStateManager : MonoBehaviour
                 this
             );
             Debug.LogException(exception, this);
+            FatefulRushFirebaseServices.RecordNonFatal(
+                exception,
+                operation
+            );
         }
     }
 
