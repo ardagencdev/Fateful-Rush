@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon supports the enemy wave. Destroy it with Dash, then use the
-    quiet interval before it returns to rebuild control.
+  - "Destroy the recurring Beacon, then score during the safer window."
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 2
   winScore: 140

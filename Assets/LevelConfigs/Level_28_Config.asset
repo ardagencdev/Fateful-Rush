@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions can chain together during this Timed Score mission. Collect
-    from the safe quadrant and abandon distant coins early.
+  - "Use the safest quadrant and abandon distant coins when Lasers chain."
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
   winScore: 150

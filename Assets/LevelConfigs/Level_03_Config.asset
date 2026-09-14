@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Two Stalkers now pressure you at once. Keep them grouped to one side, then cut
-    across open space for coins.
+  - "Keep both Stalkers together, then cut across open space for coins."
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 35

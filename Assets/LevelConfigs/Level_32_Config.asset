@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon and Space Bombs disrupt this Timed Score mission. Remove the
-    Beacon before committing to a long combo chain.
+  - "Clear the recurring Beacon before committing to a long combo."
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 2
   winScore: 175

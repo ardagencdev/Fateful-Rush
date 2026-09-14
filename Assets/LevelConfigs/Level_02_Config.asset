@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Combos reward consecutive coin pickups, while the new Stalker relentlessly pursues you and
-    accelerates over time.
+  - "Chain coin pickups while the Stalker keeps gaining speed."
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 25

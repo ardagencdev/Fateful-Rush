@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Vertical Lasers, Space Bombs and Hunters steadily reduce safe space. Move zones before a Bomb
-    finishes arming instead of escaping late.
+  - "Lasers, Bombs and Hunters shrink safe space. Move before Bombs arm."
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 1
   winScore: 15

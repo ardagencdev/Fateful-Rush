@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Armor absorbs one lethal hit and grants brief immunity after breaking. Use that
-    window to escape immediately.
+  - "Armor blocks one lethal hit. Use the brief immunity to escape."
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 85

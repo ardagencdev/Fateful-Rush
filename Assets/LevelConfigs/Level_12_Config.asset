@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This is your first Timed Score mission. Build consistent combos, but abandon
-    a chain when the arena starts closing around you.
+  - "Build quick combos, but break the chain when the arena closes in."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 2
   winScore: 75

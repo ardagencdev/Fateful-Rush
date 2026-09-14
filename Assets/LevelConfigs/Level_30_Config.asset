@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A Beacon, Space Bombs and a Boss at 90 score overlap before the timer ends. Remove
-    Beacon buffs before forcing long scoring routes.
+  - "The Boss arrives at 90 score. Remove Beacon buffs before forcing routes."
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
   winScore: 160

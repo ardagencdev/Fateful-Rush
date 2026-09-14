@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - This is your first Survival mission. Preserve open space as Space Bombs accumulate
-    and use Armor only as a recovery tool.
+  - "Survive the Bomb pressure and save Armor for emergencies."
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 1
   winScore: 15

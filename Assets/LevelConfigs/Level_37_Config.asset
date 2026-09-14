@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions and Space Bombs stay active through a long Survival mission.
-    Rotate Armor, Slow and Clone across separate emergencies.
+  - "Survive the full hazard mix. Rotate Armor, Slow and Clone carefully."
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15

@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 105 score while Vertical Lasers, Space Bombs, Hunters and
-    Blasters pressure the timer. Save a defensive option for that phase.
+  - "The Boss arrives at 105 score. Keep one defensive option for that phase."
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 200

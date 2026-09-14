@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Vertical Lasers warn a column before firing. Move out early and save Clone for
-    overlaps with Hunters or Blaster fire.
+  - "Move out of Vertical Laser warnings early and save Clone for overlaps."
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 1
   winScore: 15

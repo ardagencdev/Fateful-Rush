@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Horizontal Lasers warn their lane before firing. Leave the warning band early,
-    then react to incoming Blaster shots.
+  - "Leave Laser warning lanes early, then react to Blaster fire."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
   winScore: 110

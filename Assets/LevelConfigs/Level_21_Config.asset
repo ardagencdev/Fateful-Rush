@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions remain active in this Survival mission. Stay central until
-    a warning appears, then move toward the cleaner side.
+  - "Both Laser directions are active. Move only after a warning appears."
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 1
   winScore: 15

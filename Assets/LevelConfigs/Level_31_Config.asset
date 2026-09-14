@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Both Laser directions and Space Bombs combine in a long Survival mission. Keep Armor and Clone for
-    separate emergencies.
+  - "Lasers and Bombs leave no safe orbit. Save Armor and Clone separately."
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15

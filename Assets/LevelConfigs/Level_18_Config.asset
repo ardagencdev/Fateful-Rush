@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Beacons buff nearby enemies. Destroy a Beacon by dashing into it; its active
-    buffs disappear immediately, but another Beacon can return.
+  - "Destroy Beacons with Dash before their buffs turn the arena dangerous."
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 100

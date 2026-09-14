@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The Boss enters at 120 score while Space Bombs keep shrinking safe routes. Build
-    momentum before the Boss phase.
+  - "The Boss arrives at 120 score. Build momentum before the Boss phase."
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
   winScore: 215

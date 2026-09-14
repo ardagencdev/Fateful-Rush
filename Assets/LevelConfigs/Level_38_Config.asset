@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon, Space Bombs and five obstacles guard the highest pure score
-    target. Keep combos local and clear Beacon buffs first.
+  - "Clear Beacon buffs first, then build short combos through the minefield."
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 0
   winScore: 230

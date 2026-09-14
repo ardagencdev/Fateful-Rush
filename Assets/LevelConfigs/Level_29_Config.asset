@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon and two Hunters create repeated pressure spikes. Destroy the Beacon whenever a
-    safe Dash line opens.
+  - "Recurring Beacons and Hunters create pressure waves. Clear the Beacon first."
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 1
   winScore: 15

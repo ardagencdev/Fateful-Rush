@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Static obstacles now block routes. Use them to bend Stalker paths, but always leave yourself a
-    second exit.
+  - "Obstacles now block routes. Always keep a second exit."
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
   winScore: 45

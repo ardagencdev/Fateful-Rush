@@ -1170,203 +1170,163 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521024
-    m_Localized: First signal acquired. Begin your mission by learning movement and
-      establishing safe coin routes.
+    m_Localized: "Learn the movement and collect safely before the timer runs out."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521025
-    m_Localized: Combos reward consecutive coin pickups, while the new Stalker relentlessly
-      pursues you and accelerates over time.
+    m_Localized: "Chain coin pickups while the Stalker keeps gaining speed."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521026
-    m_Localized: Two Stalkers now pressure you at once. Keep them grouped to one
-      side, then cut across open space for coins.
+    m_Localized: "Keep both Stalkers together, then cut across open space for coins."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521027
-    m_Localized: Static obstacles now block routes. Use them to bend Stalker paths,
-      but always leave yourself a second exit.
+    m_Localized: "Obstacles now block routes. Always keep a second exit."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521028
-    m_Localized: Dash is now available. Save it for blocked routes or close threats
-      instead of spending it in open space.
+    m_Localized: "Use Dash to escape blocked routes and close threats."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521029
-    m_Localized: Gold Coins are worth 3 points. Take them when the route is safe;
-      their value is not worth getting trapped.
+    m_Localized: "Gold Coins are worth more. Take them only when the route is safe."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521030
-    m_Localized: Blasters keep their distance and fire predictive shots. Change direction
-      after a shot commits, and never use enemies as bullet cover.
+    m_Localized: "Blasters predict your movement. Change direction after they fire."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521031
-    m_Localized: Armor absorbs one lethal hit and grants brief immunity after breaking.
-      Use that window to escape immediately.
+    m_Localized: "Armor blocks one lethal hit. Use the brief immunity to escape."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521032
-    m_Localized: Space Bombs arm after a short delay and then become lethal zones.
-      Track the minefield before committing to a coin route.
+    m_Localized: "Space Bombs turn areas deadly. Watch where they arm before moving in."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521033
-    m_Localized: This is your first Survival mission. Preserve open space as Space
-      Bombs accumulate and use Armor only as a recovery tool.
+    m_Localized: "Survive the Bomb pressure and save Armor for emergencies."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521034
-    m_Localized: Horizontal Lasers warn their lane before firing. Leave the warning
-      band early, then react to incoming Blaster shots.
+    m_Localized: "Leave Laser warning lanes early, then react to Blaster fire."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521035
-    m_Localized: This is your first Timed Score mission. Build consistent combos,
-      but abandon a chain when the arena starts closing around you.
+    m_Localized: "Build quick combos, but break the chain when the arena closes in."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521036
-    m_Localized: Slow temporarily reduces game speed and gives you breathing room.
-      Use it when several threats overlap, not while the arena is calm.
+    m_Localized: "Use Slow when several threats overlap, not while the arena is calm."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521037
-    m_Localized: Rare Coins are worth 5 points. Take them when accessible, but never
-      enter a sealed route just for the extra score.
+    m_Localized: "Rare Coins are valuable, but never enter a bad route just for one."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521038
-    m_Localized: Hunters show a warning line before charging. Let the line commit,
-      sidestep the charge, and watch both Hunters before using Dash.
+    m_Localized: "Let Hunter charges commit before dodging. Track both Hunters."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521039
-    m_Localized: Clone redirects enemies for a short time. Its cooldown begins after
-      the Clone disappears, so use it to reset collapsing formations.
+    m_Localized: "Use Clone to pull pressure away and reset dangerous formations."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521040
-    m_Localized: Vertical Lasers warn a column before firing. Move out early and
-      save Clone for overlaps with Hunters or Blaster fire.
+    m_Localized: "Move out of Vertical Laser warnings early and save Clone for overlaps."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521041
-    m_Localized: Beacons buff nearby enemies. Destroy a Beacon by dashing into it;
-      its active buffs disappear immediately, but another Beacon can return.
+    m_Localized: "Destroy Beacons with Dash before their buffs turn the arena dangerous."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521042
-    m_Localized: The first Boss enters at 90 score. Armor can absorb its hit; when
-      that happens, the Boss splits into two Mini-Bosses.
+    m_Localized: "The Boss arrives at 75 score. Keep Armor ready for the Boss phase."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521043
-    m_Localized: Both Laser directions, Space Bombs and a Boss at 50 score overlap
-      here. Score early, then prioritize survival once the arena fills.
+    m_Localized: "The Boss arrives at 50 score while Lasers and Bombs crowd the arena."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521044
-    m_Localized: Both Laser directions remain active in this Survival mission. Stay
-      central until a warning appears, then move toward the cleaner side.
+    m_Localized: "Both Laser directions are active. Move only after a warning appears."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521045
-    m_Localized: Space Bombs return without Armor or Slow support. Keep routes short
-      and change direction only after Hunter charges commit.
+    m_Localized: "Bombs and Hunters leave little room. Keep routes short and controlled."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521046
-    m_Localized: A recurring Beacon supports the enemy wave. Destroy it with Dash,
-      then use the quiet interval before it returns to rebuild control.
+    m_Localized: "Destroy the recurring Beacon, then score during the safer window."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521047
-    m_Localized: Vertical Lasers, Space Bombs and Hunters steadily reduce safe space.
-      Move zones before a Bomb finishes arming instead of escaping late.
+    m_Localized: "Lasers, Bombs and Hunters shrink safe space. Move before Bombs arm."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521048
-    m_Localized: The Boss enters at 100 score while Horizontal Lasers restrict exits.
-      Reach that phase with Dash ready and keep scoring routes clear.
+    m_Localized: "The Boss arrives at 100 score. Enter that phase with Dash ready."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521049
-    m_Localized: Both Laser directions are active during a long Survival mission.
-      Use Slow for one pressure spike and save Clone for the next overlap.
+    m_Localized: "Use Slow and Clone on separate pressure spikes, not at the same time."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521050
-    m_Localized: Heavy Blaster and Hunter pressure combines with Space Bombs. Move
-      in deliberate arcs and change direction after nearby shots commit.
+    m_Localized: "Blasters, Hunters and Bombs overlap. Change direction after attacks commit."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521051
-    m_Localized: Both Laser directions can chain together during this Timed Score
-      mission. Collect from the safe quadrant and abandon distant coins early.
+    m_Localized: "Use the safest quadrant and abandon distant coins when Lasers chain."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521052
-    m_Localized: A recurring Beacon and two Hunters create repeated pressure spikes.
-      Destroy the Beacon whenever a safe Dash line opens.
+    m_Localized: "Recurring Beacons and Hunters create pressure waves. Clear the Beacon first."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521053
-    m_Localized: A Beacon, Space Bombs and a Boss at 90 score overlap before the
-      timer ends. Remove Beacon buffs before forcing long scoring routes.
+    m_Localized: "The Boss arrives at 90 score. Remove Beacon buffs before forcing routes."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521054
-    m_Localized: Both Laser directions and Space Bombs combine in a long Survival
-      mission. Keep Armor and Clone for separate emergencies.
+    m_Localized: "Lasers and Bombs leave no safe orbit. Save Armor and Clone separately."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521055
-    m_Localized: A recurring Beacon and Space Bombs disrupt this Timed Score mission.
-      Remove the Beacon before committing to a long combo chain.
+    m_Localized: "Clear the recurring Beacon before committing to a long combo."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521056
-    m_Localized: Five obstacles and fast Space Bomb pressure turn this into a minefield
-      score test. Move from one open sector to the next.
+    m_Localized: "Bombs and obstacles turn the arena into a minefield. Move sector by sector."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521057
-    m_Localized: Beacon buffs, a Vertical Laser and Hunters create repeated Survival
-      spikes. Remove the Beacon before spending Slow when possible.
+    m_Localized: "Beacon buffs, Hunters and a Vertical Laser create repeated danger spikes."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521058
-    m_Localized: The Boss enters at 120 score while Space Bombs keep shrinking safe
-      routes. Build momentum before the Boss phase.
+    m_Localized: "The Boss arrives at 120 score. Build momentum before the Boss phase."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521059
-    m_Localized: A recurring Beacon, both Laser directions and Space Bombs share
-      this Timed Score mission. Treat each Beacon death as a scoring window.
+    m_Localized: "Use each Beacon takedown as a scoring window between Lasers and Bombs."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521060
-    m_Localized: Both Laser directions and Space Bombs stay active through a long
-      Survival mission. Rotate Armor, Slow and Clone across separate emergencies.
+    m_Localized: "Survive the full hazard mix. Rotate Armor, Slow and Clone carefully."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521061
-    m_Localized: A recurring Beacon, Space Bombs and five obstacles guard the highest
-      pure score target. Keep combos local and clear Beacon buffs first.
+    m_Localized: "Clear Beacon buffs first, then build short combos through the minefield."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521062
-    m_Localized: The Boss enters at 105 score while Vertical Lasers, Space Bombs,
-      Hunters and Blasters pressure the timer. Save a defensive option for that phase.
+    m_Localized: "The Boss arrives at 105 score. Keep one defensive option for that phase."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521063
-    m_Localized: Final Challenge. Survive every major hazard with recurring Beacons
-      and a Boss entering at 35 seconds. Stagger Armor, Slow and Clone carefully.
+    m_Localized: "Final challenge: survive 70 seconds. The Boss enters at 35 seconds."
     m_Metadata:
       m_Items: []
   references:

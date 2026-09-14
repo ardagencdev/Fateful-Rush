@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - A recurring Beacon, both Laser directions and Space Bombs share this Timed Score
-    mission. Treat each Beacon death as a scoring window.
+  - "Use each Beacon takedown as a scoring window between Lasers and Bombs."
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
   winScore: 190

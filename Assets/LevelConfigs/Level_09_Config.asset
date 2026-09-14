@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Space Bombs arm after a short delay and then become lethal zones. Track the minefield
-    before committing to a coin route.
+  - "Space Bombs turn areas deadly. Watch where they arm before moving in."
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 100

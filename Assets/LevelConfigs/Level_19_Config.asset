@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - The first Boss enters at 90 score. Armor can absorb its hit; when that happens,
-    the Boss splits into two Mini-Bosses.
+  - "The Boss arrives at 75 score. Keep Armor ready for the Boss phase."
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
   winScore: 150

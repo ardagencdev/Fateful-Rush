@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Slow temporarily reduces game speed and gives you breathing room. Use it when
-    several threats overlap, not while the arena is calm.
+  - "Use Slow when several threats overlap, not while the arena is calm."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 1
   winScore: 15

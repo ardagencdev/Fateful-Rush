@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Blasters keep their distance and fire predictive shots. Change direction after
-    a shot commits, and never use enemies as bullet cover.
+  - "Blasters predict your movement. Change direction after they fire."
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 75

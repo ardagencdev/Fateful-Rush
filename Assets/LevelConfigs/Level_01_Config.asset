@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - First signal acquired. Begin your mission by learning movement and establishing
-    safe coin routes.
+  - "Learn the movement and collect safely before the timer runs out."
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 2
   winScore: 15

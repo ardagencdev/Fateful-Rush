@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Heavy Blaster and Hunter pressure combines with Space Bombs. Move in deliberate
-    arcs and change direction after nearby shots commit.
+  - "Blasters, Hunters and Bombs overlap. Change direction after attacks commit."
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 0
   winScore: 195

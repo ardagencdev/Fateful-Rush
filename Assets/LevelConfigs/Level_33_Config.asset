@@ -40,8 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - Five obstacles and fast Space Bomb pressure turn this into a minefield score
-    test. Move from one open sector to the next.
+  - "Bombs and obstacles turn the arena into a minefield. Move sector by sector."
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
   winScore: 200
