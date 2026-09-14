@@ -117,7 +117,6 @@ public class PlayerSkinPanelUI : MonoBehaviour
             .BeginSkinPreview();
 
         RefreshCurrentSkin();
-        FatefulRushLocalizationRuntime.RequestSkinPanelRefresh();
         ResetPageVisuals();
 
         // The Main Menu Skins button owns its own sound through UIButtonSound.
@@ -199,7 +198,6 @@ public class PlayerSkinPanelUI : MonoBehaviour
             return;
 
         RefreshCurrentSkin();
-        FatefulRushLocalizationRuntime.RequestSkinPanelRefresh();
     }
 
     private void PrepareButtons()
@@ -354,11 +352,6 @@ public class PlayerSkinPanelUI : MonoBehaviour
 
         currentSkinIndex = targetIndex;
         RefreshCurrentSkin();
-        FatefulRushLocalizationRuntime.RequestSkinPanelRefresh();
-
-        // The content swap happens while alpha is zero. Let any TMP/sprite
-        // rebuild complete on this invisible frame before sliding it in.
-        yield return null;
 
         Vector2 enterStart =
             start + Vector2.right * pageSlideDistance * direction;

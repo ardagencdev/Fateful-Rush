@@ -11,6 +11,7 @@ using UnityEngine.UI;
 [DefaultExecutionOrder(12000)]
 public sealed class LocalizedUILayoutPolish : MonoBehaviour
 {
+    private const float CacheRefreshInterval = 0.75f;
     private static LocalizedUILayoutPolish instance;
 
     private readonly List<TMP_Text> replayTexts =
@@ -33,11 +34,10 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
         labelSnapshots =
             new Dictionary<TMP_Text, LabelSnapshot>();
 
-    private readonly Dictionary<Transform, bool> optionPanelActiveStates =
-        new Dictionary<Transform, bool>();
-
+    private float cacheRefreshTimer;
     private bool typographyDirty = true;
     private Coroutine refreshRoutine;
+    private int lastOptionsTextSignature;
 
     private sealed class LabelSnapshot
     {
@@ -85,7 +85,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
             HandleLocaleChanged;
 
         RefreshCache();
-        ScheduleRefresh();
     }
 
     private void OnDestroy()
@@ -114,36 +113,8 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
 
     private void LateUpdate()
     {
-        // No FindObjects, no text hashing and no geometry work here.
-        // We only watch the already-cached OptionsPanel transforms so opening
-        // an inactive panel can trigger one bounded layout refresh.
-        bool needsRefresh = false;
-
-        foreach (KeyValuePair<Transform, List<TMP_Text>> pair in optionLabelGroups)
-        {
-            Transform panel = pair.Key;
-            if (panel == null)
-                continue;
-
-            bool active = panel.gameObject.activeInHierarchy;
-
-            if (!optionPanelActiveStates.TryGetValue(panel, out bool previous))
-            {
-                optionPanelActiveStates[panel] = active;
-                continue;
-            }
-
-            if (active != previous)
-            {
-                optionPanelActiveStates[panel] = active;
-
-                if (active)
-                    needsRefresh = true;
-            }
-        }
-
-        if (needsRefresh)
-            ScheduleRefresh();
+        // Intentionally empty.
+        // Layout polish is now refreshed only on scene/locale/panel events.
     }
 
     private void RefreshCache()
@@ -153,7 +124,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
         confirmationTexts.Clear();
         pauseRestartTexts.Clear();
         optionLabelGroups.Clear();
-        optionPanelActiveStates.Clear();
 
         TMP_Text[] texts =
             FindObjectsByType<TMP_Text>(
@@ -169,12 +139,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
 
             CacheResultText(text);
             CacheOptionLabel(text);
-        }
-
-        foreach (KeyValuePair<Transform, List<TMP_Text>> pair in optionLabelGroups)
-        {
-            if (pair.Key != null)
-                optionPanelActiveStates[pair.Key] = pair.Key.gameObject.activeInHierarchy;
         }
 
         typographyDirty = true;

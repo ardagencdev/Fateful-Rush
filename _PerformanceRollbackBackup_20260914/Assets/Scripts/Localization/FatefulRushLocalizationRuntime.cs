@@ -13,11 +13,15 @@ using UnityEngine.SceneManagement;
 [DefaultExecutionOrder(10000)]
 public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
 {
+    private const float RefreshInterval = 0.05f;
+    private const float CacheRefreshInterval = 0.75f;
+
     private static FatefulRushLocalizationRuntime instance;
 
+    private float refreshTimer;
+    private float cacheRefreshTimer;
     private bool localizationReady;
     private bool forceRefresh = true;
-    private bool lastGameplayEndedState;
 
     private MainMenu[] mainMenus = Array.Empty<MainMenu>();
     private PausePanelTransition[] pausePanels = Array.Empty<PausePanelTransition>();
@@ -236,14 +240,12 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
 
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        forceRefresh = false;
-        lastGameplayEndedState = GameStateManager.IsGameplayEnded;
+        forceRefresh = true;
+        cacheRefreshTimer = CacheRefreshInterval;
 
         RefreshSceneCache();
         ApplyThemeColorGuards();
 
-        // Scene-authored UI can finish enabling during the next frame.
-        // Do two bounded passes, then stop completely.
         StartCoroutine(RefreshNextFrames());
     }
 
@@ -260,7 +262,7 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
     {
         FatefulRushLocalization.ClearCache();
         SyncLanguagePrefs(locale);
-        forceRefresh = false;
+        forceRefresh = true;
         StartCoroutine(RefreshNextFrames());
     }
 
@@ -277,77 +279,13 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!localizationReady)
+        // Event-driven: no 20 Hz localization pass and no periodic scene scan.
+        // Scene load, locale change and skin change explicitly request refreshes.
+        if (!localizationReady || !forceRefresh)
             return;
 
-        // These two texts are genuinely dynamic during gameplay.
-        // Updating cached references is cheap and requires no object search,
-        // reflection cache rebuild or full localization pass.
-        if (GameStateManager.IsGameplayStarted &&
-            !GameStateManager.IsGameplayEnded)
-        {
-            ApplyGameplayHUD();
-            ApplyNearMissTexts();
-        }
-
-        // Result/death UI is created from objects already cached on scene load.
-        // Refresh exactly once when the run changes from active -> ended.
-        bool gameplayEnded = GameStateManager.IsGameplayEnded;
-
-        if (gameplayEnded && !lastGameplayEndedState)
-        {
-            ApplyGameResults();
-            ApplyDeathMessages();
-            GameResultLocalizationGuard.RequestRefresh();
-            LocalizedUILayoutPolish.RequestRefresh();
-        }
-
-        lastGameplayEndedState = gameplayEnded;
-
-        // Kept only as a one-shot compatibility escape hatch for explicit
-        // RequestFullRefresh calls. There is no timer and no scene scan here.
-        if (forceRefresh)
-        {
-            forceRefresh = false;
-            ApplyEverything();
-        }
-    }
-
-    public static void RequestFullRefresh(bool refreshSceneCache = false)
-    {
-        if (instance == null || !instance.localizationReady)
-            return;
-
-        if (refreshSceneCache)
-            instance.RefreshSceneCache();
-
-        instance.forceRefresh = false;
-        instance.ApplyEverything();
-    }
-
-    public static void RequestStatsRefresh()
-    {
-        if (instance == null || !instance.localizationReady)
-            return;
-
-        instance.ApplyStatsPanels();
-    }
-
-    public static void RequestSkinPanelRefresh()
-    {
-        if (instance == null || !instance.localizationReady)
-            return;
-
-        instance.ApplySkinPanels();
-        instance.ApplyThemeColorGuards();
-    }
-
-    public static void RequestMissionBriefingRefresh()
-    {
-        if (instance == null || !instance.localizationReady)
-            return;
-
-        instance.ApplyMissionBriefings();
+        forceRefresh = false;
+        ApplyEverything();
     }
 
     private static void SyncLanguagePrefs(Locale locale)

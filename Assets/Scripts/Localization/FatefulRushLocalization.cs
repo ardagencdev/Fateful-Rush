@@ -104,47 +104,46 @@ public static class FatefulRushLocalization
             { "level.name.38", "Kusursuz Zincir" },
             { "level.name.39", "Son Önleme" },
             { "level.name.40", "Tekillik" },
-
-            { "briefing.tip.0c148bdf", "İlk sinyal alındı. Hareketi öğrenerek ve güvenli coin rotaları oluşturarak görevine başla." },
-            { "briefing.tip.4204a777", "Kombolar art arda coin topladığında ödül verir. Yeni Stalker ise durmadan seni kovalar ve zamanla hızlanır." },
-            { "briefing.tip.083542a0", "Artık iki Stalker aynı anda baskı kuruyor. Onları bir tarafta topla, sonra coinler için açık alana geç." },
-            { "briefing.tip.e4869cf4", "Sabit engeller artık rotaları kapatıyor. Stalker yollarını bozmak için kullan ama her zaman ikinci bir çıkış bırak." },
-            { "briefing.tip.057cf834", "Dash artık kullanılabilir. Açık alanda harcamak yerine kapanan rotalar veya yakın tehditler için sakla." },
-            { "briefing.tip.a5ae9dea", "Altın Coinler 3 puan değerinde. Rota güvenliyse al; ekstra değer uğruna kendini tuzağa sokma." },
-            { "briefing.tip.b5a52989", "Blasterlar mesafeyi korur ve hareketini tahmin ederek ateş eder. Atış kesinleştikten sonra yön değiştir; düşmanları mermi kalkanı gibi kullanma." },
-            { "briefing.tip.a4d5f554", "Zırh ölümcül bir darbeyi emer ve kırıldıktan sonra kısa süreli bağışıklık verir. O pencereyi hemen kaçmak için kullan." },
-            { "briefing.tip.e35801b9", "Uzay Bombaları kısa bir gecikmeden sonra kurulur ve ölümcül alanlara dönüşür. Coin rotasına girmeden önce mayın alanını kontrol et." },
-            { "briefing.tip.6873f782", "Bu ilk Hayatta Kalma görevin. Uzay Bombaları birikirken açık alanı koru ve Zırhı yalnızca toparlanmak için kullan." },
-            { "briefing.tip.c1a289b4", "Yatay Lazerler ateş etmeden önce şeritlerini gösterir. Uyarı alanından erken çık, ardından gelen Blaster atışlarına tepki ver." },
-            { "briefing.tip.9dfd489a", "Bu ilk Süreli Skor görevin. Düzenli kombolar kur ama arena kapanmaya başladığında zinciri bırakmaktan çekinme." },
-            { "briefing.tip.afc4480c", "Yavaşlatma kısa süreliğine oyun hızını düşürür ve nefes alma alanı açar. Arena sakinken değil, birkaç tehdit üst üste bindiğinde kullan." },
-            { "briefing.tip.59c45885", "Nadir Coinler 5 puan değerinde. Ulaşılabiliyorsa al ama ekstra skor için kapalı bir rotaya girme." },
-            { "briefing.tip.b936ba74", "Hunterlar saldırmadan önce uyarı çizgisi gösterir. Çizginin yönü kesinleşsin, hamleden sıyrıl ve Dash kullanmadan önce iki Hunterı da takip et." },
-            { "briefing.tip.1fa93703", "Klon düşmanların hedefini kısa süreliğine değiştirir. Bekleme süresi Klon kaybolduktan sonra başlar; çöken düzeni yeniden kurmak için kullan." },
-            { "briefing.tip.d77bf53b", "Dikey Lazerler ateş etmeden önce bir sütunu işaretler. Erken çık ve Klonu Hunter veya Blaster baskısının çakıştığı anlar için sakla." },
-            { "briefing.tip.f0779c3f", "Beaconlar yakındaki düşmanları güçlendirir. Beaconı Dash ile çarparak yok et; aktif güçlendirmeler anında kaybolur ama yeni bir Beacon geri gelebilir." },
-            { "briefing.tip.5cc6531c", "İlk Boss 90 skorda gelir. Zırh darbesini emebilir; böyle olursa Boss iki Mini-Bossa bölünür." },
-            { "briefing.tip.10c90984", "İki Lazer yönü, Uzay Bombaları ve 50 skorda gelen Boss burada üst üste biner. Erken skor yap, arena dolduğunda hayatta kalmaya öncelik ver." },
-            { "briefing.tip.91c028a8", "Bu Hayatta Kalma görevinde iki Lazer yönü de aktif kalır. Uyarı çıkana kadar merkezde kal, sonra daha temiz tarafa yönel." },
-            { "briefing.tip.b3f32dd3", "Uzay Bombaları Zırh veya Yavaşlatma desteği olmadan geri dönüyor. Rotaları kısa tut ve yalnızca Hunter hücumu kesinleştikten sonra yön değiştir." },
-            { "briefing.tip.db8403d4", "Tekrarlayan bir Beacon düşman dalgasını destekler. Dash ile yok et, sonra geri gelmeden önceki sakin aralıkta kontrolü yeniden kur." },
-            { "briefing.tip.0253d3d2", "Dikey Lazerler, Uzay Bombaları ve Hunterlar güvenli alanı giderek küçültür. Bir Bomba kurulmadan önce bölge değiştir; son anda kaçmaya çalışma." },
-            { "briefing.tip.594df230", "Boss 100 skorda gelirken Yatay Lazerler çıkışları kısıtlar. O aşamaya Dash hazır şekilde gir ve skor rotalarını açık tut." },
-            { "briefing.tip.b018f580", "Uzun bir Hayatta Kalma görevinde iki Lazer yönü de aktif. Bir baskı dalgasında Yavaşlatma, sonraki çakışmada Klon kullan." },
-            { "briefing.tip.9f0ce819", "Yoğun Blaster ve Hunter baskısı Uzay Bombalarıyla birleşiyor. Kontrollü yaylar çiz ve yakın atışlar kesinleştikten sonra yön değiştir." },
-            { "briefing.tip.17a7b142", "Bu Süreli Skor görevinde iki Lazer yönü art arda gelebilir. Güvenli çeyrekten coin topla ve uzaktaki coinlerden erken vazgeç." },
-            { "briefing.tip.92c52b1f", "Tekrarlayan Beacon ve iki Hunter sürekli baskı dalgaları oluşturur. Güvenli bir Dash hattı açıldığında Beaconı yok et." },
-            { "briefing.tip.9746a8fe", "Süre bitmeden önce Beacon, Uzay Bombaları ve 90 skorda gelen Boss üst üste biner. Uzun skor rotalarına girmeden önce Beacon güçlendirmelerini kaldır." },
-            { "briefing.tip.bfc063a1", "Uzun Hayatta Kalma görevinde iki Lazer yönü ve Uzay Bombaları birlikte çalışır. Zırh ve Klonu ayrı acil durumlar için sakla." },
-            { "briefing.tip.e211848b", "Tekrarlayan Beacon ve Uzay Bombaları bu Süreli Skor görevini bozar. Uzun bir kombo zincirine başlamadan önce Beaconı temizle." },
-            { "briefing.tip.6c32ef1c", "Beş engel ve hızlı Uzay Bombası baskısı bu bölümü bir mayın tarlası skor sınavına çevirir. Bir açık sektörden diğerine ilerle." },
-            { "briefing.tip.2fea83f0", "Beacon güçlendirmeleri, Dikey Lazer ve Hunterlar tekrar eden baskı dalgaları oluşturur. Mümkünse Yavaşlatmayı harcamadan önce Beaconı yok et." },
-            { "briefing.tip.0c8b09c5", "Boss 120 skorda gelirken Uzay Bombaları güvenli rotaları küçültmeye devam eder. Boss aşamasından önce tempo kazan." },
-            { "briefing.tip.8549734e", "Tekrarlayan Beacon, iki Lazer yönü ve Uzay Bombaları bu Süreli Skor görevini paylaşır. Her Beacon yok oluşunu bir skor fırsatı olarak kullan." },
-            { "briefing.tip.c388b658", "İki Lazer yönü ve Uzay Bombaları uzun bir Hayatta Kalma görevi boyunca aktif kalır. Zırh, Yavaşlatma ve Klonu farklı acil durumlara dağıt." },
-            { "briefing.tip.7ec9bb59", "Tekrarlayan Beacon, Uzay Bombaları ve beş engel en yüksek saf skor hedefini korur. Komboları yakın bölgede tut ve önce Beacon güçlendirmelerini temizle." },
-            { "briefing.tip.e482958d", "Boss 105 skorda gelirken Dikey Lazerler, Uzay Bombaları, Hunterlar ve Blasterlar süre üzerinde baskı kurar. O aşama için bir savunma seçeneği sakla." },
-            { "briefing.tip.028a7195", "Final meydan okuması. Tekrarlayan Beaconlar ve 35. saniyede gelen Boss ile tüm büyük tehlikelerden sağ çık. Zırh, Yavaşlatma ve Klonu dikkatle sırala." }
+            { "briefing.tip.0c148bdf", "Hareketi öğren ve süre bitmeden güvenli şekilde coin topla." },
+            { "briefing.tip.4204a777", "Stalker hızlanırken coinleri zincirleyerek kombo yap." },
+            { "briefing.tip.083542a0", "İki Stalker'ı birlikte tut, sonra açık alandaki coinlere geç." },
+            { "briefing.tip.e4869cf4", "Engeller rotaları kapatıyor. Her zaman ikinci bir çıkış bırak." },
+            { "briefing.tip.057cf834", "Dash'i kapanan rotalardan ve yakın tehditlerden kaçmak için kullan." },
+            { "briefing.tip.a5ae9dea", "Altın Coinler daha değerlidir. Yalnızca rota güvenliyse al." },
+            { "briefing.tip.b5a52989", "Blasterlar hareketini tahmin eder. Ateş ettikten sonra yön değiştir." },
+            { "briefing.tip.a4d5f554", "Zırh ölümcül bir darbeyi engeller. Kısa bağışıklıkla hemen uzaklaş." },
+            { "briefing.tip.e35801b9", "Uzay Bombaları alanları ölümcül yapar. Kuruldukları yeri takip et." },
+            { "briefing.tip.6873f782", "Bomba baskısında hayatta kal ve Zırhı acil durumlar için sakla." },
+            { "briefing.tip.c1a289b4", "Lazer uyarı alanından erken çık, sonra Blaster atışlarına tepki ver." },
+            { "briefing.tip.9dfd489a", "Hızlı kombolar kur ama arena kapanırken zinciri bırak." },
+            { "briefing.tip.afc4480c", "Yavaşlatmayı birkaç tehdit üst üste geldiğinde kullan." },
+            { "briefing.tip.59c45885", "Nadir Coinler değerlidir ama kötü bir rota için risk alma." },
+            { "briefing.tip.b936ba74", "Hunter hücumu kesinleşince kaç. İki Hunter'ı da takip et." },
+            { "briefing.tip.1fa93703", "Klonu baskıyı dağıtmak ve tehlikeli düzeni sıfırlamak için kullan." },
+            { "briefing.tip.d77bf53b", "Dikey Lazer uyarısından erken çık, Klonu çakışan tehditlere sakla." },
+            { "briefing.tip.f0779c3f", "Beacon güçlendirmeleri tehlikeli olmadan önce Dash ile Beacon'ı yok et." },
+            { "briefing.tip.5cc6531c", "Boss 75 skorda gelir. Boss aşaması için Zırhı hazır tut." },
+            { "briefing.tip.10c90984", "Boss 50 skorda gelir; Lazerler ve Bombalar arenayı daraltır." },
+            { "briefing.tip.91c028a8", "İki Lazer yönü de aktif. Uyarı çıkınca temiz tarafa geç." },
+            { "briefing.tip.b3f32dd3", "Bombalar ve Hunterlar alanı daraltır. Kısa ve kontrollü rotalar kullan." },
+            { "briefing.tip.db8403d4", "Tekrarlayan Beacon'ı yok et, sakin aralıkta skor kas." },
+            { "briefing.tip.0253d3d2", "Lazerler, Bombalar ve Hunterlar alanı daraltır. Bombalar kurulmadan geç." },
+            { "briefing.tip.594df230", "Boss 100 skorda gelir. O aşamaya Dash hazır gir." },
+            { "briefing.tip.b018f580", "Yavaşlatma ve Klonu aynı anda değil, ayrı baskı anlarında kullan." },
+            { "briefing.tip.9f0ce819", "Blaster, Hunter ve Bombalar çakışır. Saldırılar kesinleşince yön değiştir." },
+            { "briefing.tip.17a7b142", "Lazerler zincirlenirken güvenli bölgeden coin topla; uzağı zorlama." },
+            { "briefing.tip.92c52b1f", "Beacon ve Hunterlar baskı dalgaları yaratır. Önce Beacon'ı temizle." },
+            { "briefing.tip.9746a8fe", "Boss 90 skorda gelir. Uzun rotalara girmeden Beacon güçlendirmesini kaldır." },
+            { "briefing.tip.bfc063a1", "Lazerler ve Bombalar güvenli alan bırakmaz. Zırh ve Klonu ayrı sakla." },
+            { "briefing.tip.e211848b", "Uzun komboya girmeden önce tekrarlayan Beacon'ı temizle." },
+            { "briefing.tip.6c32ef1c", "Bombalar ve engeller arenayı mayın tarlasına çevirir. Bölge bölge ilerle." },
+            { "briefing.tip.2fea83f0", "Beacon, Hunterlar ve Dikey Lazer tekrar eden tehlike dalgaları oluşturur." },
+            { "briefing.tip.0c8b09c5", "Boss 120 skorda gelir. Boss aşamasından önce ivme kazan." },
+            { "briefing.tip.8549734e", "Her Beacon yok edişini Lazer ve Bombalar arasında skor fırsatı olarak kullan." },
+            { "briefing.tip.c388b658", "Tüm tehlike türlerinde hayatta kal. Zırh, Yavaşlatma ve Klonu sırayla kullan." },
+            { "briefing.tip.7ec9bb59", "Önce Beacon güçlendirmesini kaldır, sonra kısa kombolar kur." },
+            { "briefing.tip.e482958d", "Boss 105 skorda gelir. O aşama için bir savunma seçeneğini sakla." },
+            { "briefing.tip.028a7195", "Son görev: 70 saniye hayatta kal. Boss 35. saniyede gelir." }
         };
 
     public static string CurrentLocaleCode
@@ -333,6 +332,12 @@ public static class FatefulRushLocalization
     {
         if (levelNumber < 1 || levelNumber > BriefingTipKeys.Length)
             return fallback;
+
+        // LevelConfig.briefingPages is the authoritative English source.
+        // Do not let a stale English localization-table entry overwrite it.
+        // Turkish still resolves through the localized/override entry.
+        if (!IsTurkish)
+            return fallback ?? string.Empty;
 
         return Text(BriefingTipKeys[levelNumber - 1], fallback);
     }

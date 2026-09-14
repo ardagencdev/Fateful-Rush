@@ -95,11 +95,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 52008484253713
-    m_Localized: "G\xD6R\xDCN\xDCMLER"
+    m_Localized: "G\xD6R\xDCN\xDCM"
     m_Metadata:
       m_Items: []
   - m_Id: 52008484253714
-    m_Localized: "\u0130STAT\u0130ST\u0130KLER"
+    m_Localized: "\u0130STAT\u0130ST\u0130K"
     m_Metadata:
       m_Items: []
   - m_Id: 52008484253715
@@ -115,7 +115,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 52008484253718
-    m_Localized: "L\u0130DERL\u0130K TABLOLARI"
+    m_Localized: "L\u0130DERL\u0130K"
     m_Metadata:
       m_Items: []
   - m_Id: 52008484253719
@@ -1171,163 +1171,197 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521024
-    m_Localized: "Hareketi öğren ve süre bitmeden güvenli şekilde coin topla."
+    m_Localized: "Hareketi \xF6\u011Fren ve s\xFCre bitmeden g\xFCvenli \u015Fekilde
+      coin topla."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521025
-    m_Localized: "Stalker hızlanırken coinleri zincirleyerek kombo yap."
+    m_Localized: "Stalker h\u0131zlan\u0131rken coinleri zincirleyerek kombo yap."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521026
-    m_Localized: "İki Stalker'ı birlikte tut, sonra açık alandaki coinlere geç."
+    m_Localized: "\u0130ki Stalker'\u0131 birlikte tut, sonra a\xE7\u0131k alandaki
+      coinlere ge\xE7."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521027
-    m_Localized: "Engeller rotaları kapatıyor. Her zaman ikinci bir çıkış bırak."
+    m_Localized: "Engeller rotalar\u0131 kapat\u0131yor. Her zaman ikinci bir \xE7\u0131k\u0131\u015F
+      b\u0131rak."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521028
-    m_Localized: "Dash'i kapanan rotalardan ve yakın tehditlerden kaçmak için kullan."
+    m_Localized: "Dash'i kapanan rotalardan ve yak\u0131n tehditlerden ka\xE7mak
+      i\xE7in kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521029
-    m_Localized: "Altın Coinler daha değerlidir. Yalnızca rota güvenliyse al."
+    m_Localized: "Alt\u0131n Coinler daha de\u011Ferlidir. Yaln\u0131zca rota g\xFCvenliyse
+      al."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521030
-    m_Localized: "Blasterlar hareketini tahmin eder. Ateş ettikten sonra yön değiştir."
+    m_Localized: "Blasterlar hareketini tahmin eder. Ate\u015F ettikten sonra y\xF6n
+      de\u011Fi\u015Ftir."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521031
-    m_Localized: "Zırh ölümcül bir darbeyi engeller. Kısa bağışıklıkla hemen uzaklaş."
+    m_Localized: "Z\u0131rh \xF6l\xFCmc\xFCl bir darbeyi engeller. K\u0131sa ba\u011F\u0131\u015F\u0131kl\u0131kla
+      hemen uzakla\u015F."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521032
-    m_Localized: "Uzay Bombaları alanları ölümcül yapar. Kuruldukları yeri takip et."
+    m_Localized: "Uzay Bombalar\u0131 alanlar\u0131 \xF6l\xFCmc\xFCl yapar. Kurulduklar\u0131
+      yeri takip et."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521033
-    m_Localized: "Bomba baskısında hayatta kal ve Zırhı acil durumlar için sakla."
+    m_Localized: "Bomba bask\u0131s\u0131nda hayatta kal ve Z\u0131rh\u0131 acil
+      durumlar i\xE7in sakla."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521034
-    m_Localized: "Lazer uyarı alanından erken çık, sonra Blaster atışlarına tepki ver."
+    m_Localized: "Lazer uyar\u0131 alan\u0131ndan erken \xE7\u0131k, sonra Blaster
+      at\u0131\u015Flar\u0131na tepki ver."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521035
-    m_Localized: "Hızlı kombolar kur ama arena kapanırken zinciri bırak."
+    m_Localized: "H\u0131zl\u0131 kombolar kur ama arena kapan\u0131rken zinciri
+      b\u0131rak."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521036
-    m_Localized: "Yavaşlatmayı birkaç tehdit üst üste geldiğinde kullan."
+    m_Localized: "Yava\u015Flatmay\u0131 birka\xE7 tehdit \xFCst \xFCste geldi\u011Finde
+      kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521037
-    m_Localized: "Nadir Coinler değerlidir ama kötü bir rota için risk alma."
+    m_Localized: "Nadir Coinler de\u011Ferlidir ama k\xF6t\xFC bir rota i\xE7in risk
+      alma."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521038
-    m_Localized: "Hunter hücumu kesinleşince kaç. İki Hunter'ı da takip et."
+    m_Localized: "Hunter h\xFCcumu kesinle\u015Fince ka\xE7. \u0130ki Hunter'\u0131
+      da takip et."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521039
-    m_Localized: "Klonu baskıyı dağıtmak ve tehlikeli düzeni sıfırlamak için kullan."
+    m_Localized: "Klonu bask\u0131y\u0131 da\u011F\u0131tmak ve tehlikeli d\xFCzeni
+      s\u0131f\u0131rlamak i\xE7in kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521040
-    m_Localized: "Dikey Lazer uyarısından erken çık, Klonu çakışan tehditlere sakla."
+    m_Localized: "Dikey Lazer uyar\u0131s\u0131ndan erken \xE7\u0131k, Klonu \xE7ak\u0131\u015Fan
+      tehditlere sakla."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521041
-    m_Localized: "Beacon güçlendirmeleri tehlikeli olmadan önce Dash ile Beacon'ı yok et."
+    m_Localized: "Beacon g\xFC\xE7lendirmeleri tehlikeli olmadan \xF6nce Dash ile
+      Beacon'\u0131 yok et."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521042
-    m_Localized: "Boss 75 skorda gelir. Boss aşaması için Zırhı hazır tut."
+    m_Localized: "Boss 75 skorda gelir. Boss a\u015Famas\u0131 i\xE7in Z\u0131rh\u0131
+      haz\u0131r tut."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521043
-    m_Localized: "Boss 50 skorda gelir; Lazerler ve Bombalar arenayı daraltır."
+    m_Localized: "Boss 50 skorda gelir; Lazerler ve Bombalar arenay\u0131 daralt\u0131r."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521044
-    m_Localized: "İki Lazer yönü de aktif. Uyarı çıkınca temiz tarafa geç."
+    m_Localized: "\u0130ki Lazer y\xF6n\xFC de aktif. Uyar\u0131 \xE7\u0131k\u0131nca
+      temiz tarafa ge\xE7."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521045
-    m_Localized: "Bombalar ve Hunterlar alanı daraltır. Kısa ve kontrollü rotalar kullan."
+    m_Localized: "Bombalar ve Hunterlar alan\u0131 daralt\u0131r. K\u0131sa ve kontroll\xFC
+      rotalar kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521046
-    m_Localized: "Tekrarlayan Beacon'ı yok et, sakin aralıkta skor kas."
+    m_Localized: "Tekrarlayan Beacon'\u0131 yok et, sakin aral\u0131kta skor kas."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521047
-    m_Localized: "Lazerler, Bombalar ve Hunterlar alanı daraltır. Bombalar kurulmadan geç."
+    m_Localized: "Lazerler, Bombalar ve Hunterlar alan\u0131 daralt\u0131r. Bombalar
+      kurulmadan ge\xE7."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521048
-    m_Localized: "Boss 100 skorda gelir. O aşamaya Dash hazır gir."
+    m_Localized: "Boss 100 skorda gelir. O a\u015Famaya Dash haz\u0131r gir."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521049
-    m_Localized: "Yavaşlatma ve Klonu aynı anda değil, ayrı baskı anlarında kullan."
+    m_Localized: "Yava\u015Flatma ve Klonu ayn\u0131 anda de\u011Fil, ayr\u0131 bask\u0131
+      anlar\u0131nda kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521050
-    m_Localized: "Blaster, Hunter ve Bombalar çakışır. Saldırılar kesinleşince yön değiştir."
+    m_Localized: "Blaster, Hunter ve Bombalar \xE7ak\u0131\u015F\u0131r. Sald\u0131r\u0131lar
+      kesinle\u015Fince y\xF6n de\u011Fi\u015Ftir."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521051
-    m_Localized: "Lazerler zincirlenirken güvenli bölgeden coin topla; uzağı zorlama."
+    m_Localized: "Lazerler zincirlenirken g\xFCvenli b\xF6lgeden coin topla; uza\u011F\u0131
+      zorlama."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521052
-    m_Localized: "Beacon ve Hunterlar baskı dalgaları yaratır. Önce Beacon'ı temizle."
+    m_Localized: "Beacon ve Hunterlar bask\u0131 dalgalar\u0131 yarat\u0131r. \xD6nce
+      Beacon'\u0131 temizle."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521053
-    m_Localized: "Boss 90 skorda gelir. Uzun rotalara girmeden Beacon güçlendirmesini kaldır."
+    m_Localized: "Boss 90 skorda gelir. Uzun rotalara girmeden Beacon g\xFC\xE7lendirmesini
+      kald\u0131r."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521054
-    m_Localized: "Lazerler ve Bombalar güvenli alan bırakmaz. Zırh ve Klonu ayrı sakla."
+    m_Localized: "Lazerler ve Bombalar g\xFCvenli alan b\u0131rakmaz. Z\u0131rh ve
+      Klonu ayr\u0131 sakla."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521055
-    m_Localized: "Uzun komboya girmeden önce tekrarlayan Beacon'ı temizle."
+    m_Localized: "Uzun komboya girmeden \xF6nce tekrarlayan Beacon'\u0131 temizle."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521056
-    m_Localized: "Bombalar ve engeller arenayı mayın tarlasına çevirir. Bölge bölge ilerle."
+    m_Localized: "Bombalar ve engeller arenay\u0131 may\u0131n tarlas\u0131na \xE7evirir.
+      B\xF6lge b\xF6lge ilerle."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521057
-    m_Localized: "Beacon, Hunterlar ve Dikey Lazer tekrar eden tehlike dalgaları oluşturur."
+    m_Localized: "Beacon, Hunterlar ve Dikey Lazer tekrar eden tehlike dalgalar\u0131
+      olu\u015Fturur."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521058
-    m_Localized: "Boss 120 skorda gelir. Boss aşamasından önce ivme kazan."
+    m_Localized: "Boss 120 skorda gelir. Boss a\u015Famas\u0131ndan \xF6nce ivme
+      kazan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521059
-    m_Localized: "Her Beacon yok edişini Lazer ve Bombalar arasında skor fırsatı olarak kullan."
+    m_Localized: "Her Beacon yok edi\u015Fini Lazer ve Bombalar aras\u0131nda skor
+      f\u0131rsat\u0131 olarak kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521060
-    m_Localized: "Tüm tehlike türlerinde hayatta kal. Zırh, Yavaşlatma ve Klonu sırayla kullan."
+    m_Localized: "T\xFCm tehlike t\xFCrlerinde hayatta kal. Z\u0131rh, Yava\u015Flatma
+      ve Klonu s\u0131rayla kullan."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521061
-    m_Localized: "Önce Beacon güçlendirmesini kaldır, sonra kısa kombolar kur."
+    m_Localized: "\xD6nce Beacon g\xFC\xE7lendirmesini kald\u0131r, sonra k\u0131sa
+      kombolar kur."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521062
-    m_Localized: "Boss 105 skorda gelir. O aşama için bir savunma seçeneğini sakla."
+    m_Localized: "Boss 105 skorda gelir. O a\u015Fama i\xE7in bir savunma se\xE7ene\u011Fini
+      sakla."
     m_Metadata:
       m_Items: []
   - m_Id: 85017371521063
-    m_Localized: "Son görev: 70 saniye hayatta kal. Boss 35. saniyede gelir."
+    m_Localized: "Son g\xF6rev: 70 saniye hayatta kal. Boss 35. saniyede gelir."
     m_Metadata:
       m_Items: []
   references:

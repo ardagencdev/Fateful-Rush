@@ -43,7 +43,6 @@ public class LevelSelectPanel : MonoBehaviour
     [SerializeField] private string gameSceneName = "GameScene";
 
     private readonly List<LevelButtonUI> createdButtons = new List<LevelButtonUI>();
-    private readonly List<LevelConfig> validLevelsCache = new List<LevelConfig>();
 
     private int currentPageIndex;
     private int totalPageCount;
@@ -72,7 +71,6 @@ public class LevelSelectPanel : MonoBehaviour
     {
         PrepareContainer();
         PreparePageButtons();
-        RebuildValidLevelsCache();
         CalculatePageCount();
 
         // Prewarm the page button pool once. Page changes then reuse these
@@ -87,7 +85,6 @@ public class LevelSelectPanel : MonoBehaviour
     private void OnEnable()
     {
         isLoadingLevel = false;
-        RebuildValidLevelsCache();
         CalculatePageCount();
         ClampCurrentPageToAccessibleRange();
         RefreshPageUI(false);
@@ -184,7 +181,6 @@ public class LevelSelectPanel : MonoBehaviour
 
         isDragging = false;
         missionBriefingPanel.Show(config, StartLevel, OnMissionBriefingClosed);
-        FatefulRushLocalizationRuntime.RequestMissionBriefingRefresh();
     }
 
     public void StartLevel(LevelConfig config)
@@ -396,7 +392,16 @@ public class LevelSelectPanel : MonoBehaviour
 
     private void CalculatePageCount()
     {
-        int validLevelCount = validLevelsCache.Count;
+        int validLevelCount = 0;
+
+        if (levels != null)
+        {
+            foreach (LevelConfig level in levels)
+            {
+                if (level != null)
+                    validLevelCount++;
+            }
+        }
 
         totalPageCount = Mathf.Max(
             1,
@@ -418,8 +423,9 @@ public class LevelSelectPanel : MonoBehaviour
         if (!ValidateButtonReferences())
             return;
 
+        List<LevelConfig> validLevels = GetValidLevels();
         int firstIndex = currentPageIndex * levelsPerPage;
-        int lastIndex = Mathf.Min(firstIndex + levelsPerPage, validLevelsCache.Count);
+        int lastIndex = Mathf.Min(firstIndex + levelsPerPage, validLevels.Count);
         int requiredCount = Mathf.Max(0, lastIndex - firstIndex);
 
         EnsureButtonPool(requiredCount);
@@ -435,7 +441,7 @@ public class LevelSelectPanel : MonoBehaviour
                 if (!button.gameObject.activeSelf)
                     button.gameObject.SetActive(true);
 
-                button.Setup(validLevelsCache[firstIndex + i], this);
+                button.Setup(validLevels[firstIndex + i], this);
             }
             else if (button.gameObject.activeSelf)
             {
@@ -467,31 +473,21 @@ public class LevelSelectPanel : MonoBehaviour
         }
     }
 
-    private void RebuildValidLevelsCache()
+    private List<LevelConfig> GetValidLevels()
     {
-        validLevelsCache.Clear();
+        List<LevelConfig> validLevels = new List<LevelConfig>();
 
         if (levels == null)
-            return;
+            return validLevels;
 
-        for (int i = 0; i < levels.Length; i++)
+        foreach (LevelConfig levelConfig in levels)
         {
-            LevelConfig level = levels[i];
-            if (level != null)
-                validLevelsCache.Add(level);
+            if (levelConfig != null)
+                validLevels.Add(levelConfig);
         }
 
-        validLevelsCache.Sort(
-            (left, right) => left.levelNumber.CompareTo(right.levelNumber)
-        );
-    }
-
-    private IReadOnlyList<LevelConfig> GetValidLevels()
-    {
-        if (validLevelsCache.Count == 0 && levels != null && levels.Length > 0)
-            RebuildValidLevelsCache();
-
-        return validLevelsCache;
+        validLevels.Sort((left, right) => left.levelNumber.CompareTo(right.levelNumber));
+        return validLevels;
     }
 
     private void StartPageTransition(int newPageIndex, int direction)
@@ -543,10 +539,6 @@ public class LevelSelectPanel : MonoBehaviour
         ApplyCurrentPageStarProgression();
         CreateCurrentPageButtons();
         RefreshPageUI(true);
-
-        // Content changed while fully faded out. Give TMP/Button visuals one
-        // frame to settle before the incoming page becomes visible.
-        yield return null;
 
         if (levelButtonsContainer != null)
         {

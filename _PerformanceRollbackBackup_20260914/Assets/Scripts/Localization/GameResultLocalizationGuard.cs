@@ -9,11 +9,16 @@ using UnityEngine.SceneManagement;
 [DefaultExecutionOrder(11000)]
 public sealed class GameResultLocalizationGuard : MonoBehaviour
 {
+    private const float RefreshInterval = 0.05f;
+    private const float TargetRefreshInterval = 1f;
+
     private static GameResultLocalizationGuard instance;
 
     private readonly List<ResultTextSet> resultTextSets =
         new List<ResultTextSet>();
 
+    private float refreshTimer;
+    private float targetRefreshTimer;
     private bool forceRefresh = true;
 
     private sealed class ResultTextSet
@@ -73,6 +78,7 @@ public sealed class GameResultLocalizationGuard : MonoBehaviour
         LoadSceneMode mode)
     {
         forceRefresh = true;
+        targetRefreshTimer = TargetRefreshInterval;
         RefreshTargets();
     }
 

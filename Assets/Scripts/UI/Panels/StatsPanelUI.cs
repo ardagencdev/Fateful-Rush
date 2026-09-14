@@ -16,6 +16,11 @@ public class StatsPanelUI : MonoBehaviour
     [Header("Stats Scroll")]
     [SerializeField] private ScrollRect statsScrollRect;
 
+    [Header("Stats Scroll Feel")]
+    [SerializeField] private bool useInertia = true;
+    [SerializeField, Range(0.01f, 0.3f)] private float decelerationRate = 0.08f;
+    [SerializeField, Range(0.01f, 0.3f)] private float elasticity = 0.08f;
+    [SerializeField, Min(1f)] private float scrollSensitivity = 28f;
 
     [Header("Text")]
     [SerializeField] private TextMeshProUGUI statsText;
@@ -28,6 +33,10 @@ public class StatsPanelUI : MonoBehaviour
             fadeSwitcher = GetComponent<UIPanelFadeSwitcher>();
 
         HideScrollbarButKeepScrolling();
+        ConfigureSmoothScrolling();
+
+        if (statsText != null)
+            statsText.raycastTarget = false;
 
         if (resetConfirmationPanel != null)
         {
@@ -49,6 +58,11 @@ public class StatsPanelUI : MonoBehaviour
         MainMenuStarColorRandomizer.Instance?.ShowStatsColor();
 
         Switch(mainMenuPanel, statsPanel);
+
+        // Stats text is rebuilt only when the panel opens/reset occurs.
+        // Localize at that same event instead of relying on background polling.
+        FatefulRushLocalizationRuntime.RequestStatsRefresh();
+
         ResetScrollToTop();
     }
 
@@ -95,6 +109,7 @@ public class StatsPanelUI : MonoBehaviour
         StatsManager.ResetAllStats();
 
         RefreshStats();
+        FatefulRushLocalizationRuntime.RequestStatsRefresh();
         HideResetConfirmation();
         ResetScrollToTop();
     }
@@ -135,6 +150,23 @@ public class StatsPanelUI : MonoBehaviour
                 false
             );
         }
+    }
+
+    private void ConfigureSmoothScrolling()
+    {
+        if (statsScrollRect == null)
+            return;
+
+        statsScrollRect.horizontal = false;
+        statsScrollRect.vertical = true;
+        statsScrollRect.inertia = useInertia;
+        statsScrollRect.decelerationRate = Mathf.Clamp(decelerationRate, 0.01f, 0.3f);
+        statsScrollRect.elasticity = Mathf.Clamp(elasticity, 0.01f, 0.3f);
+        statsScrollRect.scrollSensitivity = Mathf.Max(1f, scrollSensitivity);
+
+        // Elastic movement can feel like micro-stutter when a long TMP block
+        // repeatedly hits the boundary. Clamped keeps finger tracking exact.
+        statsScrollRect.movementType = ScrollRect.MovementType.Clamped;
     }
 
     private void RefreshStats()
