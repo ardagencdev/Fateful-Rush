@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "The Boss arrives at 90 score. Remove Beacon buffs before forcing routes."
+  - The Boss arrives at 70 score. Remove Beacon buffs before forcing routes.
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 2
-  winScore: 160
-  timeLimit: 65
+  winScore: 145
+  timeLimit: 55
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -177,9 +177,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 90
+  bossSpawnScore: 70
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 4
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

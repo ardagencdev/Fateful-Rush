@@ -280,16 +280,6 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
         if (!localizationReady)
             return;
 
-        // These two texts are genuinely dynamic during gameplay.
-        // Updating cached references is cheap and requires no object search,
-        // reflection cache rebuild or full localization pass.
-        if (GameStateManager.IsGameplayStarted &&
-            !GameStateManager.IsGameplayEnded)
-        {
-            ApplyGameplayHUD();
-            ApplyNearMissTexts();
-        }
-
         // Result/death UI is created from objects already cached on scene load.
         // Refresh exactly once when the run changes from active -> ended.
         bool gameplayEnded = GameStateManager.IsGameplayEnded;
@@ -475,6 +465,13 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
 
     private static bool IsMainMenuButtonLabel(string path, string currentText)
     {
+        if (path.IndexOf(
+        "/MenuConfirmationPanel/",
+        StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return false;
+        }
+
         if (string.IsNullOrEmpty(path))
             return false;
 
@@ -1138,34 +1135,15 @@ public sealed class FatefulRushLocalizationRuntime : MonoBehaviour
 
     private void ApplyGameplayHUD()
     {
-        PlayerCoinCollector collector = PlayerCoinCollector.Instance;
-        if (collector != null && collector.scoreText != null)
-        {
-            SetText(
-                collector.scoreText,
-                FatefulRushLocalization.Text("hud.score", "SCORE: {0}", collector.Score)
-            );
-        }
+        PlayerCoinCollector.Instance?.RefreshLocalizedScoreUI();
     }
 
     private void ApplyNearMissTexts()
     {
         for (int i = 0; i < nearMissUIs.Length; i++)
         {
-            NearMissStreakUI ui = nearMissUIs[i];
-            if (ui == null)
-                continue;
-
-            TMP_Text text = GetPrivate<TMP_Text>(ui, "text");
-            if (text == null || string.IsNullOrWhiteSpace(text.text))
-                continue;
-
-            Match match = Regex.Match(text.text, @"x\s*(\d+)", RegexOptions.IgnoreCase);
-            if (!match.Success)
-                continue;
-
-            if (int.TryParse(match.Groups[1].Value, out int streak))
-                SetText(text, FatefulRushLocalization.Text("hud.near_miss", "NEAR MISS  x{0}", streak));
+            if (nearMissUIs[i] != null)
+                nearMissUIs[i].RefreshLocalizedText();
         }
     }
 

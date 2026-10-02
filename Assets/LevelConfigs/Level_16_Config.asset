@@ -43,7 +43,7 @@ MonoBehaviour:
   - "Use Clone to pull pressure away and reset dangerous formations."
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
-  winScore: 135
+  winScore: 115
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

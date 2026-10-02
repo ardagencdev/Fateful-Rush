@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Final challenge: survive 70 seconds. The Boss enters at 35 seconds."
+  - 'Final challenge: survive 60 seconds. The Boss enters at 30 seconds.'
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 1
   winScore: 15
-  timeLimit: 70
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -163,7 +163,7 @@ MonoBehaviour:
   bossEnabled: 1
   bossSpawnCondition: 1
   bossSpawnScore: 75
-  bossSpawnTime: 35
+  bossSpawnTime: 30
   bossDanger: 5
   bossCustomOverride: 0
   bossOverride:

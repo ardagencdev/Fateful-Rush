@@ -710,11 +710,17 @@ public class PlayerCoinCollector : MonoBehaviour
 
     private void UpdateScoreUI()
     {
-        if (scoreText != null)
-        {
-            scoreText.text =
-                $"Score: {score}";
-        }
+        if (scoreText == null)
+            return;
+
+        scoreText.text = FatefulRushLocalization.Text(
+            "hud.score", "SCORE: {0}", score
+        );
+    }
+
+    public void RefreshLocalizedScoreUI()
+    {
+        UpdateScoreUI();
     }
 
     private void OnValidate()

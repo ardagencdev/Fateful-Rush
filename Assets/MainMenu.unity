@@ -16692,7 +16692,7 @@ MonoBehaviour:
   gameSceneName: GameScene
   fadeSwitcher: {fileID: 658595660}
   mainMenuPanel: {fileID: 558379304}
-  signalStatusText: {fileID: 0}
+  signalStatusText: {fileID: 1148929013}
   levelSelectPanel: {fileID: 1781728136}
   continueButton: {fileID: 1497216665}
   continueLevelText: {fileID: 1349646196}
@@ -20192,6 +20192,10 @@ MonoBehaviour:
   resetConfirmationPanel: {fileID: 2108360250}
   fadeSwitcher: {fileID: 658595660}
   statsScrollRect: {fileID: 1344030745}
+  useInertia: 1
+  decelerationRate: 0.08
+  elasticity: 0.08
+  scrollSensitivity: 28
   statsText: {fileID: 1895243924}
 --- !u!114 &777080156
 MonoBehaviour:
@@ -23081,7 +23085,6 @@ GameObject:
   - component: {fileID: 1029123032}
   - component: {fileID: 1029123034}
   - component: {fileID: 1029123033}
-  - component: {fileID: 1029123035}
   m_Layer: 5
   m_Name: TitleText
   m_TagString: Untagged
@@ -23208,46 +23211,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029123031}
   m_CullTransparentMesh: 1
---- !u!114 &1029123035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029123031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
-  m_StringReference:
-    m_TableReference:
-      m_TableCollectionName: GUID:aa6a097d7296d884a9d5dfed78a2349d
-    m_TableEntryReference:
-      m_KeyId: 52008484253711
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  m_FormatArguments: []
-  m_UpdateString:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1029123033}
-        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
-        m_MethodName: SetText
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  references:
-    version: 2
-    RefIds: []
 --- !u!1 &1039217519
 GameObject:
   m_ObjectHideFlags: 0
@@ -32210,7 +32173,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: v1.0.51
+  m_text: v1.0.52
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
   m_sharedMaterial: {fileID: -3523414811633075640, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}

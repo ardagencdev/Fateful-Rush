@@ -40,10 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "The Boss arrives at 120 score. Build momentum before the Boss phase."
+  - The Boss arrives at 75 score. Build momentum before the Boss phase.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 0
-  winScore: 215
+  winScore: 150
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -177,9 +177,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 120
+  bossSpawnScore: 75
   bossSpawnTime: 30
-  bossDanger: 3
+  bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

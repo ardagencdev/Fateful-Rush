@@ -43,7 +43,7 @@ MonoBehaviour:
   - "Leave Laser warning lanes early, then react to Blaster fire."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
-  winScore: 110
+  winScore: 95
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

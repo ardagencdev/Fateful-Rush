@@ -26,6 +26,8 @@ public class HUDPlayerOcclusionController : MonoBehaviour
     [SerializeField]
     private int graphicSubdivisionDepth = 2;
 
+    private readonly Vector3[] worldCorners = new Vector3[4];
+
     private Transform playerRoot;
     private SpriteRenderer playerSpriteRenderer;
     private Camera gameplayCamera;
@@ -150,7 +152,6 @@ public class HUDPlayerOcclusionController : MonoBehaviour
             return false;
         }
 
-        Vector3[] worldCorners = new Vector3[4];
         rectTransform.GetWorldCorners(worldCorners);
 
         Camera uiCamera = GetUICamera();

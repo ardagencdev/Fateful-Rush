@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "The Boss arrives at 50 score while Lasers and Bombs crowd the arena."
+  - The Boss arrives at 60 score while Lasers and Bombs crowd the arena.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 125
@@ -177,8 +177,8 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 50
-  bossSpawnTime: 30
+  bossSpawnScore: 60
+  bossSpawnTime: 25
   bossDanger: 3
   bossCustomOverride: 0
   bossOverride:

@@ -40,10 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Clear Beacon buffs first, then build short combos through the minefield."
+  - Clear Beacon buffs first, then build short combos through the minefield.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 0
-  winScore: 230
+  winScore: 155
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -177,9 +177,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 130
+  bossSpawnScore: 100
   bossSpawnTime: 30
-  bossDanger: 3
+  bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

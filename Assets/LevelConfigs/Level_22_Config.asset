@@ -43,7 +43,7 @@ MonoBehaviour:
   - "Bombs and Hunters leave little room. Keep routes short and controlled."
   gameplayMusic: {fileID: 8300000, guid: 0f09dc49a475a134cbc54727857c54e8, type: 3}
   winCondition: 0
-  winScore: 165
+  winScore: 130
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

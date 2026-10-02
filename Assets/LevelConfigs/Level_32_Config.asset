@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Clear the recurring Beacon before committing to a long combo."
+  - Clear the recurring Beacon before committing to a long combo.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 2
-  winScore: 175
-  timeLimit: 70
+  winScore: 145
+  timeLimit: 55
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -177,9 +177,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 75
+  bossSpawnScore: 70
   bossSpawnTime: 30
-  bossDanger: 2
+  bossDanger: 4
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

@@ -36,7 +36,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
     private readonly Dictionary<Transform, bool> optionPanelActiveStates =
         new Dictionary<Transform, bool>();
 
-    private bool typographyDirty = true;
     private Coroutine refreshRoutine;
 
     private sealed class LabelSnapshot
@@ -176,8 +175,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
             if (pair.Key != null)
                 optionPanelActiveStates[pair.Key] = pair.Key.gameObject.activeInHierarchy;
         }
-
-        typographyDirty = true;
     }
 
     private void CacheResultText(TMP_Text text)
@@ -323,7 +320,7 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
         {
             SetTextIfDifferent(
                 confirmationTexts[i],
-                "ANA MENÜYE DÖN?"
+                "Emin Misin?"
             );
         }
 
@@ -1095,8 +1092,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
 
     private void ScheduleRefresh()
     {
-        typographyDirty = true;
-
         if (!isActiveAndEnabled)
             return;
 
@@ -1117,7 +1112,6 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
             ApplyCompactTurkishResultText();
 
         NormalizeOptionsTypography();
-        typographyDirty = false;
 
         Canvas.ForceUpdateCanvases();
         AlignHudOpacitySliders();

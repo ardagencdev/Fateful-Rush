@@ -43,7 +43,7 @@ MonoBehaviour:
   - "Blasters, Hunters and Bombs overlap. Change direction after attacks commit."
   gameplayMusic: {fileID: 8300000, guid: 70b8d4b1739e7e6449160bf2a90d31c3, type: 3}
   winCondition: 0
-  winScore: 195
+  winScore: 140
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

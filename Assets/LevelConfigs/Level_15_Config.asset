@@ -43,8 +43,8 @@ MonoBehaviour:
   - "Let Hunter charges commit before dodging. Track both Hunters."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 2
-  winScore: 85
-  timeLimit: 35
+  winScore: 110
+  timeLimit: 45
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1

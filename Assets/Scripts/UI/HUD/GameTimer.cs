@@ -73,6 +73,8 @@ public class GameTimer : MonoBehaviour
     private bool useCountdown;
     private int lastDisplayedSecond = -1;
 
+    private int lastRenderedSecond = -1;
+
     private Vector2 originalAnchoredPosition;
     private Color originalTextColor = Color.white;
 
@@ -168,6 +170,7 @@ public class GameTimer : MonoBehaviour
 
     public void StartTimer()
     {
+        lastRenderedSecond = -1;
         elapsedTime = 0f;
         uiRefreshTimer = 0f;
         lastDisplayedSecond = -1;
@@ -204,6 +207,7 @@ public class GameTimer : MonoBehaviour
 
     private void ResetTimerState()
     {
+        lastRenderedSecond = -1;
         elapsedTime = 0f;
         uiRefreshTimer = 0f;
         lastDisplayedSecond = -1;
@@ -249,22 +253,20 @@ public class GameTimer : MonoBehaviour
         if (timerText == null)
             return;
 
-        if (useCountdown &&
-            levelConfig != null)
+        bool countdown = useCountdown && levelConfig != null;
+        float time = countdown ? RemainingTime : elapsedTime;
+        int second = Mathf.FloorToInt(Mathf.Max(0f, time));
+
+        if (second != lastRenderedSecond)
         {
-            float remainingTime = RemainingTime;
-
-            timerText.text =
-                FormatTime(remainingTime);
-
-            UpdateCountdownColor(remainingTime);
-            return;
+            lastRenderedSecond = second;
+            timerText.text = FormatTime(time);
         }
 
-        timerText.text =
-            FormatTime(elapsedTime);
-
-        timerText.color = originalTextColor;
+        if (countdown)
+            UpdateCountdownColor(time);
+        else
+            timerText.color = originalTextColor;
     }
 
     private void UpdateCountdownColor(float remainingTime)

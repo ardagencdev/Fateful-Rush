@@ -143,7 +143,7 @@ public static class FatefulRushLocalization
             { "briefing.tip.c388b658", "Tüm tehlike türlerinde hayatta kal. Zırh, Yavaşlatma ve Klonu sırayla kullan." },
             { "briefing.tip.7ec9bb59", "Önce Beacon güçlendirmesini kaldır, sonra kısa kombolar kur." },
             { "briefing.tip.e482958d", "Boss 105 skorda gelir. O aşama için bir savunma seçeneğini sakla." },
-            { "briefing.tip.028a7195", "Son görev: 70 saniye hayatta kal. Boss 35. saniyede gelir." }
+            { "briefing.tip.028a7195", "Son görev: 60 saniye hayatta kal. Boss 35. saniyede gelir." }
         };
 
     public static string CurrentLocaleCode

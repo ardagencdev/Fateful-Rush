@@ -23,7 +23,10 @@ public sealed class FatefulRushReviewPrompt : MonoBehaviour
     private bool finishedRunThisSession;
     private bool attemptedThisSession;
     private float quietMenuSeconds;
-    private float lastAdRealtime = -1000f;
+
+   #if UNITY_ANDROID && !UNITY_EDITOR
+   private float lastAdRealtime = -1000f;
+   #endif
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() { instance = null; IsBusy = false; }

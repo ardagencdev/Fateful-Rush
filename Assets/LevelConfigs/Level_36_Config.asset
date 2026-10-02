@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Use each Beacon takedown as a scoring window between Lasers and Bombs."
+  - Use each Beacon takedown as a scoring window between Lasers and Bombs.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
-  winScore: 190
-  timeLimit: 75
+  winScore: 155
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -177,9 +177,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 95
+  bossSpawnScore: 80
   bossSpawnTime: 30
-  bossDanger: 3
+  bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

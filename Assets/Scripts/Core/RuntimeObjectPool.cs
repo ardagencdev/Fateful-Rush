@@ -8,6 +8,9 @@ using UnityEngine;
 /// </summary>
 public sealed class RuntimeObjectPool : MonoBehaviour
 {
+    [SerializeField, Min(1)]
+    private int maxRetainedPerPrefab = 64;
+
     private static RuntimeObjectPool instance;
 
     private readonly Dictionary<GameObject, Queue<GameObject>> pools =
@@ -77,6 +80,7 @@ public sealed class RuntimeObjectPool : MonoBehaviour
             GameObject item = CreateInstance(prefab);
             QueueInactive(item, prefab, queue);
         }
+        count = Mathf.Min(count, maxRetainedPerPrefab);
     }
 
     private GameObject SpawnInternal(
@@ -166,8 +170,15 @@ public sealed class RuntimeObjectPool : MonoBehaviour
         if (identity.IsQueued)
             return;
 
-        identity.IsQueued = true;
         item.SetActive(false);
+
+        if (queue.Count >= maxRetainedPerPrefab)
+        {
+            Destroy(item);
+            return;
+        }
+
+        identity.IsQueued = true;
         item.transform.SetParent(transform, false);
         queue.Enqueue(item);
     }

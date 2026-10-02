@@ -491,6 +491,24 @@ public class GameQuit : MonoBehaviour
         );
     }
 
+    private void OnApplicationPause(bool paused)
+    {
+        if (!paused ||
+            !GameStateManager.IsGameplayStarted ||
+            GameStateManager.IsGameplayEnded)
+            return;
+
+        if (IsPaused && pauseTransitionRoutine == null)
+            return;
+
+        if (!IsPaused && Time.timeScale <= 0f)
+            return;
+
+        StopPauseTransition();
+        IsPaused = false;
+        PauseGame();
+    }
+
     public void SetPauseMenuModalState(bool open)
     {
         pauseMenuModalOpen = open;

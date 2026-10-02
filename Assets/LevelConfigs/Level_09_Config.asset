@@ -43,7 +43,7 @@ MonoBehaviour:
   - "Space Bombs turn areas deadly. Watch where they arm before moving in."
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
-  winScore: 100
+  winScore: 90
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

@@ -43,7 +43,7 @@ MonoBehaviour:
   - "Rare Coins are valuable, but never enter a bad route just for one."
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 0
-  winScore: 120
+  winScore: 105
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4

@@ -28,7 +28,11 @@ public sealed class FatefulRushInAppUpdateManager : MonoBehaviour
     private bool checkInProgress;
     private bool updateFlowInProgress;
     private bool flexibleUpdateDownloaded;
-    private float lastCheckRealtime = -99999f;
+
+   #if UNITY_ANDROID && !UNITY_EDITOR
+   private float lastCheckRealtime = -99999f;
+   #endif
+
     private Coroutine scheduledCheck;
     private Coroutine completionRoutine;
 

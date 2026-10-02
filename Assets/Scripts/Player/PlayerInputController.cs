@@ -704,6 +704,11 @@ public class PlayerInputController : MonoBehaviour
         return false;
     }
 
+    private void OnApplicationPause(bool paused)
+    {
+        ForceStopInput();
+    }
+
     private bool TryGetPointerLocalPosition(
         Vector2 screenPosition,
         out Vector2 localPosition

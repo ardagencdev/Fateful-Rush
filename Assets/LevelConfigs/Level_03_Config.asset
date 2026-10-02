@@ -40,10 +40,10 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Keep both Stalkers together, then cut across open space for coins."
+  - Keep both Stalkers together, then cut across open space for coins.
   gameplayMusic: {fileID: 8300000, guid: 7a654b1a94c2dfb43ab57848aee51eb7, type: 3}
   winCondition: 0
-  winScore: 35
+  winScore: 30
   timeLimit: 35
   showGameTimerHUD: 0
   playerMoveSpeed: 6.4
@@ -54,7 +54,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 10
-  cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.5
   slowDuration: 5
@@ -81,7 +80,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 0.896
   nearStarsSizeMultiplier: 0.915
   starfieldDensityMultiplier: 0.776
-  nearStarsEmissionRate: 26
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 100
@@ -124,7 +122,7 @@ MonoBehaviour:
   randomObstacleCount: 0
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 2
-  normalEnemySpawnInterval: 3
+  normalEnemySpawnInterval: 2
   normalEnemyDanger: 1
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -149,6 +147,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5

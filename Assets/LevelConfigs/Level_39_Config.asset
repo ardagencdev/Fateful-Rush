@@ -40,11 +40,11 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "The Boss arrives at 105 score. Keep one defensive option for that phase."
+  - The Boss arrives at 80 score. Keep one defensive option for that phase.
   gameplayMusic: {fileID: 8300000, guid: 21fe5dc30fd596346a644b076a9d3919, type: 3}
   winCondition: 2
-  winScore: 200
-  timeLimit: 80
+  winScore: 160
+  timeLimit: 60
   showGameTimerHUD: 1
   playerMoveSpeed: 6.4
   dashEnabled: 1
@@ -177,9 +177,9 @@ MonoBehaviour:
     stunDuration: 1
   bossEnabled: 1
   bossSpawnCondition: 0
-  bossSpawnScore: 105
+  bossSpawnScore: 80
   bossSpawnTime: 30
-  bossDanger: 4
+  bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
     speed: 1.2

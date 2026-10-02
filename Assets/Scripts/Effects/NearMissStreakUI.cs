@@ -18,6 +18,8 @@ public class NearMissStreakUI : MonoBehaviour
     [SerializeField, Min(2)]
     private int maxVisualStreak = 6;
 
+    private int displayedStreak;
+
     [SerializeField, Min(1f)]
     private float minPunchScale = 1.14f;
 
@@ -186,10 +188,8 @@ public class NearMissStreakUI : MonoBehaviour
 
         ResetTransform();
 
-        // Only the displayed string is changed.
-        // Font, font size, Auto Size, alignment, spacing, material, etc.
-        // are completely controlled by the TMP in the HUD Inspector.
-        text.SetText("NEAR MISS  x{0}", streak);
+        displayedStreak = streak;
+        RefreshLocalizedText();
 
         float streak01 = Mathf.InverseLerp(
             1f,
@@ -375,6 +375,16 @@ public class NearMissStreakUI : MonoBehaviour
         Color color = text.color;
         color.a = visible ? 1f : 0f;
         text.color = color;
+    }
+
+    public void RefreshLocalizedText()
+    {
+        if (text == null || displayedStreak <= 0)
+            return;
+
+        text.text = FatefulRushLocalization.Text(
+            "hud.near_miss", "NEAR MISS  x{0}", displayedStreak
+        );
     }
 
     private static Color SetAlpha(

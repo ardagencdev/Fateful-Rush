@@ -76,14 +76,9 @@ public sealed class MissionBriefingLiveSync : MonoBehaviour
 
     private void RefreshPanels()
     {
-#if UNITY_2023_1_OR_NEWER
-        panels = FindObjectsByType<MissionBriefingPanelUI>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None
+        panels = UnityFindCompat.FindObjectsByType<MissionBriefingPanelUI>(
+            FindObjectsInactive.Include
         );
-#else
-        panels = FindObjectsOfType<MissionBriefingPanelUI>(true);
-#endif
     }
 
     private void ApplyToPanel(MissionBriefingPanelUI panel)
