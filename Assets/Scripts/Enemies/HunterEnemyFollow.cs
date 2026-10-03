@@ -1360,7 +1360,9 @@ public class HunterEnemyFollow : MonoBehaviour
     private void PlaySound(AudioClip clip)
     {
         if (clip == null ||
-            audioSource == null)
+         audioSource == null ||
+        !audioSource.isActiveAndEnabled ||
+        GameStateManager.IsGameplayEnded)
         {
             return;
         }

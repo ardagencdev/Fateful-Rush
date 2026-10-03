@@ -173,9 +173,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
         RefreshPageInstant();
 
-        // Briefing synchronization is requested exactly when the panel opens;
-        // no permanent LateUpdate polling is needed.
-        MissionBriefingLiveSync.RequestRefresh();
+        // BuildPages/RefreshMissionInformation above already use the shared formatter.
+        // Do not scan or rewrite other panels when this panel opens.
 
         if (panelGroup != null && panelRect != null)
             panelRoutine = StartCoroutine(PlayPanelIntro());
@@ -281,55 +280,20 @@ public class MissionBriefingPanelUI : MonoBehaviour
     private void BuildPages(LevelConfig levelConfig)
     {
         pages.Clear();
-
-        // Briefing artık tek sayfadır. Görev hedefi ile levela özel kısa bilgi
-        // aynı sayfada birleştirilir; böylece oyuncu başlamadan önce yalnızca
-        // gerçekten gerekli bilgiyi tek bakışta görür.
-        string combinedBriefing =
-            levelConfig.GetEffectiveObjectiveDescription();
-
-        if (levelConfig.briefingPages != null)
-        {
-            foreach (string page in levelConfig.briefingPages)
-            {
-                if (string.IsNullOrWhiteSpace(page))
-                    continue;
-
-                string trimmedPage = page.Trim();
-
-                if (string.IsNullOrWhiteSpace(combinedBriefing))
-                {
-                    combinedBriefing = trimmedPage;
-                }
-                else
-                {
-                    combinedBriefing +=
-                        "\n\n" + trimmedPage;
-                }
-            }
-        }
-
-        if (string.IsNullOrWhiteSpace(combinedBriefing))
-            combinedBriefing = "Complete the mission objective.";
-
-        pages.Add(combinedBriefing.Trim());
+        string text = MissionTextFormatter.BriefingDescription(levelConfig, FatefulRushLocalization.IsTurkish);
+        pages.Add(string.IsNullOrWhiteSpace(text) ? "Complete the mission objective." : text.Trim());
     }
 
     private void RefreshMissionInformation(LevelConfig levelConfig)
     {
+        string name = FatefulRushLocalization.LevelName(levelConfig.levelNumber,
+            string.IsNullOrWhiteSpace(levelConfig.levelName) ? string.Empty : levelConfig.levelName.Trim());
         if (levelTitleText != null)
-        {
-            string levelName = string.IsNullOrWhiteSpace(levelConfig.levelName)
-                ? string.Empty
-                : levelConfig.levelName.Trim();
-
-            levelTitleText.text = string.IsNullOrEmpty(levelName)
-                ? $"LEVEL {levelConfig.levelNumber}"
-                : $"LEVEL {levelConfig.levelNumber} — {levelName.ToUpperInvariant()}";
-        }
-
+            levelTitleText.text = string.IsNullOrWhiteSpace(name)
+                ? FatefulRushLocalization.Text("menu.level", "LEVEL {0}", levelConfig.levelNumber)
+                : FatefulRushLocalization.Text("briefing.level_title", "LEVEL {0} — {1}", levelConfig.levelNumber, name.ToUpperInvariant());
         if (modeText != null)
-            modeText.text = levelConfig.GetEffectiveModeDescription();
+            modeText.text = MissionTextFormatter.BriefingMode(levelConfig);
     }
 
     private void RefreshDifficulty(int difficulty)
@@ -418,42 +382,14 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     private void HandleMouseSwipe()
     {
-        if (Mouse.current == null)
-            return;
-
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            dragStartPosition = Mouse.current.position.ReadValue();
-            isDragging = true;
-        }
-
-        if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
-        {
-            Vector2 dragEndPosition = Mouse.current.position.ReadValue();
-            isDragging = false;
-            TrySwipe(dragEndPosition);
-        }
+        if (MenuSwipeInput.TryReadMouse(ref isDragging, ref dragStartPosition, out Vector2 end))
+            TrySwipe(end);
     }
 
     private void HandleTouchSwipe()
     {
-        if (Touchscreen.current == null)
-            return;
-
-        var touch = Touchscreen.current.primaryTouch;
-
-        if (touch.press.wasPressedThisFrame)
-        {
-            dragStartPosition = touch.position.ReadValue();
-            isDragging = true;
-        }
-
-        if (touch.press.wasReleasedThisFrame && isDragging)
-        {
-            Vector2 dragEndPosition = touch.position.ReadValue();
-            isDragging = false;
-            TrySwipe(dragEndPosition);
-        }
+        if (MenuSwipeInput.TryReadTouch(ref isDragging, ref dragStartPosition, out Vector2 end))
+            TrySwipe(end);
     }
 
     private void TrySwipe(Vector2 dragEndPosition)
@@ -872,4 +808,15 @@ public class MissionBriefingPanelUI : MonoBehaviour
         float inverse = 1f - Mathf.Clamp01(value);
         return 1f - inverse * inverse * inverse;
     }
+
+    public void RefreshLocalizedText()
+    {
+        if (selectedLevel == null || !IsOpen) return;
+        BuildPages(selectedLevel);
+        RefreshMissionInformation(selectedLevel);
+        // Do not reset transform/alpha while the panel intro or a page tween runs.
+        if (pageDescriptionText != null && pages.Count > 0)
+            pageDescriptionText.text = pages[Mathf.Clamp(currentPageIndex, 0, pages.Count - 1)];
+    }
+
 }

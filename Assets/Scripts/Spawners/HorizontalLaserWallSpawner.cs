@@ -120,51 +120,12 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
 
     private IEnumerator SpawnRoutine()
     {
-        while (systemActive)
-        {
-            yield return new WaitUntil(
-                () =>
-                    !systemActive ||
-                    GameStateManager.IsGameplayStarted
-            );
-
-            if (!systemActive || IsGameOver())
-                yield break;
-
-            float waitTime = Random.Range(
-                minSpawnTime,
-                maxSpawnTime
-            );
-
-            float elapsedTime = 0f;
-
-            while (elapsedTime < waitTime)
-            {
-                if (!systemActive || IsGameOver())
-                    yield break;
-
-                if (GameStateManager.IsGameplayStarted)
-                {
-                    elapsedTime += Time.deltaTime;
-                }
-
-                yield return null;
-            }
-
-            if (!systemActive ||
-                IsGameOver() ||
-                !GameStateManager.IsGameplayStarted)
-            {
-                continue;
-            }
-
-            yield return SpawnHorizontalLaser();
-        }
-
+        yield return LaserSpawnSequence.Run(() => systemActive, IsGameOver,
+            () => minSpawnTime, () => maxSpawnTime, SpawnHorizontalLaser);
         spawnCoroutine = null;
     }
 
-    
+
 
     private IEnumerator SpawnHorizontalLaser()
     {
@@ -262,36 +223,7 @@ public class HorizontalLaserWallSpawner : MonoBehaviour
 
     private IEnumerator PlayWarning()
     {
-        if (activeWarning == null)
-        {
-            yield return new WaitForSeconds(
-                warningDuration
-            );
-
-            yield break;
-        }
-
-        LaserWarning warning =
-            activeWarning.GetComponent<LaserWarning>();
-
-        if (warning != null)
-        {
-            warning.blinkDuration =
-                warningDuration;
-
-            yield return warning.PlayWarning();
-        }
-        else
-        {
-            Debug.LogWarning(
-                "[HorizontalLaser] Warning prefab üzerinde LaserWarning componenti yok.",
-                activeWarning
-            );
-
-            yield return new WaitForSeconds(
-                warningDuration
-            );
-        }
+        yield return LaserSpawnSequence.PlayWarning(activeWarning, warningDuration, true);
     }
 
     private void DestroyActiveWarning()

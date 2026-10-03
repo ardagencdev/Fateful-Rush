@@ -187,7 +187,7 @@ public class StatsPanelUI : MonoBehaviour
         AppendDeathAnalysis();
         AppendBestTimes();
 
-        statsText.text = builder.ToString().TrimEnd();
+        statsText.text = StatsTextFormatter.TranslateStats(builder.ToString().TrimEnd());
     }
 
     private void AppendGeneral()
@@ -471,4 +471,10 @@ public class StatsPanelUI : MonoBehaviour
 
         return $"{remaining:0.00}s";
     }
+
+    public void RefreshLocalizedText()
+    {
+        if (statsPanel != null && statsPanel.activeInHierarchy) RefreshStats();
+    }
+
 }

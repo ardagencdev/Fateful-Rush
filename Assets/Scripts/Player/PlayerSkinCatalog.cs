@@ -847,4 +847,33 @@ public class PlayerSkinCatalog : ScriptableObject
         }
     }
 #endif
+
+    public static PlayerSkinCatalog ResolveLoadedCatalog()
+    {
+        if (PlayerSkinCatalog.LoadedInstance != null)
+            return PlayerSkinCatalog.LoadedInstance;
+
+        PlayerSkinCatalog[] catalogs =
+            Resources.FindObjectsOfTypeAll<PlayerSkinCatalog>();
+
+        if (catalogs == null || catalogs.Length == 0)
+            return null;
+
+        for (int i = 0; i < catalogs.Length; i++)
+        {
+            PlayerSkinCatalog catalog = catalogs[i];
+
+            if (catalog != null &&
+                string.Equals(
+                    catalog.name,
+                    "PlayerSkinCatalog",
+                    System.StringComparison.Ordinal
+                ))
+            {
+                return catalog;
+            }
+        }
+
+        return catalogs[0];
+    }
 }

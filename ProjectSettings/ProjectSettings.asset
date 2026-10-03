@@ -274,8 +274,8 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/Users/arda_/OneDrive/Belgeler/Game Development Progress/FatefulRushSigning/fatefulrush-upload-2026.keystore
-  AndroidKeyaliasName: fatefulrush-upload-2026
+  AndroidKeystoreName: C:/Users/arda_/FatefulRush_PC/fatefulrush-upload.keystore
+  AndroidKeyaliasName: 
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
   AndroidBuildApkPerCpuArchitecture: 0

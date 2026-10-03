@@ -789,31 +789,7 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
 
     private static PlayerSkinCatalog ResolveSkinCatalog()
     {
-        if (PlayerSkinCatalog.LoadedInstance != null)
-            return PlayerSkinCatalog.LoadedInstance;
-
-        PlayerSkinCatalog[] catalogs =
-            Resources.FindObjectsOfTypeAll<PlayerSkinCatalog>();
-
-        if (catalogs == null || catalogs.Length == 0)
-            return null;
-
-        for (int i = 0; i < catalogs.Length; i++)
-        {
-            PlayerSkinCatalog catalog = catalogs[i];
-
-            if (catalog != null &&
-                string.Equals(
-                    catalog.name,
-                    "PlayerSkinCatalog",
-                    System.StringComparison.Ordinal
-                ))
-            {
-                return catalog;
-            }
-        }
-
-        return catalogs[0];
+        return PlayerSkinCatalog.ResolveLoadedCatalog();
     }
 
     private static GameStateManager FindGameStateManagerInScene(

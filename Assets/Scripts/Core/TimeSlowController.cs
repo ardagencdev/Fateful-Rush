@@ -41,8 +41,9 @@ public class TimeSlowController : MonoBehaviour
             slowRoutine = null;
         }
 
-        SlowPowerUp.isSlowActive = true;
-        SlowPowerUp.currentSlowMultiplier = multiplier;
+        SlowActive = true;
+        LegacySlowEndTime = Time.unscaledTime + duration;
+        SlowMultiplier = multiplier;
         GameAudioMixerController.SetSlowMotion(true);
 
         slowRoutine = StartCoroutine(
@@ -92,8 +93,8 @@ public class TimeSlowController : MonoBehaviour
             slowRoutine = null;
         }
 
-        SlowPowerUp.isSlowActive = false;
-        SlowPowerUp.currentSlowMultiplier = 1f;
+        SlowActive = false;
+        SlowMultiplier = 1f;
         GameAudioMixerController.SetSlowMotion(false);
 
         Time.fixedDeltaTime =
@@ -120,11 +121,11 @@ public class TimeSlowController : MonoBehaviour
         if (IsGameOver())
             return;
 
-        if (SlowPowerUp.isSlowActive)
+        if (SlowActive)
         {
             float multiplier =
                 Mathf.Clamp(
-                    SlowPowerUp.currentSlowMultiplier,
+                    SlowMultiplier,
                     0.01f,
                     1f
                 );
@@ -149,8 +150,8 @@ public class TimeSlowController : MonoBehaviour
             slowRoutine = null;
         }
 
-        SlowPowerUp.isSlowActive = false;
-        SlowPowerUp.currentSlowMultiplier = 1f;
+        SlowActive = false;
+        SlowMultiplier = 1f;
         GameAudioMixerController.SetSlowMotion(false);
 
         Time.timeScale = 1f;
@@ -199,12 +200,17 @@ public class TimeSlowController : MonoBehaviour
             slowRoutine = null;
         }
 
-        SlowPowerUp.isSlowActive = false;
-        SlowPowerUp.currentSlowMultiplier = 1f;
+        SlowActive = false;
+        SlowMultiplier = 1f;
         GameAudioMixerController.SetSlowMotion(false);
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime =
             originalFixedDeltaTime;
     }
+
+    internal static bool SlowActive;
+    internal static float SlowMultiplier = 0.4f;
+    internal static float LegacySlowEndTime;
+
 }

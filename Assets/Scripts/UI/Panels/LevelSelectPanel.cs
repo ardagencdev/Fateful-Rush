@@ -813,42 +813,14 @@ public class LevelSelectPanel : MonoBehaviour
 
     private void HandleMouseSwipe()
     {
-        if (Mouse.current == null)
-            return;
-
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            dragStartPosition = Mouse.current.position.ReadValue();
-            isDragging = true;
-        }
-
-        if (Mouse.current.leftButton.wasReleasedThisFrame && isDragging)
-        {
-            Vector2 dragEndPosition = Mouse.current.position.ReadValue();
-            isDragging = false;
-            TrySwipe(dragEndPosition);
-        }
+        if (MenuSwipeInput.TryReadMouse(ref isDragging, ref dragStartPosition, out Vector2 end))
+            TrySwipe(end);
     }
 
     private void HandleTouchSwipe()
     {
-        if (Touchscreen.current == null)
-            return;
-
-        var touch = Touchscreen.current.primaryTouch;
-
-        if (touch.press.wasPressedThisFrame)
-        {
-            dragStartPosition = touch.position.ReadValue();
-            isDragging = true;
-        }
-
-        if (touch.press.wasReleasedThisFrame && isDragging)
-        {
-            Vector2 dragEndPosition = touch.position.ReadValue();
-            isDragging = false;
-            TrySwipe(dragEndPosition);
-        }
+        if (MenuSwipeInput.TryReadTouch(ref isDragging, ref dragStartPosition, out Vector2 end))
+            TrySwipe(end);
     }
 
     private void TrySwipe(Vector2 dragEndPosition)

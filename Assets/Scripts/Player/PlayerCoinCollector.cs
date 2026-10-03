@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class PlayerCoinCollector : MonoBehaviour
+public partial class PlayerCoinCollector : MonoBehaviour
 {
     public static PlayerCoinCollector Instance { get; private set; }
     [Header("References")]
@@ -357,320 +357,11 @@ public class PlayerCoinCollector : MonoBehaviour
         );
     }
 
-    private int UpdateCombo()
-    {
-        if (!comboEnabled)
-        {
-            combo = 1;
-            comboChain = 0;
-            comboTimer = 0f;
-
-            return 1;
-        }
-
-        int previousCombo = combo;
-
-        comboTimer = 0f;
-        comboChain++;
-
-        combo =
-            GetComboFromChain();
-
-        RunOptional(
-            () => StatsManager.RecordComboProgress(
-                combo,
-                comboChain,
-                combo > previousCombo
-            ),
-            "combo stat/achievement update"
-        );
-
-        return combo;
-    }
-
-    private int GetComboFromChain()
-    {
-        if (comboSpeedStages != null &&
-            comboSpeedStages.Length > 0)
-        {
-            int result = 1;
-
-            for (int i = 0;
-                 i < comboSpeedStages.Length;
-                 i++)
-            {
-                ComboSpeedStage stage =
-                    comboSpeedStages[i];
-
-                if (stage == null)
-                    continue;
-
-                if (stage.comboMultiplier < 2)
-                    continue;
-
-                if (stage.coinsRequired < 1)
-                    continue;
-
-                if (comboChain >=
-                    stage.coinsRequired)
-                {
-                    result = Mathf.Max(
-                        result,
-                        stage.comboMultiplier
-                    );
-                }
-            }
-
-            return Mathf.Max(1, result);
-        }
-
-        int fallbackResult = 1;
-
-        if (comboChain >= coinsForCombo3)
-        {
-            fallbackResult = 3;
-        }
-        else if (comboChain >= coinsForCombo2)
-        {
-            fallbackResult = 2;
-        }
-
-        return Mathf.Max(1, fallbackResult);
-    }
-
-    private void ResetCombo()
-    {
-        combo = 1;
-        comboChain = 0;
-        comboTimer = 0f;
-
-        if (comboUI == null)
-            return;
-
-        comboUI.ResetCombo();
-
-        comboUI.UpdateTimerBar(
-            0f,
-            combo
-        );
-    }
-
-
-    private void PlaySpecialSkinCoinEffect(
-        Coin coin,
-        Collider2D coinCollider,
-        int coinValue)
-    {
-        if (specialSkinVisuals == null)
-        {
-            specialSkinVisuals =
-                GetComponent<SpecialSkinVisuals>();
-        }
-
-        if (specialSkinVisuals == null)
-            return;
-
-        Vector3 burstPosition;
-
-        if (coin != null)
-        {
-            burstPosition = coin.transform.position;
-        }
-        else if (coinCollider != null)
-        {
-            burstPosition = coinCollider.bounds.center;
-        }
-        else
-        {
-            return;
-        }
-
-        float coinWorldSize = GetCoinWorldSize(
-            coin,
-            coinCollider
-        );
-
-        specialSkinVisuals.PlayCoinCollectBurst(
-            burstPosition,
-            coinValue,
-            coinWorldSize
-        );
-    }
-
-    private static float GetCoinWorldSize(
-        Coin coin,
-        Collider2D coinCollider)
-    {
-        SpriteRenderer coinRenderer = null;
-
-        if (coin != null)
-        {
-            coinRenderer =
-                coin.GetComponentInChildren<SpriteRenderer>(true);
-        }
-
-        if (coinRenderer == null && coinCollider != null)
-        {
-            coinRenderer =
-                coinCollider.GetComponentInParent<SpriteRenderer>();
-
-            if (coinRenderer == null)
-            {
-                coinRenderer =
-                    coinCollider.GetComponentInChildren<SpriteRenderer>(true);
-            }
-        }
-
-        if (coinRenderer != null)
-        {
-            Vector3 size = coinRenderer.bounds.size;
-            float worldSize = Mathf.Max(size.x, size.y);
-
-            if (worldSize > 0.001f)
-                return worldSize;
-        }
-
-        if (coinCollider != null)
-        {
-            Vector3 size = coinCollider.bounds.size;
-            float worldSize = Mathf.Max(size.x, size.y);
-
-            if (worldSize > 0.001f)
-                return worldSize;
-        }
-
-        return 0.6f;
-    }
-
-    private void PlayCollectEffect(
-        Coin coin,
-        Collider2D coinCollider)
-    {
-        SpawnScaleEffect coinEffect = null;
-
-        if (coin != null)
-        {
-            // Efekt coin prefabındaki Visual child objesinde bulunuyor.
-            coinEffect =
-                coin.GetComponentInChildren<SpawnScaleEffect>(true);
-        }
-
-        if (coinEffect == null && coinCollider != null)
-        {
-            coinEffect =
-                coinCollider.GetComponentInChildren<SpawnScaleEffect>(true);
-        }
-
-        if (coinEffect != null)
-        {
-            coinEffect.Collect();
-            return;
-        }
-
-        GameObject coinObject =
-            coin != null
-                ? coin.gameObject
-                : coinCollider.transform.root.gameObject;
-
-        Destroy(coinObject);
-    }
-
-    private static void DisableFallbackCoinPhysics(
-        Collider2D coinCollider)
-    {
-        Transform root = coinCollider.transform.root;
-
-        Collider2D[] colliders =
-            root.GetComponentsInChildren<Collider2D>(true);
-
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i] != null)
-                colliders[i].enabled = false;
-        }
-
-        Rigidbody2D[] rigidbodies =
-            root.GetComponentsInChildren<Rigidbody2D>(true);
-
-        for (int i = 0; i < rigidbodies.Length; i++)
-        {
-            Rigidbody2D body = rigidbodies[i];
-
-            if (body != null)
-                body.simulated = false;
-        }
-    }
-
-    public bool TryGetComboMagnetSettings(
-        Vector3 coinPosition,
-        out float maxSpeed,
-        out float smoothTime)
-    {
-        maxSpeed = 0f;
-        smoothTime = comboMagnetSmoothTime;
-
-        if (!comboMagnetEnabled ||
-            !comboEnabled ||
-            IsGameOver() ||
-            !GameStateManager.IsGameplayStarted)
-        {
-            return false;
-        }
-
-        float radius;
-        float baseMaxSpeed;
-
-        if (combo >= 6)
-        {
-            radius = combo6MagnetRadius;
-            baseMaxSpeed = combo6MagnetMaxSpeed;
-        }
-        else if (combo >= 5)
-        {
-            radius = combo5MagnetRadius;
-            baseMaxSpeed = combo5MagnetMaxSpeed;
-        }
-        else
-        {
-            return false;
-        }
-
-        Vector2 delta =
-            (Vector2)transform.position -
-            (Vector2)coinPosition;
-
-        float radiusSquared = radius * radius;
-        float distanceSquared = delta.sqrMagnitude;
-
-        if (distanceSquared > radiusSquared)
-            return false;
-
-        float distance = Mathf.Sqrt(distanceSquared);
-        float closeness =
-            1f - Mathf.Clamp01(distance / radius);
-
-        // Menzilin kenarında hafif, oyuncuya yaklaştıkça daha güçlü çekim.
-        float strength = Mathf.SmoothStep(
-            comboMagnetEdgeSpeedFactor,
-            1f,
-            closeness
-        );
-
-        maxSpeed = Mathf.Max(
-            0.1f,
-            baseMaxSpeed * strength
-        );
-
-        smoothTime = comboMagnetSmoothTime;
-        return true;
-    }
-
     private void OnDestroy()
     {
         if (Instance == this)
             Instance = null;
     }
-
 
     private void RunOptional(
         System.Action action,
@@ -706,21 +397,6 @@ public class PlayerCoinCollector : MonoBehaviour
     {
         return playerMovement != null &&
                playerMovement.IsGameOver;
-    }
-
-    private void UpdateScoreUI()
-    {
-        if (scoreText == null)
-            return;
-
-        scoreText.text = FatefulRushLocalization.Text(
-            "hud.score", "SCORE: {0}", score
-        );
-    }
-
-    public void RefreshLocalizedScoreUI()
-    {
-        UpdateScoreUI();
     }
 
     private void OnValidate()
@@ -761,5 +437,9 @@ public class PlayerCoinCollector : MonoBehaviour
         comboMagnetEdgeSpeedFactor =
             Mathf.Clamp(comboMagnetEdgeSpeedFactor, 0f, 0.95f);
     }
+
+    private const float Combo4MagnetRadius = 1.25f;
+    private const float Combo4MagnetMaxSpeed = 5.5f;
+
 }
 

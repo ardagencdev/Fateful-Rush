@@ -28,10 +28,25 @@ public class SpaceFloatVisual : MonoBehaviour
 
     private void Update()
     {
+        if (movementDriver != null && movementDriver.isActiveAndEnabled) return;
+
         float y = Mathf.Sin((Time.time + offset) * floatSpeed) * floatAmount;
         float rotZ = Mathf.Sin((Time.time + offset) * rotationSpeed) * rotationAmount;
 
         transform.localPosition = startLocalPos + new Vector3(0f, y, 0f);
         transform.localRotation = startLocalRot * Quaternion.Euler(0f, 0f, rotZ);
     }
+
+    private MovementVisualEffect movementDriver;
+
+    public void RegisterMovementDriver(MovementVisualEffect driver)
+    {
+        movementDriver = driver;
+    }
+
+    public void UnregisterMovementDriver(MovementVisualEffect driver)
+    {
+        if (movementDriver == driver) movementDriver = null;
+    }
+
 }

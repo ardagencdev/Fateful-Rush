@@ -449,31 +449,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
 
     private static PlayerSkinCatalog ResolveSkinCatalog()
     {
-        if (PlayerSkinCatalog.LoadedInstance != null)
-            return PlayerSkinCatalog.LoadedInstance;
-
-        PlayerSkinCatalog[] catalogs =
-            Resources.FindObjectsOfTypeAll<PlayerSkinCatalog>();
-
-        if (catalogs == null || catalogs.Length == 0)
-            return null;
-
-        for (int i = 0; i < catalogs.Length; i++)
-        {
-            PlayerSkinCatalog catalog = catalogs[i];
-
-            if (catalog != null &&
-                string.Equals(
-                    catalog.name,
-                    "PlayerSkinCatalog",
-                    System.StringComparison.Ordinal
-                ))
-            {
-                return catalog;
-            }
-        }
-
-        return catalogs[0];
+        return PlayerSkinCatalog.ResolveLoadedCatalog();
     }
 
     private static Color SetAlpha(
@@ -650,44 +626,7 @@ public sealed class WinConditionIntroUI : MonoBehaviour
     private static string BuildObjectiveText(
         LevelConfig level)
     {
-        switch (level.winCondition)
-        {
-            case WinConditionType.ReachScore:
-                return FatefulRushLocalization.Text(
-                    "objective.reach_score",
-                    FatefulRushLocalization.IsTurkish
-                        ? "{0} SKORA ULAŞ"
-                        : "REACH {0} SCORE",
-                    level.SafeWinScore
-                );
-
-            case WinConditionType.SurviveTime:
-                return FatefulRushLocalization.Text(
-                    "objective.survive_time",
-                    FatefulRushLocalization.IsTurkish
-                        ? "{0} SANİYE HAYATTA KAL"
-                        : "SURVIVE FOR {0} SECONDS",
-                    FormatNumber(level.SafeTimeLimit)
-                );
-
-            case WinConditionType.ReachScoreWithinTime:
-                return FatefulRushLocalization.Text(
-                    "objective.reach_score_in_time",
-                    FatefulRushLocalization.IsTurkish
-                        ? "{1} SANİYE İÇİNDE {0} SKORA ULAŞ"
-                        : "REACH {0} SCORE IN {1} SECONDS",
-                    level.SafeWinScore,
-                    FormatNumber(level.SafeTimeLimit)
-                );
-
-            default:
-                return FatefulRushLocalization.Text(
-                    "objective.complete_mission",
-                    FatefulRushLocalization.IsTurkish
-                        ? "GÖREVİ TAMAMLA"
-                        : "COMPLETE THE MISSION"
-                );
-        }
+        return MissionTextFormatter.IntroObjective(level);
     }
 
     private static string BuildIntroducedMechanicsText(

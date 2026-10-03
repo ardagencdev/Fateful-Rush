@@ -399,4 +399,32 @@ public static class FatefulRushLocalization
 
         return true;
     }
+
+    public static string DeathCause(string cause)
+    {
+        if (string.IsNullOrWhiteSpace(cause))
+            return "UNKNOWN";
+
+        string normalized =
+            cause.Trim().ToUpperInvariant();
+
+        // Sadece TIME EXPIRED dil ile değişsin.
+        if (normalized == "TIME EXPIRED")
+        {
+            return FatefulRushLocalization.IsTurkish
+                ? "SÜRE DOLDU"
+                : "TIME EXPIRED";
+        }
+
+        // Diğer bütün death cause isimleri canonical İngilizce kalsın.
+        return normalized;
+    }
+
+    public static string SkinName(string skinId, string fallback)
+    {
+        string id = (skinId ?? string.Empty).Trim().ToLowerInvariant();
+        if (id == "gold") id = "golden";
+        return string.IsNullOrWhiteSpace(id) ? fallback : Text("skin.name." + id, fallback);
+    }
+
 }

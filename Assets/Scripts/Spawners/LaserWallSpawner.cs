@@ -84,47 +84,8 @@ public class LaserWallSpawner : MonoBehaviour
 
     private IEnumerator SpawnRoutine()
     {
-        while (!stopped)
-        {
-            yield return new WaitUntil(
-                () =>
-                    stopped ||
-                    GameStateManager.IsGameplayStarted
-            );
-
-            if (stopped || IsGameOver())
-                yield break;
-
-            float waitTime = Random.Range(
-                minSpawnTime,
-                maxSpawnTime
-            );
-
-            float elapsedTime = 0f;
-
-            while (elapsedTime < waitTime)
-            {
-                if (stopped || IsGameOver())
-                    yield break;
-
-                if (GameStateManager.IsGameplayStarted)
-                {
-                    elapsedTime += Time.deltaTime;
-                }
-
-                yield return null;
-            }
-
-            if (stopped ||
-                IsGameOver() ||
-                !GameStateManager.IsGameplayStarted)
-            {
-                continue;
-            }
-
-            yield return SpawnVerticalLaser();
-        }
-
+        yield return LaserSpawnSequence.Run(() => !stopped, IsGameOver,
+            () => minSpawnTime, () => maxSpawnTime, SpawnVerticalLaser);
         spawnCoroutine = null;
     }
 
@@ -164,23 +125,7 @@ public class LaserWallSpawner : MonoBehaviour
 
     private IEnumerator PlayWarning()
     {
-        if (activeWarning == null)
-        {
-            yield return new WaitForSeconds(warningDuration);
-            yield break;
-        }
-
-        LaserWarning warning = activeWarning.GetComponent<LaserWarning>();
-
-        if (warning != null)
-        {
-            warning.blinkDuration = warningDuration;
-            yield return warning.PlayWarning();
-        }
-        else
-        {
-            yield return new WaitForSeconds(warningDuration);
-        }
+        yield return LaserSpawnSequence.PlayWarning(activeWarning, warningDuration, false);
     }
 
     private void DestroyActiveWarning()

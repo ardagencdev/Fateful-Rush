@@ -606,7 +606,7 @@ public class PausePanelTransition : MonoBehaviour
         }
 
         if (objectiveTitleText != null)
-            objectiveTitleText.text = "OBJECTIVE";
+            objectiveTitleText.text = FatefulRushLocalization.Text("common.objective", "OBJECTIVE");
 
         if (objectiveValueText != null)
             objectiveValueText.text =
@@ -637,25 +637,7 @@ public class PausePanelTransition : MonoBehaviour
     private static string BuildObjectiveText(
         LevelConfig level)
     {
-        switch (level.winCondition)
-        {
-            case WinConditionType.ReachScore:
-                return
-                    $"REACH SCORE: {level.SafeWinScore}";
-
-            case WinConditionType.SurviveTime:
-                return
-                    $"SURVIVE: " +
-                    FormatSeconds(level.SafeTimeLimit);
-
-            case WinConditionType.ReachScoreWithinTime:
-                return
-                    $"REACH SCORE: {level.SafeWinScore}  ·  " +
-                    FormatSeconds(level.SafeTimeLimit);
-
-            default:
-                return "COMPLETE THE MISSION";
-        }
+        return MissionTextFormatter.PauseObjective(level);
     }
 
     private static string FormatSeconds(float seconds)
@@ -738,4 +720,7 @@ public class PausePanelTransition : MonoBehaviour
                c3 * x * x * x +
                c1 * x * x;
     }
+
+    public void RefreshLocalizedText() { RefreshObjective(); }
+
 }

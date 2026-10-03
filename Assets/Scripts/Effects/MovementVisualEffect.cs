@@ -65,4 +65,20 @@ public class MovementVisualEffect : MonoBehaviour
             Time.deltaTime * tiltSpeed
         );
     }
+
+    private SpaceFloatVisual ambientFloat;
+
+    private void OnEnable()
+    {
+        if (visual == null || !hasSeparateVisual) return;
+        ambientFloat = visual.GetComponent<SpaceFloatVisual>();
+        if (ambientFloat != null) ambientFloat.RegisterMovementDriver(this);
+    }
+
+    private void OnDisable()
+    {
+        if (ambientFloat != null) ambientFloat.UnregisterMovementDriver(this);
+        ambientFloat = null;
+    }
+
 }

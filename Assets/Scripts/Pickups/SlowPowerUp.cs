@@ -9,9 +9,9 @@ public class SlowPowerUp : MonoBehaviour
     [Min(0.01f)]
     public float slowDuration = 5f;
 
-    public static bool isSlowActive;
-    public static float currentSlowMultiplier = 0.4f;
-    public static float slowEndTime;
+    public static bool isSlowActive { get => TimeSlowController.SlowActive; set => TimeSlowController.SlowActive = value; }
+    public static float currentSlowMultiplier { get => TimeSlowController.SlowMultiplier; set => TimeSlowController.SlowMultiplier = value; }
+    public static float slowEndTime { get => TimeSlowController.LegacySlowEndTime; set => TimeSlowController.LegacySlowEndTime = value; }
 
     private Collider2D pickupCollider;
     private SpawnScaleEffect spawnEffect;
@@ -48,9 +48,6 @@ public class SlowPowerUp : MonoBehaviour
         if (soundManager != null)
             soundManager.PlaySlowCollectSound(transform.position);
 
-        isSlowActive = true;
-        currentSlowMultiplier = slowMultiplier;
-        slowEndTime = Time.unscaledTime + slowDuration;
 
         if (TimeSlowController.Instance != null)
             TimeSlowController.Instance.StartSlow(
