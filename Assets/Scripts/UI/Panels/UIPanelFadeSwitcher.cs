@@ -50,6 +50,34 @@ public class UIPanelFadeSwitcher : MonoBehaviour
             return;
         }
 
+        // Only leaving the actual main menu for a panel is an ad opportunity.
+        // Returning, modal popups, SetInstant restoration and GameScene UI are
+        // intentionally excluded. This keeps existing scene wiring intact.
+        if (fromPanel != null && toPanel != null &&
+            fromPanel.activeInHierarchy &&
+            fromPanel.scene.name == "MainMenu" &&
+            toPanel.scene == fromPanel.scene &&
+            fromPanel.GetComponent<MainMenu>() != null &&
+            !toPanel.activeInHierarchy &&
+            FatefulRushAdManager.TryShowTimedAdBeforeOpeningMenuPanel(
+                () =>
+                {
+                    if (this != null && isActiveAndEnabled &&
+                        fromPanel != null && fromPanel.activeInHierarchy &&
+                        toPanel != null)
+                    {
+                        BeginPanelSwitch(fromPanel, toPanel);
+                    }
+                }))
+        {
+            return;
+        }
+
+        BeginPanelSwitch(fromPanel, toPanel);
+    }
+
+    private void BeginPanelSwitch(GameObject fromPanel, GameObject toPanel)
+    {
         CompleteCurrentTransition();
 
         TrackFinalStates(

@@ -72,6 +72,7 @@ public sealed class RuntimeObjectPool : MonoBehaviour
     {
         Queue<GameObject> queue = GetOrCreateQueue(prefab);
 
+        count = Mathf.Clamp(count, 0, Mathf.Max(1, maxRetainedPerPrefab));
         int existingCount = queue.Count;
         int createCount = Mathf.Max(0, count - existingCount);
 
@@ -80,7 +81,6 @@ public sealed class RuntimeObjectPool : MonoBehaviour
             GameObject item = CreateInstance(prefab);
             QueueInactive(item, prefab, queue);
         }
-        count = Mathf.Min(count, maxRetainedPerPrefab);
     }
 
     private GameObject SpawnInternal(

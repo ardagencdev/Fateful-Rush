@@ -33,25 +33,29 @@ Shader "FatefulRush/HomePlanetTheme"
                 float4 _SurfaceBounds;
             CBUFFER_END
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; half4 color : COLOR; };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; half4 color : COLOR; float2 surfaceUV : TEXCOORD1; float3 positionOS : TEXCOORD2; };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; half4 color : COLOR; float2 surfaceUV : TEXCOORD1; float2 lightDelta : TEXCOORD2; };
             Varyings vert(Attributes input)
             {
                 Varyings output;
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = input.uv;
                 output.color = input.color;
-                output.positionOS = input.positionOS.xyz;
+                output.lightDelta = SolarSurfaceDelta(input.positionOS.xyz);
                 output.surfaceUV = (input.positionOS.xy - _SurfaceBounds.xy) / max(float2(0.001, 0.001), _SurfaceBounds.zw) + 0.5;
                 return output;
             }
             half4 frag(Varyings input) : SV_Target
             {
                 half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+                if (tex.a <= 0.0) return half4(0, 0, 0, 0);
                 half4 color = tex * _Tint * input.color;
-                color.rgb = ApplySolarSurface(color.rgb, input.surfaceUV, input.positionOS);
-                float band = 1.0 - smoothstep(0.02, 0.16, abs(input.surfaceUV.x - _ThemeSweep));
-                float flash = saturate(_ThemeFlashAmount * (0.65 + band * 0.65));
-                color.rgb = lerp(color.rgb, _ThemeFlashColor.rgb, flash);
+                color.rgb = ApplySolarSurfaceDelta(color.rgb, input.surfaceUV, input.lightDelta);
+                if (_ThemeFlashAmount > 0.0)
+                {
+                    float band = 1.0 - smoothstep(0.02, 0.16, abs(input.surfaceUV.x - _ThemeSweep));
+                    float flash = saturate(_ThemeFlashAmount * (0.65 + band * 0.65));
+                    color.rgb = lerp(color.rgb, _ThemeFlashColor.rgb, flash);
+                }
                 return color;
             }
             ENDHLSL

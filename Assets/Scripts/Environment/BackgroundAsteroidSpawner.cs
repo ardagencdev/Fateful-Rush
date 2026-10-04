@@ -33,11 +33,34 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
     [SerializeField] private Vector2 gapBetweenPassages = new Vector2(8f, 14f);
     [Tooltip("Slow spin in degrees/second; random direction for each passage.")]
     [SerializeField] private Vector2 spinSpeedRange = new Vector2(2f, 7f);
-    [Tooltip("Makes drifting asteroid rotation visible without changing saved spin ranges. 2 = twice the Spin Speed Range; 0 disables continuous spin.")]
-    [SerializeField, Min(0f)] private float movingSpinMultiplier = 2f;
+    [Tooltip("Makes drifting asteroid rotation visible without changing saved spin ranges. 4 = four times the Spin Speed Range; 0 disables continuous spin.")]
+    [SerializeField, Min(0f)] private float movingSpinMultiplier = 4f;
 
     [Tooltip("Multiplies passage speed, on top of the duration RNG. Each passage differs from the previous.")]
     [SerializeField] private Vector2 travelSpeedMultiplierRange = new Vector2(0.65f, 1.55f);
+
+    [Header("MainMenu ambient passages (automatic in MainMenu scene)")]
+    [Tooltip("Seconds between passage STARTS. Also used for the initial menu delay. Only one moving asteroid is active at a time.")]
+    [SerializeField] private Vector2 menuPassageIntervalRange = new Vector2(40f, 60f);
+    [SerializeField] private Vector2 menuPassageDurationRange = new Vector2(18f, 30f);
+    [SerializeField] private Vector2 menuMovingSizeRange = new Vector2(0.05f, 0.10f);
+    [SerializeField, Range(0f, 1f)] private float menuShakeStrength = 0.35f;
+    [Tooltip("Menu asteroids stay in front of the default Earth/Moon (-58). Saved values below -57 are automatically raised to -57.")]
+    [SerializeField] private int menuSortingOrder = -57;
+
+    [Header("MainMenu appearance (independent of gameplay)")]
+    [Tooltip("Menu brightness before dimming. Gameplay Appearance values are ignored in MainMenu.")]
+    [SerializeField, Range(0f, 1f)] private float menuBrightness = 0.8f;
+    [SerializeField, Range(0f, 1f)] private float menuOpacity = 1f;
+    [Tooltip("Brightness multiplier: 1 = no dimming, 0 = black.")]
+    [SerializeField, Range(0f, 1f)] private float menuDimming = 0.9f;
+    [Tooltip("0 = original sprite colors, 1 = grayscale.")]
+    [SerializeField, Range(0f, 1f)] private float menuDesaturation = 0.15f;
+    [Tooltip("1 = original contrast; lower values soften surface detail.")]
+    [SerializeField, Range(0f, 1f)] private float menuContrast = 0.9f;
+    [SerializeField, Range(0f, 1f)] private float menuOpacityMultiplier = 1f;
+    [Tooltip("Response to the existing skin-aware sunlight.")]
+    [SerializeField, Range(0f, 1f)] private float menuSolarResponse = 0.65f;
 
     [Header("Speed-dependent drifting shake")]
     [SerializeField] private bool movingShake = true;
@@ -64,9 +87,6 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
     [SerializeField] private int sortingOrder = -56;
     [SerializeField] private float worldZ = 5f;
 
-    private static readonly int TintId = Shader.PropertyToID("_Tint");
-    private static readonly int BackdropStyleId = Shader.PropertyToID("_BackdropStyle");
-    private static readonly int SurfaceBoundsId = Shader.PropertyToID("_SurfaceBounds");
     private readonly List<Sprite> validSprites = new List<Sprite>(5);
     private readonly SpriteRenderer[] fixedRocks = new SpriteRenderer[2];
     private readonly Vector2[] fixedAnchors = new Vector2[2];
@@ -75,16 +95,18 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
     private SpriteRenderer movingRock;
     private int fixedCount, plannedPassages, launchedPassages;
     private float matchClock, lastTravelSpeed = -1f;
-    private MaterialPropertyBlock tint;
+    private BackgroundSpritePropertyCache propertyCache;
     private Vector2 startViewport, endViewport;
     private float movingSize, movingAngle, spin;
     private float elapsed, duration, waitRemaining;
     private float normalizedTravelSpeed, shakeSeed;
     private bool passageActive, lastStarted, hasStartedMatch;
+    private bool menuMode;
     private int lastMovingIndex = -1;
 
     private void Start()
     {
+        menuMode = gameObject.scene.name == "MainMenu";
         if (targetCamera == null) targetCamera = Camera.main;
         if (targetCamera == null || !targetCamera.orthographic)
         {
@@ -109,11 +131,17 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
             enabled = false;
             return;
         }
-        tint = new MaterialPropertyBlock();
-        for (int i = 0; i < fixedRocks.Length; i++)
-            fixedRocks[i] = CreateRock("FixedBackgroundAsteroid" + (i + 1));
+        propertyCache = new BackgroundSpritePropertyCache();
+        if (!menuMode)
+            for (int i = 0; i < fixedRocks.Length; i++)
+                fixedRocks[i] = CreateRock("FixedBackgroundAsteroid" + (i + 1));
         movingRock = CreateRock("DriftingBackgroundAsteroid");
         PrepareMatch();
+        if (menuMode)
+        {
+            waitRemaining = Sample(menuPassageIntervalRange, 5f, 300f);
+            return;
+        }
         lastStarted = GameStateManager.IsGameplayStarted;
         hasStartedMatch = lastStarted;
         if (lastStarted && !GameStateManager.IsGameplayEnded) BeginPassage();
@@ -128,7 +156,7 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
         SpriteRenderer renderer = child.AddComponent<SpriteRenderer>();
         renderer.sharedMaterial = asteroidMaterial;
         renderer.sortingLayerName = sortingLayerName;
-        renderer.sortingOrder = sortingOrder;
+        renderer.sortingOrder = menuMode ? Mathf.Max(-57, menuSortingOrder) : sortingOrder;
         renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         renderer.receiveShadows = false;
         renderer.enabled = false;
@@ -137,13 +165,14 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
 
     private void PrepareMatch()
     {
-        fixedCount = SampleCount(fixedCountRange, 0, 2);
+        fixedCount = menuMode ? 0 : SampleCount(fixedCountRange, 0, 2);
         plannedPassages = SampleCount(movingPassageCountRange, 1, 10);
         launchedPassages = 0;
         matchClock = 0f;
         lastTravelSpeed = -1f;
         for (int i = 0; i < fixedRocks.Length; i++)
         {
+            if (fixedRocks[i] == null) continue;
             fixedRocks[i].enabled = false;
             if (i >= fixedCount) continue;
             int index = Random.Range(0, validSprites.Count);
@@ -193,11 +222,11 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
         launchedPassages++;
         lastMovingIndex = selected;
         movingRock.sprite = validSprites[selected];
-        movingSize = Sample(movingSizeRange, 0.02f, 0.5f);
-        float baseDuration = Sample(passageDurationRange, 4f, 120f);
+        movingSize = Sample(menuMode ? menuMovingSizeRange : movingSizeRange, 0.02f, 0.5f);
+        float baseDuration = Sample(menuMode ? menuPassageDurationRange : passageDurationRange, 4f, 120f);
         movingAngle = Random.Range(0f, 360f);
         spin = Sample(spinSpeedRange, 0f, 30f)
-            * Mathf.Clamp(movingSpinMultiplier, 0f, 4f)
+            * Mathf.Clamp(movingSpinMultiplier, 0f, 8f)
             * (Random.value < 0.5f ? -1f : 1f);
         elapsed = 0f;
         // Margin covers the sprite's full diagonal, including its rotation.
@@ -217,7 +246,7 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
         }
         Vector2 screenDelta = endViewport - startViewport;
         float pathLength = new Vector2(screenDelta.x * width, screenDelta.y * height).magnitude;
-        float multiplier = Sample(travelSpeedMultiplierRange, 0.25f, 3f);
+        float multiplier = menuMode ? Random.Range(0.85f, 1.15f) : Sample(travelSpeedMultiplierRange, 0.25f, 3f);
         float travelSpeed = pathLength / baseDuration * multiplier;
         // Ensure consecutive passages do not have almost identical speeds.
         if (lastTravelSpeed > 0f && Mathf.Abs(travelSpeed / lastTravelSpeed - 1f) < 0.20f)
@@ -232,6 +261,12 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
     private void LateUpdate()
     {
         if (movingRock == null || targetCamera == null) return;
+        if (menuMode)
+        {
+            AdvancePassages(Time.unscaledDeltaTime, true);
+            ApplyPlacement();
+            return;
+        }
         bool started = GameStateManager.IsGameplayStarted;
         if (started && !lastStarted)
         {
@@ -241,36 +276,38 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
         }
         lastStarted = started;
         if (started && !GameStateManager.IsGameplayEnded && Time.timeScale > 0f)
+            AdvancePassages(Time.deltaTime, false);
+        ApplyPlacement();
+    }
+
+    private void AdvancePassages(float deltaTime, bool repeatForever)
+    {
+        matchClock += deltaTime;
+        if (passageActive)
         {
-            matchClock += Time.deltaTime;
-            if (passageActive)
+            elapsed += deltaTime;
+            if (elapsed >= duration)
             {
-                elapsed += Time.deltaTime;
-                if (elapsed >= duration)
-                {
-                    passageActive = false;
-                    waitRemaining = Sample(gapBetweenPassages, 3f, 120f);
-                }
-            }
-            else if (launchedPassages < plannedPassages)
-            {
-                waitRemaining -= Time.deltaTime;
-                if (waitRemaining <= 0f) BeginPassage();
+                passageActive = false;
+                // Menu intervals are start-to-start, rather than adding a full
+                // interval after the previous passage duration. Never overlap.
+                waitRemaining = menuMode
+                    ? Mathf.Max(0f, Sample(menuPassageIntervalRange, 5f, 300f) - elapsed)
+                    : Sample(gapBetweenPassages, 3f, 120f);
             }
         }
-        ApplyPlacement();
+        else if (repeatForever || launchedPassages < plannedPassages)
+        {
+            waitRemaining -= deltaTime;
+            if (waitRemaining <= 0f) BeginPassage();
+        }
     }
 
     private void ApplyPlacement()
     {
-        float light = brightness * (softenBackground ? backgroundDimming : 1f);
-        float alpha = opacity * (softenBackground ? backgroundOpacityMultiplier : 1f);
-        tint.SetColor(TintId, new Color(light, light, light, alpha));
-        tint.SetVector(BackdropStyleId, softenBackground
-            ? new Vector4(backgroundDesaturation, backgroundContrast, backgroundSolarResponse, 0f)
-            : new Vector4(0f, 1f, 1f, 0f));
         for (int i = 0; i < fixedRocks.Length; i++)
         {
+            if (fixedRocks[i] == null) continue;
             if (i < fixedCount)
                 Place(fixedRocks[i], fixedAnchors[i], fixedSizes[i], fixedAngles[i] + matchClock * fixedSpins[i]);
             else fixedRocks[i].enabled = false;
@@ -284,7 +321,8 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
             {
                 float speed = Mathf.InverseLerp(Mathf.Min(shakeSpeedReferenceRange.x, shakeSpeedReferenceRange.y),
                     Mathf.Max(shakeSpeedReferenceRange.x, shakeSpeedReferenceRange.y), normalizedTravelSpeed);
-                float amplitude = OrderedLerp(shakeAmplitudeRange, speed);
+                float shakeStrength = menuMode ? menuShakeStrength : 1f;
+                float amplitude = OrderedLerp(shakeAmplitudeRange, speed) * shakeStrength;
                 float frequency = OrderedLerp(shakeFrequencyRange, speed);
                 float envelope = Mathf.SmoothStep(0f, 1f, Mathf.Min(t / 0.1f, (1f - t) / 0.1f));
                 float noiseX = Mathf.PerlinNoise(shakeSeed, elapsed * frequency) * 2f - 1f;
@@ -298,7 +336,7 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
                 Vector2 worldOffset = (normal * noiseX + tangent * noiseY * 0.35f) * amplitude * shortSide * envelope;
                 position += new Vector2(worldOffset.x / width, worldOffset.y / height);
                 float angularNoise = Mathf.PerlinNoise(shakeSeed + 83f, elapsed * frequency * 0.87f) * 2f - 1f;
-                angle += angularNoise * OrderedLerp(shakeAngleRange, speed) * envelope;
+                angle += angularNoise * OrderedLerp(shakeAngleRange, speed) * envelope * shakeStrength;
             }
             Place(movingRock, position, movingSize, angle);
         }
@@ -312,8 +350,15 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
         rock.enabled = depth > targetCamera.nearClipPlane && depth < targetCamera.farClipPlane;
         if (!rock.enabled) return;
         Bounds bounds = rock.sprite.bounds;
-        tint.SetVector(SurfaceBoundsId, new Vector4(bounds.center.x, bounds.center.y, bounds.size.x, bounds.size.y));
-        rock.SetPropertyBlock(tint);
+        float light = menuMode ? menuBrightness * menuDimming
+            : brightness * (softenBackground ? backgroundDimming : 1f);
+        float alpha = menuMode ? menuOpacity * menuOpacityMultiplier
+            : opacity * (softenBackground ? backgroundOpacityMultiplier : 1f);
+        Vector4 style = menuMode
+            ? new Vector4(menuDesaturation, menuContrast, menuSolarResponse, 0f)
+            : (softenBackground ? new Vector4(backgroundDesaturation, backgroundContrast, backgroundSolarResponse, 0f)
+                : new Vector4(0f, 1f, 1f, 0f));
+        propertyCache.Apply(rock, new Color(light, light, light, alpha), style, bounds);
         rock.transform.position = targetCamera.ViewportToWorldPoint(new Vector3(viewport.x, viewport.y, depth));
         float height = targetCamera.orthographicSize * 2f;
         float spriteSize = Mathf.Max(rock.sprite.bounds.size.x, rock.sprite.bounds.size.y);

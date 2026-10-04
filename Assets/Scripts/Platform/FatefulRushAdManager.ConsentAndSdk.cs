@@ -330,10 +330,8 @@ public sealed partial class FatefulRushAdManager
 
         RegisterInterstitialCallbacks(ad);
 
-        // 5 dakika daha once dolduysa ve reklam ancak simdi yuklendiyse
-        // MainMenu'de guvenli sekilde hemen denenebilir.
-        if (SceneManager.GetActiveScene().name == MainMenuSceneName)
-            TryShowMainMenuTimedAdIfDue();
+        // Preload only. Becoming ready never opens an ad automatically;
+        // the next explicit MainMenu -> panel navigation may use it.
     }
 
     private void RegisterInterstitialCallbacks(InterstitialAd ad)

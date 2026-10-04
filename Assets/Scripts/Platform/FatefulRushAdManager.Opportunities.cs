@@ -63,8 +63,8 @@ public sealed partial class FatefulRushAdManager
 
         mainMenuActiveSeconds += Time.unscaledDeltaTime;
 
-        if (mainMenuActiveSeconds >= GetMainMenuAdIntervalSeconds())
-            TryShowMainMenuTimedAdIfDue();
+        // Time only makes the opportunity eligible. Never show while idle.
+        // A later user-requested MainMenu -> panel transition is the trigger.
     }
 
     private bool TryShowAttemptAdInternal(Action onFinished)
@@ -83,23 +83,43 @@ public sealed partial class FatefulRushAdManager
         return TryShowLoadedInterstitial(onFinished);
     }
 
-    private void TryShowMainMenuTimedAdIfDue()
+    /// <summary>Only called by an explicit MainMenu -> panel navigation request.</summary>
+    public static bool TryShowTimedAdBeforeOpeningMenuPanel(Action onFinished)
+    {
+        // Do not bootstrap ads from UI transitions outside MainMenu.
+        if (instance == null ||
+            SceneManager.GetActiveScene().name != MainMenuSceneName ||
+            !Application.isFocused)
+        {
+            return false;
+        }
+
+        try
+        {
+            return instance.TryShowMainMenuTimedAdIfDue(onFinished);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning("[Ads] Menu panel reklami guvenli sekilde atlandi: " + exception.Message);
+            return false;
+        }
+    }
+
+    private bool TryShowMainMenuTimedAdIfDue(Action onFinished)
     {
         if (mainMenuActiveSeconds < GetMainMenuAdIntervalSeconds())
-            return;
+            return false;
 
-        // Kullanici tam o anda bir scene gecisi baslattiysa reklam yeni
-        // gameplay sahnesinin ustune tasmasin; hak kaybolmaz, sonraki uygun
-        // MainMenu aninda tekrar denenir.
+        // An unavailable ad must not delay panel navigation. Keep the elapsed
+        // time intact and try again on the NEXT explicit panel-open request.
         if (SceneTransition.Instance != null &&
             SceneTransition.Instance.IsTransitioning)
         {
-            return;
+            return false;
         }
 
-        // Attempt reklami sadece gameplay -> menu gecis noktasina aittir.
-        // Burada yalnizca 5 dakikalik MainMenu hakki reklam acar.
-        TryShowLoadedInterstitial();
+        // Gameplay attempt ads retain their separate return-to-menu trigger.
+        return TryShowLoadedInterstitial(onFinished);
     }
 
     private bool TryShowLoadedInterstitial(Action onFinished = null)

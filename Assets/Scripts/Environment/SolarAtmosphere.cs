@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>One background-only sun source per scene, shared by atmosphere and sprite shaders.</summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(350)]
-public sealed class SolarAtmosphere : MonoBehaviour
+public sealed partial class SolarAtmosphere : MonoBehaviour
 {
     [Header("Camera and placement")]
     [SerializeField] private Camera targetCamera;
@@ -55,6 +55,7 @@ public sealed class SolarAtmosphere : MonoBehaviour
         if (initialized)
         {
             backdrop.enabled = true;
+            atmosphereBaked = false;
             HandleSkinChanged();
         }
     }
@@ -90,6 +91,7 @@ public sealed class SolarAtmosphere : MonoBehaviour
         lastStarted = GameStateManager.IsGameplayStarted;
         hasStartedMatch = lastStarted;
         initialized = true;
+        InitializeReducedAtmosphere();
         Apply();
     }
     private Color EquippedColor()
@@ -159,6 +161,7 @@ public sealed class SolarAtmosphere : MonoBehaviour
         Shader.SetGlobalFloat(SurfaceId, visible ? surfaceLightStrength : 0f);
         Shader.SetGlobalFloat(ClockId, clock);
         Shader.SetGlobalFloat(ProtectionId, isMenu ? menuCenterProtection : gameplayCenterProtection);
+        RenderReducedAtmosphere(visible);
     }
     private void OnDisable()
     {
@@ -171,6 +174,7 @@ public sealed class SolarAtmosphere : MonoBehaviour
     }
     private void OnDestroy()
     {
+        ReleaseReducedAtmosphere();
         if (material != null) Destroy(material);
         if (mesh != null) Destroy(mesh);
     }

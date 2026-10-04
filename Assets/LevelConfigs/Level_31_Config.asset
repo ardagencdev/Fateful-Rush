@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Lasers and Bombs leave no safe orbit. Save Armor and Clone separately."
+  - Lasers and Bombs leave no safe orbit. Save Armor and Clone separately.
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
   winCondition: 1
   winScore: 15
@@ -54,7 +54,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
@@ -66,7 +65,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.542
   nearStarsSizeMultiplier: 1.131
   starfieldDensityMultiplier: 1.135
-  nearStarsEmissionRate: 50
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -108,8 +106,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 4
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 3
-  normalEnemySpawnInterval: 6.5
+  normalEnemyCount: 1
+  normalEnemySpawnInterval: 7.5
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -124,8 +122,8 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 13
+  projectileEnemyCount: 4
+  projectileEnemySpawnInterval: 12
   projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
@@ -134,6 +132,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5
@@ -146,7 +148,7 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 2
+  hunterEnemyCount: 3
   hunterEnemySpawnInterval: 18
   hunterEnemyDanger: 3
   hunterEnemyCustomOverride: 0

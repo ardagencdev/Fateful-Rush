@@ -63,15 +63,12 @@ public sealed class BackgroundPlanetSpawner : MonoBehaviour
     [SerializeField, Range(0f, 5f)] private float rotationSwayDegrees = 2f;
 
     private static Sprite lastSelectedPlanet;
-    private static readonly int TintId = Shader.PropertyToID("_Tint");
-    private static readonly int BackdropStyleId = Shader.PropertyToID("_BackdropStyle");
-    private static readonly int SurfaceBoundsId = Shader.PropertyToID("_SurfaceBounds");
     private readonly List<Sprite> validSprites = new List<Sprite>(10);
     private SpriteRenderer planet, distantPlanet;
     private bool hasDistantPlanet;
     private Vector2 distantAnchor;
     private float distantSize, distantPhase;
-    private MaterialPropertyBlock properties;
+    private BackgroundSpritePropertyCache propertyCache;
     private Vector2 anchor;
     private float sizeFraction;
     private float clock;
@@ -107,7 +104,7 @@ public sealed class BackgroundPlanetSpawner : MonoBehaviour
         }
         planet = CreatePlanet("RandomBackgroundPlanet", sortingOrder);
         distantPlanet = CreatePlanet("DistantBackgroundPlanet", sortingOrder - 1);
-        properties = new MaterialPropertyBlock();
+        propertyCache = new BackgroundSpritePropertyCache();
         lastGameplayStarted = GameStateManager.IsGameplayStarted;
         hasStartedMatch = lastGameplayStarted;
         GenerateNewPlanet();
@@ -177,8 +174,6 @@ public sealed class BackgroundPlanetSpawner : MonoBehaviour
         distantPlanet.enabled = false;
         clock = 0f;
         phase = Random.Range(0f, Mathf.PI * 2f);
-        properties.SetColor(TintId, new Color(brightness, brightness, brightness, opacity));
-        planet.SetPropertyBlock(properties);
         ApplyPlacement();
     }
 
@@ -219,13 +214,9 @@ public sealed class BackgroundPlanetSpawner : MonoBehaviour
         renderer.enabled = depth > targetCamera.nearClipPlane && depth < targetCamera.farClipPlane;
         if (!renderer.enabled) return;
         float effectiveLight = light * (softenBackground ? backgroundDimming : 1f);
-        properties.SetColor(TintId, new Color(effectiveLight, effectiveLight, effectiveLight, opacity));
-        properties.SetVector(BackdropStyleId, softenBackground
-            ? new Vector4(backgroundDesaturation, backgroundContrast, backgroundSolarResponse, 0f)
-            : new Vector4(0f, 1f, 1f, 0f));
-        Bounds bounds = renderer.sprite.bounds;
-        properties.SetVector(SurfaceBoundsId, new Vector4(bounds.center.x, bounds.center.y, bounds.size.x, bounds.size.y));
-        renderer.SetPropertyBlock(properties);
+        propertyCache.Apply(renderer, new Color(effectiveLight, effectiveLight, effectiveLight, opacity),
+            softenBackground ? new Vector4(backgroundDesaturation, backgroundContrast, backgroundSolarResponse, 0f)
+                : new Vector4(0f, 1f, 1f, 0f), renderer.sprite.bounds);
         renderer.transform.position = targetCamera.ViewportToWorldPoint(new Vector3(viewport.x, viewport.y, depth));
         float screenHeight = targetCamera.orthographicSize * 2f;
         float screenWidth = screenHeight * targetCamera.aspect;

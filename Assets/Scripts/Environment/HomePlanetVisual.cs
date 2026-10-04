@@ -53,6 +53,14 @@ public sealed class HomePlanetVisual : MonoBehaviour
     private readonly float[] weights = new float[3];
     private readonly float[] startWeights = new float[3];
     private MaterialPropertyBlock properties;
+    private struct LayerShaderState
+    {
+        public bool valid;
+        public Color tint, flashColor;
+        public Vector4 bounds;
+        public float flash, sweep;
+    }
+    private readonly LayerShaderState[] layerShaderStates = new LayerShaderState[3];
     private float rotationAngle, transitionElapsed;
     private int targetIndex = -1;
     private bool initialized, transitioning, lastFollowEquippedSkin;
@@ -230,7 +238,7 @@ public sealed class HomePlanetVisual : MonoBehaviour
             Sprite sprite = SpriteFor(i);
             renderer.enabled = visibleDepth && sprite != null && weights[i] > 0f;
             if (!renderer.enabled) continue;
-            renderer.sprite = sprite;
+            if (renderer.sprite != sprite) renderer.sprite = sprite;
             renderer.sortingLayerName = sortingLayerName;
             renderer.sortingOrder = sortingOrder; // Same background depth; creation order stays stable.
             renderer.transform.position = position;
@@ -239,14 +247,25 @@ public sealed class HomePlanetVisual : MonoBehaviour
             renderer.transform.localScale = new Vector3(scale / Mathf.Max(0.001f, Mathf.Abs(parentScale.x)),
                 scale / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
             renderer.transform.rotation = Quaternion.Euler(0f, 0f, rotationAngle);
-            properties.SetColor(TintId, new Color(brightness, brightness, brightness, opacity * weights[i]));
-            properties.SetColor(FlashColorId, targetIndex == 1
-                ? new Color(0.72f, 0.045f, 0.10f, 1f) : new Color(1f, 0.85f, 0.40f, 1f));
-            properties.SetFloat(FlashAmountId, visualFlash);
-            properties.SetFloat(SweepId, visualSweep);
-            properties.SetVector(BoundsId, new Vector4(sprite.bounds.center.x, sprite.bounds.center.y,
-                sprite.bounds.size.x, sprite.bounds.size.y));
-            renderer.SetPropertyBlock(properties);
+            Color tint = new Color(brightness, brightness, brightness, opacity * weights[i]);
+            Color flashColor = targetIndex == 1
+                ? new Color(0.72f, 0.045f, 0.10f, 1f) : new Color(1f, 0.85f, 0.40f, 1f);
+            Bounds spriteBounds = sprite.bounds;
+            Vector4 bounds = new Vector4(spriteBounds.center.x, spriteBounds.center.y,
+                spriteBounds.size.x, spriteBounds.size.y);
+            LayerShaderState state = layerShaderStates[i];
+            if (!state.valid || !state.tint.Equals(tint) || !state.flashColor.Equals(flashColor) ||
+                !state.bounds.Equals(bounds) || state.flash != visualFlash || state.sweep != visualSweep)
+            {
+                properties.SetColor(TintId, tint);
+                properties.SetColor(FlashColorId, flashColor);
+                properties.SetFloat(FlashAmountId, visualFlash);
+                properties.SetFloat(SweepId, visualSweep);
+                properties.SetVector(BoundsId, bounds);
+                renderer.SetPropertyBlock(properties);
+                layerShaderStates[i] = new LayerShaderState { valid = true, tint = tint,
+                    flashColor = flashColor, bounds = bounds, flash = visualFlash, sweep = visualSweep };
+            }
         }
     }
 }

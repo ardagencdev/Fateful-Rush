@@ -70,6 +70,7 @@ public class LevelSelectPanel : MonoBehaviour
 
     private void Awake()
     {
+        UIRenderIsolation.Ensure(levelButtonsContainer);
         PrepareContainer();
         PreparePageButtons();
         RebuildValidLevelsCache();

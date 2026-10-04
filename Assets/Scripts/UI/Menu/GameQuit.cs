@@ -35,6 +35,10 @@ public class GameQuit : MonoBehaviour
     private GraphicRaycaster[] pausePanelRaycasters;
     private bool[] pausePanelRaycasterStates;
 
+    // PausePanel itself owns the backdrop; only its menu content fades out.
+    public Transform PauseConfirmationContent => pausePanel != null
+        ? pausePanel.transform.Find("PauseMainPanel") : null;
+
     public bool IsPaused { get; private set; }
     public bool IsPauseMenuModalOpen => pauseMenuModalOpen;
 

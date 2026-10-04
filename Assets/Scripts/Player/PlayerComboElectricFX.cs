@@ -68,6 +68,7 @@ public sealed class PlayerComboElectricFX : MonoBehaviour
     {
         public LineRenderer line;
         public Vector3[] points;
+        public Vector3[] renderPoints;
         public float age;
         public float strength;
         public bool active;
@@ -134,7 +135,7 @@ public sealed class PlayerComboElectricFX : MonoBehaviour
             line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             line.receiveShadows = false;
             line.enabled = false;
-            bolts[i] = new Bolt { line = line, points = new Vector3[pointsPerBolt] };
+            bolts[i] = new Bolt { line = line, points = new Vector3[pointsPerBolt], renderPoints = new Vector3[pointsPerBolt] };
         }
     }
 
@@ -264,8 +265,9 @@ public sealed class PlayerComboElectricFX : MonoBehaviour
             }
             float expansion = b.burst ? 1f + 0.12f * b.age / life : 1f;
             for (int p = 0; p < b.points.Length; p++)
-                b.line.SetPosition(p, b.worldSpace ? b.points[p]
-                    : effectCenter + b.points[p] * (effectRadius * expansion));
+                b.renderPoints[p] = b.worldSpace ? b.points[p]
+                    : effectCenter + b.points[p] * (effectRadius * expansion);
+            b.line.SetPositions(b.renderPoints);
             if (sortingSource != null)
             {
                 b.line.sortingLayerID = sortingSource.sortingLayerID;
@@ -282,7 +284,7 @@ public sealed class PlayerComboElectricFX : MonoBehaviour
                 color.g *= 1.15f;
                 color.b *= 1.15f;
             }
-            float fadeEnvelope = Mathf.Pow(fade, presence > 1f ? 1.35f : 2f);
+            float fadeEnvelope = presence > 1f ? Mathf.Pow(fade, 1.35f) : fade * fade;
             color.a = electricColor.a * visibility * brightness * b.strength * fadeEnvelope;
             b.line.startColor = color;
             color.a *= 0.35f;

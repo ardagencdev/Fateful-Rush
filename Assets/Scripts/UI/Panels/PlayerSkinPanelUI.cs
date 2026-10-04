@@ -297,6 +297,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
         if (skinPageContainer == null)
             return;
 
+        UIRenderIsolation.Ensure(skinPageContainer);
         pageStartPosition = skinPageContainer.anchoredPosition;
         pageCanvasGroup = skinPageContainer.GetComponent<CanvasGroup>();
 

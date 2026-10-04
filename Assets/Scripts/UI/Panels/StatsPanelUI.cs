@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatsPanelUI : MonoBehaviour
+public partial class StatsPanelUI : MonoBehaviour
 {
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
@@ -32,6 +32,8 @@ public class StatsPanelUI : MonoBehaviour
         if (fadeSwitcher == null)
             fadeSwitcher = GetComponent<UIPanelFadeSwitcher>();
 
+        if (statsScrollRect != null) UIRenderIsolation.Ensure(statsScrollRect.transform);
+
         HideScrollbarButKeepScrolling();
         ConfigureSmoothScrolling();
 
@@ -52,7 +54,7 @@ public class StatsPanelUI : MonoBehaviour
         if (mainMenuPanel == null || statsPanel == null)
             return;
 
-        HideResetConfirmation();
+        HideResetConfirmationImmediate();
         RefreshStats();
 
         MainMenuStarColorRandomizer.Instance?.ShowStatsColor();
@@ -71,37 +73,26 @@ public class StatsPanelUI : MonoBehaviour
         if (mainMenuPanel == null || statsPanel == null)
             return;
 
-        HideResetConfirmation();
+        HideResetConfirmationImmediate();
         MainMenuStarColorRandomizer.Instance?.ShowMainMenuColor();
         Switch(statsPanel, mainMenuPanel);
     }
 
     public void ShowResetConfirmation()
     {
-        if (resetConfirmationPanel == null)
+        if (resetConfirmationPanel == null || resetConfirmationOpen)
             return;
-
-        if (fadeSwitcher != null)
-        {
-            fadeSwitcher.ShowPanel(resetConfirmationPanel);
-            return;
-        }
-
-        resetConfirmationPanel.SetActive(true);
+        resetConfirmationOpen = true;
+        StopResetConfirmationRoutine();
+        resetConfirmationRoutine = StartCoroutine(ResetConfirmationTransition(true));
     }
 
     public void HideResetConfirmation()
     {
-        if (resetConfirmationPanel == null)
+        if (!resetConfirmationOpen)
             return;
-
-        if (fadeSwitcher != null && resetConfirmationPanel.activeSelf)
-        {
-            fadeSwitcher.HidePanel(resetConfirmationPanel);
-            return;
-        }
-
-        resetConfirmationPanel.SetActive(false);
+        StopResetConfirmationRoutine();
+        resetConfirmationRoutine = StartCoroutine(ResetConfirmationTransition(false));
     }
 
     public void ConfirmResetStats()
@@ -110,8 +101,8 @@ public class StatsPanelUI : MonoBehaviour
 
         RefreshStats();
         FatefulRushLocalizationRuntime.RequestStatsRefresh();
+        resetScrollAfterConfirmation = true;
         HideResetConfirmation();
-        ResetScrollToTop();
     }
 
     private void Switch(GameObject fromPanel, GameObject toPanel)

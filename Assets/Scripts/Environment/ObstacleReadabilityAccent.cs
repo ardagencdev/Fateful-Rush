@@ -13,6 +13,9 @@ public sealed class ObstacleReadabilityAccent : MonoBehaviour
     private Sprite[] cachedSprites;
     private Vector4[] uvRects;
     private MaterialPropertyBlock properties;
+    private bool[] edgePropertiesValid;
+    private Color lastEdgeColor;
+    private float lastWidthPixels;
     private Color edgeColor = new Color(1f, 0.68f, 0.28f, 0.75f);
     private float widthPixels = 1.4f;
 
@@ -36,6 +39,7 @@ public sealed class ObstacleReadabilityAccent : MonoBehaviour
         cachedSprites = new Sprite[sources.Length];
         uvRects = new Vector4[sources.Length];
         properties = new MaterialPropertyBlock();
+        edgePropertiesValid = new bool[sources.Length];
         for (int i = 0; i < sources.Length; i++)
         {
             GameObject child = new GameObject("ObstacleCollisionAccent");
@@ -54,15 +58,21 @@ public sealed class ObstacleReadabilityAccent : MonoBehaviour
     private void SyncEdges()
     {
         if (sources == null || properties == null) return;
+        bool styleChanged = !lastEdgeColor.Equals(edgeColor) || lastWidthPixels != widthPixels;
+        lastEdgeColor = edgeColor;
+        lastWidthPixels = widthPixels;
         for (int i = 0; i < sources.Length; i++)
         {
+            if (styleChanged) edgePropertiesValid[i] = false;
             SpriteRenderer source = sources[i], edge = edges[i];
             if (source == null || edge == null) continue;
-            edge.enabled = source.enabled && source.sprite != null && source.color.a > 0.001f;
+            bool visible = source.enabled && source.sprite != null && source.color.a > 0.001f;
+            if (edge.enabled != visible) edge.enabled = visible;
             if (!edge.enabled) continue;
             if (cachedSprites[i] != source.sprite)
             {
                 cachedSprites[i] = source.sprite;
+                edgePropertiesValid[i] = false;
                 Vector2[] uv = source.sprite.uv;
                 Vector2 min = new Vector2(1f, 1f), max = Vector2.zero;
                 for (int j = 0; j < uv.Length; j++) { min = Vector2.Min(min, uv[j]); max = Vector2.Max(max, uv[j]); }
@@ -77,10 +87,14 @@ public sealed class ObstacleReadabilityAccent : MonoBehaviour
             edge.sortingLayerID = source.sortingLayerID;
             edge.sortingOrder = source.sortingOrder + 1;
             edge.color = new Color(1f, 1f, 1f, source.color.a);
-            properties.SetColor(ColorId, edgeColor);
-            properties.SetFloat(WidthId, widthPixels);
-            properties.SetVector(RectId, uvRects[i]);
-            edge.SetPropertyBlock(properties);
+            if (!edgePropertiesValid[i])
+            {
+                properties.SetColor(ColorId, edgeColor);
+                properties.SetFloat(WidthId, widthPixels);
+                properties.SetVector(RectId, uvRects[i]);
+                edge.SetPropertyBlock(properties);
+                edgePropertiesValid[i] = true;
+            }
         }
     }
     private void OnDisable()

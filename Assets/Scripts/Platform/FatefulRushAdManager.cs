@@ -12,8 +12,8 @@ using UnityEngine.UI;
 /// - Remote Config ile belirlenen attempt araliginda reklam hakki olusturur
 ///   (varsayilan 5-10).
 /// - Attempt reklami sadece gameplay -> MainMenu gecisinde denenir.
-/// - MainMenu'de Remote Config ile belirlenen aktif surede reklam dener
-///   (varsayilan 5 dakika).
+/// - MainMenu'de aktif sure dolunca hak hazir olur (varsayilan 5 dakika).
+///   Reklam ancak kullanici ana menuden bir panel actiginda denenir.
 /// - Tum sayaçlar PlayerPrefs ile kalicidir.
 /// - Reklam/consent SDK hatalari gameplay veya scene gecisini asla bloklamaz.
 /// </summary>
@@ -37,8 +37,8 @@ public sealed partial class FatefulRushAdManager : MonoBehaviour
     private const int MaximumAttemptsPerAd = 10;
 #endif
 
-    // Kullanici istegi: MainMenu sahnesinde, panel fark etmeksizin,
-    // aktif gecirilen toplam 5 dakikada bir reklam hakki.
+    // Active MainMenu time makes the opportunity eligible; explicit panel
+    // navigation is required to show it. Idle time never opens an ad itself.
     private const float MainMenuAdIntervalSeconds = 5f * 60f;
 
     private const float ProgressSaveIntervalSeconds = 30f;
@@ -344,9 +344,8 @@ public sealed partial class FatefulRushAdManager : MonoBehaviour
             SaveProgress();
             TryStartAdsWhenSafe();
 
-            // MainMenu timeri panel degisikliklerinden etkilenmez.
-            // Bir onceki session'dan kalan sure de PlayerPrefs'ten devam eder.
-            TryShowMainMenuTimedAdIfDue();
+            // Preserve elapsed time across scenes/sessions. Loading MainMenu
+            // must never show a timed ad without a user panel-open request.
         }
     }
 

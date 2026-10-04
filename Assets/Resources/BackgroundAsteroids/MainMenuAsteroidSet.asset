@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0938a0ad3b714e43ad271e712cab1146, type: 3}
+  m_Name: MainMenuAsteroidSet
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuAsteroidCatalog
+  asteroidSprites:
+  - {fileID: 21300000, guid: abf264e3f4bc54e44bea1ef0247c0100, type: 3}
+  - {fileID: 21300000, guid: ce192f039e7a14d40bcd9cbe1b334af5, type: 3}
+  - {fileID: 21300000, guid: 95eb9ba0d496e3c41ba71fabd04953a6, type: 3}
+  - {fileID: 21300000, guid: 930e4f907ddaf04469c4a870eb138bd8, type: 3}
+  - {fileID: 21300000, guid: 6195b3b39c9a46a4fba800f8d6533578, type: 3}
+  - {fileID: 21300000, guid: e58cfb581e631ba44a526995ef521beb, type: 3}
+  - {fileID: 21300000, guid: fc4fb7018ba0fd047a55fbfccebc4cf0, type: 3}
+  - {fileID: 21300000, guid: 612d57363188c23409adfffbcfe2a4c3, type: 3}
+  - {fileID: 21300000, guid: fd03d030d1daedb4cac22945782028d4, type: 3}
+  - {fileID: 21300000, guid: 9f4bcaf58f8b01246b91592b2456673b, type: 3}
+  - {fileID: 21300000, guid: b6de98c48a7b264408bdf6efca7ecedb, type: 3}
+  - {fileID: 21300000, guid: 6a49f557605230a4aa96437b26f50863, type: 3}
+  - {fileID: 21300000, guid: c056e50eaf357db4b8ce59186faa5c37, type: 3}
+  - {fileID: 21300000, guid: dbedf5e3c8535fd40b181951f9ea78d5, type: 3}
+  - {fileID: 21300000, guid: fb6a4bd0dbe2176499b7db3298c5396a, type: 3}

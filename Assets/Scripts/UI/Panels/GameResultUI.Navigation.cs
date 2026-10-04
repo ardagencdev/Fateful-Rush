@@ -176,7 +176,6 @@ public partial class GameResultUI
             return;
 
         StartMenuConfirmationAnimation(false);
-        SetSceneButtonsInteractable(true);
     }
 
     private IEnumerator ConfirmGoMenuRoutine()
@@ -532,7 +531,14 @@ public partial class GameResultUI
 
     private IEnumerator MenuConfirmationAnimationRoutine(bool show)
     {
+        if (show)
+            yield return AnimateConfirmationSource(true);
+
         yield return AnimateMenuConfirmation(show);
+
+        if (!show)
+            yield return AnimateConfirmationSource(false);
+
         menuConfirmationRoutine = null;
 
         if (!show)
@@ -541,6 +547,8 @@ public partial class GameResultUI
 
             if (menuConfirmationOpenedFromPause)
                 RestoreAfterPauseMenuConfirmation();
+            if (!isSceneChangeRequested)
+                SetSceneButtonsInteractable(true);
         }
     }
 
@@ -694,6 +702,7 @@ public partial class GameResultUI
     private void HideMenuConfirmationImmediate()
     {
         StopMenuConfirmationRoutine();
+        RestoreConfirmationSourceImmediate();
         DisableMenuConfirmationModalLayer();
 
         if (menuConfirmationOpenedFromPause)
