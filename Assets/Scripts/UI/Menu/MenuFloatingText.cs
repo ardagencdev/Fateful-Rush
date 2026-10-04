@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 [DisallowMultipleComponent]
 public sealed class MenuFloatingText : MonoBehaviour
@@ -9,6 +11,14 @@ public sealed class MenuFloatingText : MonoBehaviour
     [Header("References")]
     [SerializeField] private TMP_Text textUI;
     [SerializeField] private RectTransform target;
+
+    [Header("Campaign Progress Caption")]
+    [Tooltip("Optional for renamed captions. MainMenu/TipText5 uses progress automatically.")]
+    [SerializeField] private bool useProgressMessages;
+    private int progressStage = -1;
+    private bool progressTurkish;
+    private bool UsesProgressMessages => useProgressMessages ||
+        (gameObject.scene.name == "MainMenu" && gameObject.name == "TipText5");
 
     [Header("Message Cycle")]
     [SerializeField] private bool cycleMessages;
@@ -116,6 +126,19 @@ public sealed class MenuFloatingText : MonoBehaviour
     private Coroutine messageRoutine;
     private Coroutine glitchRoutine;
 
+    private bool externalMessagesControlled;
+    public bool ExternallyControlledMessages => externalMessagesControlled || UsesProgressMessages;
+    public void SetExternalMessagesControlled(bool controlled)
+    {
+        externalMessagesControlled = controlled;
+        if (controlled && messageRoutine != null)
+        {
+            StopCoroutine(messageRoutine);
+            messageRoutine = null;
+        }
+        if (controlled) messageAlpha = 1f;
+    }
+
     public bool IsInitialized => initialized;
 
     public bool IsReadyForSharedGlitch =>
@@ -177,6 +200,8 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     private void OnEnable()
     {
+        LocalizationSettings.SelectedLocaleChanged -= HandleProgressLocaleChanged;
+        LocalizationSettings.SelectedLocaleChanged += HandleProgressLocaleChanged;
         ResolveReferences();
 
         if (initialized)
@@ -264,7 +289,10 @@ public sealed class MenuFloatingText : MonoBehaviour
         glitchOffset = Vector2.zero;
         messageAlpha = 1f;
 
-        if (cycleMessages && usableMessages.Count > 0)
+        if (UsesProgressMessages && !externalMessagesControlled)
+            RefreshProgressMessages(true);
+
+        if ((cycleMessages || UsesProgressMessages) && !externalMessagesControlled && usableMessages.Count > 0)
             messageRoutine = StartCoroutine(MessageCycleRoutine());
         else
             textUI.text = stableText;
@@ -347,11 +375,12 @@ public sealed class MenuFloatingText : MonoBehaviour
 
         while (isActiveAndEnabled)
         {
+            if (UsesProgressMessages) RefreshProgressMessages(false);
             string nextMessage = GetNextMessage();
 
             if (firstMessage && showFirstMessageImmediately)
             {
-                stableText = nextMessage;
+                stableText = UsesProgressMessages ? ActiveProgressMessage() : nextMessage;
                 textUI.text = stableText;
                 messageAlpha = 1f;
             }
@@ -359,7 +388,7 @@ public sealed class MenuFloatingText : MonoBehaviour
             {
                 yield return FadeMessage(1f, 0f);
 
-                stableText = nextMessage;
+                stableText = UsesProgressMessages ? ActiveProgressMessage() : nextMessage;
                 textUI.text = stableText;
 
                 yield return FadeMessage(0f, 1f);
@@ -369,6 +398,51 @@ public sealed class MenuFloatingText : MonoBehaviour
 
             yield return new WaitForSecondsRealtime(messageDuration);
         }
+    }
+
+    private void RefreshProgressMessages(bool force)
+    {
+        if (!UsesProgressMessages) return;
+        int stage = MenuProgressMessages.ReadStage();
+        bool turkish = FatefulRushLocalization.IsTurkish;
+        if (!force && stage == progressStage && turkish == progressTurkish) return;
+        if (stage != progressStage)
+        {
+            currentMessageIndex = -1;
+            previousRandomIndex = -1;
+        }
+        progressStage = stage;
+        progressTurkish = turkish;
+        usableMessages.Clear();
+        for (int i = 0; i < MenuProgressMessages.Count(stage); i++)
+            usableMessages.Add(MenuProgressMessages.Get(stage, i, turkish));
+    }
+
+    private string ActiveProgressMessage()
+    {
+        // Resolve again at the actual fade midpoint, not before the fade. A locale
+        // change during the fade must not put the cached English sentence back.
+        RefreshProgressMessages(false);
+        int index = randomOrder ? previousRandomIndex : currentMessageIndex;
+        return MenuProgressMessages.Get(progressStage, index, progressTurkish);
+    }
+
+    private void HandleProgressLocaleChanged(Locale locale)
+    {
+        if (!initialized || !UsesProgressMessages || externalMessagesControlled) return;
+        int stage = MenuProgressMessages.ReadStage();
+        if (stage != progressStage)
+        {
+            currentMessageIndex = -1;
+            previousRandomIndex = -1;
+        }
+        progressStage = stage;
+        progressTurkish = locale != null && locale.Identifier.Code.StartsWith("tr", System.StringComparison.OrdinalIgnoreCase);
+        usableMessages.Clear();
+        for (int i = 0; i < MenuProgressMessages.Count(stage); i++)
+            usableMessages.Add(MenuProgressMessages.Get(stage, i, progressTurkish));
+        int index = randomOrder ? previousRandomIndex : currentMessageIndex;
+        SetStableText(MenuProgressMessages.Get(stage, index, progressTurkish));
     }
 
     private IEnumerator FadeMessage(float from, float to)
@@ -551,6 +625,7 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     private void OnDisable()
     {
+        LocalizationSettings.SelectedLocaleChanged -= HandleProgressLocaleChanged;
         if (initializationRoutine != null)
         {
             StopCoroutine(initializationRoutine);

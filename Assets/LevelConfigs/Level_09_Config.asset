@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Space Bombs turn areas deadly. Watch where they arm before moving in."
+  - Space Bombs turn areas deadly. Watch where they arm before moving in.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 90
@@ -54,12 +54,11 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 10
-  cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.2
+  comboTimeLimit: 2.1
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 3
@@ -81,7 +80,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.035
   nearStarsSizeMultiplier: 0.962
   starfieldDensityMultiplier: 0.853
-  nearStarsEmissionRate: 36
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 75

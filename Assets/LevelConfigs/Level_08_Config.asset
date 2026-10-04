@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Armor blocks one lethal hit. Use the brief immunity to escape."
+  - Armor blocks one lethal hit. Use the brief immunity to escape.
   gameplayMusic: {fileID: 8300000, guid: f7b9943bcd2633f48889771622a3df74, type: 3}
   winCondition: 0
   winScore: 80
@@ -58,7 +58,7 @@ MonoBehaviour:
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.2
+  comboTimeLimit: 2.1
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 3

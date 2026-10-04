@@ -25,6 +25,7 @@ using UnityEngine.UI;
 /// Header colors follow the exact live NearStars color when
 /// MainMenuStarColorRandomizer exists in CreditsScene.
 /// </summary>
+[DefaultExecutionOrder(1000)]
 [DisallowMultipleComponent]
 public sealed class FatefulRushCreditsController :
     MonoBehaviour,
@@ -71,9 +72,13 @@ public sealed class FatefulRushCreditsController :
     [SerializeField, Min(0f)]
     private float initialDelay = 1f;
 
-    [Tooltip("Oyuncu manuel scroll yaptıktan sonra otomatik akışın tekrar başlaması için bekleme.")]
+    [Tooltip("Oyuncu aşağı kaydırarak devam etmeyi seçtiğinde otomatik akış öncesi bekleme.")]
     [SerializeField, Min(0f)]
     private float resumeAfterManualScrollDelay = 0.45f;
+
+    [Tooltip("Otomatik akışı yeniden başlatmak için aşağı yönde gereken sürükleme mesafesi (UI pixel).")]
+    [SerializeField, Min(1f)]
+    private float resumeDragPixels = 12f;
 
     [Header("Header Theme")]
     [Tooltip(
@@ -90,6 +95,15 @@ public sealed class FatefulRushCreditsController :
     private bool isDragging;
     private bool pointerHeld;
     private bool isLeavingScene;
+    private bool initialized;
+    private bool manualPaused;
+    private bool reachedEnd;
+    private bool wheelPending;
+    private float manualStartPosition;
+    private float wheelStartPosition;
+    private float lastObservedPosition = 1f;
+    private CreditsScrollInputRelay inputRelay;
+    private CreditsScrollInputRelay scrollbarInputRelay;
 
     private float autoScrollStartTime;
     private float resumeAutoScrollAt;
@@ -145,6 +159,12 @@ public sealed class FatefulRushCreditsController :
         scrollRect.vertical = true;
         scrollRect.movementType =
             ScrollRect.MovementType.Clamped;
+
+        // No inertia: releasing a manual drag must leave the chosen line still.
+        scrollRect.inertia = false;
+        inputRelay = AttachInputRelay(scrollRect.gameObject);
+        if (scrollRect.verticalScrollbar != null)
+            scrollbarInputRelay = AttachInputRelay(scrollRect.verticalScrollbar.gameObject);
 
         continueButton.onClick.AddListener(
             ContinueToMainMenu
@@ -270,40 +290,44 @@ public sealed class FatefulRushCreditsController :
         resumeAutoScrollAt =
             autoScrollStartTime;
 
+        lastObservedPosition = scrollRect.verticalNormalizedPosition;
+        initialized = true;
         initializeRoutine = null;
     }
 
-    private void Update()
+    // Runs after ScrollRect.LateUpdate, so wheel/drag changes are already applied.
+    private void LateUpdate()
     {
-        if (isLeavingScene ||
+        if (!initialized || isLeavingScene ||
             scrollRect == null ||
             content == null)
         {
             return;
         }
 
-        if (isDragging ||
-            pointerHeld ||
+        float scrollableHeight = GetScrollableHeight();
+        float current = scrollRect.verticalNormalizedPosition;
+        lastObservedPosition = current;
+
+        // A per-viewing latch, including reaching the bottom manually.
+        // Scrolling up never clears it.
+        if (scrollableHeight > 0.5f && current <= 0f)
+            reachedEnd = true;
+
+        if (wheelPending)
+        {
+            wheelPending = false;
+            if (!reachedEnd && current < wheelStartPosition - 0.000001f)
+                ResumeAutoScroll();
+        }
+
+        if (!isDragging)
+            scrollRect.StopMovement();
+
+        if (isDragging || pointerHeld || manualPaused || reachedEnd ||
             Time.unscaledTime < autoScrollStartTime ||
-            Time.unscaledTime < resumeAutoScrollAt)
-        {
+            Time.unscaledTime < resumeAutoScrollAt || scrollableHeight <= 0.5f)
             return;
-        }
-
-        float scrollableHeight =
-            GetScrollableHeight();
-
-        if (scrollableHeight <= 0.5f)
-            return;
-
-        float current =
-            scrollRect.verticalNormalizedPosition;
-
-        if (current <= 0f)
-        {
-            scrollRect.verticalNormalizedPosition = 0f;
-            return;
-        }
 
         float normalizedStep =
             autoScrollPixelsPerSecond *
@@ -315,6 +339,9 @@ public sealed class FatefulRushCreditsController :
                 0f,
                 current - normalizedStep
             );
+        lastObservedPosition = scrollRect.verticalNormalizedPosition;
+        if (lastObservedPosition <= 0f)
+            reachedEnd = true;
     }
 
     /// <summary>
@@ -554,46 +581,96 @@ public sealed class FatefulRushCreditsController :
         return catalogs[0];
     }
 
-    public void OnBeginDrag(
-        PointerEventData eventData)
+    private CreditsScrollInputRelay AttachInputRelay(GameObject target)
     {
-        isDragging = true;
-
-        if (scrollRect != null)
-            scrollRect.velocity = Vector2.zero;
+        CreditsScrollInputRelay relay = target.GetComponent<CreditsScrollInputRelay>();
+        if (relay == null)
+            relay = target.AddComponent<CreditsScrollInputRelay>();
+        relay.Initialize(this);
+        return relay;
     }
 
-    public void OnEndDrag(
-        PointerEventData eventData)
+    private void BeginManualInteraction()
     {
-        isDragging = false;
-        DelayAutoScrollResume();
+        manualPaused = true;
+        wheelPending = false;
+        manualStartPosition = scrollRect.verticalNormalizedPosition;
+        scrollRect.StopMovement();
     }
 
-    public void OnPointerDown(
-        PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left || scrollRect == null)
+            return;
+        if (!pointerHeld && !isDragging)
+            BeginManualInteraction();
         pointerHeld = true;
     }
 
-    public void OnPointerUp(
-        PointerEventData eventData)
+    public void OnBeginDrag(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left || scrollRect == null)
+            return;
+        if (!pointerHeld && !isDragging)
+            BeginManualInteraction();
+        isDragging = true;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
         pointerHeld = false;
-        DelayAutoScrollResume();
+        // EventSystem sends PointerUp before EndDrag. Decide only after drag ends.
+        if (!isDragging)
+            FinishManualInteraction();
     }
 
-    public void OnScroll(
-        PointerEventData eventData)
+    public void OnEndDrag(PointerEventData eventData)
     {
-        DelayAutoScrollResume();
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+        isDragging = false;
+        pointerHeld = false;
+        FinishManualInteraction();
     }
 
-    private void DelayAutoScrollResume()
+    private void FinishManualInteraction()
     {
-        resumeAutoScrollAt =
-            Time.unscaledTime +
-            resumeAfterManualScrollDelay;
+        if (scrollRect == null || !initialized)
+            return;
+        scrollRect.StopMovement();
+        float current = scrollRect.verticalNormalizedPosition;
+        float height = GetScrollableHeight();
+        if (height > 0.5f && current <= 0f)
+            reachedEnd = true;
+
+        // Compare actual content position, independent of swipe/finger direction.
+        float downwardPixels = (manualStartPosition - current) * height;
+        if (!reachedEnd && downwardPixels >= resumeDragPixels)
+            ResumeAutoScroll();
+    }
+
+    public void OnScroll(PointerEventData eventData)
+    {
+        if (scrollRect == null || isDragging || pointerHeld)
+            return;
+        manualPaused = true;
+        scrollRect.StopMovement();
+        if (!wheelPending)
+            // ScrollRect and this relay receive the same event; their component
+            // order is not guaranteed. Use the position saved before this frame.
+            wheelStartPosition = lastObservedPosition;
+        wheelPending = true;
+        // Direction is checked after ScrollRect applies the wheel in LateUpdate.
+    }
+
+    private void ResumeAutoScroll()
+    {
+        if (reachedEnd)
+            return;
+        manualPaused = false;
+        resumeAutoScrollAt = Time.unscaledTime + resumeAfterManualScrollDelay;
     }
 
     private float GetScrollableHeight()
@@ -615,6 +692,10 @@ public sealed class FatefulRushCreditsController :
 
     private void OnDestroy()
     {
+        if (inputRelay != null)
+            inputRelay.Initialize(null);
+        if (scrollbarInputRelay != null)
+            scrollbarInputRelay.Initialize(null);
         if (continueButton != null)
         {
             continueButton.onClick.RemoveListener(
@@ -634,6 +715,7 @@ public sealed class FatefulRushCreditsController :
 
     private void OnValidate()
     {
+        resumeDragPixels = Mathf.Max(1f, resumeDragPixels);
         autoScrollPixelsPerSecond =
             Mathf.Max(
                 1f,

@@ -197,7 +197,7 @@ public sealed partial class FatefulRushLocalizationRuntime
         for (int i = 0; i < floatingTexts.Length; i++)
         {
             MenuFloatingText floating = floatingTexts[i];
-            if (floating == null || !floating.IsInitialized)
+            if (floating == null || !floating.IsInitialized || floating.ExternallyControlledMessages)
                 continue;
 
             EntityId id = floating.GetEntityId();

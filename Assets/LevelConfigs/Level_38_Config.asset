@@ -58,7 +58,7 @@ MonoBehaviour:
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.2
+  comboTimeLimit: 2.1
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 3

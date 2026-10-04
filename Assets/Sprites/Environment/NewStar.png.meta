@@ -1,0 +1,1196 @@
+fileFormatVersion: 2
+guid: 549f7676e5600ea4c9875c4e9bd0ce89
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7556090851701325091
+    second: NewStar_0
+  - first:
+      213: 5467538281847379736
+    second: NewStar_1
+  - first:
+      213: 1678661719062219759
+    second: NewStar_2
+  - first:
+      213: 499769375129304977
+    second: NewStar_3
+  - first:
+      213: 1072711936597329115
+    second: NewStar_4
+  - first:
+      213: 6516216823785568200
+    second: NewStar_5
+  - first:
+      213: -4947287187976555395
+    second: NewStar_6
+  - first:
+      213: 881617569896082826
+    second: NewStar_7
+  - first:
+      213: 2491332459952115290
+    second: NewStar_8
+  - first:
+      213: -1406556997230724059
+    second: NewStar_9
+  - first:
+      213: -5521310654366365469
+    second: NewStar_10
+  - first:
+      213: 8071196877867514878
+    second: NewStar_11
+  - first:
+      213: 5376554243477005365
+    second: NewStar_12
+  - first:
+      213: -2537120044491197537
+    second: NewStar_13
+  - first:
+      213: -3023833806566457888
+    second: NewStar_14
+  - first:
+      213: 3731170016160581255
+    second: NewStar_15
+  - first:
+      213: -4025574716771040276
+    second: NewStar_16
+  - first:
+      213: 7916271938216365627
+    second: NewStar_17
+  - first:
+      213: -3511945215007219733
+    second: NewStar_18
+  - first:
+      213: -7359683858745504215
+    second: NewStar_19
+  - first:
+      213: 592911071609563479
+    second: NewStar_20
+  - first:
+      213: 5131692064592825631
+    second: NewStar_21
+  - first:
+      213: -6285218281714663368
+    second: NewStar_22
+  - first:
+      213: -1915607747233241416
+    second: NewStar_23
+  - first:
+      213: -4739965074310112949
+    second: NewStar_24
+  - first:
+      213: -7862199509433537211
+    second: NewStar_25
+  - first:
+      213: 6410624977095528794
+    second: NewStar_26
+  - first:
+      213: 1168369820853595826
+    second: NewStar_27
+  - first:
+      213: -7889589849857982128
+    second: NewStar_28
+  - first:
+      213: -3300757793753558024
+    second: NewStar_29
+  - first:
+      213: 4800844944838496236
+    second: NewStar_30
+  - first:
+      213: 8132127446157528534
+    second: NewStar_31
+  - first:
+      213: 220283982915716676
+    second: NewStar_32
+  - first:
+      213: 111593527100636713
+    second: NewStar_33
+  - first:
+      213: -5912422791076381447
+    second: NewStar_34
+  - first:
+      213: 7384446421916643138
+    second: NewStar_35
+  - first:
+      213: -1784845277004759696
+    second: NewStar_36
+  - first:
+      213: -4540389931957474930
+    second: NewStar_37
+  - first:
+      213: -5843060003178102952
+    second: NewStar_38
+  - first:
+      213: -7563427285734159296
+    second: NewStar_39
+  - first:
+      213: -6553426192089624532
+    second: NewStar_40
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 256
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: NewStar_0
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 41
+        width: 1115
+        height: 1193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd283cd776f532790800000000000000
+      internalID: -7556090851701325091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_1
+      rect:
+        serializedVersion: 2
+        x: 613
+        y: 1094
+        width: 21
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 817dc5d591990eb40800000000000000
+      internalID: 5467538281847379736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_2
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 1046
+        width: 26
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: feb00c680fdcb4710800000000000000
+      internalID: 1678661719062219759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_3
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 1052
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19f733a49998fe600800000000000000
+      internalID: 499769375129304977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_4
+      rect:
+        serializedVersion: 2
+        x: 737
+        y: 1052
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd48437a2d903ee00800000000000000
+      internalID: 1072711936597329115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_5
+      rect:
+        serializedVersion: 2
+        x: 713
+        y: 1034
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c7b9254da04e6a50800000000000000
+      internalID: 6516216823785568200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_6
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 1043
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d74f0dea384b75bb0800000000000000
+      internalID: -4947287187976555395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_7
+      rect:
+        serializedVersion: 2
+        x: 506
+        y: 1018
+        width: 21
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8d266142822c3c00800000000000000
+      internalID: 881617569896082826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_8
+      rect:
+        serializedVersion: 2
+        x: 723
+        y: 1026
+        width: 20
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5e88d43cadf29220800000000000000
+      internalID: 2491332459952115290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_9
+      rect:
+        serializedVersion: 2
+        x: 778
+        y: 1028
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52cf8bffcd7ea7ce0800000000000000
+      internalID: -1406556997230724059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_10
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 1020
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e8c9e7863d5063b0800000000000000
+      internalID: -5521310654366365469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_11
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 1013
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efbf8812cc6a20070800000000000000
+      internalID: 8071196877867514878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_12
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 1004
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 534e016299b5d9a40800000000000000
+      internalID: 5376554243477005365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_13
+      rect:
+        serializedVersion: 2
+        x: 739
+        y: 1012
+        width: 12
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f93349303c65accd0800000000000000
+      internalID: -2537120044491197537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_14
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 970
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0edf9c38c2f2906d0800000000000000
+      internalID: -3023833806566457888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_15
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 966
+        width: 11
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78607d17c57c7c330800000000000000
+      internalID: 3731170016160581255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_16
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 757
+        width: 144
+        height: 161
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce3811e9f194228c0800000000000000
+      internalID: -4025574716771040276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_17
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 793
+        width: 35
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3e87c6b26f3cdd60800000000000000
+      internalID: 7916271938216365627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_18
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 835
+        width: 13
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bef9cdc1f60134fc0800000000000000
+      internalID: -3511945215007219733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_19
+      rect:
+        serializedVersion: 2
+        x: 979
+        y: 836
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92e4c4416862dd990800000000000000
+      internalID: -7359683858745504215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_20
+      rect:
+        serializedVersion: 2
+        x: 1021
+        y: 795
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7592fae6a717a3800800000000000000
+      internalID: 592911071609563479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_21
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 728
+        width: 17
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1d0fbe6ebe673740800000000000000
+      internalID: 5131692064592825631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_22
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 753
+        width: 15
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8304b96f54b66c8a0800000000000000
+      internalID: -6285218281714663368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_23
+      rect:
+        serializedVersion: 2
+        x: 1028
+        y: 774
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b62d2937e46a65e0800000000000000
+      internalID: -1915607747233241416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_24
+      rect:
+        serializedVersion: 2
+        x: 213
+        y: 722
+        width: 19
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b49dcf9d0e2483eb0800000000000000
+      internalID: -4739965074310112949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_25
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 743
+        width: 11
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54da6fea33bd3e290800000000000000
+      internalID: -7862199509433537211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_26
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 578
+        width: 95
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a519604a37d17f850800000000000000
+      internalID: 6410624977095528794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_27
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 719
+        width: 17
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bee34a6922e63010800000000000000
+      internalID: 1168369820853595826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_28
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 722
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05100b715db828290800000000000000
+      internalID: -7889589849857982128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_29
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 686
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f397b5564a5132d0800000000000000
+      internalID: -3300757793753558024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_30
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 634
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cef04d69a0700a240800000000000000
+      internalID: 4800844944838496236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_31
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 593
+        width: 7
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dd8c6093de1bd070800000000000000
+      internalID: 8132127446157528534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_32
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 511
+        width: 47
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44646678d1b9e0300800000000000000
+      internalID: 220283982915716676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_33
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 521
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92ef01eb8b57c8100800000000000000
+      internalID: 111593527100636713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_34
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 441
+        width: 55
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fcf7fffbcad2fda0800000000000000
+      internalID: -5912422791076381447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_35
+      rect:
+        serializedVersion: 2
+        x: 948
+        y: 425
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24fee3175e2da7660800000000000000
+      internalID: 7384446421916643138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_36
+      rect:
+        serializedVersion: 2
+        x: 953
+        y: 423
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07df8155da4fa37e0800000000000000
+      internalID: -1784845277004759696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_37
+      rect:
+        serializedVersion: 2
+        x: 955
+        y: 412
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e892ae3b96b4df0c0800000000000000
+      internalID: -4540389931957474930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_38
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 288
+        width: 170
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85fb64d82e749eea0800000000000000
+      internalID: -5843060003178102952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_39
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 256
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04c8155d4fe490790800000000000000
+      internalID: -7563427285734159296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NewStar_40
+      rect:
+        serializedVersion: 2
+        x: 721
+        y: 230
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c20d1ce899d8d05a0800000000000000
+      internalID: -6553426192089624532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      NewStar_0: -7556090851701325091
+      NewStar_1: 5467538281847379736
+      NewStar_10: -5521310654366365469
+      NewStar_11: 8071196877867514878
+      NewStar_12: 5376554243477005365
+      NewStar_13: -2537120044491197537
+      NewStar_14: -3023833806566457888
+      NewStar_15: 3731170016160581255
+      NewStar_16: -4025574716771040276
+      NewStar_17: 7916271938216365627
+      NewStar_18: -3511945215007219733
+      NewStar_19: -7359683858745504215
+      NewStar_2: 1678661719062219759
+      NewStar_20: 592911071609563479
+      NewStar_21: 5131692064592825631
+      NewStar_22: -6285218281714663368
+      NewStar_23: -1915607747233241416
+      NewStar_24: -4739965074310112949
+      NewStar_25: -7862199509433537211
+      NewStar_26: 6410624977095528794
+      NewStar_27: 1168369820853595826
+      NewStar_28: -7889589849857982128
+      NewStar_29: -3300757793753558024
+      NewStar_3: 499769375129304977
+      NewStar_30: 4800844944838496236
+      NewStar_31: 8132127446157528534
+      NewStar_32: 220283982915716676
+      NewStar_33: 111593527100636713
+      NewStar_34: -5912422791076381447
+      NewStar_35: 7384446421916643138
+      NewStar_36: -1784845277004759696
+      NewStar_37: -4540389931957474930
+      NewStar_38: -5843060003178102952
+      NewStar_39: -7563427285734159296
+      NewStar_4: 1072711936597329115
+      NewStar_40: -6553426192089624532
+      NewStar_5: 6516216823785568200
+      NewStar_6: -4947287187976555395
+      NewStar_7: 881617569896082826
+      NewStar_8: 2491332459952115290
+      NewStar_9: -1406556997230724059
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Destroy Beacons with Dash before their buffs turn the arena dangerous."
+  - Destroy Beacons with Dash before their buffs turn the arena dangerous.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 2
   winScore: 120
@@ -54,12 +54,11 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.2
+  comboTimeLimit: 2.1
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 3
@@ -81,7 +80,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.242
   nearStarsSizeMultiplier: 1.031
   starfieldDensityMultiplier: 0.968
-  nearStarsEmissionRate: 42
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70

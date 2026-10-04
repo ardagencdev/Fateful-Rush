@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Use Clone to pull pressure away and reset dangerous formations."
+  - Use Clone to pull pressure away and reset dangerous formations.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 0
   winScore: 115
@@ -54,12 +54,11 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 9
-  cloneUses: 1
   armorImmuneDuration: 1.5
   slowMultiplier: 0.5
   slowDuration: 5
   comboEnabled: 1
-  comboTimeLimit: 2.2
+  comboTimeLimit: 2.1
   comboSpeedStages:
   - comboMultiplier: 2
     coinsRequired: 3
@@ -81,7 +80,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.196
   nearStarsSizeMultiplier: 1.015
   starfieldDensityMultiplier: 0.942
-  nearStarsEmissionRate: 38
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -149,6 +147,10 @@ MonoBehaviour:
     retreatDistance: 4
     fireRate: 1.5
     projectileSpeed: 6
+    shotsPerBurst: 3
+    reloadDuration: 3
+    reloadRetreatDistance: 9
+    reloadMoveSpeedMultiplier: 1.4
     strafeEnabled: 1
     strafeSpeedMultiplier: 0.65
     strafeDirectionChangeMinTime: 1.5

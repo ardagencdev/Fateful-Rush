@@ -1,0 +1,780 @@
+fileFormatVersion: 2
+guid: 07276b559a8a83f439584ff6a1500a0e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4097652820957305849
+    second: WaterSaturn_0
+  - first:
+      213: -8041658294272433910
+    second: WaterSaturn_1
+  - first:
+      213: -8185242219987267253
+    second: WaterSaturn_2
+  - first:
+      213: 8521270345480648649
+    second: WaterSaturn_3
+  - first:
+      213: 5804477039931871856
+    second: WaterSaturn_4
+  - first:
+      213: -2634132767136924467
+    second: WaterSaturn_5
+  - first:
+      213: -1934435497433689462
+    second: WaterSaturn_6
+  - first:
+      213: -6257746385602423720
+    second: WaterSaturn_7
+  - first:
+      213: -6548544493499437896
+    second: WaterSaturn_8
+  - first:
+      213: 3738634336901386816
+    second: WaterSaturn_9
+  - first:
+      213: -2017325133790280441
+    second: WaterSaturn_10
+  - first:
+      213: -2206345328335490591
+    second: WaterSaturn_11
+  - first:
+      213: -3314393146007422860
+    second: WaterSaturn_12
+  - first:
+      213: 6428274358394504399
+    second: WaterSaturn_13
+  - first:
+      213: -6587500338345067490
+    second: WaterSaturn_14
+  - first:
+      213: 6502077315857591971
+    second: WaterSaturn_15
+  - first:
+      213: 7388228695580505716
+    second: WaterSaturn_16
+  - first:
+      213: 3769835044278377518
+    second: WaterSaturn_17
+  - first:
+      213: 4809255238583223666
+    second: WaterSaturn_18
+  - first:
+      213: 2056657754198481167
+    second: WaterSaturn_19
+  - first:
+      213: -6584958254286160708
+    second: WaterSaturn_20
+  - first:
+      213: -979476003653768330
+    second: WaterSaturn_21
+  - first:
+      213: 947228656665227491
+    second: WaterSaturn_22
+  - first:
+      213: -6758618665287868377
+    second: WaterSaturn_23
+  - first:
+      213: 2481761679723375298
+    second: WaterSaturn_24
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: WaterSaturn_0
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 31
+        width: 1229
+        height: 1203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70466f938763227c0800000000000000
+      internalID: -4097652820957305849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_1
+      rect:
+        serializedVersion: 2
+        x: 553
+        y: 1233
+        width: 31
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0161dc436a466090800000000000000
+      internalID: -8041658294272433910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_2
+      rect:
+        serializedVersion: 2
+        x: 609
+        y: 1212
+        width: 33
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b411125719d286e80800000000000000
+      internalID: -8185242219987267253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_3
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 1140
+        width: 15
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c7b1794b32a14670800000000000000
+      internalID: 8521270345480648649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_4
+      rect:
+        serializedVersion: 2
+        x: 754
+        y: 1114
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 072dc084d15ad8050800000000000000
+      internalID: 5804477039931871856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_5
+      rect:
+        serializedVersion: 2
+        x: 745
+        y: 1107
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcc369b543ea17bd0800000000000000
+      internalID: -2634132767136924467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_6
+      rect:
+        serializedVersion: 2
+        x: 916
+        y: 996
+        width: 38
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a821f860a218725e0800000000000000
+      internalID: -1934435497433689462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_7
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 186
+        width: 14
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 854dea731d40829a0800000000000000
+      internalID: -6257746385602423720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_8
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 169
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bc20259a75ee15a0800000000000000
+      internalID: -6548544493499437896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_9
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 144
+        width: 15
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 042d51c0f1c42e330800000000000000
+      internalID: 3738634336901386816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_10
+      rect:
+        serializedVersion: 2
+        x: 514
+        y: 146
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70586f3aa750104e0800000000000000
+      internalID: -2017325133790280441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_11
+      rect:
+        serializedVersion: 2
+        x: 506
+        y: 130
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e178b41d9c7161e0800000000000000
+      internalID: -2206345328335490591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_12
+      rect:
+        serializedVersion: 2
+        x: 561
+        y: 117
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 478fc3e7ef8e002d0800000000000000
+      internalID: -3314393146007422860
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_13
+      rect:
+        serializedVersion: 2
+        x: 569
+        y: 126
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc44bd27871d53950800000000000000
+      internalID: 6428274358394504399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_14
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 95
+        width: 17
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1c3d27285f7494a0800000000000000
+      internalID: -6587500338345067490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_15
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 117
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ae21d98ed40c3a50800000000000000
+      internalID: 6502077315857591971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_16
+      rect:
+        serializedVersion: 2
+        x: 538
+        y: 111
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4767c67aad2488660800000000000000
+      internalID: 7388228695580505716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_17
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 113
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2c1804dff4215430800000000000000
+      internalID: 3769835044278377518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_18
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 97
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27580f1b828edb240800000000000000
+      internalID: 4809255238583223666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_19
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 93
+        width: 25
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f099d8fa457ba8c10800000000000000
+      internalID: 2056657754198481167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_20
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 93
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbc3f783b578d94a0800000000000000
+      internalID: -6584958254286160708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_21
+      rect:
+        serializedVersion: 2
+        x: 617
+        y: 93
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67ba230a3c33862f0800000000000000
+      internalID: -979476003653768330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_22
+      rect:
+        serializedVersion: 2
+        x: 637
+        y: 77
+        width: 15
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e0f991d17b352d00800000000000000
+      internalID: 947228656665227491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_23
+      rect:
+        serializedVersion: 2
+        x: 721
+        y: 99
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7202133f1209432a0800000000000000
+      internalID: -6758618665287868377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WaterSaturn_24
+      rect:
+        serializedVersion: 2
+        x: 683
+        y: 82
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2caa619491df07220800000000000000
+      internalID: 2481761679723375298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      WaterSaturn_0: -4097652820957305849
+      WaterSaturn_1: -8041658294272433910
+      WaterSaturn_10: -2017325133790280441
+      WaterSaturn_11: -2206345328335490591
+      WaterSaturn_12: -3314393146007422860
+      WaterSaturn_13: 6428274358394504399
+      WaterSaturn_14: -6587500338345067490
+      WaterSaturn_15: 6502077315857591971
+      WaterSaturn_16: 7388228695580505716
+      WaterSaturn_17: 3769835044278377518
+      WaterSaturn_18: 4809255238583223666
+      WaterSaturn_19: 2056657754198481167
+      WaterSaturn_2: -8185242219987267253
+      WaterSaturn_20: -6584958254286160708
+      WaterSaturn_21: -979476003653768330
+      WaterSaturn_22: 947228656665227491
+      WaterSaturn_23: -6758618665287868377
+      WaterSaturn_24: 2481761679723375298
+      WaterSaturn_3: 8521270345480648649
+      WaterSaturn_4: 5804477039931871856
+      WaterSaturn_5: -2634132767136924467
+      WaterSaturn_6: -1934435497433689462
+      WaterSaturn_7: -6257746385602423720
+      WaterSaturn_8: -6548544493499437896
+      WaterSaturn_9: 3738634336901386816
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

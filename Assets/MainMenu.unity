@@ -435,7 +435,7 @@ ParticleSystemRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -50
+  m_SortingOrder: -70
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -722,8 +722,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.05
-      minScalar: 0.008
+      scalar: 0.075
+      minScalar: 0.035
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1793,7 +1793,7 @@ ParticleSystem:
         m_RotationOrder: 4
     separateAxes: 0
   ColorModule:
-    enabled: 0
+    enabled: 1
     gradient:
       serializedVersion: 2
       minMaxState: 1
@@ -1801,8 +1801,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 1}
+        key0: {r: 1, g: 1, b: 1, a: 0.6}
+        key1: {r: 1, g: 1, b: 1, a: 0.6}
         key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -5480,7 +5480,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 931682b5317fcb843a447573578b8e2f, type: 2}
+  - {fileID: 2100000, guid: 4da2ac82e9a33c446a65625b78377a7e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5501,7 +5501,7 @@ ParticleSystemRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -50
+  m_SortingOrder: -60
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -5788,8 +5788,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.6
-      minScalar: 0.5
+      scalar: 0.45
+      minScalar: 0.3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -6859,7 +6859,7 @@ ParticleSystem:
         m_RotationOrder: 4
     separateAxes: 0
   ColorModule:
-    enabled: 0
+    enabled: 1
     gradient:
       serializedVersion: 2
       minMaxState: 1
@@ -6867,34 +6867,34 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 1}
-        key1: {r: 1, g: 1, b: 1, a: 1}
-        key2: {r: 0.7654414, g: 0.9676166, b: 0.9716981, a: 0}
+        key0: {r: 1, g: 1, b: 1, a: 0}
+        key1: {r: 1, g: 1, b: 1, a: 0.7}
+        key2: {r: 0, g: 0, b: 0, a: 0.7}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
-        ctime1: 964
-        ctime2: 65535
+        ctime1: 65535
+        ctime2: 0
         ctime3: 0
         ctime4: 0
         ctime5: 0
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 65535
-        atime2: 0
-        atime3: 0
+        atime1: 9830
+        atime2: 55705
+        atime3: 65535
         atime4: 0
         atime5: 0
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: 0
-        m_NumColorKeys: 3
-        m_NumAlphaKeys: 2
+        m_ColorSpace: -1
+        m_NumColorKeys: 2
+        m_NumAlphaKeys: 4
       minGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -17705,6 +17705,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuFloatingText
   textUI: {fileID: 628918158}
   target: {fileID: 628918156}
+  useProgressMessages: 0
   cycleMessages: 1
   randomOrder: 1
   showFirstMessageImmediately: 1
@@ -17940,184 +17941,6 @@ MonoBehaviour:
   overlayDuration: 0.22
   overlayStartScale: 0.95
   overlayEndScale: 0.97
---- !u!1 &663716519
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 663716520}
-  - component: {fileID: 663716523}
-  - component: {fileID: 663716522}
-  - component: {fileID: 663716521}
-  m_Layer: 5
-  m_Name: SignalLostText
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &663716520
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 663716519}
-  m_LocalRotation: {x: 0, y: 0, z: 0.026176924, w: 0.99965733}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1228929643}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 3}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -90, y: -115}
-  m_SizeDelta: {x: 300, y: 45}
-  m_Pivot: {x: 1, y: 1}
---- !u!114 &663716521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 663716519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3713dcf801c83fb40be1520ab1aa700b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MenuFloatingText
-  textUI: {fileID: 663716522}
-  target: {fileID: 0}
-  cycleMessages: 0
-  randomOrder: 0
-  showFirstMessageImmediately: 1
-  messages:
-  - The Stars Won't Answer
-  - Fate Is Already Moving
-  - Your Signal Is Fading
-  - There Is No Way Back
-  messageDuration: 6
-  crossFadeDuration: 0.45
-  ambientMotion: 1
-  driftAmount: {x: 6, y: 3}
-  driftSpeed: 0.08
-  rotationAmount: 1.25
-  breatheAmount: 0.012
-  breatheSpeed: 0.55
-  baseOpacity: 0.5
-  opacityPulseAmount: 0.06
-  opacityPulseSpeed: 0.45
-  glitch: 1
-  glitchIntervalMin: 5
-  glitchIntervalMax: 10
-  glitchDuration: 0.1
-  glitchPositionAmount: 2
-  glitchCharacterChanges: 1
-  glitchCharacters: '#@$%&!?<>/\|'
---- !u!114 &663716522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 663716519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: SIGNAL LOST
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
-  m_sharedMaterial: {fileID: -3523414811633075640, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 771751935
-  m_fontColor: {r: 1, g: 1, b: 1, a: 0.1764706}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
-  m_fontWeight: 400
-  m_enableAutoSizing: 1
-  m_fontSizeMin: 9.36
-  m_fontSizeMax: 18
-  m_fontStyle: 0
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
-  m_textAlignment: 65535
-  m_characterSpacing: 7
-  m_characterHorizontalScale: 1
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 0
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_EmojiFallbackSupport: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &663716523
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 663716519}
-  m_CullTransparentMesh: 1
 --- !u!1 &665253620
 GameObject:
   m_ObjectHideFlags: 0
@@ -21535,6 +21358,69 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 854373735}
   m_CullTransparentMesh: 1
+--- !u!1 &860267242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 860267243}
+  - component: {fileID: 860267244}
+  m_Layer: 0
+  m_Name: HomePlanet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &860267243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860267242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2014254267}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &860267244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 860267242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f8c0cd7c7f4be19ec0728673f2a5ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomePlanetVisual
+  targetCamera: {fileID: 2014254266}
+  earthSprite: {fileID: 21300000, guid: 3f8990f1706cdb745a3577341109e6b0, type: 3}
+  planetMaterial: {fileID: 0}
+  followEquippedSkin: 1
+  darkPlanetSprite: {fileID: 21300000, guid: 852784ca2050eb245b69b90a9c1d330e, type: 3}
+  goldenPlanetSprite: {fileID: 21300000, guid: 0d6ab6aca935f2148b30ca4ea1a063cc, type: 3}
+  transitionDuration: 1.5
+  dramaticTransitions: 1
+  goldenTransitionDuration: 1.4
+  flashStrength: 0.65
+  scaleStrength: 1
+  viewportPosition: {x: 0.78, y: 0.63}
+  sizeFraction: 0.6
+  worldZ: 5
+  sortingLayerName: Default
+  sortingOrder: -58
+  brightness: 0.65
+  opacity: 1
+  rotationDegreesPerSecond: 0.08
 --- !u!1 &869916867
 GameObject:
   m_ObjectHideFlags: 0
@@ -25185,7 +25071,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 931682b5317fcb843a447573578b8e2f, type: 2}
+  - {fileID: 2100000, guid: 4da2ac82e9a33c446a65625b78377a7e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -25206,7 +25092,7 @@ ParticleSystemRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -55
+  m_SortingOrder: -65
   m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -25493,8 +25379,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.45
-      minScalar: 0.2
+      scalar: 0.22
+      minScalar: 0.1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -26514,32 +26400,32 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 0.2509804}
-        key1: {r: 1, g: 1, b: 1, a: 0.54901963}
-        key2: {r: 0.7654414, g: 0.9676166, b: 0.9716981, a: 0.54901963}
-        key3: {r: 0, g: 0, b: 0, a: 0.2509804}
+        key0: {r: 1, g: 1, b: 1, a: 0}
+        key1: {r: 1, g: 1, b: 1, a: 0.45}
+        key2: {r: 0, g: 0, b: 0, a: 0.45}
+        key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
         ctime1: 65535
-        ctime2: 65535
+        ctime2: 0
         ctime3: 0
         ctime4: 0
         ctime5: 0
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 13107
-        atime2: 52428
+        atime1: 9830
+        atime2: 55705
         atime3: 65535
         atime4: 0
         atime5: 0
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: 0
+        m_ColorSpace: -1
         m_NumColorKeys: 2
         m_NumAlphaKeys: 4
       minGradient:
@@ -30226,7 +30112,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 663716520}
   - {fileID: 1908712116}
   - {fileID: 1801941598}
   - {fileID: 1349646198}
@@ -30250,7 +30135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AmbientTextGlitchSwapper
   floatingTexts:
-  - {fileID: 663716521}
+  - {fileID: 0}
   - {fileID: 1908712117}
   - {fileID: 1801941599}
   swapIntervalMin: 10
@@ -32173,7 +32058,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: v1.0.52
+  m_text: v1.0.55
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
   m_sharedMaterial: {fileID: -3523414811633075640, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
@@ -35701,6 +35586,69 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1615543205}
   m_CullTransparentMesh: 1
+--- !u!1 &1628509122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1628509123}
+  - component: {fileID: 1628509124}
+  m_Layer: 0
+  m_Name: HomeMoon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1628509123
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1628509122}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2014254267}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1628509124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1628509122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f8c0cd7c7f4be19ec0728673f2a5ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomePlanetVisual
+  targetCamera: {fileID: 2014254266}
+  earthSprite: {fileID: 21300000, guid: 58a71f76dd559ba4abab78c335ff2edd, type: 3}
+  planetMaterial: {fileID: 0}
+  followEquippedSkin: 1
+  darkPlanetSprite: {fileID: 21300000, guid: 45f296ec824ba624e8397fdbf50bacc2, type: 3}
+  goldenPlanetSprite: {fileID: 21300000, guid: f24c2a822d5deed429ad0e407499cf91, type: 3}
+  transitionDuration: 2
+  dramaticTransitions: 1
+  goldenTransitionDuration: 1.4
+  flashStrength: 0.65
+  scaleStrength: 1
+  viewportPosition: {x: 0.18, y: 0.25}
+  sizeFraction: 0.18
+  worldZ: 5
+  sortingLayerName: Default
+  sortingOrder: -57
+  brightness: 0.65
+  opacity: 1
+  rotationDegreesPerSecond: 0.02
 --- !u!1 &1632833106
 GameObject:
   m_ObjectHideFlags: 0
@@ -36645,6 +36593,66 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1675972336}
   m_CullTransparentMesh: 1
+--- !u!1 &1692803694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1692803695}
+  - component: {fileID: 1692803696}
+  m_Layer: 0
+  m_Name: SolarAtmosphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1692803695
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692803694}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2014254267}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1692803696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692803694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eb5f10ec24c4f45bcc6427ab07d0ffd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SolarAtmosphere
+  targetCamera: {fileID: 2014254266}
+  forceMainMenu: 0
+  menuSourceViewport: {x: 1.05, y: 1.05}
+  sourceOutsideMargin: 0.07
+  worldZ: 5
+  sortingLayerName: Default
+  sortingOrder: -54
+  menuIntensity: 0.34
+  gameplayIntensity: 0.28
+  surfaceLightStrength: 0.35
+  gameplayCenterProtection: 0.85
+  menuCenterProtection: 0.25
+  normalLight: {r: 1, g: 0.83, b: 0.62, a: 1}
+  darkLight: {r: 0.78, g: 0.075, b: 0.13, a: 1}
+  goldenLight: {r: 1, g: 0.91, b: 0.67, a: 1}
+  skinTransitionDuration: 1.4
 --- !u!1 &1698735324
 GameObject:
   m_ObjectHideFlags: 0
@@ -37767,7 +37775,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 2}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -70, y: -75}
+  m_AnchoredPosition: {x: -70, y: -165}
   m_SizeDelta: {x: 390, y: 45}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1801941599
@@ -37784,6 +37792,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuFloatingText
   textUI: {fileID: 1801941600}
   target: {fileID: 0}
+  useProgressMessages: 0
   cycleMessages: 0
   randomOrder: 0
   showFirstMessageImmediately: 1
@@ -39675,6 +39684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MenuFloatingText
   textUI: {fileID: 1908712118}
   target: {fileID: 0}
+  useProgressMessages: 0
   cycleMessages: 0
   randomOrder: 0
   showFirstMessageImmediately: 1
@@ -40822,6 +40832,9 @@ Transform:
   - {fileID: 36792659}
   - {fileID: 1193979764}
   - {fileID: 71869154}
+  - {fileID: 860267243}
+  - {fileID: 1628509123}
+  - {fileID: 1692803695}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2014254268

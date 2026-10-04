@@ -148,9 +148,12 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 1.0.52
+  bundleVersion: 1.1
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  - {fileID: 11400000, guid: dafa126dbf3b77d4095c2c9b7290e3c8, type: 2}
+  - {fileID: 11400000, guid: 3245934e9559cae4a85c497dd5ef73be, type: 2}
+  - {fileID: 7047171432247752850, guid: 5ef219dc7bec44449aca416ab329c775, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -178,7 +181,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 48
+  AndroidBundleVersionCode: 50
   AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 36
   AndroidPreferredInstallLocation: 1
@@ -274,8 +277,8 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/Users/arda_/FatefulRush_PC/fatefulrush-upload.keystore
-  AndroidKeyaliasName: 
+  AndroidKeystoreName: C:/Users/arda_/OneDrive/Belgeler/FatefulRush/FatefulRushSigning/fatefulrush-upload-2026.keystore
+  AndroidKeyaliasName: fatefulrush-upload-2026
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
   AndroidBuildApkPerCpuArchitecture: 0

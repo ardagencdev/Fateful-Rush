@@ -14,6 +14,11 @@ public partial class ObstacleSpawner : MonoBehaviour
     private const float MinimumPlayerEdgeClearance = 0.35f;
     private const float MinimumObstacleEdgeClearance = 0.05f;
 
+    [Header("Gameplay Readability")]
+    [SerializeField] private bool showObstacleEdges = true;
+    [SerializeField] private Color obstacleEdgeColor = new Color(1f, 0.68f, 0.28f, 0.75f);
+    [SerializeField, Range(0.5f, 3f)] private float obstacleEdgeWidthPixels = 1.4f;
+
     [Header("Obstacle Mode")]
     public ObstacleSpawnMode obstacleSpawnMode =
         ObstacleSpawnMode.Fixed;
@@ -275,6 +280,13 @@ public partial class ObstacleSpawner : MonoBehaviour
                         .RootPosition,
                     Quaternion.identity
                 );
+
+            if (showObstacleEdges)
+            {
+                ObstacleReadabilityAccent accent = spawned.GetComponent<ObstacleReadabilityAccent>();
+                if (accent == null) accent = spawned.AddComponent<ObstacleReadabilityAccent>();
+                accent.Configure(obstacleEdgeColor, obstacleEdgeWidthPixels);
+            }
 
             spawnedObstacles.Add(
                 spawned

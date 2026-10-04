@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 [DefaultExecutionOrder(-500)]
 public sealed class SkinUIButtonThemeController : MonoBehaviour
@@ -54,6 +56,9 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
         SceneManager.sceneLoaded -= HandleSceneLoaded;
         SceneManager.sceneLoaded += HandleSceneLoaded;
 
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+
         PlayerSkinCatalog.SelectedSkinChanged -=
             HandleSelectedSkinChanged;
 
@@ -72,6 +77,7 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
             return;
 
         SceneManager.sceneLoaded -= HandleSceneLoaded;
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
 
         PlayerSkinCatalog.SelectedSkinChanged -=
             HandleSelectedSkinChanged;
@@ -84,6 +90,13 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
         LoadSceneMode mode
     )
     {
+        ScheduleRefresh();
+    }
+
+    private void HandleLocaleChanged(Locale locale)
+    {
+        // Localization updates labels over two frames. Refresh once after each
+        // pass using the current equipped skin, never a cached previous color.
         ScheduleRefresh();
     }
 
@@ -649,6 +662,15 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
 
         string textObjectName = text.gameObject.name;
 
+        // MainMenu's footer status label is named StatusText. Its identity must
+        // survive localization (and stable/unstable changes), independent of content.
+        // This method is only used by the MainMenu ambient-theme pass.
+        if (string.Equals(textObjectName, "StatusText", System.StringComparison.OrdinalIgnoreCase) ||
+            ContainsIgnoreCase(textObjectName, "signalstatus"))
+        {
+            return true;
+        }
+
         if (ContainsIgnoreCase(textObjectName, "signallost") ||
             ContainsIgnoreCase(textObjectName, "threatunknown") ||
             ContainsIgnoreCase(textObjectName, "noreturnvector") ||
@@ -657,13 +679,21 @@ public sealed class SkinUIButtonThemeController : MonoBehaviour
             return true;
         }
 
-        string content = text.text;
+        string content = text.text ?? string.Empty;
 
         return ContainsIgnoreCase(content, "SIGNAL LOST") ||
                ContainsIgnoreCase(content, "THREAT UNKNOWN") ||
                ContainsIgnoreCase(content, "NO RETURN VECTOR") ||
                content.TrimStart().StartsWith(
                    "SIGNAL //",
+                   System.StringComparison.OrdinalIgnoreCase
+               ) ||
+               content.TrimStart().StartsWith(
+                   "SİNYAL //",
+                   System.StringComparison.OrdinalIgnoreCase
+               ) ||
+               content.TrimStart().StartsWith(
+                   "SINYAL //",
                    System.StringComparison.OrdinalIgnoreCase
                );
     }

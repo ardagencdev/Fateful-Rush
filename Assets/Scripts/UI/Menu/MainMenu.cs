@@ -568,7 +568,11 @@ public class MainMenu : MonoBehaviour
             continueTargetLevel != null)
         {
             continueLevelText.text =
-                $"LEVEL {continueTargetLevel.levelNumber}";
+               FatefulRushLocalization.Text(
+                 "menu.level",
+                 "LEVEL {0}",
+            continueTargetLevel.levelNumber
+    );
 
             RefreshContinueLevelColor();
         }
