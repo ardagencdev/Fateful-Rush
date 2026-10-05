@@ -105,6 +105,7 @@ public class PlayerInputController : MonoBehaviour
     private void OnDisable()
     {
         ForceStopInput();
+        EnhancedTouchSupport.Disable();
     }
 
     private void Update()

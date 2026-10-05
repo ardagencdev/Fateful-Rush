@@ -86,6 +86,17 @@ public partial class GameResultUI : MonoBehaviour
     [Tooltip("Result intro animasyonu bittikten sonra kenar glow'un başlamadan önce bekleyeceği süre.")]
     [SerializeField, Min(0f)] private float edgeGlowStartDelay = 2f;
 
+    [Header("Result Edge Glow Shape")]
+    [SerializeField, Min(0f)] private float edgeGlowCornerRadius = 28f;
+    [SerializeField, Min(1f)] private float edgeGlowSoftness = 32f;
+    private Material resultEdgeGlowMaterial;
+    private Rect resultEdgeGlowLastRect;
+    private float resultEdgeGlowLastRadius = -1f, resultEdgeGlowLastSoftness = -1f;
+    private static readonly int GlowOpacityId = Shader.PropertyToID("_GlowOpacity");
+    private static readonly int GlowBoundsId = Shader.PropertyToID("_GlowBounds");
+    private static readonly int GlowRadiusId = Shader.PropertyToID("_GlowCornerRadius");
+    private static readonly int GlowSoftnessId = Shader.PropertyToID("_GlowSoftness");
+
     [Header("Result Intro Animation")]
     [SerializeField, Min(0.05f)] private float resultIntroDuration = 0.22f;
     [SerializeField, Range(0.85f, 1f)] private float resultIntroStartScale = 0.94f;
@@ -184,8 +195,11 @@ public partial class GameResultUI : MonoBehaviour
 
     public bool IsMenuConfirmationOpen => isMenuConfirmationOpen;
 
+    private Material resultOverlayMaterial;
+
     private void Awake()
     {
+        PrepareResultOverlayMaterial();
         levelManager =
             FindAnyObjectByType<LevelManager>();
 
@@ -498,6 +512,29 @@ public partial class GameResultUI : MonoBehaviour
             menuConfirmationModalScaler = null;
             menuConfirmationModalRaycaster = null;
             menuConfirmationInputShield = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (resultEdgeGlowMaterial != null) Destroy(resultEdgeGlowMaterial);
+        if (resultOverlayMaterial != null) Destroy(resultOverlayMaterial);
+    }
+
+    private void PrepareResultOverlayMaterial()
+    {
+        if (resultPanel == null) return;
+        Image[] images = resultPanel.GetComponentsInChildren<Image>(true);
+        foreach (Image image in images)
+        {
+            // Respect custom art/materials; optimize only the existing solid fill.
+            if (image.name != "DarkOverlay" || image.sprite != null || image.overrideSprite != null
+                || image.material != image.defaultMaterial) continue;
+            Shader shader = Resources.Load<Shader>("ResultEdgeGlow/ResultOverlay");
+            if (shader == null || !shader.isSupported) return;
+            if (resultOverlayMaterial == null)
+                resultOverlayMaterial = new Material(shader) { name = "Result solid overlay" };
+            image.material = resultOverlayMaterial;
         }
     }
 

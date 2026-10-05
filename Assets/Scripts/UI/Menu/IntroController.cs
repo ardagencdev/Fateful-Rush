@@ -334,6 +334,7 @@ public class IntroController : MonoBehaviour
         {
             ApplyFullyHiddenState();
             StopIntroSoundImmediately();
+            yield return AndroidShaderWarmup.PrepareForMenu();
             LoadNextScene();
             yield break;
         }
@@ -381,6 +382,7 @@ public class IntroController : MonoBehaviour
 
         ApplyFullyHiddenState();
         StopIntroSoundImmediately();
+        yield return AndroidShaderWarmup.PrepareForMenu();
         loadingRoutine = null;
         LoadNextScene();
     }

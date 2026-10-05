@@ -83,6 +83,9 @@ public static class EnemyObstacleSteering2D
         float outwardBias,
         ref int preferredSide)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        using var work = FatefulRushPerformanceHUD.MeasureWork(1);
+#endif
         // If a moving obstacle has already entered us, normal casts start inside
         // the obstacle and are no longer useful for choosing a clean route.
         if (TryGetOverlapRecovery(
@@ -155,17 +158,17 @@ public static class EnemyObstacleSteering2D
         bool directStaticBlocked =
             directClearance < fullProbeDistance - 0.001f;
 
-        bool directMovingThreat = TryGetPredictedMovingThreat(
-            selfCollider,
-            desiredDirection,
-            estimatedSpeed,
-            predictionTime,
-            castSkin,
-            predictiveObstacleCount,
-            out Vector2 predictedEscapeNormal,
-            out _,
-            out _
-        );
+        // A confirmed static hit already supplies the escape normal. Prediction
+        // cannot change the direct-path decision in that case.
+        Vector2 predictedEscapeNormal = Vector2.zero;
+        bool directMovingThreat = false;
+        if (!directStaticBlocked || directHit.collider == null)
+        {
+            directMovingThreat = TryGetPredictedMovingThreat(
+                selfCollider, desiredDirection, estimatedSpeed, predictionTime,
+                castSkin, predictiveObstacleCount, out predictedEscapeNormal,
+                out _, out _);
+        }
 
         // A path is only truly clear when it is clear now AND none of the
         // moving/rotating obstacle shapes will sweep into it during look-ahead.
@@ -264,7 +267,7 @@ public static class EnemyObstacleSteering2D
                 out _
             );
 
-            bool movingSafe = !TryGetPredictedMovingThreat(
+            bool movingSafe = awayClearance >= minimumClearance && !TryGetPredictedMovingThreat(
                 selfCollider,
                 obstacleNormal,
                 estimatedSpeed,
@@ -319,6 +322,19 @@ public static class EnemyObstacleSteering2D
             if (clearance < minimumClearance)
                 return;
 
+            float clearanceScore = Mathf.Clamp01(clearance / effectiveProbeDistance);
+            float desiredProgress = Vector2.Dot(candidateDirection, desiredDirection);
+            float goalProgress = Vector2.Dot(candidateDirection, goalDirection);
+            float sideCommitmentBonus = side == preferredSideLocal ? 0.16f : 0f;
+
+            // Prediction score is clamped to [0,1]. Even a perfectly safe
+            // prediction cannot make this candidate win above this bound.
+            // Keep the same addition order as the final score below.
+            float maximumScore = clearanceScore * 1.35f + 0.35f +
+                desiredProgress * 0.75f + goalProgress * 0.55f + sideCommitmentBonus;
+            if (maximumScore <= bestScore)
+                return;
+
             bool predictedThreat = TryGetPredictedMovingThreat(
                 selfCollider,
                 candidateDirection,
@@ -334,30 +350,12 @@ public static class EnemyObstacleSteering2D
             if (predictedThreat)
                 return;
 
-            float clearanceScore = Mathf.Clamp01(
-                clearance / effectiveProbeDistance
-            );
-
             float predictionScore = predictiveObstacleCount <= 0
                 ? 1f
                 : Mathf.Clamp01(
                     predictedSeparation /
                     Mathf.Max(0.20f, castSkin + PredictionExtraPadding + 0.10f)
                 );
-
-            float desiredProgress = Vector2.Dot(
-                candidateDirection,
-                desiredDirection
-            );
-
-            float goalProgress = Vector2.Dot(
-                candidateDirection,
-                goalDirection
-            );
-
-            float sideCommitmentBonus = side == preferredSideLocal
-                ? 0.16f
-                : 0f;
 
             float score =
                 clearanceScore * 1.35f +
@@ -697,6 +695,8 @@ public static class EnemyObstacleSteering2D
         Vector2 selfVelocity = candidateDirection * Mathf.Max(0f, selfSpeed);
         float safetyDistance = Mathf.Max(0f, castSkin) + PredictionExtraPadding;
         bool foundThreat = false;
+        Vector2 selfBasePosition = selfBody.position;
+        float selfAngle = selfBody.rotation;
 
         for (int obstacleIndex = 0;
              obstacleIndex < obstacleCount && obstacleIndex < PredictiveObstacleBuffer.Length;
@@ -716,20 +716,20 @@ public static class EnemyObstacleSteering2D
             float otherAngularVelocity =
                 PredictiveAngularVelocities[obstacleIndex];
 
+            Vector2 otherBasePosition = otherBody.position;
+            float otherBaseAngle = otherBody.rotation;
             for (int sample = 1; sample <= PredictionSamples; sample++)
             {
                 float t = predictionTime * (sample / (float)PredictionSamples);
 
                 Vector2 selfPosition =
-                    selfBody.position + selfVelocity * t;
-
-                float selfAngle = selfBody.rotation;
+                    selfBasePosition + selfVelocity * t;
 
                 Vector2 otherPosition =
-                    otherBody.position + otherVelocity * t;
+                    otherBasePosition + otherVelocity * t;
 
                 float otherAngle =
-                    otherBody.rotation + otherAngularVelocity * t;
+                    otherBaseAngle + otherAngularVelocity * t;
 
                 ColliderDistance2D futureDistance = selfCollider.Distance(
                     selfPosition,

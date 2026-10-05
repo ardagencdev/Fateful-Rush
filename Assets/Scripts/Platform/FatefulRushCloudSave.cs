@@ -116,6 +116,10 @@ public sealed partial class FatefulRushCloudSave : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return; }
+#endif
+
         EnsureInstance();
     }
 
@@ -153,6 +157,10 @@ public sealed partial class FatefulRushCloudSave : MonoBehaviour
 
     private void Update()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         TryStartInitialSyncIfSafe();
 
@@ -180,6 +188,10 @@ public sealed partial class FatefulRushCloudSave : MonoBehaviour
     /// </summary>
     public static void SyncAfterAuthentication(Action onFinished)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { InvokeSafely(onFinished); return; }
+#endif
+
         EnsureInstance().SyncAfterAuthenticationInternal(onFinished);
     }
 
@@ -189,6 +201,10 @@ public sealed partial class FatefulRushCloudSave : MonoBehaviour
     /// </summary>
     public static void RequestUpload()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return; }
+#endif
+
         TouchLocalRevision();
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -532,6 +548,10 @@ public sealed partial class FatefulRushCloudSave : MonoBehaviour
 
     private static bool IsPlatformAuthenticated()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return false; }
+#endif
+
         try
         {
             return PlayGamesPlatform.Instance != null &&

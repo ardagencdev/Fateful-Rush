@@ -122,8 +122,9 @@ Shader "FatefulRush/BossDangerPreview"
                 float distanceToOrigin =
                     length(delta);
 
-                // Bossun kendi etrafinda kirmizi yok.
-                if (distanceToOrigin <= _InnerRadius)
+                // Only previews explicitly requesting an inner hole exclude it.
+                // Global Boss AOE uses zero, so the center is colored too.
+                if (_InnerRadius > 0.0 && distanceToOrigin <= _InnerRadius)
                     discard;
 
                 // MiniBoss local mode.

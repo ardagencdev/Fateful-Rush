@@ -86,6 +86,10 @@ public sealed partial class FatefulRushAdManager
     /// <summary>Only called by an explicit MainMenu -> panel navigation request.</summary>
     public static bool TryShowTimedAdBeforeOpeningMenuPanel(Action onFinished)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return false; }
+#endif
+
         // Do not bootstrap ads from UI transitions outside MainMenu.
         if (instance == null ||
             SceneManager.GetActiveScene().name != MainMenuSceneName ||
@@ -124,6 +128,10 @@ public sealed partial class FatefulRushAdManager
 
     private bool TryShowLoadedInterstitial(Action onFinished = null)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return false; }
+#endif
+
         if (!IsAdsRuntimeSupported() ||
             consentFlowActive ||
             !sdkInitialized ||

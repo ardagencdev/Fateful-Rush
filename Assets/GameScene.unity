@@ -2860,8 +2860,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.075
-      minScalar: 0.035
+      scalar: 0.04
+      minScalar: 0.02
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -7991,6 +7991,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eb5f10ec24c4f45bcc6427ab07d0ffd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SolarAtmosphere
+  useReducedResolutionAtmosphere: 1
+  atmosphereResolutionScale: 0.5
   targetCamera: {fileID: 74728191}
   forceMainMenu: 0
   menuSourceViewport: {x: 1.05, y: 1.05}
@@ -8545,7 +8547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 9
+  soundType: 2
   customSound: {fileID: 0}
   minimumRepeatInterval: 0.075
 --- !u!1 &326349003
@@ -8941,6 +8943,18 @@ MonoBehaviour:
   spinSpeedRange: {x: 2, y: 7}
   movingSpinMultiplier: 2
   travelSpeedMultiplierRange: {x: 0.65, y: 2.2}
+  menuPassageIntervalRange: {x: 40, y: 60}
+  menuPassageDurationRange: {x: 18, y: 30}
+  menuMovingSizeRange: {x: 0.05, y: 0.1}
+  menuShakeStrength: 0.35
+  menuSortingOrder: -57
+  menuBrightness: 0.8
+  menuOpacity: 1
+  menuDimming: 0.9
+  menuDesaturation: 0.15
+  menuContrast: 0.9
+  menuOpacityMultiplier: 1
+  menuSolarResponse: 0.65
   movingShake: 1
   shakeSpeedReferenceRange: {x: 0.04, y: 0.15}
   shakeAmplitudeRange: {x: 0.0001, y: 0.007}
@@ -26122,7 +26136,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 700, y: 200}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1121616947
@@ -26941,7 +26955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 2
+  soundType: 9
   customSound: {fileID: 0}
   minimumRepeatInterval: 0.075
 --- !u!114 &1214333076
@@ -31220,7 +31234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453a8243c95c5d244b200e86c91da71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
-  soundType: 9
+  soundType: 2
   customSound: {fileID: 0}
   minimumRepeatInterval: 0.075
 --- !u!114 &1672707850

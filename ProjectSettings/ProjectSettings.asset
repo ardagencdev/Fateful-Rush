@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: YoungDev Studios
-  productName: FatefulRush
+  productName: Faithful Rush debug
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -151,6 +151,9 @@ PlayerSettings:
   bundleVersion: 1.1.2
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  - {fileID: 11400000, guid: 3245934e9559cae4a85c497dd5ef73be, type: 2}
+  - {fileID: 11400000, guid: dafa126dbf3b77d4095c2c9b7290e3c8, type: 2}
+  - {fileID: 7047171432247752850, guid: 5ef219dc7bec44449aca416ab329c775, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -158,7 +161,7 @@ PlayerSettings:
   vrSettings:
     enable360StereoCapture: 0
   enableFrameTimingStats: 1
-  enableOpenGLProfilerGPURecorders: 1
+  enableOpenGLProfilerGPURecorders: 0
   allowHDRDisplaySupport: 0
   useHDRDisplay: 0
   hdrBitDepth: 0
@@ -170,7 +173,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.youngdevstudios.fatefulrush
+    Android: com.youngdevstudios.fatefulrush.debug
     Standalone: com.DefaultCompany.2D-URP
   buildNumber:
     Standalone: 0
@@ -287,7 +290,7 @@ PlayerSettings:
   AndroidEnableTango: 0
   androidEnableBanner: 1
   androidUseLowAccuracyLocation: 0
-  androidUseCustomKeystore: 1
+  androidUseCustomKeystore: 0
   m_AndroidBanners:
   - width: 320
     height: 180

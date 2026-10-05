@@ -10,6 +10,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyLevelCompleted(
         int levelNumber)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager =
             EnsureInstance();
 
@@ -40,6 +44,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyNearMissTotal(
         int totalNearMisses)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalNearMisses);
 
@@ -68,6 +76,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyComboReached(
         int comboMultiplier)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (comboMultiplier < 6)
             return;
 
@@ -79,6 +91,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyMagnetCoinTotal(
         int totalMagnetCoins)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance().PushProgressIfUseful(
             AchievementKey.MagneticAttraction,
             Mathf.Max(0, totalMagnetCoins),
@@ -89,6 +105,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyTotalDeaths(
         int totalDeaths)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalDeaths);
 
@@ -108,6 +128,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyCloneUseTotal(
         int totalUses)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalUses);
 
@@ -133,6 +157,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyDashUseTotal(
         int totalUses)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalUses);
 
@@ -158,6 +186,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyArmorEnemyKillTotal(
         int totalKills)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalKills);
 
@@ -183,6 +215,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyTotalCoins(
         int totalCoins)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalCoins);
 
@@ -208,6 +244,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyArmorUseTotal(
         int totalUses)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalUses);
 
@@ -227,6 +267,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifySlowUseTotal(
         int totalUses)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalUses);
 
@@ -246,6 +290,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifySpaceBombTriggerTotal(
         int totalTriggers)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (totalTriggers < 1)
             return;
 
@@ -257,6 +305,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifySpaceBombDeathTotal(
         int totalDeaths)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalDeaths);
 
@@ -276,6 +328,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifyLaserDeathTotal(
         int totalDeaths)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager = EnsureInstance();
         int safeTotal = Mathf.Max(0, totalDeaths);
 
@@ -297,6 +353,10 @@ public sealed partial class GooglePlayGamesManager
 
     public static void NotifyBossEncounter()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance().Unlock(
             AchievementKey.FirstContact
         );
@@ -304,6 +364,10 @@ public sealed partial class GooglePlayGamesManager
 
     public static void NotifyBossSplit()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance().Unlock(
             AchievementKey.DivideAndConquer
         );
@@ -311,6 +375,10 @@ public sealed partial class GooglePlayGamesManager
 
     public static void NotifyBossAoeEvade()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance().Unlock(
             AchievementKey.BehindCover
         );
@@ -319,6 +387,10 @@ public sealed partial class GooglePlayGamesManager
     public static void NotifySkinEquipped(
         string skinId)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (string.IsNullOrWhiteSpace(skinId))
             return;
 
@@ -351,6 +423,10 @@ public sealed partial class GooglePlayGamesManager
     private void BeginCloudSyncThenSyncAchievements(
         System.Action onFinished = null)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         FatefulRushCloudSave.SyncAfterAuthentication(
             () =>
@@ -647,6 +723,10 @@ public sealed partial class GooglePlayGamesManager
 
     private bool IsReady()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return false; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         try
         {

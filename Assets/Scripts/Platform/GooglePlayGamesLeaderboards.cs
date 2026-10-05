@@ -46,6 +46,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
         RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance();
     }
 
@@ -87,11 +91,19 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
 
     private void Start()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         PollAuthentication(force: true);
     }
 
     private void Update()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (Time.unscaledTime < nextAuthenticationPollTime)
             return;
 
@@ -107,6 +119,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
         int levelNumber,
         float seconds)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance()
             .SubmitBestTimeInternal(
                 levelNumber,
@@ -121,6 +137,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
     /// </summary>
     public static void ShowAllLeaderboardsUI()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance()
             .RequestLeaderboardUi(
                 AllLeaderboardsUi
@@ -133,6 +153,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
     public static void ShowLevelLeaderboardUI(
         int levelNumber)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (!FatefulRushLeaderboardIds.TryGetId(
                 levelNumber,
                 out _))
@@ -156,6 +180,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
     /// </summary>
     public static void SyncLocalBestTimes()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance()
             .SyncLocalBestTimesInternal();
     }
@@ -198,6 +226,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
         int levelNumber,
         float seconds)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (!TryBuildSubmission(
                 levelNumber,
                 seconds,
@@ -231,6 +263,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
 
     private void SyncLocalBestTimesInternal()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         if (!IsPlayGamesReady())
             return;
@@ -290,6 +326,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
     private void OpenLeaderboardUiInternal(
         int requestedLevel)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         if (!IsPlayGamesReady())
         {
@@ -373,6 +413,10 @@ public sealed class GooglePlayGamesLeaderboards : MonoBehaviour
 
     private static bool IsPlayGamesReady()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return false; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         return PlayGamesPlatform.Instance != null &&
                PlayGamesPlatform.Instance.IsAuthenticated();

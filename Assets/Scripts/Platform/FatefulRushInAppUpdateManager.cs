@@ -59,6 +59,10 @@ public sealed class FatefulRushInAppUpdateManager : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return; }
+#endif
+
         if (instance != null)
             return;
 

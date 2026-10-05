@@ -65,6 +65,9 @@ public class MissionBriefingPanelUI : MonoBehaviour
     private RectTransform panelRect;
     private CanvasGroup panelGroup;
 
+    private readonly List<Graphic> coveredGraphics = new List<Graphic>();
+    private readonly List<bool> coveredGraphicStates = new List<bool>();
+
     private Coroutine pageRoutine;
     private Coroutine startButtonRoutine;
     private Coroutine panelRoutine;
@@ -86,12 +89,14 @@ public class MissionBriefingPanelUI : MonoBehaviour
         PrepareDescription();
         PrepareStartButton();
         PreparePanel();
+        if (briefingPanel != null) UIRenderIsolation.Ensure(briefingPanel.transform);
         PrepareButtons();
         HideInstant();
     }
 
     private void OnDestroy()
     {
+        RestoreCoveredGraphics();
         if (startButton != null)
             startButton.onClick.RemoveListener(StartSelectedMission);
 
@@ -156,6 +161,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
         MainMenuStarColorRandomizer.Instance?
             .ShowMissionBriefingColor();
 
+        HideCoveredGraphics();
         briefingPanel.SetActive(true);
 
         if (SoundManager.Instance != null)
@@ -197,6 +203,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     public void HideInstant()
     {
+        RestoreCoveredGraphics();
         StopActiveRoutines();
 
         selectedLevel = null;
@@ -218,6 +225,36 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
         if (briefingPanel != null)
             briefingPanel.SetActive(false);
+    }
+
+    // The controller is below LevelSelectPanel, while the briefing is its sibling.
+    // Hide only underlying graphics: retain the page, controller, and space scene.
+    private void HideCoveredGraphics()
+    {
+        RestoreCoveredGraphics();
+        LevelSelectPanel owner = GetComponentInParent<LevelSelectPanel>(true);
+        if (owner == null || briefingPanel == null) return;
+        Graphic[] graphics = owner.GetComponentsInChildren<Graphic>(true);
+        foreach (Graphic graphic in graphics)
+        {
+            if (graphic == null || graphic.transform.IsChildOf(briefingPanel.transform)) continue;
+            coveredGraphics.Add(graphic);
+            coveredGraphicStates.Add(graphic.enabled);
+            graphic.enabled = false;
+        }
+    }
+
+    private void RestoreCoveredGraphics()
+    {
+        for (int i = 0; i < coveredGraphics.Count; i++)
+            if (coveredGraphics[i] != null) coveredGraphics[i].enabled = coveredGraphicStates[i];
+        coveredGraphics.Clear();
+        coveredGraphicStates.Clear();
+    }
+
+    private void OnDisable()
+    {
+        RestoreCoveredGraphics();
     }
 
     private void PrepareButtons()

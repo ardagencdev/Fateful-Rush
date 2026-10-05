@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR || FATEFULRUSH_DIAGNOSTICS
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -10,11 +10,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Editor-only cheat console used for balancing / QA.
+/// Editor / dedicated diagnostics APK cheat console used for balancing / QA.
 /// No scene setup is required: the console bootstraps itself before the first scene.
 ///
-/// It is excluded from every player build at compile time, including Android,
-/// Google Play Games on PC and native Windows builds.
+/// It is excluded from normal player builds; FATEFULRUSH_DIAGNOSTICS enables it in the test APK.
 /// Editor toggle: ` / ~
 /// </summary>
 public sealed class DevCheatConsole : MonoBehaviour
@@ -172,6 +171,9 @@ public sealed class DevCheatConsole : MonoBehaviour
             return;
 
         isOpen = true;
+#if FATEFULRUSH_DIAGNOSTICS
+        FatefulRushPerformanceHUD.RecordDiagnosticsEvent("CHEATS_OPEN");
+#endif
 
         EnsureEventSystem();
         SetConsoleVisible(true);
@@ -179,7 +181,11 @@ public sealed class DevCheatConsole : MonoBehaviour
         AddHistory("<color=#8FE8FF>FATEFUL RUSH DEV CONSOLE</color>");
         AddHistory("Type <color=#FFFFFF>help</color> to list commands.");
 
+#if !UNITY_ANDROID || UNITY_EDITOR
         FocusInputField();
+#endif
+        // On Android, tap the command field when a keyboard is needed.
+        // Merely opening the console no longer opens a native keyboard overlay.
     }
 
     public void CloseConsole()
@@ -188,6 +194,9 @@ public sealed class DevCheatConsole : MonoBehaviour
             return;
 
         isOpen = false;
+#if FATEFULRUSH_DIAGNOSTICS
+        FatefulRushPerformanceHUD.RecordDiagnosticsEvent("CHEATS_CLOSE");
+#endif
 
         if (inputField != null)
             inputField.DeactivateInputField();
@@ -454,7 +463,7 @@ public sealed class DevCheatConsole : MonoBehaviour
 
         canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 32760;
+        canvas.sortingOrder = 32761;
 
         CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -520,6 +529,18 @@ public sealed class DevCheatConsole : MonoBehaviour
         historyText.color = new Color32(214, 222, 232, 255);
 
         CreateInputField(panelObject.transform);
+#if FATEFULRUSH_DIAGNOSTICS
+        GameObject close = CreateUIObject("CloseConsole", panelObject.transform);
+        RectTransform closeRect = close.GetComponent<RectTransform>();
+        closeRect.anchorMin = closeRect.anchorMax = Vector2.one;
+        closeRect.pivot = Vector2.one;
+        closeRect.anchoredPosition = new Vector2(-12, -8);
+        closeRect.sizeDelta = new Vector2(130, 40);
+        close.AddComponent<Image>().color = new Color(.2f, .1f, .1f, 1f);
+        close.AddComponent<Button>().onClick.AddListener(CloseConsole);
+        TMP_Text closeText = CreateText("Caption", close.transform, "CLOSE", 22f, TextAlignmentOptions.Center);
+        StretchFull(closeText.rectTransform);
+#endif
     }
 
     private void CreateInputField(Transform parent)

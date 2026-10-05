@@ -242,23 +242,9 @@ public partial class BossEnemyFollow
             ? aoeChargeCenter
             : (Vector2)transform.position;
 
-        float bossVisualRadius = 0.35f;
-
-        if (bossCollider != null)
-        {
-            Bounds bounds = bossCollider.bounds;
-
-            bossVisualRadius = Mathf.Max(
-                bounds.extents.x,
-                bounds.extents.y
-            );
-        }
-
-        // Shake sirasinda bile kirmizi mesh Boss sprite/collider ustune binmesin.
-        float innerRadius =
-            bossVisualRadius +
-            Mathf.Max(0f, dangerPreviewInnerPadding) +
-            Mathf.Max(0f, aoeMaxShakeAmount);
+        // The global AOE includes its origin. The boss sprite stays readable
+        // through its existing sorting order; no artificial safe-looking hole.
+        float innerRadius = 0f;
 
         dangerPreviewObject =
             EnemyDangerPreviewMesh.CreatePreview(

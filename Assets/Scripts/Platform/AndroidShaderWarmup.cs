@@ -2,104 +2,113 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Warms the Fateful Rush shader variant collection only after MainMenu is
-/// visible, and spreads the work across frames to avoid blocking startup.
-/// </summary>
+/// <summary>Prepares the known variants during the intro's fully black exit.</summary>
 public sealed class AndroidShaderWarmup : MonoBehaviour
 {
     private const string MainMenuSceneName = "MainMenu";
     private const string CollectionResourceName = "FatefulRushRuntimeShaders";
-    private const int VariantsPerFrame = 2;
-    private const int InitialMenuFrames = 3;
-
+    private const int VariantsPerFrame = 1;
     public static bool IsComplete { get; private set; }
-
-    #if UNITY_ANDROID && !UNITY_EDITOR
+    public static string WarmupState { get; private set; } = "PENDING";
+#if UNITY_ANDROID && !UNITY_EDITOR
     private static AndroidShaderWarmup instance;
-    #endif
+    private static bool preparationRequested;
+#endif
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetState()
+    {
+        IsComplete = false;
+        WarmupState = "PENDING";
+#if UNITY_ANDROID && !UNITY_EDITOR
+        instance = null;
+        preparationRequested = false;
+#endif
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        if (instance != null)
-            return;
-
+        if (instance != null || IsComplete) return;
         GameObject root = new GameObject("AndroidShaderWarmup");
         instance = root.AddComponent<AndroidShaderWarmup>();
         DontDestroyOnLoad(root);
 #else
         IsComplete = true;
+        WarmupState = "SKIPPED_EDITOR_OR_DESKTOP";
+#endif
+    }
+
+    // Called only after all intro visuals and audio have faded away.
+    public static IEnumerator PrepareForMenu()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        if (IsComplete) yield break;
+        preparationRequested = true;
+        if (instance == null) Bootstrap();
+        while (!IsComplete) yield return null;
+#else
+        yield break;
 #endif
     }
 
     private IEnumerator Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        while (SceneManager.GetActiveScene().name != MainMenuSceneName)
+        // Direct MainMenu startup remains supported when testing without Intro.
+        while (!preparationRequested && SceneManager.GetActiveScene().name != MainMenuSceneName)
             yield return null;
 
-        // Guarantee that the menu gets several rendered frames before warmup.
-        for (int i = 0; i < InitialMenuFrames; i++)
-            yield return null;
-
-        ShaderVariantCollection collection =
-            Resources.Load<ShaderVariantCollection>(CollectionResourceName);
-
+        WarmupState = "LOADING_COLLECTION";
+        ShaderVariantCollection collection = Resources.Load<ShaderVariantCollection>(CollectionResourceName);
         if (collection == null || collection.variantCount == 0)
         {
-            Debug.LogWarning(
-                "[ShaderWarmup] FatefulRushRuntimeShaders is missing or empty. " +
-                "Warmup skipped safely."
-            );
-            Finish();
+            Debug.LogWarning("[ShaderWarmup] Known shader collection is missing or empty.");
+            Finish("MISSING_COLLECTION");
             yield break;
         }
 
+        WarmupState = "WARMING";
+        int framesRemaining = Mathf.Clamp(collection.variantCount + 32, 32, 512);
+        float deadline = Time.realtimeSinceStartup + 10f;
         bool finished = collection.isWarmedUp;
-
-        while (!finished)
+        bool failed = false;
+        while (!finished && framesRemaining-- > 0 && Time.realtimeSinceStartup < deadline)
         {
-            // Only spend warmup time while the player is sitting in MainMenu.
-            if (SceneManager.GetActiveScene().name != MainMenuSceneName)
-            {
-                yield return null;
-                continue;
-            }
-
             try
             {
                 finished = collection.WarmUpProgressively(VariantsPerFrame);
             }
             catch (System.Exception exception)
             {
-                Debug.LogWarning(
-                    "[ShaderWarmup] Progressive warmup failed safely: " +
-                    exception.Message
-                );
+                Debug.LogWarning("[ShaderWarmup] Preparation failed: " + exception.Message);
+                failed = true;
                 break;
             }
-
-            if (!finished)
-                yield return null;
+            if (!finished) yield return null;
         }
-
-        Finish();
+        if (failed)
+        {
+            Finish("FAILED");
+            yield break;
+        }
+        if (!finished)
+            Debug.LogWarning("[ShaderWarmup] Preparation timed out; continuing startup safely.");
+        Finish(finished ? "DONE" : "TIMED_OUT");
 #else
-        IsComplete = true;
+        Finish("SKIPPED_EDITOR_OR_DESKTOP");
         yield break;
 #endif
     }
 
-    private void Finish()
+    private void Finish(string state)
     {
-        IsComplete = true;
-
+        WarmupState = state;
+        IsComplete = true; // Terminal state; failure is exposed separately above.
 #if UNITY_ANDROID && !UNITY_EDITOR
-    instance = null;
+        instance = null;
 #endif
-
         Destroy(gameObject);
     }
 }

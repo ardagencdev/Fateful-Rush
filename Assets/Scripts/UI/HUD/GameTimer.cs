@@ -74,6 +74,7 @@ public class GameTimer : MonoBehaviour
     private int lastDisplayedSecond = -1;
 
     private int lastRenderedSecond = -1;
+    private int lastRenderedHundredth = -1;
 
     private Vector2 originalAnchoredPosition;
     private Color originalTextColor = Color.white;
@@ -104,6 +105,10 @@ public class GameTimer : MonoBehaviour
         RefreshReferences();
         CacheInitialVisualState();
         PrepareCountdownAudioSource();
+        // The hundredths change every rendered frame. Keep their mesh updates
+        // separate from the rest of the HUD, without adding a raycaster.
+        if (timerText != null && timerText.GetComponent<Canvas>() == null)
+            timerText.gameObject.AddComponent<Canvas>().overrideSorting = false;
     }
 
     private IEnumerator Start()
@@ -155,8 +160,10 @@ public class GameTimer : MonoBehaviour
         uiRefreshTimer +=
             Time.unscaledDeltaTime;
 
-        if (uiRefreshInterval <= 0f ||
-            uiRefreshTimer >= uiRefreshInterval)
+        // Hundredths use the current rendered frame rather than the old 20 Hz
+        // UI budget. Only a changed number is sent to TMP.
+        if (useCountdown ||
+            uiRefreshInterval <= 0f || uiRefreshTimer >= uiRefreshInterval)
         {
             uiRefreshTimer = 0f;
             UpdateUI();
@@ -171,6 +178,7 @@ public class GameTimer : MonoBehaviour
     public void StartTimer()
     {
         lastRenderedSecond = -1;
+        lastRenderedHundredth = -1;
         elapsedTime = 0f;
         uiRefreshTimer = 0f;
         lastDisplayedSecond = -1;
@@ -208,6 +216,7 @@ public class GameTimer : MonoBehaviour
     private void ResetTimerState()
     {
         lastRenderedSecond = -1;
+        lastRenderedHundredth = -1;
         elapsedTime = 0f;
         uiRefreshTimer = 0f;
         lastDisplayedSecond = -1;
@@ -255,12 +264,26 @@ public class GameTimer : MonoBehaviour
 
         bool countdown = useCountdown && levelConfig != null;
         float time = countdown ? RemainingTime : elapsedTime;
-        int second = Mathf.FloorToInt(Mathf.Max(0f, time));
-
-        if (second != lastRenderedSecond)
+        if (countdown)
         {
-            lastRenderedSecond = second;
-            timerText.text = FormatTime(time);
+            // Ceil prevents displaying 00.00 before the timer actually ends.
+            int hundredths = Mathf.CeilToInt(Mathf.Max(0f, time) * 100f);
+            if (hundredths != lastRenderedHundredth)
+            {
+                lastRenderedHundredth = hundredths;
+                lastRenderedSecond = -1;
+                timerText.SetText("{0:00}.{1:00}", hundredths / 100, hundredths % 100);
+            }
+        }
+        else
+        {
+            int second = Mathf.FloorToInt(Mathf.Max(0f, time));
+            if (second != lastRenderedSecond)
+            {
+                lastRenderedSecond = second;
+                lastRenderedHundredth = -1;
+                timerText.text = FormatTime(time);
+            }
         }
 
         if (countdown)

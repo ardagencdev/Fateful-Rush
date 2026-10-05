@@ -17,7 +17,6 @@ public sealed class WinConditionIntroUI : MonoBehaviour
     private TextMeshProUGUI levelText;
     private TextMeshProUGUI objectiveText;
     private TextMeshProUGUI mechanicText;
-    private TextMeshProUGUI inputHintText;
 
     public IEnumerator PlayAndWait(
         LevelConfig level,
@@ -52,16 +51,6 @@ public sealed class WinConditionIntroUI : MonoBehaviour
                     : "WIN CONDITION"
             );
 
-        // Android project only. The PC port lives in a separate project, so
-        // this project must never advertise SPACE/keyboard input.
-        string localizedInputHint =
-            FatefulRushLocalization.Text(
-                "intro.tap_to_start",
-                FatefulRushLocalization.IsTurkish
-                    ? "BAŞLAMAK İÇİN DOKUN"
-                    : "TAP TO START"
-            );
-
         DestroyOverlay();
         CreateOverlay(localizedTitle);
 
@@ -74,14 +63,6 @@ public sealed class WinConditionIntroUI : MonoBehaviour
 
         mechanicText.text = introducedMechanics;
         mechanicText.gameObject.SetActive(hasIntroducedMechanic);
-
-        inputHintText.rectTransform.anchoredPosition =
-            new Vector2(
-                0f,
-                hasIntroducedMechanic ? -180f : -142f
-            );
-
-        inputHintText.text = localizedInputHint;
 
         float safeTotalDuration =
             Mathf.Max(0.5f, totalDuration);
@@ -419,21 +400,6 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         mechanicText.color =
             SetAlpha(skinAccentColor, 0.92f);
 
-        inputHintText =
-            CreateText(
-                "Input Hint",
-                contentTransform,
-                sceneFont,
-                string.Empty,
-                23f,
-                new Vector2(0f, -180f),
-                new Vector2(1450f, 60f)
-            );
-
-        inputHintText.color =
-            new Color(1f, 1f, 1f, 0.52f);
-
-        inputHintText.characterSpacing = 2.5f;
     }
 
     private static Color GetSelectedSkinAccentColor()
@@ -830,7 +796,6 @@ public sealed class WinConditionIntroUI : MonoBehaviour
         levelText = null;
         objectiveText = null;
         mechanicText = null;
-        inputHintText = null;
     }
 
     private void OnDisable()

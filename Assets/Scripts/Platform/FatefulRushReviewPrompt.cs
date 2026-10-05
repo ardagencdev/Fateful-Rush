@@ -34,6 +34,10 @@ public sealed class FatefulRushReviewPrompt : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return; }
+#endif
+
         if (instance != null) return;
         var root = new GameObject("FatefulRushReviewPrompt");
         instance = root.AddComponent<FatefulRushReviewPrompt>();
@@ -47,6 +51,10 @@ public sealed class FatefulRushReviewPrompt : MonoBehaviour
 
     public static void NotifyRunFinished()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (true) { return; }
+#endif
+
         if (instance != null) instance.finishedRunThisSession = true;
     }
 

@@ -563,7 +563,8 @@ public partial class GameResultUI
         Color glowColor = won ? winEdgeGlowColor : loseEdgeGlowColor;
         glowColor.a = 0f;
 
-        resultEdgeGlow.color = glowColor;
+        PrepareResultEdgeGlowMaterial();
+        SetResultEdgeGlowOpacity(glowColor, 0f);
         resultEdgeGlow.raycastTarget = false;
         resultEdgeGlow.gameObject.SetActive(true);
         resultEdgeGlowRoutine = StartCoroutine(AnimateResultEdgeGlow(glowColor));
@@ -606,84 +607,86 @@ public partial class GameResultUI
                 )
             );
 
-        // Fade directly to the brightest point of the breathe cycle.
-        // SmootherStep keeps both the start and end velocity at zero,
-        // so the glow appears without visible stepping/jolts.
-        if (edgeGlowFadeInDuration > 0f)
+        float fadeDuration = Mathf.Max(0.5f, edgeGlowFadeInDuration);
+        float fadeElapsed = 0f;
+        while (fadeElapsed < fadeDuration)
         {
-            float fadeElapsed = 0f;
-
-            while (fadeElapsed < edgeGlowFadeInDuration)
-            {
-                fadeElapsed +=
-                    Time.unscaledDeltaTime;
-
-                float t =
-                    Mathf.Clamp01(
-                        fadeElapsed /
-                        edgeGlowFadeInDuration
-                    );
-
-                float smootherT =
-                    t * t * t *
-                    (t * (t * 6f - 15f) + 10f);
-
-                glowColor.a =
-                    Mathf.Lerp(
-                        0f,
-                        maxAlpha,
-                        smootherT
-                    );
-
-                resultEdgeGlow.color =
-                    glowColor;
-
-                yield return null;
-            }
-        }
-
-        glowColor.a = maxAlpha;
-        resultEdgeGlow.color = glowColor;
-
-        float elapsed = 0f;
-        float duration =
-            Mathf.Max(
-                0.25f,
-                edgeGlowBreathDuration
-            );
-
-        while (true)
-        {
-            elapsed +=
-                Time.unscaledDeltaTime;
-
-            // Starts at max alpha, smoothly breathes down to min,
-            // then back to max. SmootherStep softens the turning points.
-            float rawPulse =
-                (Mathf.Cos(
-                    (elapsed / duration) *
-                    Mathf.PI * 2f
-                ) + 1f) * 0.5f;
-
-            float smoothPulse =
-                rawPulse * rawPulse * rawPulse *
-                (
-                    rawPulse *
-                    (rawPulse * 6f - 15f) +
-                    10f
-                );
-
-            glowColor.a =
-                Mathf.Lerp(
-                    minAlpha,
-                    maxAlpha,
-                    smoothPulse
-                );
-
-            resultEdgeGlow.color =
-                glowColor;
-
+            fadeElapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(fadeElapsed / fadeDuration);
+            float smoothT = t * t * t * (t * (t * 6f - 15f) + 10f);
+            SetResultEdgeGlowOpacity(glowColor, maxAlpha * smoothT);
             yield return null;
+        }
+        SetResultEdgeGlowOpacity(glowColor, maxAlpha);
+
+        float phase = 0f;
+        float duration = Mathf.Max(0.25f, edgeGlowBreathDuration);
+        while (resultEdgeGlow != null)
+        {
+            phase = Mathf.Repeat(phase + Time.unscaledDeltaTime / duration, 1f);
+            // One sinusoid: flattening it again with SmootherStep concentrates
+            // most changes into a short steep interval, which looks stepped.
+            float pulse = (Mathf.Cos(phase * Mathf.PI * 2f) + 1f) * 0.5f;
+            SetResultEdgeGlowOpacity(glowColor, Mathf.Lerp(minAlpha, maxAlpha, pulse));
+            yield return null;
+        }
+        resultEdgeGlowRoutine = null;
+    }
+
+    private void PrepareResultEdgeGlowMaterial()
+    {
+        if (resultEdgeGlowMaterial == null)
+        {
+            Shader shader = Resources.Load<Shader>("ResultEdgeGlow/ResultEdgeGlow");
+            if (shader == null || !shader.isSupported) return;
+            resultEdgeGlowMaterial = new Material(shader) { name = "Result rounded edge glow" };
+        }
+        resultEdgeGlow.overrideSprite = null;
+        resultEdgeGlow.sprite = null;
+        resultEdgeGlow.type = Image.Type.Simple;
+        resultEdgeGlow.preserveAspect = false;
+        resultEdgeGlow.material = resultEdgeGlowMaterial;
+        ResultEdgeGlowGeometry geometry = resultEdgeGlow.GetComponent<ResultEdgeGlowGeometry>();
+        if (geometry == null) geometry = resultEdgeGlow.gameObject.AddComponent<ResultEdgeGlowGeometry>();
+        geometry.SetShape(edgeGlowCornerRadius, edgeGlowSoftness);
+        UpdateResultEdgeGlowShape();
+    }
+
+    private void UpdateResultEdgeGlowShape()
+    {
+        if (resultEdgeGlow == null || resultEdgeGlowMaterial == null) return;
+        Rect rect = resultEdgeGlow.rectTransform.rect;
+        float radius = Mathf.Clamp(edgeGlowCornerRadius, 0f, Mathf.Min(rect.width, rect.height) * 0.5f);
+        float softness = Mathf.Max(1f, edgeGlowSoftness);
+        if (rect == resultEdgeGlowLastRect && radius == resultEdgeGlowLastRadius &&
+            softness == resultEdgeGlowLastSoftness) return;
+        resultEdgeGlowLastRect = rect;
+        resultEdgeGlowLastRadius = radius;
+        resultEdgeGlowLastSoftness = softness;
+        resultEdgeGlowMaterial.SetVector(GlowBoundsId, new Vector4(rect.center.x, rect.center.y,
+            rect.width * 0.5f, rect.height * 0.5f));
+        resultEdgeGlowMaterial.SetFloat(GlowRadiusId, radius);
+        resultEdgeGlowMaterial.SetFloat(GlowSoftnessId, softness);
+        ResultEdgeGlowGeometry geometry = resultEdgeGlow.GetComponent<ResultEdgeGlowGeometry>();
+        if (geometry != null) geometry.SetShape(radius, softness);
+    }
+
+    private void SetResultEdgeGlowOpacity(Color glowColor, float opacity)
+    {
+        if (resultEdgeGlow == null) return;
+        if (resultEdgeGlowMaterial != null)
+        {
+            // Keep the UI vertex alpha constant at 1. Animate a float uniform
+            // rather than the Graphic Color32 channel (only 15 steps at .06).
+            glowColor.a = 1f;
+            if (resultEdgeGlow.color != glowColor) resultEdgeGlow.color = glowColor;
+            resultEdgeGlowMaterial.SetFloat(GlowOpacityId, Mathf.Clamp01(opacity));
+            UpdateResultEdgeGlowShape();
+        }
+        else
+        {
+            glowColor.a = Mathf.Clamp01(opacity);
+            resultEdgeGlow.color = glowColor;
         }
     }
 
@@ -714,3 +717,4 @@ public partial class GameResultUI
                shifted;
     }
 }
+

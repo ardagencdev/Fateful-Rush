@@ -11,6 +11,10 @@ public sealed partial class FatefulRushAdManager
 {
     private void TryStartAdsWhenSafe()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return; }
+#endif
+
 #if UNITY_EDITOR
         return;
 #else
@@ -142,6 +146,10 @@ public sealed partial class FatefulRushAdManager
 
     private void TryInitializeAdsSafely(bool skipConsentCheck = false)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return; }
+#endif
+
 #if !UNITY_EDITOR
         if (!IsSafeForAdBackgroundWork())
         {
@@ -239,6 +247,10 @@ public sealed partial class FatefulRushAdManager
 
     private void LoadInterstitialSafely()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return; }
+#endif
+
 #if !UNITY_EDITOR
         if (!IsSafeForAdBackgroundWork())
             return;
@@ -407,8 +419,8 @@ public sealed partial class FatefulRushAdManager
 
     private static string GetInterstitialAdUnitId()
     {
-#if UNITY_EDITOR
-        // Play Mode must never request production inventory.
+#if UNITY_EDITOR || FATEFULRUSH_DIAGNOSTICS
+        // Diagnostic APK and Play Mode use test inventory.
         return AndroidTestInterstitialId;
 #else
         // Android player builds use the real AdMob unit. Google Play Games on
@@ -419,6 +431,10 @@ public sealed partial class FatefulRushAdManager
 
     private static bool IsAdsRuntimeSupported()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return false; }
+#endif
+
 #if UNITY_ANDROID || UNITY_EDITOR
         return true;
 #else

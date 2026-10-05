@@ -142,7 +142,7 @@ public class PlayerSkinCatalog : ScriptableObject
     {
         get
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || FATEFULRUSH_DIAGNOSTICS
             return PlayerPrefs.GetInt(
                 DebugAllSkinsUnlockedKey,
                 0
@@ -294,7 +294,7 @@ public class PlayerSkinCatalog : ScriptableObject
         bool unlocked
     )
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || FATEFULRUSH_DIAGNOSTICS
         if (unlocked)
         {
             PlayerPrefs.SetInt(
@@ -315,7 +315,7 @@ public class PlayerSkinCatalog : ScriptableObject
 
     public static bool ToggleDebugAllSkinsUnlocked()
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || FATEFULRUSH_DIAGNOSTICS
         bool newState =
             !AreAllSkinsDebugUnlocked;
 

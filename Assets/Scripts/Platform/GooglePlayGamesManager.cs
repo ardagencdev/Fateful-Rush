@@ -91,13 +91,25 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
     private string lastAuthenticationStatus = "NotStarted";
     private string lastAchievementsUiStatus = "NotRequested";
 
-    public static bool IsAuthenticated =>
-        instance != null && instance.authenticated;
+    public static bool IsAuthenticated
+    {
+        get
+        {
+#if FATEFULRUSH_DIAGNOSTICS
+            if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) return false;
+#endif
+            return instance != null && instance.authenticated;
+        }
+    }
 
     [RuntimeInitializeOnLoadMethod(
         RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         // Run save-generation migration before authentication. This prevents
         // closed-beta progress from being pushed back to Google Play on the
         // first production launch.
@@ -105,6 +117,14 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
 
         EnsureInstance();
     }
+
+#if FATEFULRUSH_DIAGNOSTICS
+    public static void SetDiagnosticsPlayGamesEnabled(bool enabled)
+    {
+        FatefulRushDiagnosticsServices.PlayGamesEnabled = enabled;
+        if (enabled) EnsureInstance().Initialize();
+    }
+#endif
 
     private static GooglePlayGamesManager EnsureInstance()
     {
@@ -149,6 +169,10 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
 
     public void Initialize()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         if (authenticationStarted)
             return;
 
@@ -175,6 +199,10 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
     private void ProcessAuthentication(
         SignInStatus status)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         lastAuthenticationStatus = status.ToString();
         authenticated =
             status == SignInStatus.Success;
@@ -207,11 +235,19 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
 
     public static void ManualSignIn()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         EnsureInstance().ManualSignInInternal(false);
     }
 
     public static void ShowAchievementsUI()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         GooglePlayGamesManager manager =
             EnsureInstance();
 
@@ -232,6 +268,10 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
 #if UNITY_ANDROID && !UNITY_EDITOR
     private void ShowAchievementsUIInternal()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
         bool platformAuthenticated =
             PlayGamesPlatform.Instance.IsAuthenticated();
 
@@ -281,6 +321,10 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
     private void ManualSignInInternal(
         bool showAchievementsAfterSignIn)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.PlayGamesEnabled) { return; }
+#endif
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         bool platformAuthenticated =
             PlayGamesPlatform.Instance.IsAuthenticated();

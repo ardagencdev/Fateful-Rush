@@ -153,6 +153,10 @@ public sealed partial class FatefulRushAdManager : MonoBehaviour
         Action onFailure = null,
         Action onClosed = null)
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return false; }
+#endif
+
         if (!IsPrivacyOptionsRequired)
             return false;
 
@@ -208,6 +212,10 @@ public sealed partial class FatefulRushAdManager : MonoBehaviour
     {
         get
         {
+#if FATEFULRUSH_DIAGNOSTICS
+            if (!FatefulRushDiagnosticsServices.AdsEnabled) return false;
+#endif
+
             try
             {
                 return ConsentInformation.PrivacyOptionsRequirementStatus ==
@@ -220,8 +228,41 @@ public sealed partial class FatefulRushAdManager : MonoBehaviour
         }
     }
 
+#if FATEFULRUSH_DIAGNOSTICS
+    public static bool SetDiagnosticsAdsEnabled(bool enabled)
+    {
+        // Never interrupt an ad/consent form already on screen.
+        if (!enabled && IsFullScreenBusy) return false;
+        FatefulRushDiagnosticsServices.AdsEnabled = enabled;
+        if (!enabled)
+        {
+            if (instance != null)
+            {
+                instance.enabled = false;
+                DestroyAdSafely(ref instance.loadedInterstitial);
+            }
+            return true;
+        }
+        FatefulRushAdManager manager = EnsureInstance();
+        if (manager != null)
+        {
+            manager.enabled = true;
+#if !UNITY_EDITOR
+            manager.adsStartupPending = !manager.sdkInitialized;
+            manager.adsStartupNotBeforeRealtime = Time.realtimeSinceStartup + AdsStartupDelaySeconds;
+#endif
+            if (manager.sdkInitialized) manager.LoadInterstitialSafely();
+        }
+        return true;
+    }
+#endif
+
     private static FatefulRushAdManager EnsureInstance()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return null; }
+#endif
+
         if (instance != null)
             return instance;
 
@@ -291,6 +332,10 @@ public sealed partial class FatefulRushAdManager : MonoBehaviour
 
     private void Update()
     {
+#if FATEFULRUSH_DIAGNOSTICS
+        if (!FatefulRushDiagnosticsServices.AdsEnabled) { return; }
+#endif
+
         TryStartAdsWhenSafe();
         TrackGameplayAttempt();
         TrackMainMenuTime();

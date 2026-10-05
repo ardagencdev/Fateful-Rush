@@ -4,6 +4,12 @@ using UnityEngine;
 // Same Unity component. Inspector data and lifecycle entry points remain in BossEnemyFollow.cs.
 public partial class BossEnemyFollow
 {
+    private Transform routeTarget;
+    private Collider2D routeTargetCollider;
+    private bool hasDetourWaypoint;
+    private Vector2 detourWaypoint;
+    private float detourBestDistance, detourNoProgressTime;
+
     private void RefreshNavigationFilter()
     {
         navigationFilter = new ContactFilter2D();
@@ -53,21 +59,22 @@ public partial class BossEnemyFollow
 
         Vector2 targetDirection = toPlayer.normalized;
 
-        smoothedDirection =
-            Vector2.Lerp(
-                smoothedDirection == Vector2.zero
-                    ? targetDirection
-                    : smoothedDirection,
-                targetDirection,
-                directionSmoothness * Time.fixedDeltaTime
-            ).normalized;
+        // Normalizing Lerp(a, -a, t<0.5) returns a unchanged forever.
+        // Turning by angle remains well-defined even for an exact 180 turn.
+        if (smoothedDirection.sqrMagnitude <= 0.001f)
+            smoothedDirection = targetDirection;
+        float currentAngle = Mathf.Atan2(smoothedDirection.y, smoothedDirection.x) * Mathf.Rad2Deg;
+        float targetAngle = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg;
+        float turnedAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle,
+            Mathf.Max(0.01f, directionSmoothness) * Mathf.Rad2Deg * Time.fixedDeltaTime) * Mathf.Deg2Rad;
+        smoothedDirection = new Vector2(Mathf.Cos(turnedAngle), Mathf.Sin(turnedAngle));
 
         // Kisa menzilli steering'e gelmeden once Boss kendi buyuk collider'i
         // icin uzun menzilli bir rota karari verir. Ozellikle obstacle + ekran
         // kenari arasindaki dar koridorlari daha yaklasmadan eler.
         Vector2 plannedDirection =
             GetBossPlannedDirection(
-                smoothedDirection
+                targetDirection
             );
 
         if (plannedDirection.sqrMagnitude <= 0.001f)
@@ -77,7 +84,7 @@ public partial class BossEnemyFollow
 
         Vector2 finalDirection = plannedDirection;
 
-        if (unstuckTimer > 0f)
+        if (unstuckTimer > 0f && !hasDetourWaypoint)
         {
             unstuckTimer -= Time.fixedDeltaTime;
 
@@ -116,8 +123,21 @@ public partial class BossEnemyFollow
                 lookAhead
             );
 
-        bool directRouteClear =
-            directClearance >= lookAhead - 0.02f;
+        // Do not demand free space BEHIND the player. Stop the direct query at
+        // the travel distance needed to reach the player's real collider.
+        if (routeTarget != player || routeTargetCollider == null)
+        {
+            routeTarget = player;
+            routeTargetCollider = player != null ? player.GetComponent<Collider2D>() : null;
+        }
+        float targetTravel = player != null ? Vector2.Distance(rb.position, player.position) : lookAhead;
+        if (bossCollider != null && routeTargetCollider != null && routeTargetCollider.enabled)
+        {
+            ColliderDistance2D contact = bossCollider.Distance(routeTargetCollider);
+            if (contact.isValid) targetTravel = Mathf.Max(0f, contact.distance);
+        }
+        float directHorizon = Mathf.Min(lookAhead, Mathf.Max(speed * Time.fixedDeltaTime, targetTravel));
+        bool directRouteClear = directClearance >= directHorizon - 0.001f;
 
         if (routeCommitTimer > 0f)
             routeCommitTimer -= Time.fixedDeltaTime;
@@ -126,7 +146,52 @@ public partial class BossEnemyFollow
         if (directRouteClear)
         {
             routeCommitTimer = 0f;
+            unstuckTimer = 0f;
+            hasDetourWaypoint = false;
+            detourNoProgressTime = 0f;
+            committedRouteSide = 0;
             return goalDirection;
+        }
+
+        // A detour is a WORLD-SPACE waypoint, not a new left/right score each
+        // physics frame. The moving player cannot keep flipping its direction.
+        if (hasDetourWaypoint)
+        {
+            Vector2 toWaypoint = detourWaypoint - rb.position;
+            float remaining = toWaypoint.magnitude;
+            float arrivalDistance = Mathf.Max(0.15f, speed * Time.fixedDeltaTime * 2f);
+            if (remaining <= arrivalDistance)
+            {
+                hasDetourWaypoint = false;
+                detourNoProgressTime = 0f;
+            }
+            else
+            {
+                if (remaining < detourBestDistance - 0.01f)
+                {
+                    detourBestDistance = remaining;
+                    detourNoProgressTime = 0f;
+                }
+                else
+                {
+                    detourNoProgressTime += Time.fixedDeltaTime;
+                }
+                float corridorProbe = Mathf.Min(remaining,
+                    Mathf.Max(speed * Time.fixedDeltaTime + castSkin, GetBossDiameter() * 0.3f));
+                float corridorClearance = GetBossRouteClearance(toWaypoint.normalized, corridorProbe);
+                if (corridorClearance >= corridorProbe - 0.001f &&
+                    detourNoProgressTime < Mathf.Max(0.75f, routeCommitDuration))
+                {
+                    return toWaypoint.normalized;
+                }
+                // A moving obstacle can invalidate a waypoint. Replan on the
+                // SAME side first. Swap only if genuinely stalled or no viable
+                // route exists on the committed side.
+                hasDetourWaypoint = false;
+                if (detourNoProgressTime >= Mathf.Max(0.75f, routeCommitDuration))
+                    committedRouteSide *= -1;
+                detourNoProgressTime = 0f;
+            }
         }
 
         int preferredSide =
@@ -147,10 +212,16 @@ public partial class BossEnemyFollow
 
         // Commit aktifken once ayni taraftaki genis detour acilarini test et.
         // Bu sayede Boss evade'den sonra ayni dar araliga tekrar yonelmez.
-        EvaluateSide(preferredSide, true);
+        EvaluateSide(preferredSide, true, false);
+        if (bestDirection.sqrMagnitude <= 0.001f)
+            EvaluateSide(preferredSide, true, true);
 
-        // Tercih edilen taraf tamamen kapaliysa diger tarafa izin ver.
-        EvaluateSide(-preferredSide, false);
+        // A commitment is a constraint, not a small scoring bonus. A slightly
+        // higher score on the other side must NOT reverse a viable detour.
+        if (bestDirection.sqrMagnitude <= 0.001f)
+            EvaluateSide(-preferredSide, false, false);
+        if (bestDirection.sqrMagnitude <= 0.001f)
+            EvaluateSide(-preferredSide, false, true);
 
         if (bestDirection.sqrMagnitude > 0.001f)
         {
@@ -169,7 +240,18 @@ public partial class BossEnemyFollow
                     );
             }
 
-            return bestDirection.normalized;
+            Vector2 routeDirection = bestDirection.normalized;
+            float travel = Mathf.Max(0.05f,
+                GetBossRouteClearance(routeDirection, lookAhead) - Mathf.Max(0.05f, castSkin));
+            // Advance along the wall, then extend the same-side detour when
+            // this point is reached. No arbitrary timeout reverses a clear route.
+            travel = Mathf.Min(travel, lookAhead * 0.8f);
+            detourWaypoint = rb.position + routeDirection * travel;
+            detourBestDistance = travel;
+            detourNoProgressTime = 0f;
+            hasDetourWaypoint = true;
+            unstuckTimer = 0f;
+            return routeDirection;
         }
 
         // Uzun menzilde iyi rota bulunamazsa mevcut local steering/stuck
@@ -178,7 +260,8 @@ public partial class BossEnemyFollow
 
         void EvaluateSide(
             int side,
-            bool preferred)
+            bool preferred,
+            bool allowShortSegment)
         {
             side = side >= 0 ? 1 : -1;
 
@@ -215,11 +298,11 @@ public partial class BossEnemyFollow
                 float bossDiameter =
                     GetBossDiameter();
 
-                float minimumUsefulClearance =
-                    Mathf.Max(
-                        0.8f,
-                        bossDiameter * 0.9f
-                    );
+                // Near corners, a short safe SAME-SIDE step is better than
+                // reversing merely because a full diameter-long step won't fit.
+                float minimumUsefulClearance = allowShortSegment
+                    ? Mathf.Max(speed * Time.fixedDeltaTime * 3f + castSkin, bossDiameter * 0.2f)
+                    : Mathf.Max(0.8f, bossDiameter * 0.9f);
 
                 if (clearance < minimumUsefulClearance)
                     continue;
@@ -470,14 +553,26 @@ public partial class BossEnemyFollow
         if (direction.sqrMagnitude <= 0.001f)
             return false;
 
-        Vector2 steeredDirection =
+        float localProbe = obstacleProbeDistance;
+        if (player != null)
+            localProbe = Mathf.Min(localProbe, Mathf.Max(movementDistance + castSkin,
+                Vector2.Distance(rb.position, player.position)));
+        float targetContactDistance = routeTargetCollider != null && bossCollider != null
+            ? Mathf.Max(0f, bossCollider.Distance(routeTargetCollider).distance)
+            : (player != null ? Vector2.Distance(rb.position, player.position) : float.PositiveInfinity);
+        bool committedCorridorClear = hasDetourWaypoint &&
+            GetBossRouteClearance(direction, movementDistance + castSkin) >= movementDistance + castSkin - 0.001f;
+        bool shortDirectPursuit = routeCommitTimer <= 0f && unstuckTimer <= 0f &&
+            targetContactDistance <= Mathf.Max(obstacleProbeDistance, movementDistance + castSkin) &&
+            GetBossRouteClearance(direction, movementDistance + castSkin) >= movementDistance + castSkin - 0.001f;
+        Vector2 steeredDirection = (shortDirectPursuit || committedCorridorClear) ? direction.normalized :
             EnemyObstacleSteering2D.GetSteeredDirection(
                 bossCollider,
                 direction,
                 direction,
                 navigationFilter,
                 avoidanceHits,
-                obstacleProbeDistance,
+                localProbe,
                 movementDistance,
                 castSkin,
                 slideDirectionAttempts,
@@ -642,6 +737,11 @@ public partial class BossEnemyFollow
 
     private void HandleStuckCheck(bool attemptedMove)
     {
+        if (hasDetourWaypoint)
+        {
+            ResetStuckCheck();
+            return;
+        }
         stuckTimer += Time.fixedDeltaTime;
 
         float effectiveStuckCheckTime = Mathf.Min(
@@ -655,8 +755,10 @@ public partial class BossEnemyFollow
         float movedDistanceSqr =
             (rb.position - lastPosition).sqrMagnitude;
 
-        float requiredDistanceSqr =
-            stuckDistance * stuckDistance;
+        // Slow effects must not classify valid slow pursuit as a stuck boss.
+        float requiredDistance = Mathf.Min(Mathf.Max(0.001f, stuckDistance),
+            Mathf.Max(0.001f, speed * effectiveStuckCheckTime * 0.25f));
+        float requiredDistanceSqr = requiredDistance * requiredDistance;
 
         if (movedDistanceSqr < requiredDistanceSqr)
         {

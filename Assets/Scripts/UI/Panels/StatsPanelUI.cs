@@ -34,6 +34,8 @@ public partial class StatsPanelUI : MonoBehaviour
 
         if (statsScrollRect != null) UIRenderIsolation.Ensure(statsScrollRect.transform);
 
+        ConfigureStatsViewport();
+        RepairStatsFontMaterial();
         HideScrollbarButKeepScrolling();
         ConfigureSmoothScrolling();
 
@@ -120,6 +122,41 @@ public partial class StatsPanelUI : MonoBehaviour
             toPanel.SetActive(true);
     }
 
+    // The viewport is rectangular; keep drag hit testing, remove stencil work.
+    private void ConfigureStatsViewport()
+    {
+        if (statsScrollRect == null || statsScrollRect.viewport == null) return;
+        RectTransform viewport = statsScrollRect.viewport;
+        Mask stencil = viewport.GetComponent<Mask>();
+        if (stencil != null)
+        {
+            bool hiddenMaskGraphic = !stencil.showMaskGraphic;
+            stencil.enabled = false;
+            Destroy(stencil);
+            Graphic graphic = viewport.GetComponent<Graphic>();
+            if (hiddenMaskGraphic && graphic != null)
+            {
+                Color color = graphic.color;
+                color.a = 0f;
+                graphic.color = color;
+                graphic.canvasRenderer.cullTransparentMesh = true;
+            }
+        }
+        if (viewport.GetComponent<RectMask2D>() == null)
+            viewport.gameObject.AddComponent<RectMask2D>();
+    }
+
+    private void RepairStatsFontMaterial()
+    {
+        if (statsText == null || statsText.font == null || statsText.font.material == null) return;
+        Material current = statsText.fontSharedMaterial;
+        Material expected = statsText.font.material;
+        // Preserve a custom preset when it already uses this font's atlas.
+        if (current == null || current.GetTexture(ShaderUtilities.ID_MainTex)
+            != expected.GetTexture(ShaderUtilities.ID_MainTex))
+            statsText.fontSharedMaterial = expected;
+    }
+
     private void HideScrollbarButKeepScrolling()
     {
         if (statsScrollRect == null)
@@ -165,6 +202,7 @@ public partial class StatsPanelUI : MonoBehaviour
         if (statsText == null)
             return;
 
+        RepairStatsFontMaterial();
         builder.Clear();
 
         AppendGeneral();

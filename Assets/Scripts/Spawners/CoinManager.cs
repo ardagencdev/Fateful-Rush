@@ -52,6 +52,18 @@ public class CoinManager : MonoBehaviour
     public PlayerMovement playerMovement;
 
     private float timer;
+    // Keep the total search limit, but bound the physics work in one frame.
+    private const int SpawnAttemptsPerFrame = 8;
+    private GameObject pendingCoinPrefab;
+    private int pendingAttemptsRemaining;
+
+    private void CancelPendingSpawn()
+    {
+        pendingCoinPrefab = null;
+        pendingAttemptsRemaining = 0;
+    }
+
+    private void OnDisable() => CancelPendingSpawn();
 
     private Transform playerTransform;
 
@@ -91,12 +103,16 @@ public class CoinManager : MonoBehaviour
 
     private void Update()
     {
-        if (!GameStateManager.IsGameplayStarted)
+        if (!GameStateManager.IsGameplayStarted || GameStateManager.IsGameplayEnded)
+        {
+            CancelPendingSpawn();
             return;
+        }
 
         if (playerMovement != null &&
             playerMovement.IsGameOver)
         {
+            CancelPendingSpawn();
             return;
         }
 
@@ -106,6 +122,7 @@ public class CoinManager : MonoBehaviour
     public void ResetSpawner()
     {
         timer = 0f;
+        CancelPendingSpawn();
 
         /*
          * Sahnedeki canlı coinleri listeden silmiyoruz.
@@ -120,9 +137,20 @@ public class CoinManager : MonoBehaviour
     private void HandleCoinSpawn()
     {
         if (maxCoinCount <= 0)
+        {
+            CancelPendingSpawn();
+            return;
+        }
+        if (Time.timeScale <= 0f)
             return;
 
         timer += Time.deltaTime;
+
+        if (pendingCoinPrefab != null)
+        {
+            ContinuePendingSpawn();
+            return;
+        }
 
         if (timer < spawnInterval)
             return;
@@ -132,7 +160,39 @@ public class CoinManager : MonoBehaviour
         if (GetActiveCoinCount() >= maxCoinCount)
             return;
 
-        TrySpawnCoin();
+        pendingCoinPrefab = GetRandomCoin();
+        pendingAttemptsRemaining = Mathf.Max(1, maxTry);
+        ContinuePendingSpawn();
+    }
+
+    private void ContinuePendingSpawn()
+    {
+#if FATEFULRUSH_DIAGNOSTICS
+        using var work = FatefulRushPerformanceHUD.MeasureWork(0);
+#endif
+        if (pendingCoinPrefab == null || CameraWorldBounds.Instance == null ||
+            GetActiveCoinCount() >= maxCoinCount)
+        {
+            CancelPendingSpawn();
+            return;
+        }
+
+        int budget = Mathf.Min(SpawnAttemptsPerFrame, pendingAttemptsRemaining);
+        while (budget-- > 0 && pendingAttemptsRemaining > 0)
+        {
+            pendingAttemptsRemaining--;
+            Vector2 position = CameraWorldBounds.Instance.RandomPointInside(spawnPadding);
+            if (!IsValidPosition(position))
+                continue;
+
+            GameObject prefab = pendingCoinPrefab;
+            CancelPendingSpawn();
+            SpawnCoinAt(prefab, position);
+            return;
+        }
+
+        if (pendingAttemptsRemaining <= 0)
+            CancelPendingSpawn();
     }
 
     private int GetActiveCoinCount()
@@ -155,22 +215,8 @@ public class CoinManager : MonoBehaviour
         }
     }
 
-    private bool TrySpawnCoin()
+    private bool SpawnCoinAt(GameObject coinPrefab, Vector2 spawnPosition)
     {
-        if (CameraWorldBounds.Instance == null)
-            return false;
-
-        GameObject coinPrefab = GetRandomCoin();
-
-        if (coinPrefab == null)
-            return false;
-
-        if (!TryGetValidSpawnPosition(
-                out Vector2 spawnPosition))
-        {
-            return false;
-        }
-
         GameObject coinObject = RuntimeObjectPool.Spawn(
             coinPrefab,
             spawnPosition,
@@ -225,36 +271,6 @@ public class CoinManager : MonoBehaviour
 
         if (prefab == rareCoin)
             coin.Configure(CoinType.Rare, rareCoinValue);
-    }
-
-    private bool TryGetValidSpawnPosition(
-        out Vector2 spawnPosition
-    )
-    {
-        CameraWorldBounds bounds =
-            CameraWorldBounds.Instance;
-
-        if (bounds == null)
-        {
-            spawnPosition = Vector2.zero;
-            return false;
-        }
-
-        for (int attempt = 0;
-             attempt < maxTry;
-             attempt++)
-        {
-            spawnPosition =
-                bounds.RandomPointInside(
-                    spawnPadding
-                );
-
-            if (IsValidPosition(spawnPosition))
-                return true;
-        }
-
-        spawnPosition = Vector2.zero;
-        return false;
     }
 
     private bool IsValidPosition(Vector2 position)

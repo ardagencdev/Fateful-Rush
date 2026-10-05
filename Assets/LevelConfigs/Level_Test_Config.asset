@@ -42,11 +42,11 @@ MonoBehaviour:
   briefingPages:
   - Mission information...
   gameplayMusic: {fileID: 8300000, guid: 5253dcd43cec5e04eb0246cca9356c43, type: 3}
-  winCondition: 0
+  winCondition: 1
   winScore: 10000
-  timeLimit: 30
-  showGameTimerHUD: 0
-  playerMoveSpeed: 6.5
+  timeLimit: 60
+  showGameTimerHUD: 1
+  playerMoveSpeed: 6.4
   dashEnabled: 1
   cloneEnabled: 1
   dashDistance: 3
@@ -131,7 +131,7 @@ MonoBehaviour:
     separationStrength: 0.65
   projectileEnemyCount: 0
   projectileEnemySpawnInterval: 3
-  projectileEnemyDanger: 3
+  projectileEnemyDanger: 5
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -155,9 +155,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.9
     separationStrength: 0.45
-  hunterEnemyCount: 0
-  hunterEnemySpawnInterval: 8
-  hunterEnemyDanger: 2
+  hunterEnemyCount: 4
+  hunterEnemySpawnInterval: 2
+  hunterEnemyDanger: 5
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -167,10 +167,10 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 1
-  bossSpawnCondition: 0
+  bossEnabled: 0
+  bossSpawnCondition: 1
   bossSpawnScore: 10
-  bossSpawnTime: 30
+  bossSpawnTime: 1
   bossDanger: 5
   bossCustomOverride: 0
   bossOverride:
@@ -249,7 +249,7 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 0
-  verticalLaserDanger: 1
+  verticalLaserDanger: 4
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8
@@ -259,7 +259,7 @@ MonoBehaviour:
     width: 5.5
     sizeExtra: 1
   horizontalLaserEnabled: 0
-  horizontalLaserDanger: 3
+  horizontalLaserDanger: 4
   horizontalLaserCustomOverride: 0
   horizontalLaserOverride:
     minSpawnTime: 5
@@ -268,7 +268,7 @@ MonoBehaviour:
     lifeTime: 1.5
     width: 5.5
     sizeExtra: 1
-  bombTrapEnabled: 0
+  bombTrapEnabled: 1
   bombDanger: 5
   bombCustomOverride: 0
   bombOverride:

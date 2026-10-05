@@ -96,6 +96,14 @@ public static class RuntimePerformancePolicy
     /// Google Play Games on PC instead targets the display refresh rate.
     /// Native desktop/editor uses hardware VSync for smooth frame pacing.
     /// </summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ApplyStartupFrameRate()
+    {
+        // Android's -1 default is 30 FPS. Request 60 before IntroScene renders.
+        // SettingsManager continues applying the user's preference afterwards.
+        ApplyFrameRate(60);
+    }
+
     public static void ApplyFrameRate(int mobileTargetFrameRate)
     {
         int validatedMobileTarget =
