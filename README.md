@@ -13,12 +13,12 @@
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/gameplay-near-miss.jpg" width="48%" alt="Fateful Rush near miss gameplay" />
-  <img src="docs/screenshots/gameplay-void-arena.jpg" width="48%" alt="Fateful Rush arena gameplay" />
+  <img src="docs/screenshots/BasicGameplay.png" width="48%" alt="Fateful Rush gameplay" />
+  <img src="docs/screenshots/Hunter.png" width="48%" alt="Fateful Rush Hunter enemy gameplay" />
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/gameplay-boss-aoe.jpg" width="75%" alt="Fateful Rush boss encounter" />
+  <img src="docs/screenshots/Boss.png" width="75%" alt="Fateful Rush boss encounter" />
 </p>
 
 ---
