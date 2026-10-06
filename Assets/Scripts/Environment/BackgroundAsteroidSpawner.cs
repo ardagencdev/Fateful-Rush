@@ -277,6 +277,17 @@ public sealed class BackgroundAsteroidSpawner : MonoBehaviour
         lastStarted = started;
         if (started && !GameStateManager.IsGameplayEnded && Time.timeScale > 0f)
             AdvancePassages(Time.deltaTime, false);
+        else if (GameStateManager.IsGameplayEnded)
+        {
+            // Finish the visible passage gently; do not spawn more after the match.
+            float dt = Mathf.Min(Time.unscaledDeltaTime, 0.1f) * 0.4f;
+            matchClock += dt;
+            if (passageActive)
+            {
+                elapsed += dt;
+                if (elapsed >= duration) passageActive = false;
+            }
+        }
         ApplyPlacement();
     }
 

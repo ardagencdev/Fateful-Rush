@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Move out of Vertical Laser warnings early and save Clone for overlaps."
+  - Move out of Vertical Laser warnings early and save Clone for overlaps.
   gameplayMusic: {fileID: 8300000, guid: 4a8cbd54433d8b14d917dd8b693ce903, type: 3}
   winCondition: 1
   winScore: 15
@@ -106,8 +106,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 3
-  normalEnemySpawnInterval: 7
+  normalEnemyCount: 1
+  normalEnemySpawnInterval: 4
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -122,9 +122,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 14
-  projectileEnemyDanger: 2
+  projectileEnemyCount: 1
+  projectileEnemySpawnInterval: 10
+  projectileEnemyDanger: 5
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -149,8 +149,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 18
-  hunterEnemyDanger: 2
+  hunterEnemySpawnInterval: 12
+  hunterEnemyDanger: 5
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6
@@ -242,7 +242,7 @@ MonoBehaviour:
   slowMinSpawnTime: 8
   slowMaxSpawnTime: 20
   verticalLaserEnabled: 1
-  verticalLaserDanger: 1
+  verticalLaserDanger: 2
   verticalLaserCustomOverride: 0
   verticalLaserOverride:
     minSpawnTime: 8

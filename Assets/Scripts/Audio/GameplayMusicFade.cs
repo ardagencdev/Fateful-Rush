@@ -183,6 +183,13 @@ public class GameplayMusicFade : MonoBehaviour
         );
     }
 
+    public void FadeOutForResult(float duration)
+    {
+        if (source == null || !source.isPlaying) return;
+        targetTension = 0f;
+        FadeGainTo(0f, Mathf.Max(0.05f, duration), true);
+    }
+
     public void ResumeFromPause(float duration)
     {
         if (source == null || source.clip == null)

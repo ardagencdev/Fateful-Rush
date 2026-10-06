@@ -531,6 +531,10 @@ public partial class GameStateManager
             if (source == null || !source.isPlaying)
                 continue;
 
+            // Music owns its unscaled result fade; stop only gameplay SFX here.
+            if (gameplayMusic != null && source.GetComponent<GameplayMusicFade>() == gameplayMusic)
+                continue;
+
             // A lethal Space Bomb explosion is intentionally allowed to
             // finish after the gameplay freeze. Everything else is stopped.
             if (source.GetComponentInParent<GameEndPersistentAudio>() != null)
@@ -580,7 +584,7 @@ public partial class GameStateManager
 
     private void StopMusic()
     {
-        gameplayMusic?.StopImmediately();
+        gameplayMusic?.FadeOutForResult(1.1f);
     }
 
     public void RestartGame()

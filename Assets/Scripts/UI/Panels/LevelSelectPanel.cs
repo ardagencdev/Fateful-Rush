@@ -229,6 +229,11 @@ public class LevelSelectPanel : MonoBehaviour
 
     public void RefreshButtons()
     {
+        RefreshButtons(true);
+    }
+
+    private void RefreshButtons(bool animateNavigation)
+    {
         CleanupButtonList();
 
         foreach (LevelButtonUI button in createdButtons)
@@ -240,7 +245,7 @@ public class LevelSelectPanel : MonoBehaviour
         // Progress may have changed while the panel was open.
         CalculatePageCount();
         ClampCurrentPageToAccessibleRange();
-        RefreshPageUI(true);
+        RefreshPageUI(animateNavigation);
     }
 
     public IReadOnlyList<LevelConfig> GetConfiguredLevels()
@@ -250,7 +255,9 @@ public class LevelSelectPanel : MonoBehaviour
 
     private void OnMissionBriefingClosed()
     {
-        RefreshButtons();
+        // The briefing owns the whole-list return animation. Prepare navigation
+        // immediately while covered so two routines do not animate its groups.
+        RefreshButtons(false);
         ApplyCurrentPageStarProgression();
     }
 

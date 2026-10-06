@@ -189,7 +189,7 @@ MonoBehaviour:
     splitDistance: 1.2
     miniBossSpeed: 2.5
   beaconEnemyCount: 1
-  beaconMinSpawnTime: 24
+  beaconMinSpawnTime: 20
   beaconMaxSpawnTime: 30
   beaconEnemyDanger: 1
   beaconEnemyCustomOverride: 0

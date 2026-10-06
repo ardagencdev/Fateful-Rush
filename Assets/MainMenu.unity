@@ -21240,6 +21240,15 @@ MonoBehaviour:
   darkPlanetSprite: {fileID: 21300000, guid: 852784ca2050eb245b69b90a9c1d330e, type: 3}
   goldenPlanetSprite: {fileID: 21300000, guid: 0d6ab6aca935f2148b30ca4ea1a063cc, type: 3}
   transitionDuration: 1.5
+  useColoredSkinMoons: 0
+  blueMoonSprite: {fileID: 0}
+  orangeMoonSprite: {fileID: 0}
+  redMoonSprite: {fileID: 0}
+  greenMoonSprite: {fileID: 0}
+  pinkMoonSprite: {fileID: 0}
+  yellowMoonSprite: {fileID: 0}
+  cyanMoonSprite: {fileID: 0}
+  purpleMoonSprite: {fileID: 0}
   dramaticTransitions: 1
   goldenTransitionDuration: 1.4
   flashStrength: 0.65
@@ -31930,7 +31939,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: v1.1.2
+  m_text: v1.1.25
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
   m_sharedMaterial: {fileID: -3523414811633075640, guid: 2a32338edc170034a924e5e5451be7ce, type: 2}
@@ -35478,6 +35487,15 @@ MonoBehaviour:
   darkPlanetSprite: {fileID: 21300000, guid: 45f296ec824ba624e8397fdbf50bacc2, type: 3}
   goldenPlanetSprite: {fileID: 21300000, guid: f24c2a822d5deed429ad0e407499cf91, type: 3}
   transitionDuration: 2
+  useColoredSkinMoons: 1
+  blueMoonSprite: {fileID: 21300000, guid: c98fcf748e8c65749ad64fadcf3002a7, type: 3}
+  orangeMoonSprite: {fileID: 21300000, guid: f559aaf4ad446b640803989fbb324ea1, type: 3}
+  redMoonSprite: {fileID: 21300000, guid: c1421d8dfec6952438289ebc2315a2c7, type: 3}
+  greenMoonSprite: {fileID: 21300000, guid: d2d613bd6f8acd34580aa41a4e4f550c, type: 3}
+  pinkMoonSprite: {fileID: 21300000, guid: 919ce9f22d8c93c4c83f1cdd48317052, type: 3}
+  yellowMoonSprite: {fileID: 21300000, guid: fec6c896c15916d43995d3202bf11cab, type: 3}
+  cyanMoonSprite: {fileID: 21300000, guid: 87f7bd4c75ee03b4db0ea15b5b2d3189, type: 3}
+  purpleMoonSprite: {fileID: 21300000, guid: c629eecd4f7def64faaf0b34f39e0317, type: 3}
   dramaticTransitions: 1
   goldenTransitionDuration: 1.4
   flashStrength: 0.65

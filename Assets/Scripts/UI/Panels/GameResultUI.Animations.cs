@@ -7,6 +7,357 @@ using UnityEngine.UI;
 // Same Unity component. Inspector data and lifecycle entry points remain in GameResultUI.cs.
 public partial class GameResultUI
 {
+    private enum ExitKind { Enemy, Obstacle, Bomb, Coin, Player, Pickup }
+    private sealed class WorldExitItem
+    {
+        public Transform root;
+        public ExitKind kind;
+        public Vector3 position, scale;
+        public float delay;
+        public bool collectCoin;
+        public readonly System.Collections.Generic.List<WorldExitRenderer> renderers =
+            new System.Collections.Generic.List<WorldExitRenderer>();
+        public readonly System.Collections.Generic.List<Behaviour> suspended =
+            new System.Collections.Generic.List<Behaviour>();
+    }
+    private sealed class WorldExitRenderer
+    {
+        public Renderer renderer;
+        public bool enabled;
+        public Color color;
+        public int colorId;
+        public MaterialPropertyBlock originalBlock, block;
+        public MeshFilter filter;
+        public Mesh originalMesh, fadeMesh;
+        public Color[] originalColors, fadeColors;
+        public ParticleSystem particles;
+        public ParticleSystem.Particle[] particleBuffer;
+        public Color32[] particleColors;
+        public int particleCount;
+        public Color lineStart, lineEnd;
+    }
+    private readonly System.Collections.Generic.List<WorldExitItem> worldExitItems =
+        new System.Collections.Generic.List<WorldExitItem>();
+    private readonly System.Collections.Generic.List<SpriteRenderer> exitTrail =
+        new System.Collections.Generic.List<SpriteRenderer>();
+    private Coroutine worldExitRoutine;
+
+    private static Transform FindExitRoot(Transform child, out ExitKind kind)
+    {
+        kind = ExitKind.Obstacle;
+        for (Transform t = child; t != null; t = t.parent)
+        {
+            if (t.GetComponent<PlayerMovement>() != null) { kind = ExitKind.Player; return t; }
+            if (t.GetComponent<Coin>() != null) { kind = ExitKind.Coin; return t; }
+            if (t.GetComponent<SpaceBomb>() != null) { kind = ExitKind.Bomb; return t; }
+            if (t.GetComponent<EnemyFollow>() != null || t.GetComponent<HunterEnemyFollow>() != null ||
+                t.GetComponent<ProjectileEnemyFollow>() != null || t.GetComponent<BossEnemyFollow>() != null ||
+                t.GetComponent<MiniBossFollow>() != null || t.GetComponent<BeaconEnemy>() != null ||
+                t.GetComponent<EnemyProjectile>() != null || t.GetComponent<VoidClone>() != null ||
+                t.GetComponent<BeaconPulseWave>() != null ||
+                t.CompareTag("Enemy") || t.CompareTag("BeaconEnemy"))
+            { kind = ExitKind.Enemy; return t; }
+            if (t.GetComponent<ArmorPowerUp>() != null || t.GetComponent<SlowPowerUp>() != null)
+            { kind = ExitKind.Pickup; return t; }
+            if (t.CompareTag("Wall") || t.GetComponent<LaserWall>() != null)
+            { kind = ExitKind.Obstacle; return t; }
+        }
+        return null;
+    }
+
+    private void StartWorldExit(bool won)
+    {
+        RestoreWorldExit();
+        var roots = new System.Collections.Generic.Dictionary<Transform, WorldExitItem>();
+        Camera camera = Camera.main;
+        Renderer[] renderers = UnityFindCompat.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude);
+        bool expired = !won && string.Equals(displayedDeathCause, "TIME EXPIRED",
+            System.StringComparison.OrdinalIgnoreCase);
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null || !renderer.enabled || renderer.gameObject.scene != gameObject.scene) continue;
+            Transform root = FindExitRoot(renderer.transform, out ExitKind kind);
+            if (root == null || (kind == ExitKind.Player && !won && !expired)) continue;
+            if (!roots.TryGetValue(root, out WorldExitItem item))
+            {
+                item = new WorldExitItem { root = root, kind = kind };
+                // Prevent decorative LateUpdate scripts from overwriting the fade/pose.
+                foreach (MonoBehaviour visual in root.GetComponentsInChildren<MonoBehaviour>(true))
+                {
+                    if (visual == null || !visual.enabled) continue;
+                    if (visual is ObstacleIdleAnimation || visual is ObstacleReadabilityAccent ||
+                        visual is SpaceFloatVisual || visual is MovementVisualEffect ||
+                        visual is EnemyDangerPreviewRuntime || visual is ShieldRotate)
+                    { item.suspended.Add(visual); visual.enabled = false; }
+                }
+                item.position = root.position;
+                item.scale = root.localScale;
+                item.delay = (worldExitItems.Count % 5) * 0.025f;
+                Vector3 viewport = camera != null ? camera.WorldToViewportPoint(root.position) : new Vector3(.5f,.5f,1f);
+                Coin coin = kind == ExitKind.Coin ? root.GetComponent<Coin>() : null;
+                item.collectCoin = won && coin != null && !coin.IsCollected && viewport.z > 0f &&
+                    viewport.x >= 0f && viewport.x <= 1f && viewport.y >= 0f && viewport.y <= 1f;
+                roots.Add(root, item);
+                worldExitItems.Add(item);
+            }
+            WorldExitRenderer state = new WorldExitRenderer { renderer = renderer, enabled = renderer.enabled };
+            if (renderer is SpriteRenderer sprite) state.color = sprite.color;
+            else if (renderer is LineRenderer line)
+            { state.lineStart = line.startColor; state.lineEnd = line.endColor; }
+            else if (renderer is ParticleSystemRenderer)
+            {
+                state.particles = renderer.GetComponent<ParticleSystem>();
+                if (state.particles != null)
+                {
+                    state.particleBuffer = new ParticleSystem.Particle[state.particles.main.maxParticles];
+                    state.particleCount = state.particles.GetParticles(state.particleBuffer);
+                    state.particleColors = new Color32[state.particleCount];
+                    for (int i = 0; i < state.particleCount; i++) state.particleColors[i] = state.particleBuffer[i].startColor;
+                }
+            }
+            else
+            {
+                Material material = renderer.sharedMaterial;
+                foreach (string property in new[] { "_BaseColor", "_Color", "_TintColor" })
+                    if (material != null && material.HasProperty(property))
+                    { state.colorId = Shader.PropertyToID(property); state.color = material.GetColor(state.colorId); break; }
+                if (state.colorId != 0)
+                {
+                    state.originalBlock = new MaterialPropertyBlock(); renderer.GetPropertyBlock(state.originalBlock);
+                    state.block = new MaterialPropertyBlock(); renderer.GetPropertyBlock(state.block);
+                    if (state.block.HasColor(state.colorId)) state.color = state.block.GetColor(state.colorId);
+                }
+                else
+                {
+                    state.filter = renderer.GetComponent<MeshFilter>();
+                    if (state.filter != null && state.filter.sharedMesh != null && state.filter.sharedMesh.isReadable)
+                    {
+                        state.originalMesh = state.filter.sharedMesh;
+                        state.fadeMesh = Instantiate(state.originalMesh);
+                        state.originalColors = state.originalMesh.colors;
+                        if (state.originalColors.Length != state.originalMesh.vertexCount)
+                        {
+                            state.originalColors = new Color[state.originalMesh.vertexCount];
+                            for (int i = 0; i < state.originalColors.Length; i++) state.originalColors[i] = Color.white;
+                        }
+                        state.fadeColors = new Color[state.originalColors.Length];
+                        state.filter.sharedMesh = state.fadeMesh;
+                    }
+                }
+            }
+            item.renderers.Add(state);
+        }
+        worldExitRoutine = StartCoroutine(PlayWorldExit(won));
+    }
+
+    private void ApplyWorldExitOpacity(WorldExitItem item, float alpha, float light)
+    {
+        foreach (WorldExitRenderer state in item.renderers)
+        {
+            if (state.renderer == null) continue;
+            if (state.renderer is SpriteRenderer sprite)
+            {
+                Color color = Color.Lerp(state.color, light >= 0f ? Color.white : Color.black, Mathf.Abs(light));
+                color.a = state.color.a * alpha;
+                sprite.color = color;
+            }
+            else if (state.renderer is LineRenderer line)
+            {
+                Color start = state.lineStart, end = state.lineEnd;
+                start.a *= alpha; end.a *= alpha; line.startColor = start; line.endColor = end;
+            }
+            else if (state.particles != null)
+            {
+                for (int i = 0; i < state.particleCount; i++)
+                {
+                    Color32 color = state.particleColors[i]; color.a = (byte)(color.a * alpha);
+                    state.particleBuffer[i].startColor = color;
+                }
+                state.particles.SetParticles(state.particleBuffer, state.particleCount);
+            }
+            else if (state.colorId != 0)
+            {
+                Color color = state.color; color.a *= alpha;
+                state.block.SetColor(state.colorId, color); state.renderer.SetPropertyBlock(state.block);
+            }
+            else if (state.fadeMesh != null)
+            {
+                for (int i = 0; i < state.fadeColors.Length; i++)
+                { Color color = state.originalColors[i]; color.a *= alpha; state.fadeColors[i] = color; }
+                state.fadeMesh.colors = state.fadeColors;
+            }
+            if (alpha <= 0f) state.renderer.enabled = false;
+        }
+    }
+
+    private IEnumerator PlayWorldExit(bool won)
+    {
+        WorldExitItem player = worldExitItems.Find(item => item.kind == ExitKind.Player);
+        bool sweepCoins = won && player != null && worldExitItems.Exists(item => item.collectCoin);
+        Vector3 destination = player != null ? player.position : Vector3.zero;
+        float duration = Mathf.Max(0.1f, worldExitDuration);
+        float elapsed = 0f;
+        int soundStep = 0;
+        string skinId = PlayerPrefs.GetString(PlayerSkinCatalog.SelectedSkinKey, "white");
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            if (sweepCoins && soundStep < 3 && t >= 0.12f + soundStep * 0.20f)
+            { SoundManager.Instance?.PlayResultCoinSweep(skinId, soundStep); soundStep++; }
+            foreach (WorldExitItem item in worldExitItems)
+            {
+                if (item.root == null) continue;
+                float p = Mathf.Clamp01((t - item.delay) / 0.65f);
+                float alpha = 1f - Mathf.SmoothStep(0f, 1f, p);
+                float light = 0f;
+                if (item.collectCoin && player != null)
+                {
+                    float flight = Mathf.Clamp01((t - item.delay) / 0.43f);
+                    float eased = Mathf.SmoothStep(0f, 1f, flight);
+                    Vector3 midpoint = (item.position + destination) * 0.5f + Vector3.up * 0.35f;
+                    float inverse = 1f - eased;
+                    item.root.position = inverse * inverse * item.position +
+                        2f * inverse * eased * midpoint + eased * eased * destination;
+                    item.root.localScale = item.scale * Mathf.Lerp(1f, 0.15f, eased);
+                    alpha = 1f - Mathf.SmoothStep(0.7f, 1f, flight);
+                    light = 0.15f * Mathf.Sin(flight * Mathf.PI);
+                }
+                else if (item.kind == ExitKind.Player)
+                {
+                    float departure = Mathf.Clamp01((t - (sweepCoins ? 0.56f : 0.16f)) /
+                        (sweepCoins ? 0.44f : 0.84f));
+                    float eased = Mathf.SmoothStep(0f, 1f, departure);
+                    alpha = 1f - eased;
+                    item.root.localScale = item.scale * Mathf.Lerp(1f, won ? 0.72f : 0.9f, eased);
+                    if (won)
+                    {
+                        item.root.position = item.position + Vector3.up * (1.7f * eased);
+                        light = 0.22f * Mathf.Sin(Mathf.Clamp01(t / 0.7f) * Mathf.PI);
+                        if (departure > 0.1f && exitTrail.Count < 3 && departure >= 0.15f + exitTrail.Count * 0.2f)
+                            CreateExitTrail(item);
+                    }
+                }
+                else if (item.kind == ExitKind.Enemy)
+                    item.root.localScale = item.scale * Mathf.Lerp(1f, 0.82f, Mathf.SmoothStep(0f, 1f, p));
+                else if (item.kind == ExitKind.Coin || item.kind == ExitKind.Pickup)
+                { item.root.localScale = item.scale * Mathf.Lerp(1f, 0.6f, p); light = 0.12f * Mathf.Sin(p * Mathf.PI); }
+                else if (item.kind == ExitKind.Bomb)
+                {
+                    alpha = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.14f) / 0.55f));
+                    light = -0.35f * Mathf.SmoothStep(0f, 0.2f, t);
+                }
+                ApplyWorldExitOpacity(item, alpha, light);
+            }
+            foreach (SpriteRenderer ghost in exitTrail)
+            {
+                if (ghost == null) continue;
+                Color color = ghost.color; color.a = Mathf.MoveTowards(color.a, 0f, Time.unscaledDeltaTime * 0.65f);
+                ghost.color = color;
+            }
+            yield return null;
+        }
+        foreach (WorldExitItem item in worldExitItems) ApplyWorldExitOpacity(item, 0f, 0f);
+        foreach (SpriteRenderer ghost in exitTrail) if (ghost != null) Destroy(ghost.gameObject);
+        exitTrail.Clear();
+        worldExitRoutine = null;
+    }
+
+    private void CreateExitTrail(WorldExitItem player)
+    {
+        SpriteRenderer source = player.root != null ? player.root.GetComponent<SpriteRenderer>() : null;
+        foreach (WorldExitRenderer state in player.renderers)
+            if (state.renderer is SpriteRenderer sprite && sprite.sprite != null)
+            {
+                if (source == null || sprite.transform == player.root || sprite.gameObject.name == "Visual") source = sprite;
+                if (sprite.transform == player.root || sprite.gameObject.name == "Visual") break;
+            }
+        if (source == null) return;
+        GameObject trail = new GameObject("ResultDepartureTrail");
+        trail.layer = source.gameObject.layer;
+        trail.transform.SetPositionAndRotation(source.transform.position, source.transform.rotation);
+        trail.transform.localScale = source.transform.lossyScale;
+        SpriteRenderer ghost = trail.AddComponent<SpriteRenderer>();
+        ghost.sprite = source.sprite; ghost.sharedMaterial = source.sharedMaterial;
+        ghost.sortingLayerID = source.sortingLayerID; ghost.sortingOrder = source.sortingOrder - 1;
+        ghost.color = new Color(source.color.r, source.color.g, source.color.b, 0.16f);
+        exitTrail.Add(ghost);
+    }
+
+    private void RestoreWorldExit()
+    {
+        if (worldExitRoutine != null) { StopCoroutine(worldExitRoutine); worldExitRoutine = null; }
+        foreach (SpriteRenderer ghost in exitTrail) if (ghost != null) Destroy(ghost.gameObject);
+        exitTrail.Clear();
+        foreach (WorldExitItem item in worldExitItems)
+        {
+            if (item.root != null) { item.root.position = item.position; item.root.localScale = item.scale; }
+            foreach (WorldExitRenderer state in item.renderers)
+            {
+                if (state.renderer != null)
+                {
+                    state.renderer.enabled = state.enabled;
+                    if (state.renderer is SpriteRenderer sprite) sprite.color = state.color;
+                    else if (state.renderer is LineRenderer line) { line.startColor = state.lineStart; line.endColor = state.lineEnd; }
+                    else if (state.originalBlock != null) state.renderer.SetPropertyBlock(state.originalBlock);
+                }
+                if (state.filter != null && state.fadeMesh != null && state.filter.sharedMesh == state.fadeMesh)
+                    state.filter.sharedMesh = state.originalMesh;
+                if (state.fadeMesh != null) Destroy(state.fadeMesh);
+                if (state.particles != null)
+                {
+                    for (int i = 0; i < state.particleCount; i++) state.particleBuffer[i].startColor = state.particleColors[i];
+                    state.particles.SetParticles(state.particleBuffer, state.particleCount);
+                }
+            }
+            foreach (Behaviour visual in item.suspended) if (visual != null) visual.enabled = true;
+        }
+        worldExitItems.Clear();
+    }
+
+    private sealed class CinematicContentState
+    {
+        public CanvasGroup group;
+        public float alpha;
+        public float delay;
+    }
+
+    private readonly System.Collections.Generic.List<CinematicContentState> cinematicContentStates =
+        new System.Collections.Generic.List<CinematicContentState>();
+
+    private void RestoreCinematicContent()
+    {
+        foreach (CinematicContentState state in cinematicContentStates)
+            if (state.group != null) state.group.alpha = state.alpha;
+        cinematicContentStates.Clear();
+    }
+
+    private void PrepareCinematicContent(GameObject content)
+    {
+        RestoreCinematicContent();
+        if (!cinematicResultIntro || content == null) return;
+        foreach (Transform child in content.transform)
+        {
+            // Buttons already have their own delayed slide/fade routine.
+            if (child.GetComponent<Button>() != null) continue;
+            string itemName = child.name;
+            bool heading = itemName == "WinTitleText" || itemName == "LoseTitleText" ||
+                itemName == "MissionReportText" || itemName == "Mission Number Text" ||
+                itemName == "MissionNumberText";
+            // Reward groups own their internal fades; do not fight those routines.
+            if (itemName == "NewBestTimeUI" || itemName == "SkinUnlockUI") continue;
+            CanvasGroup group = child.GetComponent<CanvasGroup>();
+            if (group == null) group = child.gameObject.AddComponent<CanvasGroup>();
+            cinematicContentStates.Add(new CinematicContentState
+            {
+                group = group,
+                alpha = group.alpha,
+                delay = heading ? 0f : 0.30f
+            });
+            group.alpha = 0f;
+        }
+    }
+
     private void PrepareResultIntroUI()
     {
         if (resultPanel == null)
@@ -82,13 +433,13 @@ public partial class GameResultUI
                 ? winUIRestScale
                 : loseUIRestScale;
 
-        float duration =
+        float duration = cinematicResultIntro ? Mathf.Max(0.1f, cinematicResultDuration) :
             Mathf.Max(
                 0.05f,
                 resultIntroDuration
             );
 
-        float startScaleFactor =
+        float startScaleFactor = cinematicResultIntro ? 0.985f :
             Mathf.Clamp(
                 resultIntroStartScale,
                 0.85f,
@@ -111,6 +462,14 @@ public partial class GameResultUI
                 startScale;
         }
 
+        PrepareCinematicContent(content);
+        if (cinematicWorldExit) StartWorldExit(won);
+        // Consume taps while the report is appearing, without enabling buttons.
+        if (resultPanelCanvasGroup != null) resultPanelCanvasGroup.blocksRaycasts = true;
+        yield return null; // Settle TMP/layout before showing the report.
+        if (ResultRevealHold > 0f)
+            yield return new WaitForSecondsRealtime(ResultRevealHold);
+
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -128,6 +487,13 @@ public partial class GameResultUI
                     1f,
                     progress
                 );
+
+            foreach (CinematicContentState state in cinematicContentStates)
+            {
+                if (state.group == null) continue;
+                float local = Mathf.Clamp01((progress - state.delay) / (1f - state.delay));
+                state.group.alpha = state.alpha * Mathf.SmoothStep(0f, 1f, local);
+            }
 
             if (resultPanelCanvasGroup != null)
             {
@@ -161,23 +527,26 @@ public partial class GameResultUI
                 restScale;
         }
 
+        RestoreCinematicContent();
         resultIntroRoutine = null;
     }
 
     private void StopResultIntro()
     {
+        RestoreWorldExit();
         if (resultIntroRoutine == null)
             return;
 
         StopCoroutine(resultIntroRoutine);
         resultIntroRoutine = null;
+        RestoreCinematicContent();
     }
 
     private void StartResultButtonsIntro(bool won)
     {
         StopResultButtonsIntro();
 
-        Canvas.ForceUpdateCanvases();
+        // The report intro yields a frame for the normal canvas/layout pass.
 
         ResultButtonIntroState[] states = won
             ? new[]
@@ -352,7 +721,9 @@ public partial class GameResultUI
         }
 
         float baseDelay =
-            Mathf.Max(0.05f, resultIntroDuration) +
+            (cinematicResultIntro
+                ? ResultRevealHold + Mathf.Max(0.1f, cinematicResultDuration)
+                : Mathf.Max(0.05f, resultIntroDuration)) +
             Mathf.Max(0f, resultButtonStartDelay);
 
         if (baseDelay > 0f)
@@ -531,6 +902,8 @@ public partial class GameResultUI
 
     private void RestoreResultIntroState()
     {
+        RestoreWorldExit();
+        RestoreCinematicContent();
         PrepareResultIntroUI();
 
         if (resultPanelCanvasGroup != null)
@@ -717,4 +1090,3 @@ public partial class GameResultUI
                shifted;
     }
 }
-

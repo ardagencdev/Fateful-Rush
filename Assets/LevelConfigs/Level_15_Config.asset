@@ -121,8 +121,8 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 3
-  normalEnemySpawnInterval: 5.1
+  normalEnemyCount: 1
+  normalEnemySpawnInterval: 4
   normalEnemyDanger: 3
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -139,7 +139,7 @@ MonoBehaviour:
     separationStrength: 0.65
   projectileEnemyCount: 2
   projectileEnemySpawnInterval: 12
-  projectileEnemyDanger: 2
+  projectileEnemyDanger: 4
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3
@@ -164,8 +164,8 @@ MonoBehaviour:
     separationRadius: 0.9
     separationStrength: 0.45
   hunterEnemyCount: 2
-  hunterEnemySpawnInterval: 17
-  hunterEnemyDanger: 1
+  hunterEnemySpawnInterval: 10
+  hunterEnemyDanger: 2
   hunterEnemyCustomOverride: 0
   hunterEnemyOverride:
     prepareDistance: 6

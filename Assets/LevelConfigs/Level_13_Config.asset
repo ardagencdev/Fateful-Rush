@@ -40,7 +40,7 @@ MonoBehaviour:
   briefingModeDescription: 
   briefingObjectiveDescription: 
   briefingPages:
-  - "Use Slow when several threats overlap, not while the arena is calm."
+  - Use Slow when several threats overlap, not while the arena is calm.
   gameplayMusic: {fileID: 8300000, guid: 21070359d7da6aa42b488785ca0de594, type: 3}
   winCondition: 1
   winScore: 15
@@ -54,7 +54,6 @@ MonoBehaviour:
   dashCooldown: 3
   cloneDuration: 4
   cloneCooldown: 10
-  cloneUses: 1
   armorImmuneDuration: 0.8
   slowMultiplier: 0.5
   slowDuration: 5
@@ -66,7 +65,6 @@ MonoBehaviour:
   nearStarsSpeedMultiplier: 1.127
   nearStarsSizeMultiplier: 0.992
   starfieldDensityMultiplier: 0.904
-  nearStarsEmissionRate: 38
   coinSpawnInterval: 0.9
   maxCoinCount: 10
   normalCoinChance: 70
@@ -109,7 +107,7 @@ MonoBehaviour:
   randomObstacleCount: 3
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
   normalEnemyCount: 3
-  normalEnemySpawnInterval: 7.5
+  normalEnemySpawnInterval: 7
   normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
@@ -124,9 +122,9 @@ MonoBehaviour:
     separationEnabled: 1
     separationRadius: 0.75
     separationStrength: 0.65
-  projectileEnemyCount: 2
-  projectileEnemySpawnInterval: 14
-  projectileEnemyDanger: 2
+  projectileEnemyCount: 3
+  projectileEnemySpawnInterval: 12
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3

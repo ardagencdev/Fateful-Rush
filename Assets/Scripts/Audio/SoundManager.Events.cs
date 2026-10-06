@@ -6,6 +6,32 @@ using UnityEngine.Serialization;
 // Same Unity component. Inspector data and lifecycle entry points remain in SoundManager.cs.
 public partial class SoundManager
 {
+    private AudioSource resultCoinSweepSource;
+    private float resultCoinSweepNextTime;
+
+    public void PlayResultCoinSweep(string skinId, int step)
+    {
+        AudioClip clip = GetCoinClipForSkin(skinId);
+        if (clip == null || SFXVolume <= 0f || Time.unscaledTime < resultCoinSweepNextTime)
+            return;
+        if (resultCoinSweepSource == null)
+        {
+            GameObject channel = new GameObject("ResultCoinSweepAudio");
+            channel.transform.SetParent(transform, false);
+            resultCoinSweepSource = channel.AddComponent<AudioSource>();
+            resultCoinSweepSource.playOnAwake = false;
+            resultCoinSweepSource.spatialBlend = 0f;
+            GameAudioMixerController.Route(resultCoinSweepSource,
+                GameAudioMixerController.AudioBus.UISFX);
+        }
+        // One reusable voice: never stack PlayOneShot calls for the individual coins.
+        resultCoinSweepSource.Stop();
+        resultCoinSweepSource.clip = clip;
+        resultCoinSweepSource.volume = SFXVolume * 0.55f;
+        resultCoinSweepSource.pitch = 1f + Mathf.Clamp(step, 0, 2) * 0.06f;
+        resultCoinSweepSource.Play();
+        resultCoinSweepNextTime = Time.unscaledTime + 0.18f;
+    }
     public void PlayCoinSound()
     {
         PlayVariedCenteredSound(

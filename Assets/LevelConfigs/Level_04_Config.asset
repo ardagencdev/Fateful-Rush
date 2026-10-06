@@ -121,9 +121,9 @@ MonoBehaviour:
     enabled: 0
   randomObstacleCount: 1
   dangerBalanceProfile: {fileID: 11400000, guid: c12f8a9a7a674756a8a55e482d7304b2, type: 2}
-  normalEnemyCount: 2
+  normalEnemyCount: 3
   normalEnemySpawnInterval: 2.5
-  normalEnemyDanger: 1
+  normalEnemyDanger: 2
   normalEnemyCustomOverride: 0
   normalEnemyOverride:
     minStartSpeed: 1.5

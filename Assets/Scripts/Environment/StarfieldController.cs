@@ -75,6 +75,40 @@ public partial class StarfieldController : MonoBehaviour
 
     private const float MaxNearStarsFrameDelta = 0.1f;
 
+    private ParticleSystem[] resultStarLayers;
+    private readonly bool[] resultOriginalUnscaled = new bool[4];
+    private readonly float[] resultOriginalSpeed = new float[4];
+    private bool resultStarClockActive;
+
+    private void SetResultStarClock(bool active)
+    {
+        if (active == resultStarClockActive || resultStarLayers == null) return;
+        for (int i = 0; i < resultStarLayers.Length; i++)
+        {
+            ParticleSystem layer = resultStarLayers[i];
+            if (layer == null) continue;
+            var main = layer.main;
+            if (active)
+            {
+                resultOriginalUnscaled[i] = main.useUnscaledTime;
+                resultOriginalSpeed[i] = main.simulationSpeed;
+                main.useUnscaledTime = true;
+                main.simulationSpeed = resultOriginalSpeed[i] * 0.4f;
+            }
+            else
+            {
+                main.useUnscaledTime = resultOriginalUnscaled[i];
+                main.simulationSpeed = resultOriginalSpeed[i];
+            }
+        }
+        resultStarClockActive = active;
+    }
+
+    private void OnDisable()
+    {
+        SetResultStarClock(false);
+    }
+
     private struct LayerDefaults
     {
         public ParticleSystem.MinMaxCurve startSize;
@@ -89,6 +123,7 @@ public partial class StarfieldController : MonoBehaviour
         ResolveLayerReferences();
         ConfigureNearStarsBaseSettings();
         CacheDefaults();
+        resultStarLayers = new[] { farStars, midStars, nearStars, sparkleStars };
 
         if (!nearLevelSettingsApplied)
             currentNearEmissionRate = Mathf.Max(0f, nearStarsBaseEmissionRate);
@@ -101,6 +136,7 @@ public partial class StarfieldController : MonoBehaviour
 
     private void Update()
     {
+        SetResultStarClock(GameStateManager.IsGameplayEnded);
         if (!useScreenEdgeNearStars ||
             !nearFlowInitialized ||
             nearStarsSuspended ||
@@ -115,7 +151,8 @@ public partial class StarfieldController : MonoBehaviour
 
         CullExitedNearStars();
         EmitNearStars(
-            Mathf.Min(Time.deltaTime, MaxNearStarsFrameDelta)
+            Mathf.Min(resultStarClockActive ? Time.unscaledDeltaTime * 0.4f : Time.deltaTime,
+                MaxNearStarsFrameDelta)
         );
     }
 

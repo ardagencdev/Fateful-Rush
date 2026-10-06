@@ -17,6 +17,10 @@ public partial class GameResultUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI winScoreValue;
     [SerializeField] private TextMeshProUGUI winTimeValue;
 
+    [Header("Win Mission Number")]
+    [Tooltip("Assign your Mission Number Text TMP under WinUI. Only its text is updated.")]
+    [SerializeField] private TextMeshProUGUI missionNumberText;
+
     [Header("Lose Values")]
     [SerializeField] private TextMeshProUGUI destroyedByText;
     [SerializeField] private TextMeshProUGUI loseScoreValue;
@@ -100,6 +104,16 @@ public partial class GameResultUI : MonoBehaviour
     [Header("Result Intro Animation")]
     [SerializeField, Min(0.05f)] private float resultIntroDuration = 0.22f;
     [SerializeField, Range(0.85f, 1f)] private float resultIntroStartScale = 0.94f;
+
+    [Header("Cinematic Result")]
+    [SerializeField] private bool cinematicResultIntro = true;
+    [SerializeField, Min(0f)] private float cinematicResultHold = 0.22f;
+    [SerializeField, Min(0.1f)] private float cinematicResultDuration = 0.85f;
+    [SerializeField] private bool cinematicWorldExit = true;
+    [SerializeField, Min(0.1f)] private float worldExitDuration = 1.05f;
+    private float ResultRevealHold => cinematicResultIntro
+        ? Mathf.Max(cinematicResultHold, cinematicWorldExit ? worldExitDuration * 0.65f : 0f)
+        : 0f;
 
     private Coroutine skinUnlockRoutine;
     private Vector2 skinUnlockRestPosition;
@@ -224,6 +238,19 @@ public partial class GameResultUI : MonoBehaviour
 
         CacheMetricLayout();
 
+        // Optional name fallback for the manually created WinUI text.
+        // No text object, material or layout is created or modified here.
+        if (missionNumberText == null && winUI != null)
+        {
+            foreach (TextMeshProUGUI text in winUI.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                if (text.gameObject.name != "Mission Number Text") continue;
+                missionNumberText = text;
+                break;
+            }
+        }
+        if (missionNumberText != null) missionNumberText.text = string.Empty;
+
         PrepareSkinUnlockUI();
         PrepareNewBestTimeUI();
         PrepareResultIntroUI();
@@ -271,6 +298,7 @@ public partial class GameResultUI : MonoBehaviour
         bool isFirstCompletion,
         bool isNewBestTime)
     {
+        UpdateMissionNumber(completedLevelNumber);
         ShowPanel();
         SetResultState(true);
         StartResultIntro(true);
@@ -321,6 +349,20 @@ public partial class GameResultUI : MonoBehaviour
         LocalizedUILayoutPolish.RequestRefresh();
     }
 
+    private void UpdateMissionNumber(int completedLevelNumber)
+    {
+        if (missionNumberText == null) return;
+
+        int number = completedLevelNumber;
+        if (number <= 0 && SelectedLevelData.IsLevelMode)
+        {
+            LevelConfig level = GetCurrentLevel();
+            if (level == null) level = SelectedLevelData.SelectedLevel;
+            if (level != null) number = level.levelNumber;
+        }
+        missionNumberText.text = number > 0 ? $"{number}." : string.Empty;
+    }
+
     public void ShowLose(int score, float time)
     {
         ShowLose(
@@ -335,6 +377,7 @@ public partial class GameResultUI : MonoBehaviour
         float time,
         string cause)
     {
+        displayedDeathCause = string.IsNullOrWhiteSpace(cause) ? "UNKNOWN" : cause;
         ShowPanel();
         SetResultState(false);
         StartResultIntro(false);
@@ -342,7 +385,6 @@ public partial class GameResultUI : MonoBehaviour
 
         if (destroyedByText != null)
         {
-            displayedDeathCause = string.IsNullOrWhiteSpace(cause) ? "UNKNOWN" : cause;
             destroyedByText.text = FatefulRushLocalization.DeathCause(displayedDeathCause);
         }
 

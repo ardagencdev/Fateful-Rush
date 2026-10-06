@@ -70,6 +70,18 @@ public class MissionBriefingPanelUI : MonoBehaviour
     private readonly List<Graphic> graphicsScratch = new List<Graphic>();
     private bool missionLaunchPending;
 
+    private sealed class MissionListPose
+    {
+        public Transform transform;
+        public CanvasGroup group;
+        public float alpha;
+        public Vector3 scale;
+        public bool interactable;
+        public bool blocksRaycasts;
+    }
+
+    private readonly List<MissionListPose> missionListPoses = new List<MissionListPose>();
+
     private Coroutine pageRoutine;
     private Coroutine startButtonRoutine;
     private Coroutine panelRoutine;
@@ -262,10 +274,88 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     private void RestoreCoveredGraphics()
     {
+        RestoreMissionListPose();
         for (int i = 0; i < coveredGraphics.Count; i++)
             if (coveredGraphics[i] != null) coveredGraphics[i].enabled = coveredGraphicStates[i];
         coveredGraphics.Clear();
         coveredGraphicStates.Clear();
+    }
+
+    private void RestoreMissionListPose()
+    {
+        foreach (MissionListPose pose in missionListPoses)
+        {
+            if (pose.transform == null || pose.group == null) continue;
+            pose.group.alpha = pose.alpha;
+            pose.transform.localScale = pose.scale;
+            pose.group.interactable = pose.interactable;
+            pose.group.blocksRaycasts = pose.blocksRaycasts;
+        }
+        missionListPoses.Clear();
+    }
+
+    private IEnumerator PlayMissionListReturn()
+    {
+        LevelSelectPanel owner = GetComponentInParent<LevelSelectPanel>(true);
+        if (owner == null)
+        {
+            RestoreCoveredGraphics();
+            yield break;
+        }
+
+        // Animate the content siblings, leaving the briefing and backdrop alone.
+        // Keep their GameObjects active so pooled buttons/layout are not restarted.
+        foreach (Transform child in owner.transform)
+        {
+            if (!child.gameObject.activeSelf || child == transform ||
+                child.name == "DarkOverlay" || child.name == "BlackOverlay" ||
+                child.name == "FullscreenOverlay" ||
+                (briefingPanel != null &&
+                 (child == briefingPanel.transform || briefingPanel.transform.IsChildOf(child))))
+                continue;
+
+            CanvasGroup group = child.GetComponent<CanvasGroup>();
+            if (group == null) group = child.gameObject.AddComponent<CanvasGroup>();
+            MissionListPose pose = new MissionListPose
+            {
+                transform = child,
+                group = group,
+                alpha = group.alpha,
+                scale = child.localScale,
+                interactable = group.interactable,
+                blocksRaycasts = group.blocksRaycasts
+            };
+            missionListPoses.Add(pose);
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+            child.localScale = pose.scale * 1.018f;
+        }
+
+        // Enable graphics only after the invisible starting pose is prepared.
+        for (int i = 0; i < coveredGraphics.Count; i++)
+            if (coveredGraphics[i] != null)
+                coveredGraphics[i].enabled = coveredGraphicStates[i];
+        coveredGraphics.Clear();
+        coveredGraphicStates.Clear();
+        yield return null;
+
+        const float duration = 0.28f; // Same return timing and curve as Stats reset.
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float eased = EaseOutCubic(Mathf.Clamp01(elapsed / duration));
+            foreach (MissionListPose pose in missionListPoses)
+            {
+                if (pose.transform == null || pose.group == null) continue;
+                pose.group.alpha = Mathf.Lerp(0f, pose.alpha, eased);
+                pose.transform.localScale = Vector3.LerpUnclamped(
+                    pose.scale * 1.018f, pose.scale, eased);
+            }
+            yield return null;
+        }
+        RestoreMissionListPose();
     }
 
     private void OnDisable()
@@ -709,12 +799,14 @@ public class MissionBriefingPanelUI : MonoBehaviour
         }
 
         Action closeCallback = onClosed;
+        // Refresh the page while it is still covered. Keep IsOpen true during
+        // the return animation so page navigation cannot interrupt its pose.
+        if (panelGroup != null) panelGroup.alpha = 0f;
+        closeCallback?.Invoke();
+        yield return PlayMissionListReturn();
 
         panelRoutine = null;
-
         HideInstant();
-
-        closeCallback?.Invoke();
     }
 
     private void StartSelectedMission()

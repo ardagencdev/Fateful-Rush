@@ -36,6 +36,9 @@ public class PlayerInputController : MonoBehaviour
     [Header("Dynamic Joystick")]
     public bool enableDynamicJoystick = true;
 
+    [Tooltip("Let the center follow finger overflow without anchoring it to the first touch. Keeps reversal travel bounded; also aligns active visuals with the input center.")]
+    public bool responsiveFloatingCenter = true;
+
     [Min(0f)]
     public float dynamicCenterFollowSpeed = 18f;
 
@@ -408,7 +411,9 @@ public class PlayerInputController : MonoBehaviour
             );
 
         targetHandlePosition =
-            rawInput * joystickRange;
+            responsiveFloatingCenter && enableDynamicJoystick
+                ? Vector2.ClampMagnitude(direction, Mathf.Max(1f, joystickRange))
+                : rawInput * joystickRange;
     }
 
     private void UpdateDynamicJoystickCenter(
@@ -433,6 +438,15 @@ public class PlayerInputController : MonoBehaviour
         Vector2 desiredCenterPosition =
             joystickCenterLocalPosition +
             overflowDirection * overflowDistance;
+
+        if (responsiveFloatingCenter)
+        {
+            // Slide only on overflow. Holding still never drifts the center,
+            // and a new direction is always relative to a nearby center,
+            // not an arbitrarily distant initial touch location.
+            joystickCenterLocalPosition = desiredCenterPosition;
+            return;
+        }
 
         Vector2 offsetFromStart =
             Vector2.ClampMagnitude(
@@ -488,6 +502,15 @@ public class PlayerInputController : MonoBehaviour
         targetBGLocalPosition =
             joystickCenterLocalPosition;
 
+        if (responsiveFloatingCenter && enableDynamicJoystick)
+        {
+            // Gameplay already uses the unsmoothed center. Show that same
+            // center so the displayed stick cannot suggest a different input.
+            visualBGLocalPosition = targetBGLocalPosition;
+            SetJoystickBGLocalPosition(visualBGLocalPosition);
+            return;
+        }
+
         float damping = GetDampingFactor(
             dynamicCenterFollowSpeed
         );
@@ -512,6 +535,18 @@ public class PlayerInputController : MonoBehaviour
             isPointerActive
                 ? targetHandlePosition
                 : Vector2.zero;
+
+        if (isPointerActive && responsiveFloatingCenter && enableDynamicJoystick)
+        {
+            // Input displacement is in the parent's space; the handle lives
+            // under the scaled joystick BG (0.9 in the current GameScene).
+            // Convert spaces so its shown position matches the finger.
+            Vector3 handleLocal = joystickBG.InverseTransformVector(
+                joystickParent.TransformVector(targetPosition));
+            visualHandlePosition = new Vector2(handleLocal.x, handleLocal.y);
+            joystickHandle.anchoredPosition = visualHandlePosition;
+            return;
+        }
 
         float followSpeed =
             isPointerActive

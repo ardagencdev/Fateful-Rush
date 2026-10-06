@@ -17,6 +17,17 @@ public sealed class HomePlanetVisual : MonoBehaviour
     [SerializeField] private Sprite goldenPlanetSprite;
     [SerializeField, Min(0.1f)] private float transitionDuration = 1.2f;
 
+    [Header("Normal skin Moons (enable ONLY on the Moon object)")]
+    [SerializeField] private bool useColoredSkinMoons;
+    [SerializeField] private Sprite blueMoonSprite;
+    [SerializeField] private Sprite orangeMoonSprite;
+    [SerializeField] private Sprite redMoonSprite;
+    [SerializeField] private Sprite greenMoonSprite;
+    [SerializeField] private Sprite pinkMoonSprite;
+    [SerializeField] private Sprite yellowMoonSprite;
+    [SerializeField] private Sprite cyanMoonSprite;
+    [SerializeField] private Sprite purpleMoonSprite;
+
     [Header("Special skin transformation")]
     [SerializeField] private bool dramaticTransitions = true;
     [Tooltip("Shared duration for Dark and Golden; preserves your existing Golden timing.")]
@@ -52,6 +63,7 @@ public sealed class HomePlanetVisual : MonoBehaviour
     private readonly SpriteRenderer[] layers = new SpriteRenderer[3];
     private readonly float[] weights = new float[3];
     private readonly float[] startWeights = new float[3];
+    private readonly Sprite[] layerSprites = new Sprite[3];
     private MaterialPropertyBlock properties;
     private struct LayerShaderState
     {
@@ -63,6 +75,8 @@ public sealed class HomePlanetVisual : MonoBehaviour
     private readonly LayerShaderState[] layerShaderStates = new LayerShaderState[3];
     private float rotationAngle, transitionElapsed;
     private int targetIndex = -1;
+    private int targetLayer;
+    private bool selectionQueued, lastUseColoredSkinMoons;
     private bool initialized, transitioning, lastFollowEquippedSkin;
 
     private void Start()
@@ -104,6 +118,7 @@ public sealed class HomePlanetVisual : MonoBehaviour
         }
         initialized = true;
         lastFollowEquippedSkin = followEquippedSkin;
+        lastUseColoredSkinMoons = useColoredSkinMoons;
         RefreshSelection(true); // Open the menu with the equipped theme; no Earth flash.
         ApplyPlacement();
     }
@@ -140,6 +155,17 @@ public sealed class HomePlanetVisual : MonoBehaviour
     {
         if (index == 1) return darkPlanetSprite;
         if (index == 2) return goldenPlanetSprite;
+        switch (index)
+        {
+            case 3: return blueMoonSprite;
+            case 4: return orangeMoonSprite;
+            case 5: return redMoonSprite;
+            case 6: return greenMoonSprite;
+            case 7: return pinkMoonSprite;
+            case 8: return yellowMoonSprite;
+            case 9: return cyanMoonSprite;
+            case 10: return purpleMoonSprite;
+        }
         return earthSprite;
     }
 
@@ -151,16 +177,56 @@ public sealed class HomePlanetVisual : MonoBehaviour
             .Replace("-", string.Empty).Replace(" ", string.Empty);
         if ((id == "dark" || id == "black") && darkPlanetSprite != null) return 1;
         if ((id == "golden" || id == "gold") && goldenPlanetSprite != null) return 2;
-        return 0; // All other skins, and missing theme assets, use Earth.
+        if (useColoredSkinMoons)
+        {
+            int index;
+            switch (id)
+            {
+                case "blue": index = 3; break;
+                case "orange": index = 4; break;
+                case "red": index = 5; break;
+                case "green": index = 6; break;
+                case "pink": case "deeppink": case "hotpink": index = 7; break;
+                case "yellow": index = 8; break;
+                case "cyan": case "lightblue": index = 9; break;
+                case "purple": index = 10; break;
+                default: index = 0; break;
+            }
+            if (SpriteFor(index) != null) return index;
+        }
+        return 0; // White/basic and missing assets keep the existing base sprite.
     }
 
     private void RefreshSelection(bool immediate)
     {
         int selected = SelectedThemeIndex();
+        selectionQueued = false;
         if (!immediate && selected == targetIndex) return;
+        Sprite selectedSprite = SpriteFor(selected);
+        int slot = -1;
+        for (int i = 0; i < layerSprites.Length; i++)
+        {
+            if (layerSprites[i] == selectedSprite) { slot = i; break; }
+        }
+        if (slot < 0)
+        {
+            for (int i = 0; i < weights.Length; i++)
+                if (immediate || weights[i] <= 0f) { slot = i; break; }
+        }
+        if (slot < 0)
+        {
+            // Very rapid equips can keep all three layers visible. Finish the
+            // current blend, then resolve only the latest selection; never
+            // allocate more renderers or snap away a visible moon.
+            selectionQueued = true;
+            return;
+        }
+        layerSprites[slot] = selectedSprite;
+        targetLayer = slot;
         startScale = visualScale;
         startFlash = visualFlash;
-        specialTransition = !immediate && dramaticTransitions && selected != 0;
+        specialTransition = !immediate && dramaticTransitions &&
+            (selected != 0 || useColoredSkinMoons || targetIndex == 1 || targetIndex == 2);
         if (immediate)
         {
             visualScale = 1f;
@@ -174,16 +240,18 @@ public sealed class HomePlanetVisual : MonoBehaviour
         {
             // A new equip during the fade starts from exactly the currently visible mix.
             startWeights[i] = weights[i];
-            if (immediate) weights[i] = i == selected ? 1f : 0f;
+            if (immediate) weights[i] = i == targetLayer ? 1f : 0f;
         }
     }
 
     private void LateUpdate()
     {
         if (!initialized || targetCamera == null) return;
-        if (lastFollowEquippedSkin != followEquippedSkin)
+        if (lastFollowEquippedSkin != followEquippedSkin ||
+            lastUseColoredSkinMoons != useColoredSkinMoons)
         {
             lastFollowEquippedSkin = followEquippedSkin;
+            lastUseColoredSkinMoons = useColoredSkinMoons;
             RefreshSelection(false);
         }
         float dt = Time.unscaledDeltaTime;
@@ -205,7 +273,7 @@ public sealed class HomePlanetVisual : MonoBehaviour
             visualFlash = Mathf.Lerp(startFlash, specialTransition ? pulse * flashStrength : 0f, settle);
             visualSweep = specialTransition ? Mathf.Lerp(-0.25f, 1.25f, t) : -1f;
             for (int i = 0; i < weights.Length; i++)
-                weights[i] = Mathf.Lerp(startWeights[i], i == targetIndex ? 1f : 0f, smooth);
+                weights[i] = Mathf.Lerp(startWeights[i], i == targetLayer ? 1f : 0f, smooth);
             if (t >= 1f)
             {
                 transitioning = false;
@@ -214,7 +282,26 @@ public sealed class HomePlanetVisual : MonoBehaviour
                 visualSweep = -1f;
             }
         }
+        if (!transitioning && selectionQueued) RefreshSelection(false);
         ApplyPlacement();
+    }
+
+    private Color TransitionColor()
+    {
+        switch (targetIndex)
+        {
+            case 1: return new Color(0.72f, 0.045f, 0.10f, 1f);
+            case 2: return new Color(1f, 0.85f, 0.40f, 1f);
+            case 3: return new Color32(40, 170, 232, 255);
+            case 4: return new Color32(255, 166, 6, 255);
+            case 5: return new Color32(245, 30, 34, 255);
+            case 6: return new Color32(85, 255, 100, 255);
+            case 7: return new Color32(255, 20, 147, 255);
+            case 8: return new Color32(254, 236, 7, 255);
+            case 9: return new Color32(49, 233, 241, 255);
+            case 10: return new Color32(170, 81, 209, 255);
+            default: return Color.white;
+        }
     }
 
     private static float Smooth(float t)
@@ -235,7 +322,7 @@ public sealed class HomePlanetVisual : MonoBehaviour
         for (int i = 0; i < layers.Length; i++)
         {
             SpriteRenderer renderer = layers[i];
-            Sprite sprite = SpriteFor(i);
+            Sprite sprite = layerSprites[i];
             renderer.enabled = visibleDepth && sprite != null && weights[i] > 0f;
             if (!renderer.enabled) continue;
             if (renderer.sprite != sprite) renderer.sprite = sprite;
@@ -248,8 +335,7 @@ public sealed class HomePlanetVisual : MonoBehaviour
                 scale / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
             renderer.transform.rotation = Quaternion.Euler(0f, 0f, rotationAngle);
             Color tint = new Color(brightness, brightness, brightness, opacity * weights[i]);
-            Color flashColor = targetIndex == 1
-                ? new Color(0.72f, 0.045f, 0.10f, 1f) : new Color(1f, 0.85f, 0.40f, 1f);
+            Color flashColor = TransitionColor();
             Bounds spriteBounds = sprite.bounds;
             Vector4 bounds = new Vector4(spriteBounds.center.x, spriteBounds.center.y,
                 spriteBounds.size.x, spriteBounds.size.y);

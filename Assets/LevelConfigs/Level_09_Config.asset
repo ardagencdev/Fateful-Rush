@@ -139,7 +139,7 @@ MonoBehaviour:
     separationStrength: 0.65
   projectileEnemyCount: 1
   projectileEnemySpawnInterval: 10
-  projectileEnemyDanger: 2
+  projectileEnemyDanger: 3
   projectileEnemyCustomOverride: 0
   projectileEnemyOverride:
     moveSpeed: 3

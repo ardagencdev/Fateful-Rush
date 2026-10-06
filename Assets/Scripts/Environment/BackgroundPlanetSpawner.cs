@@ -189,6 +189,8 @@ public sealed class BackgroundPlanetSpawner : MonoBehaviour
         lastGameplayStarted = started;
         if (started && !GameStateManager.IsGameplayEnded && Time.timeScale > 0f)
             clock += Time.deltaTime;
+        else if (GameStateManager.IsGameplayEnded)
+            clock += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * 0.4f;
         ApplyPlacement(); // Keeps placement correct across aspect and camera zoom changes.
     }
 

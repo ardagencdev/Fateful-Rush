@@ -133,6 +133,7 @@ public sealed partial class SolarAtmosphere : MonoBehaviour
         lastStarted = started;
         float dt = Time.unscaledDeltaTime;
         if (isMenu || (Time.timeScale > 0f && !GameStateManager.IsGameplayEnded)) clock += dt;
+        else if (GameStateManager.IsGameplayEnded) clock += Mathf.Min(dt, 0.1f) * 0.4f;
         colorElapsed += dt;
         float t = Mathf.Clamp01(colorElapsed / Mathf.Max(0.1f, skinTransitionDuration));
         currentColor = Color.Lerp(fromColor, targetColor, t * t * (3f - 2f * t));
