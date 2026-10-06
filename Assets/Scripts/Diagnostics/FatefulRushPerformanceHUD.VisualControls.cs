@@ -146,7 +146,7 @@ public sealed partial class FatefulRushPerformanceHUD
         rect.anchorMin = rect.anchorMax = Vector2.one;
         rect.pivot = Vector2.one;
         rect.anchoredPosition = new Vector2(-12, -64);
-        rect.sizeDelta = new Vector2(350, 930);
+        rect.sizeDelta = new Vector2(350, 979);
         testPanel.GetComponent<Image>().color = new Color(0, 0, 0, .9f);
         testPanel.GetComponent<Image>().raycastTarget = false;
         var title = MakeText(testPanel.transform, "VISUAL A/B TEST\nOFF = hidden / test only", 21);
@@ -167,6 +167,7 @@ public sealed partial class FatefulRushPerformanceHUD
         MakeTestButton("CHEATS / LEVEL UNLOCK", 765, () => DevCheatConsole.Instance?.OpenConsole());
         worldCaption = MakeTestButton("WORLD DRAW: ON", 814, ToggleWorldRendering);
         MakeTestButton("HIDE ALL UI - 15s", 863, BeginUiDrawingTest);
+        MakeTestButton("SHADER CHECK (read only)", 912, RequestShaderAudit);
         testPanel.SetActive(false);
         SceneManager.sceneLoaded += VisualSceneLoaded;
         ScheduleVisualBind();
@@ -209,6 +210,8 @@ public sealed partial class FatefulRushPerformanceHUD
         yield return null;
         yield return null; // Generated planet/light/asteroid renderers are made in Start.
         RefreshVisualTargets();
+        shaderAuditPending = true;
+        shaderAuditState = "PENDING_SCENE_CHECK";
         bindVisualRoutine = null;
     }
     void RefreshVisualTargets()
@@ -377,6 +380,7 @@ public sealed partial class FatefulRushPerformanceHUD
         state.Append(";WORLD_DRAW=").Append(worldOff ? "OFF" : "ON");
         state.Append(";CHEATS=").Append(DevCheatConsole.IsOpen ? "OPEN" : "CLOSED");
         state.Append(";WARMUP=").Append(AndroidShaderWarmup.WarmupState);
+        state.Append(";SHADER_AUDIT=").Append(shaderAuditState);
         state.Append(";UI_DRAW=").Append(uiDrawHidden ? "OFF" : "ON");
         state.Append(";UI_TEST_RUN=").Append(uiHideRun);
         return state.ToString();

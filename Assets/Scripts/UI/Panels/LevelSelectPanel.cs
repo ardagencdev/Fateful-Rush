@@ -115,7 +115,8 @@ public class LevelSelectPanel : MonoBehaviour
             return;
         }
 
-        if (missionBriefingPanel != null && missionBriefingPanel.IsOpen)
+        if (missionBriefingPanel != null &&
+            (missionBriefingPanel.IsOpen || missionBriefingPanel.IsLaunchingMission))
         {
             isDragging = false;
             return;
@@ -139,7 +140,6 @@ public class LevelSelectPanel : MonoBehaviour
 
         // Keep the existing behaviour: entering Mission Select opens directly
         // on the page containing the latest unlocked level.
-        ClearCreatedButtons();
         ResetContainerVisuals();
 
         ApplyCurrentPageStarProgression();
@@ -164,7 +164,8 @@ public class LevelSelectPanel : MonoBehaviour
     }
 
     public bool IsMissionBriefingOpen =>
-        missionBriefingPanel != null && missionBriefingPanel.IsOpen;
+        missionBriefingPanel != null &&
+        (missionBriefingPanel.IsOpen || missionBriefingPanel.IsLaunchingMission);
 
     public void ShowMissionBriefing(LevelConfig config)
     {
@@ -185,7 +186,7 @@ public class LevelSelectPanel : MonoBehaviour
 
         isDragging = false;
         missionBriefingPanel.Show(config, StartLevel, OnMissionBriefingClosed);
-        FatefulRushLocalizationRuntime.RequestMissionBriefingRefresh();
+        // Show() already formats this briefing in the current language.
     }
 
     public void StartLevel(LevelConfig config)
@@ -196,12 +197,14 @@ public class LevelSelectPanel : MonoBehaviour
         if (config == null)
         {
             Debug.LogWarning("LevelSelectPanel received a null LevelConfig.", this);
+            missionBriefingPanel?.HideInstant();
             return;
         }
 
         if (string.IsNullOrWhiteSpace(gameSceneName))
         {
             Debug.LogError("LevelSelectPanel game scene name is empty.", this);
+            missionBriefingPanel?.HideInstant();
             return;
         }
 
@@ -211,6 +214,7 @@ public class LevelSelectPanel : MonoBehaviour
                 $"Scene '{gameSceneName}' could not be loaded. Make sure it exists in Build Profiles.",
                 this
             );
+            missionBriefingPanel?.HideInstant();
             return;
         }
 

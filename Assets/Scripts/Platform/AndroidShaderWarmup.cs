@@ -10,9 +10,26 @@ public sealed class AndroidShaderWarmup : MonoBehaviour
     private const int VariantsPerFrame = 1;
     public static bool IsComplete { get; private set; }
     public static string WarmupState { get; private set; } = "PENDING";
+#if FATEFULRUSH_DIAGNOSTICS
+    // Observation only: never load, replace or warm anything from diagnostics.
+    internal static ShaderVariantCollection DiagnosticsCollection
+    {
+        get
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            return retainedCollection;
+#else
+            return null;
+#endif
+        }
+    }
+#endif
 #if UNITY_ANDROID && !UNITY_EDITOR
     private static AndroidShaderWarmup instance;
     private static bool preparationRequested;
+    // Only the curated runtime collection is retained. No textures, scene
+    // renderers, material instances or warmup MonoBehaviour are kept alive.
+    private static ShaderVariantCollection retainedCollection;
 #endif
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -23,6 +40,7 @@ public sealed class AndroidShaderWarmup : MonoBehaviour
 #if UNITY_ANDROID && !UNITY_EDITOR
         instance = null;
         preparationRequested = false;
+        retainedCollection = null;
 #endif
     }
 
@@ -68,6 +86,10 @@ public sealed class AndroidShaderWarmup : MonoBehaviour
             Finish("MISSING_COLLECTION");
             yield break;
         }
+
+        // Single-mode scene loads can unload unreferenced assets. Keep the
+        // prepared shaders reachable after the temporary host is destroyed.
+        retainedCollection = collection;
 
         WarmupState = "WARMING";
         int framesRemaining = Mathf.Clamp(collection.variantCount + 32, 32, 512);

@@ -17,6 +17,7 @@ public class UIPanelAnimation : MonoBehaviour
 
     private void Awake()
     {
+        UIRenderIsolation.Ensure(transform);
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
@@ -56,6 +57,8 @@ public class UIPanelAnimation : MonoBehaviour
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+
+        yield return null;
 
         while (elapsed < duration)
         {

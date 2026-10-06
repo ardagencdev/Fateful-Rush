@@ -63,9 +63,8 @@ public partial class StatsPanelUI : MonoBehaviour
 
         Switch(mainMenuPanel, statsPanel);
 
-        // Stats text is rebuilt only when the panel opens/reset occurs.
-        // Localize at that same event instead of relying on background polling.
-        FatefulRushLocalizationRuntime.RequestStatsRefresh();
+        // RefreshStats already translates the entire block. A second runtime
+        // refresh would build the same long string again during activation.
 
         ResetScrollToTop();
     }
@@ -102,7 +101,6 @@ public partial class StatsPanelUI : MonoBehaviour
         StatsManager.ResetAllStats();
 
         RefreshStats();
-        FatefulRushLocalizationRuntime.RequestStatsRefresh();
         resetScrollAfterConfirmation = true;
         HideResetConfirmation();
     }
@@ -457,10 +455,10 @@ public partial class StatsPanelUI : MonoBehaviour
         if (statsScrollRect == null)
             return;
 
-        Canvas.ForceUpdateCanvases();
-
         if (statsScrollRect.content != null)
         {
+            // Only this scroll content needs fresh bounds, not every Canvas
+            // in the menu and its animated background.
             LayoutRebuilder.ForceRebuildLayoutImmediate(statsScrollRect.content);
         }
 

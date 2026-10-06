@@ -33,6 +33,9 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
         labelSnapshots =
             new Dictionary<TMP_Text, LabelSnapshot>();
 
+    private readonly List<TMP_Text> destroyedSnapshotKeys =
+        new List<TMP_Text>();
+
     private readonly Dictionary<Transform, bool> optionPanelActiveStates =
         new Dictionary<Transform, bool>();
 
@@ -96,6 +99,9 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
         LocalizationSettings.SelectedLocaleChanged -=
             HandleLocaleChanged;
 
+        labelSnapshots.Clear();
+        destroyedSnapshotKeys.Clear();
+
         instance = null;
     }
 
@@ -103,6 +109,7 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
         Scene scene,
         LoadSceneMode mode)
     {
+        PruneDestroyedLabelSnapshots();
         ScheduleRefresh();
     }
 
@@ -147,6 +154,7 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
 
     private void RefreshCache()
     {
+        PruneDestroyedLabelSnapshots();
         replayTexts.Clear();
         nextLevelTexts.Clear();
         confirmationTexts.Clear();
@@ -269,6 +277,20 @@ public sealed class LocalizedUILayoutPolish : MonoBehaviour
             default:
                 return false;
         }
+    }
+
+    private void PruneDestroyedLabelSnapshots()
+    {
+        // Unity's destroyed objects compare equal to null, but their managed
+        // wrappers can remain dictionary keys. Never discard a living label's
+        // original typography when the same scene is refreshed.
+        destroyedSnapshotKeys.Clear();
+        foreach (TMP_Text label in labelSnapshots.Keys)
+            if (label == null) destroyedSnapshotKeys.Add(label);
+
+        foreach (TMP_Text label in destroyedSnapshotKeys)
+            labelSnapshots.Remove(label);
+        destroyedSnapshotKeys.Clear();
     }
 
     private void CaptureLabelSnapshot(TMP_Text text)

@@ -67,6 +67,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     private readonly List<Graphic> coveredGraphics = new List<Graphic>();
     private readonly List<bool> coveredGraphicStates = new List<bool>();
+    private readonly List<Graphic> graphicsScratch = new List<Graphic>();
+    private bool missionLaunchPending;
 
     private Coroutine pageRoutine;
     private Coroutine startButtonRoutine;
@@ -75,6 +77,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
     public bool IsOpen =>
         briefingPanel != null &&
         briefingPanel.activeSelf;
+
+    public bool IsLaunchingMission => missionLaunchPending;
 
     private void Awake()
     {
@@ -109,7 +113,7 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     private void Update()
     {
-        if (!IsOpen || pageRoutine != null)
+        if (!IsOpen || pageRoutine != null || panelRoutine != null || missionLaunchPending)
             return;
 
         if (Touchscreen.current != null)
@@ -142,6 +146,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
         }
 
         StopActiveRoutines();
+
+        missionLaunchPending = false;
 
         selectedLevel = levelConfig;
         onStartRequested = startCallback;
@@ -203,7 +209,16 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     public void HideInstant()
     {
-        RestoreCoveredGraphics();
+        HideInstant(true);
+    }
+
+    private void HideInstant(bool restoreMissionList)
+    {
+        if (restoreMissionList)
+        {
+            missionLaunchPending = false;
+            RestoreCoveredGraphics();
+        }
         StopActiveRoutines();
 
         selectedLevel = null;
@@ -234,14 +249,15 @@ public class MissionBriefingPanelUI : MonoBehaviour
         RestoreCoveredGraphics();
         LevelSelectPanel owner = GetComponentInParent<LevelSelectPanel>(true);
         if (owner == null || briefingPanel == null) return;
-        Graphic[] graphics = owner.GetComponentsInChildren<Graphic>(true);
-        foreach (Graphic graphic in graphics)
+        owner.GetComponentsInChildren(true, graphicsScratch);
+        foreach (Graphic graphic in graphicsScratch)
         {
             if (graphic == null || graphic.transform.IsChildOf(briefingPanel.transform)) continue;
             coveredGraphics.Add(graphic);
             coveredGraphicStates.Add(graphic.enabled);
             graphic.enabled = false;
         }
+        graphicsScratch.Clear();
     }
 
     private void RestoreCoveredGraphics()
@@ -254,7 +270,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     private void OnDisable()
     {
-        RestoreCoveredGraphics();
+        if (!missionLaunchPending)
+            RestoreCoveredGraphics();
     }
 
     private void PrepareButtons()
@@ -617,6 +634,8 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
     private IEnumerator PlayPanelIntro()
     {
+        // Let the changed TMP/layout state settle while alpha is still zero.
+        yield return null;
         float timer = 0f;
 
         while (timer < panelFadeDuration)
@@ -713,11 +732,16 @@ public class MissionBriefingPanelUI : MonoBehaviour
         if (currentPageIndex != pages.Count - 1)
             return;
 
-        if (panelRoutine != null)
+        if (panelRoutine != null || missionLaunchPending)
             return;
 
         LevelConfig levelToStart = selectedLevel;
         Action<LevelConfig> callback = onStartRequested;
+
+        if (callback == null)
+            return;
+
+        missionLaunchPending = true;
 
         SetPanelInteractive(false);
 
@@ -781,9 +805,19 @@ public class MissionBriefingPanelUI : MonoBehaviour
 
         panelRoutine = null;
 
-        HideInstant();
+        // Keep the mission list suppressed throughout the subsequent scene fade.
+        // Cancel uses HideInstant() and restores it; Start must never expose it.
+        HideInstant(false);
 
-        callback?.Invoke(levelToStart);
+        try
+        {
+            callback.Invoke(levelToStart);
+        }
+        catch
+        {
+            HideInstant();
+            throw;
+        }
     }
 
     private void SetPanelInteractive(bool interactive)

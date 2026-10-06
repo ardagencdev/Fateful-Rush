@@ -18,7 +18,19 @@ ShaderVariantCollection:
       variants:
       - keywords: 
         passType: 0
+      - keywords: UNITY_UI_ALPHACLIP
+        passType: 0
+      - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
+        passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
       - keywords: 
+        passType: 13
+      - keywords: UNITY_UI_ALPHACLIP
+        passType: 13
+      - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
+        passType: 13
+      - keywords: UNITY_UI_CLIP_RECT
         passType: 13
   - first: {fileID: 4800000, guid: e260cfa7296ee7642b167f1eb5be5023, type: 3}
     second:
@@ -33,82 +45,61 @@ ShaderVariantCollection:
   - first: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
     second:
       variants:
-      - keywords: 
+      - keywords: _SURFACE_TYPE_TRANSPARENT
         passType: 0
-      - keywords: 
-        passType: 13
   - first: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
     second:
       variants:
       - keywords: 
         passType: 0
-      - keywords: OUTLINE_ON
-        passType: 0
-      - keywords: OUTLINE_ON UNDERLAY_ON
-        passType: 0
-      - keywords: UNITY_UI_CLIP_RECT
-        passType: 0
       - keywords: UNITY_UI_ALPHACLIP
         passType: 0
       - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
         passType: 0
-      - keywords: OUTLINE_ON UNITY_UI_CLIP_RECT
-        passType: 0
-      - keywords: OUTLINE_ON UNITY_UI_ALPHACLIP
-        passType: 0
-      - keywords: OUTLINE_ON UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
-        passType: 0
-      - keywords: OUTLINE_ON UNDERLAY_ON UNITY_UI_CLIP_RECT
-        passType: 0
-      - keywords: OUTLINE_ON UNDERLAY_ON UNITY_UI_ALPHACLIP
-        passType: 0
-      - keywords: OUTLINE_ON UNDERLAY_ON UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
+      - keywords: UNITY_UI_CLIP_RECT
         passType: 0
   - first: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
     second:
       variants:
       - keywords: 
         passType: 0
-  - first: {fileID: -6465566751694194690, guid: 124c112a6e8f1a54e8b0870e881b56d8, type: 3}
-    second:
-      variants:
-      - keywords: 
+      - keywords: UNITY_UI_ALPHACLIP
         passType: 0
-      - keywords: 
-        passType: 8
-      - keywords: 
-        passType: 12
-      - keywords: 
-        passType: 13
-  - first: {fileID: -6465566751694194690, guid: a3d800b099a06e0478fb790c5e79057a, type: 3}
-    second:
-      variants:
-      - keywords: 
+      - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
         passType: 0
-      - keywords: 
-        passType: 8
-      - keywords: 
-        passType: 11
-      - keywords: 
-        passType: 12
-      - keywords: 
-        passType: 13
-  - first: {fileID: 4800000, guid: 1768ebbc336049e48d66f4bc5fdae0fa, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 13
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
   - first: {fileID: 4800000, guid: 816c1249d7195ad4faf14a6513792531, type: 3}
     second:
       variants:
       - keywords: 
         passType: 0
+  - first: {fileID: 4800000, guid: 7aada6c8ee3c4d3ea97d77754571e544, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 14
+  - first: {fileID: 4800000, guid: 1768ebbc336049e48d66f4bc5fdae0fa, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
   - first: {fileID: 4800000, guid: 7415ecfeea144f2d9905adea6fe68e0c, type: 3}
     second:
       variants:
       - keywords: 
         passType: 13
-  - first: {fileID: 4800000, guid: 7aada6c8ee3c4d3ea97d77754571e544, type: 3}
+  - first: {fileID: 4800000, guid: 916dc2be9d224be397e3f832a4c2fe4d, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: ed842d8da0da49f28e6b966b0715d3e4, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+  - first: {fileID: 4800000, guid: 96e5056f28bd40d299d590affecfd7b5, type: 3}
     second:
       variants:
       - keywords: 
@@ -123,40 +114,41 @@ ShaderVariantCollection:
       variants:
       - keywords: 
         passType: 13
-  - first: {fileID: 4800000, guid: ed842d8da0da49f28e6b966b0715d3e4, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 13
-  - first: {fileID: 4800000, guid: 916dc2be9d224be397e3f832a4c2fe4d, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 13
-  - first: {fileID: 4800000, guid: 96e5056f28bd40d299d590affecfd7b5, type: 3}
-    second:
-      variants:
-      - keywords: 
-        passType: 13
   - first: {fileID: 4800000, guid: 942ce056268544f4aceae7efcdc83827, type: 3}
     second:
       variants:
       - keywords: 
         passType: 0
-      - keywords: UNITY_UI_CLIP_RECT
-        passType: 0
       - keywords: UNITY_UI_ALPHACLIP
         passType: 0
       - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
         passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
+      - keywords: 
+        passType: 13
+      - keywords: UNITY_UI_ALPHACLIP
+        passType: 13
+      - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
+        passType: 13
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 13
   - first: {fileID: 4800000, guid: c05a5c93e4c84f5c836c75d504ca857c, type: 3}
     second:
       variants:
       - keywords: 
         passType: 0
-      - keywords: UNITY_UI_CLIP_RECT
-        passType: 0
       - keywords: UNITY_UI_ALPHACLIP
         passType: 0
       - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
         passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
+      - keywords: 
+        passType: 13
+      - keywords: UNITY_UI_ALPHACLIP
+        passType: 13
+      - keywords: UNITY_UI_ALPHACLIP UNITY_UI_CLIP_RECT
+        passType: 13
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 13

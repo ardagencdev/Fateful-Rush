@@ -180,10 +180,15 @@ public class UIPanelFadeSwitcher : MonoBehaviour
         float fromStartAlpha = Mathf.Clamp01(fromGroup.alpha);
         Vector3 fromStartScale = SafeScale(fromPanel.transform.localScale);
 
+        toGroup.alpha = 0f;
         ActivateWithoutStandaloneIntro(toPanel);
         toPanel.transform.SetAsLastSibling();
         toPanel.transform.localScale = Vector3.one * incomingStartScale;
         toGroup.alpha = 0f;
+
+        // Coalesce OnEnable/text/layout changes in Unity's normal Canvas pass
+        // before starting the visible animation. Do not force global rebuilds.
+        yield return null;
 
         float elapsed = 0f;
         float duration = Mathf.Max(0.05f, switchDuration);
@@ -233,10 +238,13 @@ public class UIPanelFadeSwitcher : MonoBehaviour
         CanvasGroup group = GetCanvasGroup(panel);
         DisableInteraction(group);
 
+        group.alpha = 0f;
         ActivateWithoutStandaloneIntro(panel);
         panel.transform.SetAsLastSibling();
         panel.transform.localScale = Vector3.one * incomingStartScale;
         group.alpha = 0f;
+
+        yield return null;
 
         float elapsed = 0f;
         float duration = Mathf.Max(0.05f, switchDuration);
@@ -303,10 +311,13 @@ public class UIPanelFadeSwitcher : MonoBehaviour
         CanvasGroup group = GetCanvasGroup(panel);
         DisableInteraction(group);
 
+        group.alpha = 0f;
         ActivateWithoutStandaloneIntro(panel);
         panel.transform.SetAsLastSibling();
         panel.transform.localScale = Vector3.one * overlayStartScale;
         group.alpha = 0f;
+
+        yield return null;
 
         float elapsed = 0f;
         float duration = Mathf.Max(0.05f, overlayDuration);
@@ -456,6 +467,10 @@ public class UIPanelFadeSwitcher : MonoBehaviour
     {
         if (panel == null)
             return null;
+
+        // Once per panel, isolate its animated graphics from sibling panels.
+        // The existing helper preserves hierarchy, sorting and input settings.
+        UIRenderIsolation.Ensure(panel.transform);
 
         CanvasGroup group = panel.GetComponent<CanvasGroup>();
 

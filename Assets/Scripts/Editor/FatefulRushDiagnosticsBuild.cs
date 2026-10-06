@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ public static class FatefulRushDiagnosticsBuild
         }
         string path = EditorUtility.SaveFilePanel("Save diagnostics APK", "", "FaithfulRush-debug", "apk");
         if (string.IsNullOrEmpty(path)) return;
-        string originalId = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android);
+        string originalId = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.Android);
         string originalName = PlayerSettings.productName;
         bool originalTiming = PlayerSettings.enableFrameTimingStats;
         bool originalGpuRecorders = PlayerSettings.enableOpenGLProfilerGPURecorders;
@@ -40,9 +41,10 @@ public static class FatefulRushDiagnosticsBuild
         bool originalConnect = EditorUserBuildSettings.connectProfiler;
         bool originalDebug = EditorUserBuildSettings.allowDebugging;
         bool originalExport = EditorUserBuildSettings.exportAsGoogleAndroidProject;
+        bool originalFramePacing = PlayerSettings.Android.optimizedFramePacing;
         try
         {
-            PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, DebugId);
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, DebugId);
             PlayerSettings.productName = "Faithful Rush debug";
             // Adaptive Performance requires the frame-timing setting at build time.
             // The normal test does not call CaptureFrameTimings from the HUD.
@@ -67,13 +69,15 @@ public static class FatefulRushDiagnosticsBuild
             if (report.summary.result == BuildResult.Succeeded)
             {
                 EditorUtility.RevealInFinder(path);
-                Debug.Log("Diagnostics APK ready: " + path + " | " + DebugId + " | production settings restored after build.");
+                Debug.Log("Diagnostics APK ready: " + path + " | " + DebugId +
+                    " | frame pacing=ON | production settings restored after build.");
             }
             else Debug.LogError("Diagnostics APK failed. Inspect the first build error in Console.");
         }
         finally
         {
-            PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, originalId);
+            PlayerSettings.Android.optimizedFramePacing = originalFramePacing;
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, originalId);
             PlayerSettings.productName = originalName;
             PlayerSettings.enableFrameTimingStats = originalTiming;
             PlayerSettings.enableOpenGLProfilerGPURecorders = originalGpuRecorders;

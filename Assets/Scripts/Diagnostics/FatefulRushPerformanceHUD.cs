@@ -18,7 +18,7 @@ using UnityEngine.UI;
 [DefaultExecutionOrder(32000)]
 public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
 {
-    const string Header = "seconds,scene,level,gameplay,time_scale,fps,target_fps,mean_ms,p95_ms,worst_ms,frames_over_33ms,frames_over_50ms,android_thermal,ap_warning,ap_temperature_normalized,battery_c,battery_percent,charging,power_saver,render_scale,screen_hz,cpu_frame_ms,cpu_main_ms,cpu_render_ms,present_wait_ms,gpu_ms,gc_collections,unity_allocated_mb,mark,visual_switches,active_panels,attempt,recorder_main_ms,recorder_render_ms,draw_calls,batches,triangles,coin_spawn_work_ms,enemy_steering_work_ms,coin_spawn_batches,enemy_steering_calls";
+    const string Header = "seconds,scene,level,gameplay,time_scale,fps,target_fps,mean_ms,p95_ms,worst_ms,frames_over_33ms,frames_over_50ms,android_thermal,ap_warning,ap_temperature_normalized,battery_c,battery_percent,charging,power_saver,render_scale,screen_hz,cpu_frame_ms,cpu_main_ms,cpu_render_ms,present_wait_ms,gpu_ms,gc_collections,unity_allocated_mb,mark,visual_switches,active_panels,attempt,recorder_main_ms,recorder_render_ms,draw_calls,batches,triangles,coin_spawn_work_ms,enemy_steering_work_ms,coin_spawn_batches,enemy_steering_calls,shader_warmup,shader_progress,shader_audit,shader_audit_scene,shader_audit_age_s,loaded_shaders,loaded_materials,shader_warnings,shader_log_issues,shader_scan_ms,shader_audit_details_event,shader_log_event";
     readonly float[] frames = new float[2048];
     readonly float[] sorted = new float[2048];
     readonly UnityEngine.FrameTiming[] timings = new UnityEngine.FrameTiming[1];
@@ -89,6 +89,7 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
         OpenLog();
         CreateUI();
         InitializeVisualControls();
+        Application.logMessageReceived += ObserveShaderLog;
 #if UNITY_ANDROID && !UNITY_EDITOR
         try
         {
@@ -117,6 +118,11 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
     }
     string DeviceInfo()
     {
+#if FATEFULRUSH_FRAME_PACING_OFF_TEST
+        const string pacingState = "OFF_DIAGNOSTICS_TEST";
+#else
+        const string pacingState = "ON_BUILD_GUARD";
+#endif
 #if FATEFULRUSH_GPU_RECORDERS_OFF
         const string gpuRecorderState = "OFF";
 #else
@@ -127,7 +133,7 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
             " | GPU=" + SystemInfo.graphicsDeviceName + " | API=" + SystemInfo.graphicsDeviceType +
             " | resolution=" + Screen.width + "x" + Screen.height + " | app=" + Application.identifier +
             " | version=" + Application.version + " | development=" + Debug.isDebugBuild +
-            " | gpu_recorders=" + gpuRecorderState;
+            " | gpu_recorders=" + gpuRecorderState + " | frame_pacing=" + pacingState;
     }
     void Update()
     {
@@ -151,6 +157,7 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
             Sample(now);
             ResetWindow(now);
         }
+        TryPendingShaderAudit();
     }
     void ResetWindow(double now)
     {
@@ -176,7 +183,12 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
             main = ValidTiming(timings[0].cpuMainThreadFrameTime);
             render = ValidTiming(timings[0].cpuRenderThreadFrameTime);
             present = timings[0].cpuMainThreadPresentWaitTime;
-            gpu = ValidTiming(timings[0].gpuFrameTime);
+            // Some empty GLES frames return an absolute timestamp-sized value
+            // instead of a duration. Never show it as real GPU work time.
+            double rawGpu = timings[0].gpuFrameTime;
+            gpu = ValidGpuTiming(rawGpu);
+            if (double.IsNaN(gpu) && rawGpu != 0)
+                pendingMark += " GPU_TIMING_REJECTED_RAW_MS=" + F(rawGpu);
         }
 #endif
         var ap = Holder.Instance;
@@ -218,7 +230,11 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
             gc.ToString(), F(mb), Csv(pendingMark), Csv(VisualState()), Csv(ActivePanels()), attempt.ToString(CultureInfo.InvariantCulture),
             F(recorderMain), F(recorderRender), F(CounterValue(drawsRecorder)),
             F(CounterValue(batchesRecorder)), F(CounterValue(trianglesRecorder)),
-            F(coinWork), F(steeringWork), coinWorkCalls.ToString(), steeringWorkCalls.ToString());
+            F(coinWork), F(steeringWork), coinWorkCalls.ToString(), steeringWorkCalls.ToString(),
+            Csv(AndroidShaderWarmup.WarmupState), Csv(ShaderProgress()), Csv(shaderAuditState),
+            Csv(shaderAuditScene), F(shaderAuditTime < 0 ? double.NaN : now - shaderAuditTime),
+            shaderAuditShaders.ToString(), shaderAuditMaterials.ToString(), shaderAuditWarnings.ToString(),
+            shaderLogErrors.ToString(), F(shaderAuditMs), Csv(shaderAuditReportPending ? shaderAuditDetails : ""), Csv(shaderLogLast));
         recent.Enqueue(row); while (recent.Count > 900) recent.Dequeue();
         try
         {
@@ -230,6 +246,8 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
         }
         catch (Exception e) { logError = "CSV write failed: " + e.GetType().Name; CloseLog(); }
         pendingMark = "";
+        shaderAuditReportPending = false;
+        shaderLogLast = "";
         if (uiDrawHidden) return; // CSV/counters above keep recording; skip invisible label rebuilds.
         text.Clear();
         text.Append("FR DEBUG | ").Append(scene).Append(" | L ").Append(levelName);
@@ -248,10 +266,207 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
         text.Append("\nLast thermal change: ").Append(lastThermalEvent);
         text.Append("\n").Append(string.IsNullOrEmpty(logError) ? "CSV recording | SHARE: full session CSV (Android 10+)" : logError);
         text.Append("\nVisuals: ").Append(VisualState());
+        text.Append("\nShader audit: ").Append(shaderAuditState).Append(" | warmed ").Append(ShaderProgress())
+            .Append(" | warnings ").Append(shaderAuditWarnings).Append(" | log issues ").Append(shaderLogErrors);
         label.SetText(text.ToString());
     }
+    // Debug-only observation. No Shader.Find/Resources.Load/WarmUp calls, no
+    // material instantiation, no retained Material/Shader inventory after a scan.
+    static readonly string[] RequiredShaderNames = {
+        "UI/Default", "Sprites/Default", "TextMeshPro/Mobile/Distance Field",
+        "FatefulRush/BackgroundPlanet", "FatefulRush/BackgroundAsteroid",
+        "FatefulRush/ComboElectric", "FatefulRush/ObstacleCollisionAccent",
+        "FatefulRush/HomePlanetTheme", "FatefulRush/SolarAtmosphere",
+        "FatefulRush/SolarAtmosphereBake", "FatefulRush/SolarAtmosphereDisplay",
+        "FatefulRush/UI/RoundedResultEdgeGlow", "FatefulRush/UI/SolidResultOverlay",
+        "FatefulRush/BossDangerPreview"
+    };
+    bool shaderAuditPending, shaderAuditReportPending;
+    string shaderAuditState = "NOT_CHECKED", shaderAuditScene = "", shaderAuditDetails = "", shaderLogLast = "";
+    int shaderAuditShaders, shaderAuditMaterials, shaderAuditWarnings, shaderLogErrors;
+    double shaderAuditTime = -1, shaderAuditMs;
+
+    static string ShaderProgress()
+    {
+        var collection = AndroidShaderWarmup.DiagnosticsCollection;
+        return collection == null ? "N/A" : collection.warmedUpVariantCount + "/" + collection.variantCount;
+    }
+    bool ShaderAuditSafe()
+    {
+        return focused && !paused && !uiDrawHidden &&
+            SceneManager.GetActiveScene().name != "IntroScene" &&
+            (!GameStateManager.IsGameplayStarted || GameStateManager.IsGameplayEnded || Time.timeScale <= 0);
+    }
+    void RequestShaderAudit()
+    {
+        if (!ShaderAuditSafe())
+        {
+            pendingMark += " SHADER_CHECK_BLOCKED_PAUSE_FIRST";
+            return;
+        }
+        shaderAuditPending = true;
+        pendingMark += " SHADER_CHECK_REQUESTED";
+    }
+    void TryPendingShaderAudit()
+    {
+        if (!shaderAuditPending || !AndroidShaderWarmup.IsComplete || !ShaderAuditSafe()) return;
+        shaderAuditPending = false;
+        double start = Time.realtimeSinceStartupAsDouble;
+        shaderAuditScene = SceneManager.GetActiveScene().name;
+        shaderAuditWarnings = 0;
+        shaderAuditShaders = shaderAuditMaterials = 0;
+        var notes = new StringBuilder(4096);
+        int failures = 0;
+        try
+        {
+            var collection = AndroidShaderWarmup.DiagnosticsCollection;
+            bool androidRuntime = Application.platform == RuntimePlatform.Android && !Application.isEditor;
+            if (androidRuntime && (collection == null || collection.shaderCount == 0 || collection.variantCount == 0))
+            {
+                failures++;
+                ShaderNote(notes, "COLLECTION_MISSING_OR_EMPTY");
+            }
+            if (androidRuntime && (AndroidShaderWarmup.WarmupState != "DONE" ||
+                collection == null || !collection.isWarmedUp || collection.warmedUpVariantCount != collection.variantCount))
+            {
+                failures++;
+                ShaderNote(notes, "WARMUP_NOT_VERIFIED=" + AndroidShaderWarmup.WarmupState);
+            }
+            var loadedShaders = Resources.FindObjectsOfTypeAll<Shader>();
+            shaderAuditShaders = loadedShaders.Length;
+            var byName = new Dictionary<string, Shader>(loadedShaders.Length);
+            foreach (var shader in loadedShaders)
+            {
+                if (shader == null) continue;
+                if (byName.TryGetValue(shader.name, out var other) && other != shader)
+                {
+                    shaderAuditWarnings++;
+                    ShaderNote(notes, "DUPLICATE_LOADED_NAME=" + shader.name);
+                }
+                else byName[shader.name] = shader;
+            }
+            // A missing loaded reference is suspicious, not proof of stripping.
+            // Editor/desktop intentionally skips this Android startup requirement.
+            if (androidRuntime)
+                foreach (string name in RequiredShaderNames)
+                {
+                    if (!byName.TryGetValue(name, out var shader))
+                    {
+                        shaderAuditWarnings++;
+                        ShaderNote(notes, "REQUIRED_NOT_OBSERVED=" + name);
+                    }
+                    else if (!shader.isSupported)
+                    {
+                        shaderAuditWarnings++;
+                        ShaderNote(notes, "REQUIRED_UNSUPPORTED=" + name);
+                    }
+                }
+            var loadedMaterials = Resources.FindObjectsOfTypeAll<Material>();
+            shaderAuditMaterials = loadedMaterials.Length;
+            foreach (var material in loadedMaterials)
+            {
+                if (material == null) continue;
+                var shader = material.shader;
+                if (shader == null || shader.name == "Hidden/InternalErrorShader" || !shader.isSupported)
+                {
+                    // Inventory includes unused/inactive assets. This does not
+                    // assert that the invalid material is drawing on screen.
+                    shaderAuditWarnings++;
+                    ShaderNote(notes, "LOADED_MATERIAL_INVALID=" + material.name + " shader=" + (shader == null ? "NULL" : shader.name));
+                    continue;
+                }
+                if (collection == null || shader.name.StartsWith("Hidden/", StringComparison.Ordinal)) continue;
+                var enabled = material.enabledKeywords;
+                string[] keywords = new string[enabled.Length];
+                for (int i = 0; i < enabled.Length; i++) keywords[i] = enabled[i].name;
+                if (!ContainsMaterialVariant(collection, shader, PassType.Normal, keywords) &&
+                    !ContainsMaterialVariant(collection, shader, PassType.ScriptableRenderPipeline, keywords) &&
+                    !ContainsMaterialVariant(collection, shader, PassType.ScriptableRenderPipelineDefaultUnlit, keywords))
+                {
+                    shaderAuditWarnings++;
+                    ShaderNote(notes, "MATERIAL_STATE_NOT_COVERED=" + material.name + " shader=" + shader.name +
+                        " keywords=" + string.Join("|", keywords));
+                }
+            }
+            // Observe existing draw assignments without requesting .material or
+            // materialForRendering (those can instantiate runtime materials).
+            foreach (var renderer in UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (!renderer.enabled || renderer.forceRenderingOff) continue;
+                foreach (var material in renderer.sharedMaterials)
+                    if (InvalidShaderMaterial(material))
+                    {
+                        failures++;
+                        ShaderNote(notes, "ACTIVE_RENDERER_INVALID=" + renderer.name);
+                    }
+            }
+            foreach (var renderer in UnityEngine.Object.FindObjectsByType<CanvasRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (renderer.cull) continue;
+                for (int i = 0; i < renderer.materialCount; i++)
+                    if (InvalidShaderMaterial(renderer.GetMaterial(i)))
+                    {
+                        failures++;
+                        ShaderNote(notes, "ACTIVE_UI_MATERIAL_INVALID=" + renderer.name);
+                    }
+            }
+            // Match is only local keywords + one listed runtime pass. Pipeline
+            // global keywords, vertex layouts, targets and driver PSOs aren't proven.
+            shaderAuditState = failures > 0 ? "FAIL" : shaderAuditWarnings > 0 || shaderLogErrors > 0 ? "WARNING" :
+                androidRuntime ? "OBSERVED_OK_LIMITED" : "EDITOR_DESKTOP_LIMITED";
+            ShaderNote(notes, "SCOPE=loaded_materials_and_collection;GPU_VARIANTS_NOT_PROVEN;FULL_LOG_VISIBILITY_NOT_GUARANTEED");
+        }
+        catch (Exception exception)
+        {
+            shaderAuditState = "CHECK_FAILED";
+            ShaderNote(notes, "AUDIT_EXCEPTION=" + exception.GetType().Name + ":" + exception.Message);
+        }
+        shaderAuditDetails = notes.ToString();
+        shaderAuditReportPending = true;
+        shaderAuditTime = Time.realtimeSinceStartupAsDouble;
+        shaderAuditMs = (shaderAuditTime - start) * 1000.0;
+        pendingMark += " SHADER_AUDIT=" + shaderAuditState + " SCAN_MS=" + F(shaderAuditMs) + " AUDIT_MAY_HITCH";
+    }
+    static bool ContainsMaterialVariant(ShaderVariantCollection collection, Shader shader, PassType pass, string[] keywords)
+    {
+        try { return collection.Contains(new ShaderVariantCollection.ShaderVariant(shader, pass, keywords)); }
+        catch (ArgumentException) { return false; } // Not every shader has all three pass types.
+    }
+    static bool InvalidShaderMaterial(Material material)
+    {
+        return material == null || material.shader == null ||
+            material.shader.name == "Hidden/InternalErrorShader" || !material.shader.isSupported;
+    }
+    static void ShaderNote(StringBuilder notes, string value)
+    {
+        const int limit = 12000;
+        if (notes.Length >= limit) return;
+        if (notes.Length > 0) notes.Append("; ");
+        // Protect CSV row boundaries and bound retained text, not asset references.
+        string line = value.Replace('\r', ' ').Replace('\n', ' ');
+        int available = Mathf.Max(0, limit - notes.Length);
+        notes.Append(line, 0, Mathf.Min(line.Length, available));
+    }
+    void ObserveShaderLog(string message, string stackTrace, LogType type)
+    {
+        if (type != LogType.Warning && type != LogType.Error && type != LogType.Exception && type != LogType.Assert) return;
+        if (message == null || (message.IndexOf("shader", StringComparison.OrdinalIgnoreCase) < 0 &&
+            message.IndexOf("variant", StringComparison.OrdinalIgnoreCase) < 0)) return;
+        // Main-thread callback only. Bounded strings; no stack trace/native log polling.
+        if (shaderLogErrors < int.MaxValue) shaderLogErrors++;
+        string value = message.Length > 1500 ? message.Substring(0, 1500) : message;
+        if (shaderLogLast.Length < 4096)
+        {
+            string line = type + ": " + value.Replace('\r', ' ').Replace('\n', ' ') + "; ";
+            shaderLogLast += line.Substring(0, Mathf.Min(line.Length, 4096 - shaderLogLast.Length));
+        }
+        if (shaderAuditState == "OBSERVED_OK_LIMITED") shaderAuditState = "WARNING";
+    }
+
     string lastThermalKey = "";
     static double ValidTiming(double value) => value > 0 ? value : double.NaN;
+    static double ValidGpuTiming(double value) => value > 0 && value <= 10000 &&
+        !double.IsNaN(value) && !double.IsInfinity(value) ? value : double.NaN;
     static string F(double v) => double.IsNaN(v) || double.IsInfinity(v) ? "N/A" : v.ToString("0.00", CultureInfo.InvariantCulture);
     static string State(int value) => value < 0 ? "N/A" : value == 0 ? "off" : "on";
     static string Csv(string s) => "\"" + (s ?? "").Replace("\"", "\"\"") + "\"";
@@ -327,7 +542,7 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
         safeRoot = new GameObject("Safe Area", typeof(RectTransform)).GetComponent<RectTransform>();
         safeRoot.SetParent(canvasObject.transform, false);
         panel = new GameObject("Readout", typeof(RectTransform), typeof(Image)); panel.transform.SetParent(safeRoot, false);
-        Position(panel.GetComponent<RectTransform>(), 0, -54, 730, 380);
+        Position(panel.GetComponent<RectTransform>(), 0, -54, 730, 410);
         var bg = panel.GetComponent<Image>(); bg.color = new Color(0, 0, 0, .82f); bg.raycastTarget = false;
         label = MakeText(panel.transform, "Starting diagnostics...", 20);
         var rt = label.rectTransform; rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
@@ -386,6 +601,7 @@ public sealed partial class FatefulRushPerformanceHUD : MonoBehaviour
     void CloseLog() { try { writer?.Dispose(); } catch { } writer = null; }
     void OnDestroy()
     {
+        Application.logMessageReceived -= ObserveShaderLog;
         ShutdownVisualControls();
         if (mainRecorder.Valid) mainRecorder.Dispose();
         if (renderRecorder.Valid) renderRecorder.Dispose();

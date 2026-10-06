@@ -1,206 +1,226 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 public static class FatefulRushShaderCollectionBuilder
 {
-    private const string OutputPath =
-        "Assets/Resources/FatefulRushRuntimeShaders.shadervariants";
+    private const string OutputPath = "Assets/Resources/FatefulRushRuntimeShaders.shadervariants";
 
-    // Runtime shaders that can be used without a standalone Material asset.
+    // These assets are loaded explicitly by gameplay code, so scene
+    // dependencies alone do not cover them. No project-wide shader scan.
+    private static readonly string[] RuntimeAssets =
+    {
+        "Assets/Resources/BackgroundPlanets/BackgroundPlanet.mat",
+        "Assets/Resources/BackgroundAsteroids/BackgroundAsteroid.mat",
+        "Assets/Resources/ComboElectricFX/ComboElectric.mat",
+        "Assets/Resources/ObstacleReadability/ObstacleEdge.mat",
+        "Assets/Resources/BackgroundPlanets/HomePlanetTheme.shader",
+        "Assets/Resources/SolarAtmosphere/SolarAtmosphere.shader",
+        "Assets/Resources/SolarAtmosphere/SolarAtmosphereBake.shader",
+        "Assets/Resources/SolarAtmosphere/SolarAtmosphereDisplay.shader",
+        "Assets/Resources/ResultEdgeGlow/ResultEdgeGlow.shader",
+        "Assets/Resources/ResultEdgeGlow/ResultOverlay.shader",
+        "Assets/Shaders/BossDangerPreview.shader"
+    };
+
     private static readonly string[] RuntimeFallbackShaders =
     {
-        "UI/Default",
-        "Sprites/Default",
-        "TextMeshPro/Distance Field",
-        "TextMeshPro/Mobile/Distance Field",
-        "Universal Render Pipeline/2D/Sprite-Unlit-Default",
-        "Universal Render Pipeline/2D/Sprite-Lit-Default",
-        "Universal Render Pipeline/Particles/Unlit"
+        "UI/Default", "Sprites/Default", "TextMeshPro/Mobile/Distance Field"
+    };
+
+    // Only visible passes used by this unlit 2D game. Do not prewarm shadow,
+    // meta/lightmapping, deferred or HDRP passes just because they exist.
+    private static readonly PassType[] RuntimePasses =
+    {
+        PassType.Normal, PassType.ScriptableRenderPipeline,
+        PassType.ScriptableRenderPipelineDefaultUnlit
     };
 
     [MenuItem("Fateful Rush/Build Runtime Shader Collection")]
     public static void Build()
     {
-        EnsureResourcesFolder();
-
-        var collection = new ShaderVariantCollection();
-        var materials = FindAllProjectMaterials();
-
-        int scannedMaterials = 0;
-        int skippedHdrpShaders = 0;
-        int skippedEditorShaders = 0;
-
-        foreach (Material material in materials)
-        {
-            if (material == null || material.shader == null)
-                continue;
-
-            string shaderName = material.shader.name;
-
-            if (IsHdrpShader(shaderName))
-            {
-                skippedHdrpShaders++;
-                continue;
-            }
-
-            if (IsEditorOnlyShader(shaderName))
-            {
-                skippedEditorShaders++;
-                continue;
-            }
-
-            scannedMaterials++;
-
-            string[] keywords =
-                material.shaderKeywords ?? Array.Empty<string>();
-
-            AddValidVariants(
-                collection,
-                material.shader,
-                keywords
-            );
-
-            // Also include the base/no-keyword state because the same shader can
-            // be reused by materials or runtime-created renderers with no keywords.
-            if (keywords.Length > 0)
-            {
-                AddValidVariants(
-                    collection,
-                    material.shader,
-                    Array.Empty<string>()
-                );
-            }
-        }
-
-        // Add core runtime shaders which might not have explicit material assets.
-        foreach (string shaderName in RuntimeFallbackShaders)
-        {
-            Shader shader = Shader.Find(shaderName);
-
-            if (shader == null)
-                continue;
-
-            if (IsHdrpShader(shader.name) || IsEditorOnlyShader(shader.name))
-                continue;
-
-            AddValidVariants(
-                collection,
-                shader,
-                Array.Empty<string>()
-            );
-        }
-
-        if (AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(OutputPath) != null)
-            AssetDatabase.DeleteAsset(OutputPath);
-
-        AssetDatabase.CreateAsset(collection, OutputPath);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-
-        Selection.activeObject = collection;
-        EditorGUIUtility.PingObject(collection);
-
-        Debug.Log(
-            "[Fateful Rush] Runtime Shader Collection rebuilt.\n" +
-            "Materials included: " + scannedMaterials + "\n" +
-            "HDRP shaders skipped: " + skippedHdrpShaders + "\n" +
-            "Editor/internal shaders skipped: " + skippedEditorShaders + "\n" +
-            "Shaders in collection: " + collection.shaderCount + "\n" +
-            "Variants in collection: " + collection.variantCount + "\n" +
-            "Output: " + OutputPath
-        );
+        var scenes = new List<string>();
+        foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
+            if (scene.enabled) scenes.Add(scene.path);
+        BuildForScenes(scenes.ToArray());
+        ShaderVariantCollection saved = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(OutputPath);
+        Selection.activeObject = saved;
+        EditorGUIUtility.PingObject(saved);
     }
 
-    private static HashSet<Material> FindAllProjectMaterials()
+    public static void BuildForScenes(string[] scenes)
     {
-        var result = new HashSet<Material>();
+        if (scenes == null || scenes.Length == 0)
+            throw new BuildFailedException("[ShaderWarmup] No build scenes were supplied.");
 
-        string[] guids =
-            AssetDatabase.FindAssets("t:Material", new[] { "Assets" });
+        if (!AssetDatabase.IsValidFolder("Assets/Resources"))
+            AssetDatabase.CreateFolder("Assets", "Resources");
 
-        foreach (string guid in guids)
+        var candidate = new ShaderVariantCollection { name = "FatefulRushRuntimeShaders" };
+        bool savedAsNewAsset = false;
+        try
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-
-            if (string.IsNullOrEmpty(path))
-                continue;
-
-            UnityEngine.Object[] assets =
-                AssetDatabase.LoadAllAssetsAtPath(path);
-
-            foreach (UnityEngine.Object asset in assets)
+            var roots = new HashSet<string>(scenes, StringComparer.Ordinal);
+            foreach (string path in RuntimeAssets)
             {
-                if (asset is Material material)
-                    result.Add(material);
+                if (AssetDatabase.LoadMainAssetAtPath(path) == null)
+                    throw new BuildFailedException("[ShaderWarmup] Required runtime asset is missing: " + path);
+                roots.Add(path);
             }
-        }
 
-        return result;
+            // Runtime-created TMP UI uses the default font, including debug
+            // UI. This also reaches fallback fonts without all unused presets.
+            if (TMP_Settings.defaultFontAsset != null)
+            {
+                string fontPath = AssetDatabase.GetAssetPath(TMP_Settings.defaultFontAsset);
+                if (!string.IsNullOrEmpty(fontPath)) roots.Add(fontPath);
+            }
+
+            var materials = new HashSet<Material>();
+            var paths = new List<string>(roots);
+            string[] dependencies = AssetDatabase.GetDependencies(paths.ToArray(), true);
+            Array.Sort(dependencies, StringComparer.Ordinal);
+            foreach (string path in dependencies)
+            {
+                // Scene dependencies reach actual font/prefab/material assets.
+                // Load sub-assets too: font .asset files contain their material.
+                string extension = System.IO.Path.GetExtension(path);
+                if (extension != ".mat" && extension != ".asset" && extension != ".fbx") continue;
+                foreach (UnityEngine.Object asset in AssetDatabase.LoadAllAssetsAtPath(path))
+                    if (asset is Material material) materials.Add(material);
+            }
+
+            foreach (Material material in materials)
+                if (material != null && material.shader != null && !IsExcluded(material.shader))
+                {
+                    var keywords = new List<string>();
+                    foreach (UnityEngine.Rendering.LocalKeyword keyword in material.enabledKeywords)
+                        keywords.Add(keyword.name);
+                    var rejections = new List<string>();
+                    if (AddStates(candidate, material.shader, keywords.ToArray(), rejections) == 0)
+                        throw new BuildFailedException("[ShaderWarmup] No valid runtime variant for material: "
+                            + AssetDatabase.GetAssetPath(material) + " / " + material.name
+                            + " / shader=" + material.shader.name + " / keywords=" + string.Join("|", keywords)
+                            + " / Unity details: " + string.Join("; ", rejections));
+                }
+
+            foreach (string path in RuntimeAssets)
+            {
+                Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(path);
+                if (shader != null) RequireStates(candidate, shader);
+            }
+            foreach (string name in RuntimeFallbackShaders)
+            {
+                Shader shader = Shader.Find(name);
+                if (shader == null)
+                    throw new BuildFailedException("[ShaderWarmup] Required runtime shader is missing: " + name);
+                RequireStates(candidate, shader);
+            }
+
+            if (candidate.variantCount == 0)
+                throw new BuildFailedException("[ShaderWarmup] Runtime shader collection is empty.");
+
+            // Commit only after successful collection. Never delete the asset:
+            // direct GUID references must remain intact across rebuilds.
+            ShaderVariantCollection existing = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(OutputPath);
+            if (existing != null)
+            {
+                EditorUtility.CopySerialized(candidate, existing);
+                EditorUtility.SetDirty(existing);
+            }
+            else
+            {
+                AssetDatabase.CreateAsset(candidate, OutputPath);
+                savedAsNewAsset = true;
+            }
+            AssetDatabase.SaveAssets();
+            Debug.Log("[ShaderWarmup] Updated required runtime shaders: " + candidate.shaderCount
+                + " shaders / " + candidate.variantCount + " variants from " + scenes.Length
+                + " build scenes and " + materials.Count + " reachable materials. Existing asset GUID preserved.");
+        }
+        finally
+        {
+            if (!savedAsNewAsset) UnityEngine.Object.DestroyImmediate(candidate);
+        }
     }
 
-    private static void AddValidVariants(
-        ShaderVariantCollection collection,
-        Shader shader,
-        string[] keywords)
+    private static void RequireStates(ShaderVariantCollection collection, Shader shader)
     {
-        foreach (PassType passType in Enum.GetValues(typeof(PassType)))
+        var rejections = new List<string>();
+        if (AddStates(collection, shader, Array.Empty<string>(), rejections) == 0)
+            throw new BuildFailedException("[ShaderWarmup] No valid runtime pass for required shader: " + shader.name
+                + " / Unity details: " + string.Join("; ", rejections));
+    }
+
+    private static int AddStates(ShaderVariantCollection collection, Shader shader, string[] materialKeywords,
+        List<string> rejections = null)
+    {
+        int valid = AddPasses(collection, shader, materialKeywords, rejections);
+        bool ui = shader.name.StartsWith("UI/", StringComparison.Ordinal)
+            || shader.name.StartsWith("TextMeshPro/", StringComparison.Ordinal)
+            || shader.name.StartsWith("FatefulRush/UI/", StringComparison.Ordinal);
+        if (!ui) return valid;
+
+        // uGUI/TMP can add these two keywords at runtime for clipping.
+        // Preserve the material's actual outline/underlay state; do not invent
+        // every possible feature combination of a font shader.
+        var baseKeywords = new List<string>();
+        foreach (string keyword in materialKeywords)
+            if (keyword != "UNITY_UI_CLIP_RECT" && keyword != "UNITY_UI_ALPHACLIP")
+                baseKeywords.Add(keyword);
+        for (int flags = 0; flags < 4; flags++)
+        {
+            var keywords = new List<string>(baseKeywords);
+            if ((flags & 1) != 0) keywords.Add("UNITY_UI_CLIP_RECT");
+            if ((flags & 2) != 0) keywords.Add("UNITY_UI_ALPHACLIP");
+            valid += AddPasses(collection, shader, keywords.ToArray(), rejections);
+        }
+        return valid;
+    }
+
+    private static int AddPasses(ShaderVariantCollection collection, Shader shader, string[] keywords,
+        List<string> rejections)
+    {
+        int valid = 0;
+        foreach (PassType pass in RuntimePasses)
         {
             try
             {
-                var variant =
-                    new ShaderVariantCollection.ShaderVariant(
-                        shader,
-                        passType,
-                        keywords
-                    );
-
+                var variant = new ShaderVariantCollection.ShaderVariant(shader, pass, keywords);
                 collection.Add(variant);
+                valid++; // An already present valid variant is still valid.
             }
-            catch (ArgumentException)
+            catch (ArgumentException exception)
             {
-                // Normal: this pass/keyword combination does not exist.
+                // This shader does not have that pass/keyword combination.
+                // Preserve the actual Unity reason if every candidate fails.
+                rejections?.Add(pass + ": " + exception.Message);
             }
         }
+        return valid;
     }
 
-    private static bool IsHdrpShader(string shaderName)
+    private static bool IsExcluded(Shader shader)
     {
-        if (string.IsNullOrEmpty(shaderName))
-            return false;
-
-        return shaderName.IndexOf(
-            "HDRP",
-            StringComparison.OrdinalIgnoreCase
-        ) >= 0;
+        return shader.name.IndexOf("HDRP", StringComparison.OrdinalIgnoreCase) >= 0
+            || shader.name.StartsWith("Hidden/Internal", StringComparison.OrdinalIgnoreCase);
     }
+}
 
-    private static bool IsEditorOnlyShader(string shaderName)
+// Editor-only hook in the existing file; no new scene component. Uses the
+// actual BuildPlayerOptions scenes, including a custom Build Profile or APK.
+public sealed class FatefulRushShaderBuildPreparation : BuildPlayerProcessor
+{
+    public override int callbackOrder => -10000;
+    public override void PrepareForBuild(BuildPlayerContext context)
     {
-        if (string.IsNullOrEmpty(shaderName))
-            return true;
-
-        return shaderName.StartsWith(
-                   "Hidden/Internal-GUI",
-                   StringComparison.OrdinalIgnoreCase
-               )
-               || shaderName.Equals(
-                   "Hidden/BlitCopy",
-                   StringComparison.OrdinalIgnoreCase
-               )
-               || shaderName.Equals(
-                   "Hidden/InternalErrorShader",
-                   StringComparison.OrdinalIgnoreCase
-               );
-    }
-
-    private static void EnsureResourcesFolder()
-    {
-        if (!AssetDatabase.IsValidFolder("Assets/Resources"))
-            AssetDatabase.CreateFolder("Assets", "Resources");
+        if (context.BuildPlayerOptions.target == BuildTarget.Android)
+            FatefulRushShaderCollectionBuilder.BuildForScenes(context.BuildPlayerOptions.scenes);
     }
 }
 #endif

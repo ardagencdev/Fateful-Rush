@@ -218,7 +218,8 @@ public sealed class MenuFloatingText : MonoBehaviour
     {
         // Let the Canvas and anchors finish their first layout pass.
         yield return null;
-        Canvas.ForceUpdateCanvases();
+        // The previous frame's normal Canvas pass already ran. Each caption
+        // must not trigger another global rebuild when a panel is enabled.
 
         if (!isActiveAndEnabled || textUI == null || target == null)
             yield break;
