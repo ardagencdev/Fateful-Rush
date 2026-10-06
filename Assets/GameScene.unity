@@ -27046,6 +27046,9 @@ MonoBehaviour:
   cinematicResultIntro: 1
   cinematicResultHold: 0.22
   cinematicResultDuration: 0.85
+  cinematicWorldExit: 1
+  worldExitDuration: 1.05
+  winWorldExitDuration: 1.55
 --- !u!1 &1214333073
 GameObject:
   m_ObjectHideFlags: 0
@@ -27544,7 +27547,19 @@ MonoBehaviour:
   laserWarningSound: {fileID: 8300000, guid: 4325e5aa3f384d46a698cebb8580f785, type: 3}
   comboStageSound: {fileID: 8300000, guid: fdeed1047c18a5e439ab21e39bde05ac, type: 3}
   newSkinUnlockedSound: {fileID: 8300000, guid: 6ae51f8549c24e244a71edf38db75735, type: 3}
-  nearMissSound: {fileID: 0}
+  bossSpawnSound: {fileID: 8300000, guid: f4b60a48eec361d4a8f7cc6f12b48656, type: 3}
+  bossSpawnVolume: 0.7
+  comboElectricLoop: {fileID: 8300000, guid: f82a079a4245e1d4f8ae50bd0f9f5327, type: 3}
+  comboElectricMinVolume: 0.045
+  comboElectricMaxVolume: 0.08
+  comboElectricMinPitch: 0.96
+  comboElectricMaxPitch: 1.08
+  comboElectricFadeSeconds: 0.12
+  nearMissMinVolume: 0.15
+  nearMissMaxVolume: 0.3
+  nearMissMaxPitch: 1.18
+  nearMissRetriggerSeconds: 0.05
+  nearMissSound: {fileID: 8300000, guid: ce18714c03f2e4542a8666cf43ba252b, type: 3}
   nearMissVolume: 0.52
   nearMissPitchJitter: 0.012
   spaceBombSpawnVolume: 0.9

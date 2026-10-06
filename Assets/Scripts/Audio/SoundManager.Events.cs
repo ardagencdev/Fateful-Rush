@@ -291,7 +291,18 @@ public partial class SoundManager
         PlayCenteredUISound(comboStageSound, comboStageVolume);
 
     public void PlayComboStageSound(RectTransform sourceRect) =>
-        PlayUISound(comboStageSound, sourceRect, comboStageVolume);
+        PlayComboStageSound(sourceRect, 2);
+
+    public void PlayComboStageSound(RectTransform sourceRect, int combo)
+    {
+        float intensity = Mathf.Clamp01((combo - 2f) / 4f);
+        PlayUISound(comboStageSound, sourceRect,
+            comboStageVolume * Mathf.Lerp(0.90f, 1f, intensity),
+            Mathf.Lerp(1f, 1.10f, intensity));
+    }
+
+    public void PlayBossSpawnSound(Vector3 worldPosition) =>
+        PlayWorldCriticalSound(bossSpawnSound, worldPosition, Mathf.Clamp01(bossSpawnVolume));
 
     public void PlayNewSkinUnlockedSound() =>
         PlayCenteredUISound(newSkinUnlockedSound, newSkinUnlockedVolume);
@@ -301,35 +312,40 @@ public partial class SoundManager
 
     public void PlayNearMissSound(
         Vector3 worldPosition,
-        float closeness01 = 1f)
+        float closeness01 = 1f,
+        int streak = 1)
     {
-        if (nearMissSound == null)
+        if (nearMissSound == null || nearMissSource == null ||
+            SFXVolume <= 0f || Time.timeScale <= 0f ||
+            !GameStateManager.IsGameplayStarted || GameStateManager.IsGameplayEnded)
             return;
 
-        float closeness =
-            Mathf.Clamp01(closeness01);
+        // The gameplay chain is unlimited; audio reaches a comfortable ceiling at 6x.
+        float intensity = Mathf.Clamp01((streak - 1f) / 5f);
+        float closeness = Mathf.Clamp01(closeness01);
+        float ceiling = Mathf.Min(Mathf.Clamp01(nearMissVolume),
+            Mathf.Clamp(nearMissMaxVolume, 0f, 0.3f));
+        float gain = Mathf.Lerp(Mathf.Clamp(nearMissMinVolume, 0f, ceiling), ceiling, intensity)
+            * Mathf.Lerp(0.88f, 1f, closeness);
+        float pitch = Mathf.Lerp(1f, Mathf.Clamp(nearMissMaxPitch, 1f, 1.5f), intensity);
+        if (enableSfxVariation)
+            pitch = GetVariedPitch(pitch, nearMissPitchJitter);
+        pitch = Mathf.Clamp(pitch, 0.98f, Mathf.Clamp(nearMissMaxPitch, 1f, 1.5f));
 
-        float volume =
-            nearMissVolume *
-            Mathf.Lerp(0.82f, 1f, closeness);
+        float now = Time.unscaledTime;
+        bool coalesce = nearMissSource.isPlaying &&
+            now - lastNearMissAudioTime < Mathf.Max(0f, nearMissRetriggerSeconds);
+        nearMissGain = coalesce ? Mathf.Max(nearMissGain, gain) : gain;
+        nearMissSource.transform.position = worldPosition;
+        nearMissSource.volume = nearMissGain * SFXVolume;
+        nearMissSource.pitch = pitch;
+        if (coalesce)
+            return;
 
-        float basePitch =
-            Mathf.Lerp(0.985f, 1.015f, closeness);
-
-        float pitch =
-            enableSfxVariation
-                ? GetVariedPitch(
-                    basePitch,
-                    nearMissPitchJitter
-                )
-                : basePitch;
-
-        PlayWorldCriticalSound(
-            nearMissSound,
-            worldPosition,
-            volume,
-            pitch
-        );
+        nearMissSource.Stop();
+        nearMissSource.clip = nearMissSound;
+        nearMissSource.Play();
+        lastNearMissAudioTime = now;
     }
 
     public void PlayBeaconActivationWaveSound() =>

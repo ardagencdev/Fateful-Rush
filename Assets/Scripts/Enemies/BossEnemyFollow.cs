@@ -100,6 +100,10 @@ public partial class BossEnemyFollow : MonoBehaviour
     public Color dangerPreviewColor =
         new Color(1f, 0.025f, 0.025f, 0.46f);
 
+    [Tooltip("Use a softer cinematic red for this boss only; preserves the existing danger opacity.")]
+    public bool useCinematicAoeColor = true;
+    public Color cinematicAoeColor = new Color(0.72f, 0.22f, 0.20f, 1f);
+
     [Tooltip("AOE strike gerceklestigi anda Boss merkezinden disariya yayilan parlak shockwave'in suresi.")]
     [Min(0.05f)] public float dangerStrikeWaveDuration = 0.38f;
 
@@ -288,6 +292,7 @@ public partial class BossEnemyFollow : MonoBehaviour
         committedRouteSide = unstuckDirection;
         routeCommitTimer = 0f;
 
+        SoundManager.Instance?.PlayBossSpawnSound(transform.position);
         spawnRoutine = StartCoroutine(SpawnEffectRoutine());
 
     }

@@ -234,6 +234,17 @@ public partial class BossEnemyFollow
         );
     }
 
+    private Color GetBossDangerPreviewColor()
+    {
+        if (!useCinematicAoeColor)
+            return dangerPreviewColor;
+
+        Color color = cinematicAoeColor;
+        // Keep the warning visibility/opacity authored for the existing boss.
+        color.a = dangerPreviewColor.a;
+        return color;
+    }
+
     private void ShowGlobalDangerPreview()
     {
         HideDangerPreview();
@@ -252,7 +263,7 @@ public partial class BossEnemyFollow
                 false,
                 0f,
                 GetAoeCoverLayers(),
-                dangerPreviewColor,
+                GetBossDangerPreviewColor(),
                 dangerPreviewRayCount,
                 dangerPreviewSortingOrder,
                 innerRadius,
@@ -273,7 +284,7 @@ public partial class BossEnemyFollow
     {
         EnemyDangerPreviewMesh.SetPreviewAlpha(
             dangerPreviewObject,
-            dangerPreviewColor,
+            GetBossDangerPreviewColor(),
             normalizedAlpha
         );
     }

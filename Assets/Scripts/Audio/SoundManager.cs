@@ -138,7 +138,26 @@ public partial class SoundManager : MonoBehaviour
     public AudioClip comboStageSound;
     public AudioClip newSkinUnlockedSound;
 
+    [Header("Boss Spawn")]
+    public AudioClip bossSpawnSound;
+    [Range(0f, 1f)] public float bossSpawnVolume = 0.75f;
+
+    [Header("Combo Electric Loop")]
+    [Tooltip("Seamless loop. Starts at 2x; follows the player in 3D.")]
+    public AudioClip comboElectricLoop;
+    [SerializeField, Range(0f, 0.15f)] private float comboElectricMinVolume = 0.045f;
+    [SerializeField, Range(0f, 0.15f)] private float comboElectricMaxVolume = 0.09f;
+    [SerializeField, Range(0.5f, 1.5f)] private float comboElectricMinPitch = 0.96f;
+    [SerializeField, Range(0.5f, 1.5f)] private float comboElectricMaxPitch = 1.08f;
+    [SerializeField, Range(0.03f, 0.5f)] private float comboElectricFadeSeconds = 0.12f;
+
     [Header("Near Miss")]
+    [SerializeField, Range(0f, 0.3f)] private float nearMissMinVolume = 0.16f;
+    [SerializeField, Range(0f, 0.3f)] private float nearMissMaxVolume = 0.30f;
+    [SerializeField, Range(1f, 1.5f)] private float nearMissMaxPitch = 1.18f;
+    [Tooltip("Very close events update intensity without restarting the same voice.")]
+    [SerializeField, Range(0f, 0.15f)] private float nearMissRetriggerSeconds = 0.05f;
+
     [Tooltip("Optional override. If empty, the bundled Resources/Audio/NearMissWhoosh clip is loaded automatically.")]
     public AudioClip nearMissSound;
 
@@ -167,6 +186,13 @@ public partial class SoundManager : MonoBehaviour
 
     private readonly List<AudioSource> spatialSources =
         new List<AudioSource>();
+
+    private AudioSource comboElectricSource;
+    private AudioSource nearMissSource;
+    private float comboElectricGain;
+    private float nearMissGain;
+    private float lastNearMissAudioTime = -100f;
+    private bool comboElectricPaused;
 
     private int spatialSourceCursor;
     private AudioListener cachedListener;
@@ -230,11 +256,103 @@ public partial class SoundManager : MonoBehaviour
         }
 
         PrepareSpatialPool();
+        comboElectricSource = CreateFeedbackSource("Combo Electric Loop", true);
+        nearMissSource = CreateFeedbackSource("Near Miss Voice", false);
     }
 
     private void Start()
     {
         ApplySFXVolume();
+    }
+
+    private AudioSource CreateFeedbackSource(string sourceName, bool loop)
+    {
+        GameObject child = new GameObject(sourceName);
+        child.transform.SetParent(transform, false);
+        AudioSource source = child.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = loop;
+        source.volume = 0f;
+        ConfigureWorldAudioSource(source);
+        return source;
+    }
+
+    private void Update()
+    {
+        UpdateComboElectricAudio();
+        if (nearMissSource != null)
+        {
+            nearMissSource.volume = nearMissGain * SFXVolume;
+            if (Time.timeScale <= 0f || GameStateManager.IsGameplayEnded)
+                nearMissSource.Stop();
+        }
+    }
+
+    private void UpdateComboElectricAudio()
+    {
+        if (comboElectricSource == null)
+            return;
+
+        PlayerCoinCollector collector = PlayerCoinCollector.Instance;
+        bool gameplay = GameStateManager.IsGameplayStarted &&
+                        !GameStateManager.IsGameplayEnded &&
+                        collector != null && collector.isActiveAndEnabled;
+        if (!gameplay || SFXVolume <= 0f)
+        {
+            StopComboElectricAudio();
+            return;
+        }
+
+        comboElectricSource.transform.position = collector.transform.position;
+        if (Time.timeScale <= 0f)
+        {
+            if (!comboElectricPaused && comboElectricSource.isPlaying)
+            {
+                comboElectricSource.Pause();
+                comboElectricPaused = true;
+            }
+            return;
+        }
+        if (comboElectricPaused)
+        {
+            comboElectricSource.UnPause();
+            comboElectricPaused = false;
+        }
+
+        bool active = collector.Combo >= 2 && comboElectricLoop != null;
+        float intensity = Mathf.Clamp01((collector.Combo - 2f) / 4f);
+        float lowGain = Mathf.Clamp(comboElectricMinVolume, 0f, 0.15f);
+        float highGain = Mathf.Clamp(comboElectricMaxVolume, lowGain, 0.15f);
+        float targetGain = active ? Mathf.Lerp(lowGain, highGain, intensity) : 0f;
+        comboElectricGain = Mathf.MoveTowards(comboElectricGain, targetGain,
+            highGain * Time.unscaledDeltaTime / Mathf.Max(0.03f, comboElectricFadeSeconds));
+        float targetPitch = Mathf.Lerp(comboElectricMinPitch, comboElectricMaxPitch, intensity);
+        comboElectricSource.pitch = Mathf.MoveTowards(comboElectricSource.pitch,
+            Mathf.Clamp(targetPitch, 0.5f, 1.5f), Time.unscaledDeltaTime);
+        comboElectricSource.volume = comboElectricGain * SFXVolume;
+
+        if (active && (!comboElectricSource.isPlaying || comboElectricSource.clip != comboElectricLoop))
+        {
+            comboElectricSource.clip = comboElectricLoop;
+            comboElectricSource.Play();
+        }
+        else if (!active && comboElectricGain <= 0f)
+            StopComboElectricAudio();
+    }
+
+    private void StopComboElectricAudio()
+    {
+        if (comboElectricSource != null)
+            comboElectricSource.Stop();
+        comboElectricGain = 0f;
+        comboElectricPaused = false;
+    }
+
+    private void OnDisable()
+    {
+        StopComboElectricAudio();
+        if (nearMissSource != null)
+            nearMissSource.Stop();
     }
 
     private void OnDestroy()
@@ -245,6 +363,10 @@ public partial class SoundManager : MonoBehaviour
 
     public void StopAllSfx()
     {
+        StopComboElectricAudio();
+        if (nearMissSource != null)
+            nearMissSource.Stop();
+        nearMissGain = 0f;
         if (sfxSource != null)
             sfxSource.Stop();
 

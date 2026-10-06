@@ -111,8 +111,12 @@ public partial class GameResultUI : MonoBehaviour
     [SerializeField, Min(0.1f)] private float cinematicResultDuration = 0.85f;
     [SerializeField] private bool cinematicWorldExit = true;
     [SerializeField, Min(0.1f)] private float worldExitDuration = 1.05f;
+    [SerializeField, Min(1.3f)] private float winWorldExitDuration = 1.55f;
+    private bool currentResultWon;
     private float ResultRevealHold => cinematicResultIntro
-        ? Mathf.Max(cinematicResultHold, cinematicWorldExit ? worldExitDuration * 0.65f : 0f)
+        ? Mathf.Max(cinematicResultHold, cinematicWorldExit
+            ? (currentResultWon ? Mathf.Max(1.3f, winWorldExitDuration) * 0.80f : worldExitDuration * 0.65f)
+            : 0f)
         : 0f;
 
     private Coroutine skinUnlockRoutine;
@@ -298,6 +302,7 @@ public partial class GameResultUI : MonoBehaviour
         bool isFirstCompletion,
         bool isNewBestTime)
     {
+        currentResultWon = true;
         UpdateMissionNumber(completedLevelNumber);
         ShowPanel();
         SetResultState(true);
@@ -377,6 +382,7 @@ public partial class GameResultUI : MonoBehaviour
         float time,
         string cause)
     {
+        currentResultWon = false;
         displayedDeathCause = string.IsNullOrWhiteSpace(cause) ? "UNKNOWN" : cause;
         ShowPanel();
         SetResultState(false);

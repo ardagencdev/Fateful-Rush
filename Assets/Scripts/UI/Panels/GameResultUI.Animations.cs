@@ -338,6 +338,8 @@ public partial class GameResultUI
         if (!cinematicResultIntro || content == null) return;
         foreach (Transform child in content.transform)
         {
+            // The border owns its opacity independently of report content.
+            if (resultEdgeGlow != null && child == resultEdgeGlow.transform) continue;
             // Buttons already have their own delayed slide/fade routine.
             if (child.GetComponent<Button>() != null) continue;
             string itemName = child.name;
@@ -926,6 +928,64 @@ public partial class GameResultUI
         }
     }
 
+    private CanvasGroup earlyLoseGlowGroup;
+    private Canvas earlyLoseGlowCanvas;
+    private bool earlyLoseGlowCanvasRestEnabled;
+    private bool earlyLoseGlowGroupRestIgnoreParents;
+    private float earlyLoseGlowGroupRestAlpha;
+    private bool earlyLoseGlowPrepared;
+
+    private void PrepareEarlyLoseEdgeGlow()
+    {
+        if (resultEdgeGlow == null || earlyLoseGlowPrepared)
+            return;
+
+        if (earlyLoseGlowGroup == null)
+        {
+            earlyLoseGlowGroup = resultEdgeGlow.GetComponent<CanvasGroup>();
+            if (earlyLoseGlowGroup == null)
+            {
+                earlyLoseGlowGroup = resultEdgeGlow.gameObject.AddComponent<CanvasGroup>();
+                earlyLoseGlowGroup.blocksRaycasts = false;
+                earlyLoseGlowGroup.interactable = false;
+            }
+        }
+        if (earlyLoseGlowCanvas == null)
+        {
+            earlyLoseGlowCanvas = resultEdgeGlow.GetComponent<Canvas>();
+            if (earlyLoseGlowCanvas == null)
+            {
+                // A child Canvas avoids parent-alpha-zero culling. It inherits
+                // sorting and adds no raycaster or full-screen effect pass.
+                earlyLoseGlowCanvas = resultEdgeGlow.gameObject.AddComponent<Canvas>();
+                earlyLoseGlowCanvas.overrideSorting = false;
+                earlyLoseGlowCanvas.enabled = false;
+            }
+        }
+
+        earlyLoseGlowGroupRestAlpha = earlyLoseGlowGroup.alpha;
+        earlyLoseGlowGroupRestIgnoreParents = earlyLoseGlowGroup.ignoreParentGroups;
+        earlyLoseGlowCanvasRestEnabled = earlyLoseGlowCanvas.enabled;
+        earlyLoseGlowGroup.alpha = 1f;
+        earlyLoseGlowGroup.ignoreParentGroups = true;
+        earlyLoseGlowCanvas.enabled = true;
+        earlyLoseGlowPrepared = true;
+    }
+
+    private void RestoreEarlyLoseEdgeGlow()
+    {
+        if (!earlyLoseGlowPrepared)
+            return;
+        if (earlyLoseGlowGroup != null)
+        {
+            earlyLoseGlowGroup.alpha = earlyLoseGlowGroupRestAlpha;
+            earlyLoseGlowGroup.ignoreParentGroups = earlyLoseGlowGroupRestIgnoreParents;
+        }
+        if (earlyLoseGlowCanvas != null)
+            earlyLoseGlowCanvas.enabled = earlyLoseGlowCanvasRestEnabled;
+        earlyLoseGlowPrepared = false;
+    }
+
     private void StartResultEdgeGlow(bool won)
     {
         HideResultEdgeGlowImmediate();
@@ -939,17 +999,18 @@ public partial class GameResultUI
         PrepareResultEdgeGlowMaterial();
         SetResultEdgeGlowOpacity(glowColor, 0f);
         resultEdgeGlow.raycastTarget = false;
+        if (!won) PrepareEarlyLoseEdgeGlow();
         resultEdgeGlow.gameObject.SetActive(true);
-        resultEdgeGlowRoutine = StartCoroutine(AnimateResultEdgeGlow(glowColor));
+        resultEdgeGlowRoutine = StartCoroutine(AnimateResultEdgeGlow(glowColor, won));
     }
 
-    private IEnumerator AnimateResultEdgeGlow(Color glowColor)
+    private IEnumerator AnimateResultEdgeGlow(Color glowColor, bool won)
     {
-        // Result panelinin kendi intro animasyonu bitsin, ardından ayrıca
-        // ayarlanan süre kadar bekle. Bu sırada glow tamamen görünmez kalır.
-        float initialDelay =
-            Mathf.Max(0f, resultIntroDuration) +
-            Mathf.Max(0f, edgeGlowStartDelay);
+        // Lose feedback starts in the death frame, independently of the report.
+        // Win retains its existing delayed cinematic reveal.
+        float initialDelay = won
+            ? Mathf.Max(0f, resultIntroDuration) + Mathf.Max(0f, edgeGlowStartDelay)
+            : 0f;
 
         if (initialDelay > 0f)
         {
@@ -980,7 +1041,9 @@ public partial class GameResultUI
                 )
             );
 
-        float fadeDuration = Mathf.Max(0.5f, edgeGlowFadeInDuration);
+        float fadeDuration = won
+            ? Mathf.Max(0.5f, edgeGlowFadeInDuration)
+            : 0.40f;
         float fadeElapsed = 0f;
         while (fadeElapsed < fadeDuration)
         {
@@ -1073,6 +1136,7 @@ public partial class GameResultUI
 
         if (resultEdgeGlow != null)
             resultEdgeGlow.gameObject.SetActive(false);
+        RestoreEarlyLoseEdgeGlow();
     }
 
     private static float EaseOutBack(float value)

@@ -62,7 +62,8 @@ public static class NearMissFeedback
         {
             SoundManager.Instance.PlayNearMissSound(
                 dangerWorldPosition,
-                closeness
+                closeness,
+                currentStreak
             );
         }
 

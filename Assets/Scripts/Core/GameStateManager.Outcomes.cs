@@ -326,9 +326,15 @@ public partial class GameStateManager
             );
         }
 
+        // Both outcomes keep feedback running on unscaled time after the freeze.
+        // Physical death gets a firmer impact; a time limit ends with a softer pulse.
+        bool timeExpired = string.Equals(
+            cause, "TIME EXPIRED", System.StringComparison.OrdinalIgnoreCase);
         RunNonCritical(
-            () => CameraShake.Instance?.Shake(0.44f, 0.34f),
-            "death camera shake"
+            () => CameraShake.Instance?.Shake(
+                timeExpired ? 0.38f : 0.50f,
+                timeExpired ? 0.22f : 0.50f),
+            "loss camera shake"
         );
 
         SetHUD(false);
