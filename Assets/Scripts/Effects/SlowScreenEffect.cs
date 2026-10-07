@@ -62,6 +62,8 @@ public class SlowScreenEffect : MonoBehaviour
             yield break;
         }
 
+        bool followsSlowController = TimeSlowController.Instance != null &&
+            TimeSlowController.SlowActive;
         float currentAlpha = vignetteImage.color.a;
 
         yield return FadeVignette(
@@ -70,8 +72,22 @@ public class SlowScreenEffect : MonoBehaviour
             vignetteFadeIn
         );
 
-        if (duration > 0f)
-            yield return new WaitForSecondsRealtime(duration);
+        if (followsSlowController)
+        {
+            // The visual follows the actual buff, including refreshes and pause.
+            while (TimeSlowController.SlowActive && !GameStateManager.IsGameplayEnded)
+                yield return null;
+        }
+        else
+        {
+            // Standalone fallback: active real seconds, not time spent in menus.
+            float held = 0f;
+            while (held < duration && !GameStateManager.IsGameplayEnded)
+            {
+                if (!IsGameplayPaused()) held += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
 
         currentAlpha = vignetteImage.color.a;
 
@@ -133,6 +149,11 @@ public class SlowScreenEffect : MonoBehaviour
 
         while (time < duration)
         {
+            if (IsGameplayPaused())
+            {
+                yield return null;
+                continue;
+            }
             time += Time.unscaledDeltaTime;
 
             float t = Mathf.Clamp01(time / duration);
@@ -164,6 +185,11 @@ public class SlowScreenEffect : MonoBehaviour
 
         while (time < duration)
         {
+            if (IsGameplayPaused())
+            {
+                yield return null;
+                continue;
+            }
             time += Time.unscaledDeltaTime;
 
             float t = Mathf.Clamp01(time / duration);
@@ -175,6 +201,12 @@ public class SlowScreenEffect : MonoBehaviour
         }
 
         SetVignetteAlpha(to);
+    }
+
+    private static bool IsGameplayPaused()
+    {
+        // Pause freezes the effect; game-end fades can still finish at timeScale=0.
+        return Time.timeScale <= 0f && !GameStateManager.IsGameplayEnded;
     }
 
     private void CacheCameraSize()

@@ -65,7 +65,7 @@ public class PlayerDash : MonoBehaviour
     private bool gameOverHandled;
 
     private float cooldownTimer;
-    private float dashStartedAtUnscaledTime = -100f;
+    private float dashWatchdogElapsed;
 
     private float trailStartAlpha = 1f;
     private float trailEndAlpha;
@@ -246,7 +246,7 @@ public class PlayerDash : MonoBehaviour
 
         canDash = false;
         isDashing = true;
-        dashStartedAtUnscaledTime = Time.unscaledTime;
+        dashWatchdogElapsed = 0f;
 
         cooldownTimer = dashCooldown;
 
@@ -340,7 +340,7 @@ public class PlayerDash : MonoBehaviour
     {
         isDashing = false;
         dashRoutine = null;
-        dashStartedAtUnscaledTime = -100f;
+        dashWatchdogElapsed = 0f;
 
         SetTrail(false);
         TryFinishCooldown();
@@ -358,7 +358,9 @@ public class PlayerDash : MonoBehaviour
         float safeDuration = Mathf.Max(0.01f, dashDuration);
         float watchdogDelay = Mathf.Max(0.75f, safeDuration * 4f);
 
-        if (Time.unscaledTime - dashStartedAtUnscaledTime <= watchdogDelay)
+        // Count active play seconds only. A long pause must not look like a stuck dash.
+        dashWatchdogElapsed += Time.unscaledDeltaTime;
+        if (dashWatchdogElapsed <= watchdogDelay)
             return;
 
         Debug.LogWarning(
@@ -374,7 +376,7 @@ public class PlayerDash : MonoBehaviour
         }
 
         isDashing = false;
-        dashStartedAtUnscaledTime = -100f;
+        dashWatchdogElapsed = 0f;
         SetTrail(false);
         TryFinishCooldown();
     }
@@ -681,7 +683,7 @@ public class PlayerDash : MonoBehaviour
         canDash = true;
         isDashing = false;
         gameOverHandled = false;
-        dashStartedAtUnscaledTime = -100f;
+        dashWatchdogElapsed = 0f;
 
         cooldownTimer = 0f;
 
@@ -699,7 +701,7 @@ public class PlayerDash : MonoBehaviour
 
         isDashing = false;
         canDash = false;
-        dashStartedAtUnscaledTime = -100f;
+        dashWatchdogElapsed = 0f;
 
         cooldownTimer = 0f;
 
@@ -716,7 +718,7 @@ public class PlayerDash : MonoBehaviour
         }
 
         isDashing = false;
-        dashStartedAtUnscaledTime = -100f;
+        dashWatchdogElapsed = 0f;
 
         SetTrail(false);
     }

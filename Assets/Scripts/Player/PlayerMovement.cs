@@ -23,14 +23,14 @@ public class PlayerMovement : MonoBehaviour
     )]
     public ComboSpeedStage[] comboSpeedStages;
 
-    [Header("Near Miss Boost")]
-    [Tooltip("Near Miss sonrasi uygulanan sabit hareket hizi carpani. 1.05 = %5 boost.")]
-    [SerializeField, Range(1f, 1.20f)]
-    private float nearMissSpeedMultiplier = 1.05f;
+    [Header("Near Miss Streak Boost")]
+    [Tooltip("Movement speed bonus at 1x Near Miss, in percent.")]
+    [SerializeField, Min(0f)]
+    private float nearMissInitialBonusPercent = 3f;
 
-    [Tooltip("Near Miss hareket bonusunun gercek zaman cinsinden suresi.")]
-    [SerializeField, Min(0.05f)]
-    private float nearMissBoostDuration = 1f;
+    [Tooltip("Extra percentage points per additional Near Miss. 3, 4, 5... No streak cap.")]
+    [SerializeField, Min(0f)]
+    private float nearMissBonusPerStreakPercent = 1f;
 
     [Header("Movement Feel")]
     [Min(0f)]
@@ -77,7 +77,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 originalScale;
     private int facingDirection = 1;
 
-    private float nearMissBoostEndTime = -100f;
+    private float nearMissBoostMultiplier = 1f;
 
     public Vector2 LastMoveDirection { get; private set; } =
         Vector2.right;
@@ -143,6 +143,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!IsGameOver)
             EnsureGameplayPhysicsReady();
+    }
+
+    private void Update()
+    {
+        // One lightweight tick per render frame, including while physics is paused.
+        // Near Miss uses active play seconds, preserving the existing Slow timing.
+        NearMissFeedback.TickGameplayClock();
     }
 
     private void FixedUpdate()
@@ -385,32 +392,37 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (IsNearMissBoostActive)
-            currentSpeed *= nearMissSpeedMultiplier;
+            currentSpeed *= nearMissBoostMultiplier;
 
         return currentSpeed;
     }
 
     public bool IsNearMissBoostActive =>
-        !IsGameOver &&
-        Time.unscaledTime < nearMissBoostEndTime;
+        !IsGameOver && nearMissBoostMultiplier > 1f &&
+        NearMissFeedback.IsStreakActive;
 
+    // Preserve the existing no-argument API for other gameplay integrations.
     public void ApplyNearMissBoost()
+    {
+        ApplyNearMissBoost(1);
+    }
+
+    public void ApplyNearMissBoost(int streak)
     {
         if (IsGameOver ||
             !GameStateManager.IsGameplayStarted ||
             GameStateManager.IsGameplayEnded)
-        {
             return;
-        }
 
-        // Near Miss'ler hizi stacklemez. Yeni Near Miss sadece sureyi yeniler.
-        nearMissBoostEndTime =
-            Time.unscaledTime + nearMissBoostDuration;
+        float bonusPercent = Mathf.Max(0f, nearMissInitialBonusPercent) +
+            (Mathf.Max(1, streak) - 1f) * Mathf.Max(0f, nearMissBonusPerStreakPercent);
+        // Percentage points added to the base bonus, not exponential stacking.
+        nearMissBoostMultiplier = 1f + bonusPercent * 0.01f;
     }
 
     private void ClearNearMissBoost()
     {
-        nearMissBoostEndTime = -100f;
+        nearMissBoostMultiplier = 1f;
     }
 
     private float GetComboSpeedMultiplier(
@@ -699,10 +711,8 @@ public class PlayerMovement : MonoBehaviour
     {
         speed = Mathf.Max(0f, speed);
         comboSpeedBonus = FixedComboSpeedBonus;
-        nearMissSpeedMultiplier =
-            Mathf.Clamp(nearMissSpeedMultiplier, 1f, 1.20f);
-        nearMissBoostDuration =
-            Mathf.Max(0.05f, nearMissBoostDuration);
+        nearMissInitialBonusPercent = Mathf.Max(0f, nearMissInitialBonusPercent);
+        nearMissBonusPerStreakPercent = Mathf.Max(0f, nearMissBonusPerStreakPercent);
 
         acceleration = Mathf.Max(0f, acceleration);
         deceleration = Mathf.Max(0f, deceleration);

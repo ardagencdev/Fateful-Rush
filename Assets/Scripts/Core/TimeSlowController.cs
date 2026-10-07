@@ -7,6 +7,7 @@ public class TimeSlowController : MonoBehaviour
 
     private float originalFixedDeltaTime;
     private Coroutine slowRoutine;
+    private float remainingSlowDuration;
 
     private PlayerMovement player;
     private GameQuit pauseMenu;
@@ -42,7 +43,8 @@ public class TimeSlowController : MonoBehaviour
         }
 
         SlowActive = true;
-        LegacySlowEndTime = Time.unscaledTime + duration;
+        remainingSlowDuration = duration;
+        LegacySlowEndTime = Time.unscaledTime + remainingSlowDuration;
         SlowMultiplier = multiplier;
         GameAudioMixerController.SetSlowMotion(true);
 
@@ -73,12 +75,13 @@ public class TimeSlowController : MonoBehaviour
                     FindAnyObjectByType<GameQuit>();
             }
 
-            if (pauseMenu == null ||
-                !pauseMenu.IsPaused)
-            {
+            if (Time.timeScale > 0f &&
+                (pauseMenu == null || !pauseMenu.IsPaused))
                 timer += Time.unscaledDeltaTime;
-            }
 
+            remainingSlowDuration = Mathf.Max(0f, duration - timer);
+            // Keep the compatibility timestamp accurate even across pause.
+            LegacySlowEndTime = Time.unscaledTime + remainingSlowDuration;
             yield return null;
         }
 
@@ -94,6 +97,8 @@ public class TimeSlowController : MonoBehaviour
         }
 
         SlowActive = false;
+        remainingSlowDuration = 0f;
+        LegacySlowEndTime = 0f;
         SlowMultiplier = 1f;
         GameAudioMixerController.SetSlowMotion(false);
 
@@ -151,6 +156,8 @@ public class TimeSlowController : MonoBehaviour
         }
 
         SlowActive = false;
+        remainingSlowDuration = 0f;
+        LegacySlowEndTime = 0f;
         SlowMultiplier = 1f;
         GameAudioMixerController.SetSlowMotion(false);
 
@@ -201,6 +208,8 @@ public class TimeSlowController : MonoBehaviour
         }
 
         SlowActive = false;
+        remainingSlowDuration = 0f;
+        LegacySlowEndTime = 0f;
         SlowMultiplier = 1f;
         GameAudioMixerController.SetSlowMotion(false);
 

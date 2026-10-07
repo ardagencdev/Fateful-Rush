@@ -13,6 +13,25 @@ public static class NearMissFeedback
     private static float lastNearMissTime = -100f;
     private static int currentStreak;
 
+    private static float gameplayClock;
+    private static int lastClockFrame = -1;
+
+    public static bool IsStreakActive =>
+        GameStateManager.IsGameplayStarted && !GameStateManager.IsGameplayEnded &&
+        currentStreak > 0 && gameplayClock - lastNearMissTime <= StreakTimeout;
+
+    public static void TickGameplayClock()
+    {
+        // Guard against multiple PlayerMovement instances ticking in one frame.
+        if (lastClockFrame == Time.frameCount)
+            return;
+        lastClockFrame = Time.frameCount;
+
+        if (GameStateManager.IsGameplayStarted &&
+            !GameStateManager.IsGameplayEnded && Time.timeScale > 0f)
+            gameplayClock += Mathf.Max(0f, Time.unscaledDeltaTime);
+    }
+
     private static PlayerMovement cachedPlayer;
 
     [RuntimeInitializeOnLoadMethod(
@@ -36,6 +55,8 @@ public static class NearMissFeedback
     {
         lastNearMissTime = -100f;
         currentStreak = 0;
+        gameplayClock = 0f;
+        lastClockFrame = -1;
         cachedPlayer = null;
     }
 
@@ -50,7 +71,7 @@ public static class NearMissFeedback
             return false;
         }
 
-        float now = Time.unscaledTime;
+        float now = gameplayClock;
 
         float closeness =
             Mathf.Clamp01(closeness01);
@@ -75,7 +96,7 @@ public static class NearMissFeedback
         }
 
         PlayerMovement player = GetPlayerMovement();
-        player?.ApplyNearMissBoost();
+        player?.ApplyNearMissBoost(currentStreak);
 
         NearMissStreakUI.ShowNearMiss(
             currentStreak,
