@@ -11,6 +11,10 @@ public class DynamicMusicTension : MonoBehaviour
     [Tooltip("Timed görevlerde sürenin ne kadarı geçtikten sonra tension başlayacak. 0.625 = sürenin yaklaşık son %37.5'i.")]
     private float timeTensionStart = 0.625f;
 
+    [Header("Combo intensity")]
+    [SerializeField, Range(0f, 0.5f)]
+    private float maxComboIntensity = 0.28f;
+
     [Header("Response")]
     [SerializeField, Min(0.02f)]
     [Tooltip("Objective değeri küçük küçük değişirken bile gereksiz sık hesap yapmamak için update aralığı.")]
@@ -81,11 +85,13 @@ public class DynamicMusicTension : MonoBehaviour
             evaluationInterval
         );
 
-        CurrentRawTension = CalculateTension();
+        float objectivePressure = CalculateObjectivePressure();
+        float comboIntensity = CalculateComboIntensity();
+        CurrentRawTension = CombinePressure(objectivePressure, comboIntensity);
         gameplayMusic.SetTension(CurrentRawTension);
     }
 
-    private float CalculateTension()
+    private float CalculateObjectivePressure()
     {
         switch (levelConfig.winCondition)
         {
@@ -96,7 +102,7 @@ public class DynamicMusicTension : MonoBehaviour
                 return CalculateTimeTension();
 
             case WinConditionType.ReachScoreWithinTime:
-                return Mathf.Max(
+                return CombinePressure(
                     CalculateScoreTension(),
                     CalculateTimeTension()
                 );
@@ -104,6 +110,20 @@ public class DynamicMusicTension : MonoBehaviour
             default:
                 return 0f;
         }
+    }
+
+    private float CalculateComboIntensity()
+    {
+        if (!levelConfig.EffectiveComboEnabled || coinCollector == null)
+            return 0f;
+
+        float comboProgress = Mathf.InverseLerp(1f, 5f, coinCollector.Combo);
+        return comboProgress * maxComboIntensity;
+    }
+
+    private static float CombinePressure(float first, float second)
+    {
+        return first + (1f - first) * second;
     }
 
     private float CalculateScoreTension()

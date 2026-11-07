@@ -36,6 +36,14 @@ public class GameplayMusicFade : MonoBehaviour
     [Tooltip("Tension düşerken hedef değere ne kadar hızlı dönüleceği.")]
     private float tensionFallSpeed = 3.5f;
 
+    [Header("Natural repeat")]
+    [SerializeField, Min(0f)]
+    private float repeatFadeInDuration = 1.2f;
+
+    [Header("Dynamic tone")]
+    [SerializeField, Range(4000f, 22000f)]
+    private float calmCutoffHz = 8500f;
+
     public float FadeOutDuration => fadeOutDuration;
     public float CurrentTargetVolume =>
         GetBaseTargetVolume() *
@@ -44,7 +52,11 @@ public class GameplayMusicFade : MonoBehaviour
     public float CurrentTension => currentTension;
 
     private AudioSource source;
+    private AudioLowPassFilter tensionFilter;
     private Coroutine fadeRoutine;
+    private bool repeatEnabled;
+    private bool observedPlayback;
+    private float repeatGain = 1f;
 
     // Volume fade'leri source.volume ile doğrudan kavga etmesin diye
     // 0-1 arası ayrı bir playback gain tutuyoruz.
@@ -56,8 +68,16 @@ public class GameplayMusicFade : MonoBehaviour
     {
         source = GetComponent<AudioSource>();
 
+        // This GameObject owns the dedicated gameplay music source.
+        // Preserve any explicitly authored filter on the source.
+        if (GetComponent<AudioLowPassFilter>() == null)
+        {
+            tensionFilter = gameObject.AddComponent<AudioLowPassFilter>();
+            tensionFilter.lowpassResonanceQ = 1f;
+        }
+
         source.playOnAwake = false;
-        source.loop = true;
+        source.loop = false;
         source.volume = 0f;
         source.pitch = 1f;
 
@@ -69,6 +89,14 @@ public class GameplayMusicFade : MonoBehaviour
             source,
             GameAudioMixerController.AudioBus.Music
         );
+    }
+
+    private void OnEnable()
+    {
+        if (tensionFilter != null)
+            tensionFilter.enabled = true;
+
+        ApplyOutput();
     }
 
     private void LateUpdate()
@@ -87,7 +115,36 @@ public class GameplayMusicFade : MonoBehaviour
             speed * Time.unscaledDeltaTime
         );
 
+        UpdateNaturalRepeat();
         ApplyOutput();
+    }
+
+    private void UpdateNaturalRepeat()
+    {
+        if (!repeatEnabled || AudioListener.pause)
+            return;
+
+        if (source.isPlaying)
+        {
+            observedPlayback = true;
+            float duration = Mathf.Max(0.01f, repeatFadeInDuration);
+            repeatGain = Mathf.MoveTowards(repeatGain, 1f, Time.unscaledDeltaTime / duration);
+        }
+        else if (observedPlayback)
+        {
+            PlayFromStart(repeatFadeInDuration > 0f ? 0f : 1f);
+        }
+    }
+
+    private void PlayFromStart(float initialRepeatGain = 1f)
+    {
+        repeatEnabled = true;
+        observedPlayback = false;
+        repeatGain = initialRepeatGain;
+        source.loop = false;
+        source.timeSamples = 0;
+        ApplyOutput();
+        source.Play();
     }
 
     public void PlayClipAndFadeIn(AudioClip clip)
@@ -102,10 +159,9 @@ public class GameplayMusicFade : MonoBehaviour
 
         source.Stop();
         source.clip = clip;
-        source.loop = true;
+        source.loop = false;
         playbackGain = 0f;
-        ApplyOutput();
-        source.Play();
+        PlayFromStart();
 
         FadeGainTo(1f, fadeInDuration);
     }
@@ -127,6 +183,7 @@ public class GameplayMusicFade : MonoBehaviour
 
         StopCurrentFade();
 
+        repeatEnabled = false;
         fadeRoutine = StartCoroutine(
             TransitionClipRoutine(newClip)
         );
@@ -140,10 +197,9 @@ public class GameplayMusicFade : MonoBehaviour
         StopCurrentFade();
 
         source.Stop();
-        source.loop = true;
+        source.loop = false;
         playbackGain = 0f;
-        ApplyOutput();
-        source.Play();
+        PlayFromStart();
 
         FadeGainTo(1f, fadeInDuration);
     }
@@ -154,13 +210,16 @@ public class GameplayMusicFade : MonoBehaviour
             return;
 
         if (!source.isPlaying)
-            source.Play();
+            PlayFromStart();
+        else
+            repeatEnabled = true;
 
         FadeGainTo(1f, fadeInDuration);
     }
 
     public void FadeOut()
     {
+        repeatEnabled = false;
         if (!source.isPlaying)
             return;
 
@@ -178,6 +237,7 @@ public class GameplayMusicFade : MonoBehaviour
 
         StopCurrentFade();
 
+        repeatEnabled = false;
         fadeRoutine = StartCoroutine(
             FadeOutAndPauseRoutine(duration)
         );
@@ -185,6 +245,7 @@ public class GameplayMusicFade : MonoBehaviour
 
     public void FadeOutForResult(float duration)
     {
+        repeatEnabled = false;
         if (source == null || !source.isPlaying) return;
         targetTension = 0f;
         FadeGainTo(0f, Mathf.Max(0.05f, duration), true);
@@ -200,7 +261,9 @@ public class GameplayMusicFade : MonoBehaviour
         source.UnPause();
 
         if (!source.isPlaying)
-            source.Play();
+            PlayFromStart();
+        else
+            repeatEnabled = true;
 
         FadeGainTo(1f, duration);
     }
@@ -248,6 +311,7 @@ public class GameplayMusicFade : MonoBehaviour
         targetTension = 0f;
         currentTension = 0f;
 
+        repeatEnabled = false;
         source.Stop();
         source.clip = null;
         source.pitch = 1f;
@@ -280,10 +344,9 @@ public class GameplayMusicFade : MonoBehaviour
 
         source.Stop();
         source.clip = newClip;
-        source.loop = true;
+        source.loop = false;
         playbackGain = 0f;
-        ApplyOutput();
-        source.Play();
+        PlayFromStart();
 
         yield return FadeGainRoutine(
             1f,
@@ -330,6 +393,9 @@ public class GameplayMusicFade : MonoBehaviour
         bool stopAfterFade = false)
     {
         StopCurrentFade();
+
+        if (stopAfterFade)
+            repeatEnabled = false;
 
         fadeRoutine = StartCoroutine(
             FadeGainRoutineWrapper(
@@ -410,8 +476,11 @@ public class GameplayMusicFade : MonoBehaviour
 
         source.volume =
             GetBaseTargetVolume() *
-            playbackGain *
+            playbackGain * SmootherStep(repeatGain) *
             GetTensionVolumeMultiplier(easedTension);
+
+        if (tensionFilter != null)
+            tensionFilter.cutoffFrequency = Mathf.Lerp(calmCutoffHz, 22000f, easedTension);
 
         source.pitch = Mathf.Lerp(
             1f,
@@ -447,6 +516,7 @@ public class GameplayMusicFade : MonoBehaviour
 
     private void OnDisable()
     {
+        repeatEnabled = false;
         StopCurrentFade();
     }
 

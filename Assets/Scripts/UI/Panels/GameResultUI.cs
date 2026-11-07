@@ -407,7 +407,6 @@ public partial class GameResultUI : MonoBehaviour
         }
 
         ApplyMetricVisibility(false);
-
         if (nextLevelButton != null)
         {
             nextLevelButton.SetActive(false);

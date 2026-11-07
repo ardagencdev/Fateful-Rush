@@ -167,7 +167,7 @@ MonoBehaviour:
     chargeSpeed: 15
     maxChargeTime: 0.65
     stunDuration: 1
-  bossEnabled: 1
+  bossEnabled: 0
   bossSpawnCondition: 0
   bossSpawnScore: 1
   bossSpawnTime: 1
@@ -268,7 +268,7 @@ MonoBehaviour:
     lifeTime: 1.5
     width: 5.5
     sizeExtra: 1
-  bombTrapEnabled: 0
+  bombTrapEnabled: 1
   bombDanger: 5
   bombCustomOverride: 0
   bombOverride:

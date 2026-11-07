@@ -212,7 +212,7 @@ public partial class StatsPanelUI : MonoBehaviour
         AppendAbilities();
         AppendDangerMastery();
         AppendDeathAnalysis();
-        AppendBestTimes();
+        
 
         statsText.text = StatsTextFormatter.TranslateStats(builder.ToString().TrimEnd());
     }

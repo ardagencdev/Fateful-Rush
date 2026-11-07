@@ -101,9 +101,10 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     private readonly List<string> usableMessages = new List<string>();
 
-    // localPosition is intentionally used instead of anchoredPosition.
-    // Different RectTransform anchors interpret anchoredPosition differently,
-    // while localPosition represents the same physical point under a shared parent.
+    // UI position must be animated relative to the RectTransform anchors.
+    // A cached localPosition becomes incorrect when the parent Canvas is resized.
+    private Vector2 baseAnchoredPosition;
+    // Keep the original local-space API available for other menu controllers.
     private Vector3 baseLocalPosition;
     private Vector3 baseScale;
     private Quaternion baseRotation;
@@ -150,7 +151,24 @@ public sealed class MenuFloatingText : MonoBehaviour
         !string.IsNullOrEmpty(stableText);
 
     public string StableText => stableText;
-    public Vector3 BaseLocalPosition => baseLocalPosition;
+    // Return the base position in parent-local space, recalculated for the
+    // current Canvas size. This preserves compatibility with other menu scripts.
+    public Vector3 BaseLocalPosition
+    {
+        get
+        {
+            if (target == null)
+                return baseLocalPosition;
+
+            Vector3 anchorOrigin = target.localPosition -
+                new Vector3(target.anchoredPosition.x, target.anchoredPosition.y, 0f);
+            return new Vector3(
+                anchorOrigin.x + baseAnchoredPosition.x,
+                anchorOrigin.y + baseAnchoredPosition.y,
+                baseLocalPosition.z
+            );
+        }
+    }
     public Transform TargetParent => target != null ? target.parent : null;
 
     public void SetThemeColor(Color themeColor)
@@ -260,6 +278,7 @@ public sealed class MenuFloatingText : MonoBehaviour
     private void CaptureBaseState()
     {
         baseLocalPosition = target.localPosition;
+        baseAnchoredPosition = target.anchoredPosition;
         baseScale = target.localScale;
         baseRotation = target.localRotation;
         baseColor = textUI.color;
@@ -349,7 +368,9 @@ public sealed class MenuFloatingText : MonoBehaviour
         }
 
         Vector2 totalOffset = offset + glitchOffset;
-        target.localPosition = baseLocalPosition + new Vector3(totalOffset.x, totalOffset.y, 0f);
+        // Keep Pos X / Pos Y fixed relative to the selected anchors even when
+        // switching between phone, tablet and Game View aspect ratios.
+        target.anchoredPosition = baseAnchoredPosition + totalOffset;
         target.localRotation = baseRotation * Quaternion.Euler(0f, 0f, rotation);
         target.localScale = baseScale * scaleMultiplier;
     }
@@ -557,13 +578,26 @@ public sealed class MenuFloatingText : MonoBehaviour
 
     public void SetBaseLocalPosition(Vector3 position)
     {
-        baseLocalPosition = position;
-
+        // Existing callers supply a parent-local position; convert it once to
+        // anchor-relative coordinates so subsequent Canvas resizes stay correct.
         if (target == null)
+        {
+            baseLocalPosition = position;
             return;
+        }
 
-        target.localPosition = baseLocalPosition +
-            new Vector3(glitchOffset.x, glitchOffset.y, 0f);
+        Vector3 anchorOrigin = target.localPosition -
+            new Vector3(target.anchoredPosition.x, target.anchoredPosition.y, 0f);
+        baseLocalPosition = position;
+        baseAnchoredPosition = new Vector2(
+            position.x - anchorOrigin.x,
+            position.y - anchorOrigin.y
+        );
+
+        target.anchoredPosition = baseAnchoredPosition + glitchOffset;
+        Vector3 currentLocalPosition = target.localPosition;
+        currentLocalPosition.z = position.z;
+        target.localPosition = currentLocalPosition;
     }
 
     public void ApplySharedGlitchFrame()
@@ -614,7 +648,10 @@ public sealed class MenuFloatingText : MonoBehaviour
         if (!initialized || textUI == null || target == null)
             return;
 
-        target.localPosition = baseLocalPosition;
+        target.anchoredPosition = baseAnchoredPosition;
+        Vector3 currentLocalPosition = target.localPosition;
+        currentLocalPosition.z = baseLocalPosition.z;
+        target.localPosition = currentLocalPosition;
         target.localScale = baseScale;
         target.localRotation = baseRotation;
         textUI.color = baseColor;
