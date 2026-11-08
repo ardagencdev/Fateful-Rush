@@ -124,6 +124,7 @@ public class PlayerSkinPanelUI : MonoBehaviour
         // Do not force a SoundManager preset here; this lets the Inspector
         // Sound Type / Custom Sound fields work exactly as configured.
         SwitchPanels(mainMenuPanel, skinPanel);
+        MenuNotifications.MarkSeen(MenuNotice.Skins);
     }
 
     public void ClosePanel()

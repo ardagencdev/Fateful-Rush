@@ -54,6 +54,8 @@ public sealed class ComboPolishVisual : MonoBehaviour
     private Color ghostColor;
 
     private int lastCombo = 1;
+    private int ringStage;
+    private Rect ringSourceRect;
     private bool initialized;
     private float currentRingAlpha;
     private float spin;
@@ -71,9 +73,9 @@ public sealed class ComboPolishVisual : MonoBehaviour
     private void OnEnable()
     {
         currentRingAlpha = 0f;
-        breakElapsed = -1f;
+        ringStage = 0;
+        CancelBreak();
         if (ringGroup != null) ringGroup.alpha = 0f;
-        if (ghostObject != null) ghostObject.SetActive(false);
         lastCombo = collector != null ? collector.Combo : 1;
     }
 
@@ -145,47 +147,52 @@ public sealed class ComboPolishVisual : MonoBehaviour
             else comboUI.ShowCombo(0, combo);
         }
 
-        if (combo < lastCombo && combo == 1 && active && comboBreakEnabled)
-            BeginBreak(lastCombo);
-        else if (combo > 1 && combo != lastCombo && breakElapsed >= 0f)
+        Rect textRect = sourceRect.rect;
+        if (combo >= 4 && magnetAllowed && (combo != ringStage || textRect != ringSourceRect))
         {
-            // A newly collected coin must interrupt the old break instantly.
-            breakElapsed = -1f;
-            ghostObject.SetActive(false);
-            ringRect.localScale = Vector3.one;
-        }
-
-        if (combo != lastCombo)
-        {
-            if (combo >= 4 && magnetAllowed)
+            if (ResizeRingToText())
             {
-                ResizeRingToText();
                 ringGraphic.Configure(combo, GetComboColor(combo));
+                ringSourceRect = textRect;
+                ringStage = combo;
             }
-            lastCombo = combo;
         }
 
-        AnimateRing(dt, combo, magnetAllowed && active);
+        lastCombo = combo;
+
+        AnimateRing(dt, combo, magnetAllowed && active && ringStage == combo);
         AnimateBreak(dt);
     }
 
-    private void ResizeRingToText()
+    private bool ResizeRingToText()
     {
-        if (sourceText == null) return;
-        // Mesh bounds locate the actual rendered glyphs even with a wide,
-        // left-aligned RectTransform. This prevents the field drifting right.
         sourceText.ForceMeshUpdate();
-        Bounds bounds = sourceText.textBounds;
-        Rect parentRect = sourceRect.rect;
-        float w = bounds.size.x > 1f ? bounds.size.x : sourceText.preferredWidth;
-        float h = bounds.size.y > 1f ? bounds.size.y : sourceText.preferredHeight;
-        ringRect.anchoredPosition =
-            new Vector2(bounds.center.x - parentRect.center.x,
-                        bounds.center.y - parentRect.center.y);
-        ringRect.sizeDelta = new Vector2(
-            Mathf.Clamp(w + horizontalPadding * 2f, 42f, 210f),
-            Mathf.Clamp(h + verticalPadding * 2f, 32f, 135f));
+        TMP_TextInfo textInfo = sourceText.textInfo;
+        Vector2 min = Vector2.positiveInfinity;
+        Vector2 max = Vector2.negativeInfinity;
+
+        for (int i = 0; i < textInfo.characterCount; i++)
+        {
+            TMP_CharacterInfo glyph = textInfo.characterInfo[i];
+            if (!glyph.isVisible)
+                continue;
+
+            min = Vector2.Min(min, glyph.bottomLeft);
+            max = Vector2.Max(max, glyph.topRight);
+        }
+
+        if (float.IsInfinity(min.x))
+            return false;
+
+        Vector2 center = (min + max) * 0.5f;
+        ringRect.localPosition = new Vector3(center.x, center.y, 0f);
+
+        // The glyph diagonal keeps all four corners inside the circular ring.
+        float spacing = Mathf.Max(horizontalPadding, verticalPadding) * 0.8f;
+        float diameter = Mathf.Max(36f, (max - min).magnitude + spacing);
+        ringRect.sizeDelta = new Vector2(diameter, diameter);
         ringRect.localScale = Vector3.one;
+        return true;
     }
 
     private void AnimateRing(float dt, int combo, bool magnetAllowed)
@@ -216,15 +223,24 @@ public sealed class ComboPolishVisual : MonoBehaviour
         ringGroup.alpha = currentRingAlpha * pulse;
         if (currentRingAlpha > 0.001f)
         {
+            ringGraphic.UpdateSparks(Time.time);
             spin += rotationDegreesPerSecond * dt * (combo >= 6 ? 1.5f : combo == 5 ? 1.25f : 1f);
             if (spin > 360f) spin -= 360f;
             ringRect.localRotation = Quaternion.Euler(0f, 0f, spin);
         }
     }
 
-    private void BeginBreak(int combo)
+    public bool TryPlayBreak(int combo)
     {
-        if (sourceText == null || ghostObject == null || combo < 2) return;
+        bool preview = Application.isEditor && previewInPlayMode;
+        bool active = GameStateManager.IsGameplayStarted && !GameStateManager.IsGameplayEnded;
+        if (!isActiveAndEnabled || !comboBreakEnabled || combo < 2 || (!active && !preview))
+            return false;
+
+        TryInitialize();
+        if (!initialized)
+            return false;
+
         CopyTextStyle();
         ghostText.text = "x" + combo;
         ghostColor = GetComboColor(combo);
@@ -246,6 +262,17 @@ public sealed class ComboPolishVisual : MonoBehaviour
         breakCombo = combo;
         breakStartRingAlpha = currentRingAlpha;
         breakElapsed = 0f;
+        return true;
+    }
+
+    public void CancelBreak()
+    {
+        if (breakElapsed < 0f)
+            return;
+
+        breakElapsed = -1f;
+        ghostObject.SetActive(false);
+        ringRect.localScale = Vector3.one;
     }
 
     private void AnimateBreak(float dt)
@@ -270,11 +297,7 @@ public sealed class ComboPolishVisual : MonoBehaviour
         c.a *= 1f - EaseInCubic(t);
         ghostText.color = c;
         if (t >= 1f)
-        {
-            breakElapsed = -1f;
-            ghostObject.SetActive(false);
-            ringRect.localScale = Vector3.one;
-        }
+            CancelBreak();
     }
 
     private void CopyTextStyle()
@@ -317,11 +340,9 @@ public sealed class ComboPolishVisual : MonoBehaviour
 
     private void OnDisable()
     {
+        CancelBreak();
         currentRingAlpha = 0f;
-        breakElapsed = -1f;
         if (ringGroup != null) ringGroup.alpha = 0f;
-        if (ghostObject != null) ghostObject.SetActive(false);
-        if (ringRect != null) ringRect.localScale = Vector3.one;
     }
 
     private void OnValidate()

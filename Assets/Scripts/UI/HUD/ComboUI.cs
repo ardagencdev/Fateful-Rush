@@ -95,6 +95,7 @@ public class ComboUI : MonoBehaviour
     public float resetScale = 0.90f;
 
     private Coroutine activeRoutine;
+    private ComboPolishVisual comboPolish;
 
     private Vector3 originalScale;
     private Vector3 originalPosition;
@@ -106,6 +107,7 @@ public class ComboUI : MonoBehaviour
     private void Awake()
     {
         RefreshReferences();
+        comboPolish = GetComponent<ComboPolishVisual>();
 
         if (comboText == null)
         {
@@ -178,6 +180,9 @@ public class ComboUI : MonoBehaviour
             UpdateCombo(1);
             return;
         }
+
+        if (comboPolish != null)
+            comboPolish.CancelBreak();
 
         UpdateCombo(safeCombo);
 
@@ -306,6 +311,12 @@ public class ComboUI : MonoBehaviour
 
         StopActiveRoutine();
         ResetTextTransform();
+
+        if (comboPolish != null && comboPolish.TryPlayBreak(displayedCombo))
+        {
+            UpdateCombo(1);
+            return;
+        }
 
         // Runtime combo is already reset at this point.
         // Setting this immediately keeps the next pickup animation correct

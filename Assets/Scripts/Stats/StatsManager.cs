@@ -283,7 +283,10 @@ public static class StatsManager
         {
             AddInt(ScoreRunsKey);
             AddInt(CompletedScoreTotalKey, Mathf.Max(0, finalScore));
+            bool newRecord = finalScore > GetBestRunScore();
             SetMaxInt(BestRunScoreKey, Mathf.Max(0, finalScore));
+            if (newRecord && SelectedLevelData.isLevelMode)
+                MenuNotifications.MarkPending(MenuNotice.Stats);
         }
 
         RecordModeResult(mode, won);

@@ -431,7 +431,7 @@ public sealed partial class GooglePlayGamesManager
         FatefulRushCloudSave.SyncAfterAuthentication(
             () =>
             {
-                SyncProgressFromLocalSave();
+                LoadAchievementNotificationBaseline();
                 FatefulRushGameStats.SyncProgress();
                 GooglePlayGamesLeaderboards.SyncLocalBestTimes();
                 onFinished?.Invoke();
@@ -756,6 +756,71 @@ public sealed partial class GooglePlayGamesManager
 #endif
     }
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+    private static string GetAchievementNotificationAccount()
+    {
+        string playerId = PlayGamesPlatform.Instance.GetUserId();
+        if (string.IsNullOrEmpty(playerId))
+            return null;
+
+        MenuNotifications.SetAchievementAccount(playerId);
+        return MenuNotifications.AchievementScope;
+    }
+
+    private void LoadAchievementNotificationBaseline()
+    {
+        if (!IsReady())
+            return;
+
+        try
+        {
+            string scope = GetAchievementNotificationAccount();
+            if (scope == null)
+            {
+                SyncProgressFromLocalSave();
+                return;
+            }
+
+            PlayGamesPlatform.Instance.LoadAchievements(achievements =>
+            {
+                if (scope != MenuNotifications.AchievementScope)
+                    return;
+
+                try
+                {
+                    if (achievements == null || achievements.Length == 0)
+                        return;
+
+                    bool notify = PlayerPrefs.GetInt(scope + "_initialized") == 1;
+                    foreach (var achievement in achievements)
+                    {
+                        if (achievement != null && achievement.completed)
+                            MenuNotifications.RecordAchievement(scope, achievement.id, notify);
+                    }
+
+                    PlayerPrefs.SetInt(scope + "_initialized", 1);
+                    PlayerPrefs.Save();
+                }
+                finally
+                {
+                    SyncProgressFromLocalSave();
+                }
+            });
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception, this);
+            SyncProgressFromLocalSave();
+        }
+    }
+
+    private static void NotifyConfirmedAchievement(string scope, string achievementId)
+    {
+        if (scope != null && PlayerPrefs.GetInt(scope + "_initialized") == 1)
+            MenuNotifications.RecordAchievement(scope, achievementId, true);
+    }
+#endif
+
     private void Unlock(
         AchievementKey key)
     {
@@ -771,6 +836,7 @@ public sealed partial class GooglePlayGamesManager
 
         try
         {
+            string scope = GetAchievementNotificationAccount();
             PlayGamesPlatform.Instance.UnlockAchievement(
                 achievementId,
                 success =>
@@ -784,6 +850,7 @@ public sealed partial class GooglePlayGamesManager
                         return;
                     }
 
+                    NotifyConfirmedAchievement(scope, achievementId);
                     LogDiagnostic(
                         "Achievement unlock succeeded: " + key
                     );
@@ -825,6 +892,7 @@ public sealed partial class GooglePlayGamesManager
 
         try
         {
+            string scope = GetAchievementNotificationAccount();
             PlayGamesPlatform.Instance.SetStepsAtLeast(
                 achievementId,
                 safeSteps,
@@ -839,6 +907,9 @@ public sealed partial class GooglePlayGamesManager
                         );
                         return;
                     }
+
+                    if (safeSteps >= safeTarget)
+                        NotifyConfirmedAchievement(scope, achievementId);
 
                     LogDiagnostic(
                         "Achievement progress succeeded: " +

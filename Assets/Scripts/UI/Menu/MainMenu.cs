@@ -261,6 +261,7 @@ public class MainMenu : MonoBehaviour
         SelectedLevelData.SetMission(
             continueTargetLevel
         );
+        MenuNotifications.MarkSeen(MenuNotice.Continue);
 
         LoadGameScene();
     }

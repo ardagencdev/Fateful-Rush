@@ -62,6 +62,7 @@ public partial class StatsPanelUI : MonoBehaviour
         MainMenuStarColorRandomizer.Instance?.ShowStatsColor();
 
         Switch(mainMenuPanel, statsPanel);
+        MenuNotifications.MarkSeen(MenuNotice.Stats);
 
         // RefreshStats already translates the entire block. A second runtime
         // refresh would build the same long string again during activation.

@@ -188,6 +188,17 @@ public partial class GameStateManager
                     }
 
                     PlayerPrefs.Save();
+
+                    if (isFirstCompletion && levelNumber == 1)
+                        MenuNotifications.MarkPending(MenuNotice.Continue);
+                    else if (isFirstCompletion && levelNumber > 1 && levelNumber < 40 && levelNumber >= unlockedLevel)
+                        MenuNotifications.MarkPending(MenuNotice.Missions);
+
+                    if (isFirstCompletion && !PlayerSkinCatalog.AreAllSkinsDebugUnlocked &&
+                        PlayerSkinCatalog.ResolveLoadedCatalog()?.FindSkinUnlockedAtLevel(levelNumber) != null)
+                    {
+                        MenuNotifications.MarkPending(MenuNotice.Skins);
+                    }
                 },
                 "persist level completion"
             );
@@ -437,6 +448,7 @@ public partial class GameStateManager
             bestTimeKey,
             gameTimer
         );
+        MenuNotifications.MarkPending(MenuNotice.Stats);
 
         if (levelManager != null &&
             levelManager.currentLevel != null)

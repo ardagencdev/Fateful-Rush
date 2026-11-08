@@ -1,25 +1,35 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Lightweight HUD ring built from UI vertices (no textures, particles or Update).
-/// The parent controls rotation and opacity. This draws only when combo >= x4.
-/// </summary>
+/// <summary>Dashed HUD ring with a few brief sparks at the higher magnet stages.</summary>
 [RequireComponent(typeof(CanvasRenderer))]
 public sealed class ComboMagnetRingGraphic : MaskableGraphic
 {
     private int stage;
+    private int sparkFrame = -1;
 
     public void Configure(int combo, Color tint)
     {
-        int newStage = Mathf.Clamp(combo, 0, 6);
-        bool changed = stage != newStage || color != tint;
-        stage = newStage;
-        if (changed)
-        {
-            color = tint;
-            SetVerticesDirty();
-        }
+        if (stage == combo && color == tint)
+            return;
+
+        stage = combo;
+        color = tint;
+        SetVerticesDirty();
+    }
+
+    public void UpdateSparks(float time)
+    {
+        if (stage < 5)
+            return;
+
+        // The ring rotates via its transform. Only rebuild the spark geometry at 12 Hz.
+        int frame = Mathf.FloorToInt(time * 12f);
+        if (frame == sparkFrame)
+            return;
+
+        sparkFrame = frame;
+        SetVerticesDirty();
     }
 
     protected override void OnPopulateMesh(VertexHelper vh)
@@ -29,79 +39,86 @@ public sealed class ComboMagnetRingGraphic : MaskableGraphic
             return;
 
         Rect area = rectTransform.rect;
-        float rx = Mathf.Max(5f, area.width * 0.5f - 3f);
-        float ry = Mathf.Max(5f, area.height * 0.5f - 3f);
-        float thickness = stage == 4 ? 1.35f : stage == 5 ? 1.75f : 2.15f;
+        float radius = Mathf.Max(5f, Mathf.Min(area.width, area.height) * 0.5f - 5f);
+        bool stronger = stage >= 5;
+        float thickness = stage >= 6 ? 1.85f : stronger ? 1.55f : 1.25f;
+        int dashCount = stronger ? 12 : 8;
+        float spacing = 360f / dashCount;
 
-        // Broken circular arcs suggest a magnetic field without covering the text.
-        AddArc(vh, rx, ry, thickness, 20f, 86f, 12, 0.75f);
-        AddArc(vh, rx, ry, thickness, 198f, 83f, 12, 0.70f);
+        for (int i = 0; i < dashCount; i++)
+            AddArc(vh, radius, thickness, i * spacing, spacing * 0.44f, 3, stronger ? 0.94f : 0.88f);
 
-        if (stage >= 5)
-        {
-            AddArc(vh, rx, ry, thickness, 121f, 48f, 7, 0.60f);
-            AddArc(vh, rx - 4.5f, ry - 4.5f, 0.95f, 292f, 42f, 7, 0.42f);
-        }
+        if (!stronger)
+            return;
+
+        // A faint continuous rim sits outside the brighter dashed ring.
+        AddArc(vh, radius + 2.7f, 0.8f, 0f, 360f, 48, stage >= 6 ? 0.28f : 0.19f);
+        AddSpark(vh, radius, 0, 12);
+        AddSpark(vh, radius, 6, 15);
 
         if (stage >= 6)
+            AddSpark(vh, radius, 10, 17);
+    }
+
+    private void AddArc(VertexHelper vh, float radius, float thickness,
+        float startDegrees, float sweepDegrees, int steps, float alpha)
+    {
+        Color32 tint = WithAlpha(alpha);
+        Vector2 previous = Direction(startDegrees);
+        for (int i = 1; i <= steps; i++)
         {
-            AddArc(vh, rx - 5.5f, ry - 5.5f, 1.05f, 45f, 78f, 10, 0.56f);
-            AddArc(vh, rx - 5.5f, ry - 5.5f, 1.05f, 216f, 72f, 10, 0.50f);
-            AddTick(vh, rx, ry, 14f, 3.8f, 0.75f);
-            AddTick(vh, rx, ry, 111f, 3.2f, 0.67f);
-            AddTick(vh, rx, ry, 196f, 3.5f, 0.80f);
-            AddTick(vh, rx, ry, 291f, 3.2f, 0.67f);
+            Vector2 next = Direction(startDegrees + sweepDegrees * i / steps);
+            AddQuad(vh, previous * radius, next * radius,
+                next * (radius - thickness), previous * (radius - thickness), tint);
+            previous = next;
         }
     }
 
-    private void AddArc(VertexHelper vh, float rx, float ry, float thick,
-        float startDegrees, float arcDegrees, int steps, float alpha)
+    private void AddSpark(VertexHelper vh, float radius, int offset, int period)
     {
-        for (int i = 0; i < steps; i++)
-        {
-            float a = (startDegrees + arcDegrees * i / steps) * Mathf.Deg2Rad;
-            float b = (startDegrees + arcDegrees * (i + 1) / steps) * Mathf.Deg2Rad;
-            float edge0 = Mathf.Sin(Mathf.PI * i / steps);
-            float edge1 = Mathf.Sin(Mathf.PI * (i + 1) / steps);
-            // Gentle taper on each arc's ends.
-            Color32 ca = WithAlpha(alpha * (0.24f + 0.76f * edge0));
-            Color32 cb = WithAlpha(alpha * (0.24f + 0.76f * edge1));
-            Vector2 aOut = new Vector2(Mathf.Cos(a) * rx, Mathf.Sin(a) * ry);
-            Vector2 bOut = new Vector2(Mathf.Cos(b) * rx, Mathf.Sin(b) * ry);
-            Vector2 aIn = new Vector2(Mathf.Cos(a) * (rx - thick), Mathf.Sin(a) * (ry - thick));
-            Vector2 bIn = new Vector2(Mathf.Cos(b) * (rx - thick), Mathf.Sin(b) * (ry - thick));
-            int n = vh.currentVertCount;
-            vh.AddVert(aOut, ca, Vector2.zero);
-            vh.AddVert(bOut, cb, Vector2.zero);
-            vh.AddVert(bIn, cb, Vector2.zero);
-            vh.AddVert(aIn, ca, Vector2.zero);
-            vh.AddTriangle(n, n + 1, n + 2);
-            vh.AddTriangle(n, n + 2, n + 3);
-        }
+        if (sparkFrame < 0)
+            return;
+
+        int frame = sparkFrame + offset;
+        int age = frame % period;
+        if (age >= 3)
+            return;
+
+        float angle = (frame / period) * 137.508f + offset * 31f;
+        Vector2 outward = Direction(angle);
+        Vector2 tangent = new Vector2(-outward.y, outward.x);
+        Vector2 start = outward * (radius + 0.5f + age * 0.8f);
+        Vector2 bend = start + outward * 1.8f + tangent * 0.65f;
+        Vector2 end = bend + outward * 1.6f - tangent * 1.0f;
+        Vector2 edge = tangent * 0.45f;
+        Color32 tint = WithAlpha(0.92f - age * 0.25f);
+
+        AddQuad(vh, start - edge, start + edge, bend + edge, bend - edge, tint);
+        AddQuad(vh, bend - edge, bend + edge, end + edge, end - edge, tint);
     }
 
-    private void AddTick(VertexHelper vh, float rx, float ry, float angle,
-        float length, float alpha)
+    private static Vector2 Direction(float degrees)
     {
-        float radians = angle * Mathf.Deg2Rad;
-        Vector2 normal = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
-        Vector2 center = new Vector2(normal.x * rx, normal.y * ry);
-        Vector2 tangent = new Vector2(-normal.y, normal.x) * 0.65f;
-        Vector2 radial = normal * (length * 0.5f);
-        Color32 c = WithAlpha(alpha);
-        int n = vh.currentVertCount;
-        vh.AddVert(center - radial - tangent, c, Vector2.zero);
-        vh.AddVert(center - radial + tangent, c, Vector2.zero);
-        vh.AddVert(center + radial + tangent, c, Vector2.zero);
-        vh.AddVert(center + radial - tangent, c, Vector2.zero);
-        vh.AddTriangle(n, n + 1, n + 2);
-        vh.AddTriangle(n, n + 2, n + 3);
+        float radians = degrees * Mathf.Deg2Rad;
+        return new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
+    }
+
+    private static void AddQuad(VertexHelper vh, Vector2 a, Vector2 b,
+        Vector2 c, Vector2 d, Color32 tint)
+    {
+        int index = vh.currentVertCount;
+        vh.AddVert(a, tint, Vector2.zero);
+        vh.AddVert(b, tint, Vector2.zero);
+        vh.AddVert(c, tint, Vector2.zero);
+        vh.AddVert(d, tint, Vector2.zero);
+        vh.AddTriangle(index, index + 1, index + 2);
+        vh.AddTriangle(index, index + 2, index + 3);
     }
 
     private Color32 WithAlpha(float alpha)
     {
-        Color c = color;
-        c.a *= Mathf.Clamp01(alpha);
-        return c;
+        Color tint = color;
+        tint.a *= alpha;
+        return tint;
     }
 }

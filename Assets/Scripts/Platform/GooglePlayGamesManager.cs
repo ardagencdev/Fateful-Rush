@@ -296,9 +296,15 @@ public sealed partial class GooglePlayGamesManager : MonoBehaviour
             "PGS authenticated. Opening achievements..."
         );
 
-        PlayGamesPlatform.Instance.ShowAchievementsUI(
-            ProcessAchievementsUiStatus
-        );
+        string scope = GetAchievementNotificationAccount();
+        int visibleRevision = scope != null ? MenuNotifications.AchievementRevision(scope) : 0;
+        PlayGamesPlatform.Instance.ShowAchievementsUI(status =>
+        {
+            if (status == UIStatus.Valid || status == UIStatus.UserClosedUI)
+                MenuNotifications.MarkAchievementsSeen(scope, visibleRevision);
+
+            ProcessAchievementsUiStatus(status);
+        });
     }
 
     private void ProcessAchievementsUiStatus(

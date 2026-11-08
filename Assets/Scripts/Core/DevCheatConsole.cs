@@ -325,10 +325,7 @@ public sealed class DevCheatConsole : MonoBehaviour
 
     private void UnlockAllLevels()
     {
-        PlayerPrefs.SetInt(UnlockedLevelKey, MissionCount);
-        PlayerPrefs.Save();
-
-        RefreshProgressionUI();
+        SetMissionAccess(MissionCount);
 
         AddHistory(
             $"<color=#80FF9B>Levels 1-{MissionCount} unlocked.</color> " +
@@ -345,27 +342,56 @@ public sealed class DevCheatConsole : MonoBehaviour
         }
 
         int safeLevel = Mathf.Clamp(requestedLevel, 1, MissionCount);
-        PlayerPrefs.SetInt(UnlockedLevelKey, safeLevel);
-        PlayerPrefs.Save();
-
-        RefreshProgressionUI();
+        SetMissionAccess(safeLevel);
 
         AddHistory(
             $"<color=#80FF9B>Levels 1-{safeLevel} unlocked.</color>"
         );
     }
 
+    private void SetMissionAccess(int unlockedLevel)
+    {
+        int previousUnlockedLevel = PlayerPrefs.GetInt(UnlockedLevelKey, 1);
+        PlayerPrefs.SetInt(UnlockedLevelKey, unlockedLevel);
+        PlayerPrefs.Save();
+        RefreshProgressionUI();
+
+        if (unlockedLevel > previousUnlockedLevel)
+            MenuNotifications.MarkPending(MenuNotice.Missions);
+        else if (unlockedLevel == 1)
+            MenuNotifications.MarkSeen(MenuNotice.Missions);
+    }
+
     private void UnlockAllSkins()
     {
+        bool unlocksNewSkin = HasLockedSkin();
         PlayerSkinCatalog.SetDebugAllSkinsUnlocked(true);
+        if (unlocksNewSkin)
+            MenuNotifications.SetDebugSkinPending(true);
         RefreshSkinUI();
 
         AddHistory("<color=#80FF9B>All player skins unlocked.</color>");
     }
 
+    private static bool HasLockedSkin()
+    {
+        PlayerSkinCatalog catalog = PlayerSkinCatalog.ResolveLoadedCatalog();
+        if (catalog == null)
+            return false;
+
+        foreach (PlayerSkinCatalog.SkinEntry skin in catalog.Skins)
+        {
+            if (skin != null && !catalog.IsUnlocked(skin))
+                return true;
+        }
+
+        return false;
+    }
+
     private void DisableSkinCheat()
     {
         PlayerSkinCatalog.SetDebugAllSkinsUnlocked(false);
+        MenuNotifications.SetDebugSkinPending(false);
         RefreshSkinUI();
 
         AddHistory(
@@ -385,8 +411,7 @@ public sealed class DevCheatConsole : MonoBehaviour
 
         PlayerSkinCatalog.SetDebugAllSkinsUnlocked(false);
         PlayerSkinCatalog.ClearSavedSelection();
-
-        PlayerPrefs.Save();
+        MenuNotifications.ResetDebugProgressNotices();
 
         RefreshProgressionUI();
         RefreshSkinUI();

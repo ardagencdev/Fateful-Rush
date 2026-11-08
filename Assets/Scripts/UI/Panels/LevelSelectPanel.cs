@@ -149,6 +149,7 @@ public class LevelSelectPanel : MonoBehaviour
         CreateCurrentPageButtons();
         RefreshPageUI(false);
         SetPageButtonsInteractable(true);
+        MenuNotifications.MarkSeen(MenuNotice.Missions);
     }
 
     public void ClosePanel()

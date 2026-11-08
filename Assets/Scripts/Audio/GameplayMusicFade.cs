@@ -40,6 +40,9 @@ public class GameplayMusicFade : MonoBehaviour
     [SerializeField, Min(0f)]
     private float repeatFadeInDuration = 1.2f;
 
+    [SerializeField, Min(0f)]
+    private float repeatFadeOutDuration = 0.8f;
+
     [Header("Dynamic tone")]
     [SerializeField, Range(4000f, 22000f)]
     private float calmCutoffHz = 8500f;
@@ -56,6 +59,7 @@ public class GameplayMusicFade : MonoBehaviour
     private Coroutine fadeRoutine;
     private bool repeatEnabled;
     private bool observedPlayback;
+    private bool fadeInOnRepeat;
     private float repeatGain = 1f;
 
     // Volume fade'leri source.volume ile doğrudan kavga etmesin diye
@@ -127,20 +131,38 @@ public class GameplayMusicFade : MonoBehaviour
         if (source.isPlaying)
         {
             observedPlayback = true;
-            float duration = Mathf.Max(0.01f, repeatFadeInDuration);
-            repeatGain = Mathf.MoveTowards(repeatGain, 1f, Time.unscaledDeltaTime / duration);
+            repeatGain = GetNaturalRepeatGain();
         }
         else if (observedPlayback)
         {
-            PlayFromStart(repeatFadeInDuration > 0f ? 0f : 1f);
+            PlayFromStart(isRepeat: true);
         }
     }
 
-    private void PlayFromStart(float initialRepeatGain = 1f)
+    private float GetNaturalRepeatGain()
+    {
+        AudioClip clip = source.clip;
+        if (clip == null || clip.samples <= 0 || clip.frequency <= 0)
+            return 1f;
+
+        // Tie the envelope to playback position so pause and resume preserve its place.
+        float samplesPerSecond = clip.frequency * Mathf.Max(0.01f, source.pitch);
+        float duration = clip.samples / samplesPerSecond;
+        float position = Mathf.Clamp(source.timeSamples, 0, clip.samples) / samplesPerSecond;
+        float fadeOut = Mathf.Min(repeatFadeOutDuration, duration * 0.5f);
+        float fadeIn = Mathf.Min(repeatFadeInDuration, duration * 0.5f);
+
+        float tail = fadeOut > 0f ? Mathf.Clamp01((duration - position) / fadeOut) : 1f;
+        float head = fadeInOnRepeat && fadeIn > 0f ? Mathf.Clamp01(position / fadeIn) : 1f;
+        return Mathf.Min(head, tail);
+    }
+
+    private void PlayFromStart(bool isRepeat = false)
     {
         repeatEnabled = true;
         observedPlayback = false;
-        repeatGain = initialRepeatGain;
+        fadeInOnRepeat = isRepeat;
+        repeatGain = isRepeat && repeatFadeInDuration > 0f ? 0f : 1f;
         source.loop = false;
         source.timeSamples = 0;
         ApplyOutput();
@@ -177,6 +199,7 @@ public class GameplayMusicFade : MonoBehaviour
         if (source.isPlaying &&
             source.clip == newClip)
         {
+            repeatEnabled = true;
             FadeGainTo(1f, fadeInDuration);
             return;
         }
@@ -246,9 +269,20 @@ public class GameplayMusicFade : MonoBehaviour
     public void FadeOutForResult(float duration)
     {
         repeatEnabled = false;
-        if (source == null || !source.isPlaying) return;
         targetTension = 0f;
-        FadeGainTo(0f, Mathf.Max(0.05f, duration), true);
+        if (source == null)
+            return;
+
+        if (source.isPlaying)
+        {
+            FadeGainTo(0f, Mathf.Max(0.05f, duration), true);
+            return;
+        }
+
+        StopCurrentFade();
+        source.Stop();
+        playbackGain = 0f;
+        ApplyOutput();
     }
 
     public void ResumeFromPause(float duration)
